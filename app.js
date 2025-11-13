@@ -43,7 +43,7 @@ async function loadProfile() {
         });
         
         const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
-        if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
+        if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expirÃ©.");
         
         const twitchData = await twitchResponse.json();
         const user = twitchData.data[0];
@@ -87,7 +87,7 @@ async function loadProfile() {
                 historyList.appendChild(li);
             });
         } else {
-            historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
+            historyList.innerHTML = "<li>Aucun historique d'XP trouvÃ©.</li>";
         }
 
         const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`, { headers: twitchHeaders });
@@ -95,9 +95,9 @@ async function loadProfile() {
         
         if (followData.total > 0) {
             const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
-            document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+            document.getElementById("follow-status").textContent = `Vous suivez la chaÃ®ne depuis le ${followDate}`;
         } else {
-            document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+            document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaÃ®ne.";
         }
 
 
