@@ -1,4 +1,3 @@
- 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -43,25 +42,15 @@
     </div>
     
     <script>
-        // === CONFIGURATION OBLIGATOIRE ===
-        
-        // 1. Mettez votre Client ID Twitch ici
-        // (Vous pouvez le trouver sur votre Dashboard Admin : /settings)
-        const CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5"; 
-        
-        // 2. Mettez votre URL de callback (celle de Vercel)
+
+        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; 
         const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
         
-        // ===================================
 
-
-        // Laisse les scopes minimums pour juste identifier l'utilisateur
         const SCOPES = "user:read:email"; 
         
-        // Construit l'URL d'authentification
         const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
         
-        // Attribue l'URL au bouton de connexion
         document.getElementById("login-link").href = authUrl;
     </script>
 </body>
