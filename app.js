@@ -38,7 +38,7 @@ async function loadProfile() {
         return;
     }
 
-    const CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5";
+    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
     const BROADCASTER_ID = "439356462;
 
     try {
