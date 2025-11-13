@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infos & Commandes - Portail Viewer</title>
+    <style>
+        body { background: #18181b; color: white; font-family: sans-serif; margin: 0; padding: 2rem; }
+        main { max-width: 800px; margin: 0 auto; }
+        h1 { color: #9146ff; }
+        .info-card {
+            background: #2a2a2d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .info-card h2 { margin: 0 0 1rem 0; border-bottom: 2px solid #9146ff; padding-bottom: 0.5rem; }
+        .info-card p, .info-card a {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+            text-decoration: none;
+            white-space: pre-wrap; /* Respecte les sauts de ligne du planning */
+        }
+        .info-card a:hover { text-decoration: underline; }
+        #loading { text-align: center; font-size: 1.5rem; }
+        .nav-link { 
+            display: inline-block; 
+            margin-bottom: 2rem; 
+            color: #9146ff; 
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <main>
+        <a href="/profile.html" class="nav-link">&larr; Retour au Profil</a>
+        <h1>Infos & Commandes</h1>
+
+        <div id="loading">Chargement des informations...</div>
+
+        <div id="info-content" style="display:none;">
+            <div class="info-card">
+                <h2>Planning des streams</h2>
+                <p id="planning">...</p>
+            </div>
+
+            <div class="info-card">
+                <h2>Discord</h2>
+                <p>Rejoignez la communauté !</p>
+                <a id="discord-link" href="#" target="_blank">Lien d'invitation</a>
+            </div>
+
+            <div class="info-card">
+                <h2>YouTube</h2>
+                <p>Retrouvez les rediffusions et best-of.</p>
+                <a id="youtube-link" href="#" target="_blank">Lien de la chaîne</a>
+            </div>
+
+            <div class="info-card">
+                <h2>Règles du chat</h2>
+                <p id="rules">...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // 1. Mettez la MÊME config Firebase que dans app.js
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "fel-x-503f8.firebaseapp.com",
+            databaseURL: "https://fel-x-503f8-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "fel-x-503f8",
+            // ... (etc, copiez depuis app.js)
+        };
+
+        // 2. Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 3. Charger les infos
+        async function loadInfos() {
+            try {
+                const infoRef = db.ref('viewer_data/public_info');
+                const snapshot = await infoRef.get();
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+
+                    // Remplir la page
+                    document.getElementById('planning').textContent = data.planning || "Planning non défini.";
+                    document.getElementById('discord-link').href = data.discord_link || "#";
+                    document.getElementById('youtube-link').href = data.youtube_link || "#";
+                    document.getElementById('rules').textContent = data.other_rules || "Pas de règles définies.";
+
+                    // Afficher le contenu
+                    document.getElementById('loading').style.display = "none";
+                    document.getElementById('info-content').style.display = "block";
+                } else {
+                    document.getElementById('loading').textContent = "Erreur: Impossible de charger les informations.";
+                }
+            } catch (error) {
+                console.error("Erreur lecture Firebase:", error);
+                document.getElementById('loading').textContent = "Erreur de connexion à la base de données.";
+            }
+        }
+
+        loadInfos();
+    </script>
+</body>
+</html>
