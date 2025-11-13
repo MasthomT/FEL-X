@@ -1,1 +1,49 @@
- 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentification...</title>
+    <style>
+        body { 
+            display: grid; 
+            place-items: center; 
+            min-height: 100vh; 
+            background: #18181b; 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <p>Authentification en cours, veuillez patienter...</p>
+
+    <script>
+        // Ce script s'exécute dès que Twitch redirige l'utilisateur ici.
+        // L'URL contiendra le token dans ce qu'on appelle un "hash".
+        // Exemple : https://fel-x.vercel.app/auth.html#access_token=...&scope=...
+        
+        try {
+            const hash = window.location.hash.substring(1); // Récupère la partie après le #
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get("access_token");
+
+            if (accessToken) {
+                // Succès ! Nous avons le token.
+                // On le sauvegarde dans le "localStorage" du navigateur.
+                localStorage.setItem("twitch_token", accessToken);
+                
+                // On redirige l'utilisateur vers sa page de profil.
+                window.location.replace("/profile.html");
+            } else {
+                // Échec, Twitch n'a pas renvoyé de token.
+                console.error("Authentification échouée, pas de token trouvé.");
+                window.location.replace("/index.html?error=auth_failed");
+            }
+        } catch (error) {
+            console.error("Erreur lors du parsing de l'URL:", error);
+            window.location.replace("/index.html?error=script_error");
+        }
+    </script>
+</body>
+</html>

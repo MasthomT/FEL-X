@@ -1,1 +1,68 @@
  
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Viewer - Connexion</title>
+    <style>
+        body { 
+            display: grid; 
+            place-items: center; 
+            min-height: 100vh; 
+            background: #18181b; 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 2rem;
+        }
+        a { 
+            background: #9146ff; 
+            color: white; 
+            padding: 1rem 2rem; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: background 0.2s ease;
+        }
+        a:hover {
+            background: #7a3be0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue sur le Portail Viewer</h1>
+        <a id="login-link" href="#">Se connecter avec Twitch</a>
+    </div>
+    
+    <script>
+        // === CONFIGURATION OBLIGATOIRE ===
+        
+        // 1. Mettez votre Client ID Twitch ici
+        // (Vous pouvez le trouver sur votre Dashboard Admin : /settings)
+        const CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5"; 
+        
+        // 2. Mettez votre URL de callback (celle de Vercel)
+        const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
+        
+        // ===================================
+
+
+        // Laisse les scopes minimums pour juste identifier l'utilisateur
+        const SCOPES = "user:read:email"; 
+        
+        // Construit l'URL d'authentification
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
+        
+        // Attribue l'URL au bouton de connexion
+        document.getElementById("login-link").href = authUrl;
+    </script>
+</body>
+</html>
