@@ -1,14 +1,8 @@
-// =================================================================
-// 1. FONCTION DE DÉCONNEXION
-// =================================================================
 document.getElementById("logout").onclick = function() {
     localStorage.removeItem("twitch_token");
     window.location.replace("/index.html");
 };
 
-// =================================================================
-// 2. CONFIGURATION FIREBASE (TRÈS IMPORTANT)
-// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -39,7 +33,7 @@ async function loadProfile() {
     }
 
     const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
-    const BROADCASTER_ID = "439356462;
+    const BROADCASTER_ID = "439356462";
 
     try {
 
