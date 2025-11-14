@@ -35,7 +35,7 @@
             overflow-y: auto;
             height: 100vh;
             padding: 2rem;
-            max-width: 1200px; /* J'élargis un peu pour la nouvelle grille */
+            max-width: 1200px;
             margin: 0 auto;
             animation: fadeIn 0.5s ease-out;
         }
@@ -48,7 +48,7 @@
         h1 { color: var(--color-accent); margin-bottom: 1.5rem; }
 
         /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques à profile.html pour la cohérence) */
+        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -127,18 +127,25 @@
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* * --- NOUVELLE GRILLE DE LAYOUT ---
-         * C'est ici que la magie opère : "droite et gauche"
-         */
+        /* --- Grille de Layout (Droite/Gauche) --- */
         .content-grid {
             display: grid;
-            grid-template-columns: 1.8fr 1fr; /* 1.8fr pour la gauche, 1fr pour la droite */
+            grid-template-columns: 1.8fr 1fr; 
             gap: 1.5rem;
         }
+        
+        /* --- MODIFICATION CSS --- */
+        /* Ajout d'un 'gap' pour espacer Planning et Règles */
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; 
+        }
+        
         .sidebar-column {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem; /* Espace entre les cartes de la colonne de droite */
+            gap: 1.5rem;
         }
         
         /* --- Styles du Contenu --- */
@@ -147,7 +154,6 @@
             border: 1px solid var(--color-border);
             border-radius: 8px; 
             padding: 1.5rem; 
-            /* margin-top est retiré, le 'gap' de la grille gère l'espacement */
         }
         .info-card h2 { 
             margin: 0 0 1.5rem 0; 
@@ -182,18 +188,18 @@
         /* --- Grille Réseaux (3 colonnes) --- */
         .social-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes */
-            gap: 1rem; /* Réduit l'espace pour les 3 colonnes */
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 1rem; 
         }
         .social-button {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem 0.5rem; /* Ajusté */
+            padding: 1.5rem 0.5rem; 
             border-radius: 8px;
             text-decoration: none;
-            font-size: 0.9rem; /* Plus petit pour tenir */
+            font-size: 0.9rem; 
             font-weight: bold;
             color: var(--color-text-primary);
             background: #3a3e44;
@@ -247,7 +253,7 @@
         /* Pour les tablettes et moins */
         @media (max-width: 992px) {
             .content-grid {
-                grid-template-columns: 1fr; /* La grille se remet en 1 colonne (linéaire) */
+                grid-template-columns: 1fr; /* La grille se remet en 1 colonne */
             }
         }
         
@@ -334,6 +340,7 @@
         <div class="content-grid">
             
             <div class="main-column">
+                
                 <div class="info-card planning-card">
                     <h2>Planning des streams</h2>
                 <div class="planning-grid">
@@ -386,7 +393,41 @@
                 </div>
             </div>
             </div>
-<div class="sidebar-column">
+            <div class="sidebar-column">
+
+            <div class="info-card rules-card">
+                    <h2>Règles du chat</h2>
+                    <svg width="0" height="0" style="display:none;">
+                        <symbol id="rule-icon" viewBox="0 0 24 24">
+                            <path d="M10 17l5-5-5-5v10z"></path>
+                        </symbol>
+                    </svg>
+                    
+                    <ul class="rules-list">
+                        <li>
+                            <svg><use xlink:href="#rule-icon"/></svg>
+                            <span>Respectez tout le monde (streamer, modos, et les autres viewers).</span>
+                        </li>
+                        <li>
+                            <svg><use xlink:href="#rule-icon"/></svg>
+                            <span>Pas de spam, pas de majuscules abusives, pas de publicité.</span>
+                        </li>
+                        <li>
+                            <svg><use xlink:href="#rule-icon"/></svg>
+                            <span>Pas de spoilers sur les jeux, films, ou séries.</span>
+                        </li>
+                        <li>
+                            <svg><use xlink:href="#rule-icon"/></svg>
+                            <span>Pas de politique, de religion, ou de sujets qui fâchent.</span>
+                        </li>
+                        <li>
+                            <svg><use xlink:href="#rule-icon"/></svg>
+                            <span>Écoutez les modérateurs, ils ont le dernier mot.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div> <div class="sidebar-column">
                 
                 <div class="info-card social-card">
                     <h2>Rejoignez-nous</h2>
@@ -431,41 +472,7 @@
                     </div>
                 </div>
 
-                <div class="info-card rules-card">
-                    <h2>Règles du chat</h2>
-                    <svg width="0" height="0" style="display:none;">
-                        <symbol id="rule-icon" viewBox="0 0 24 24">
-                            <path d="M10 17l5-5-5-5v10z"></path>
-                        </symbol>
-                    </svg>
-                    
-                    <ul class="rules-list">
-                        <li>
-                            <svg><use xlink:href="#rule-icon"/></svg>
-                            <span>Respectez tout le monde (streamer, modos, et les autres viewers).</span>
-                        </li>
-                        <li>
-                            <svg><use xlink:href="#rule-icon"/></svg>
-                            <span>Pas de spam, pas de majuscules abusives, pas de publicité.</span>
-                        </li>
-                        <li>
-                            <svg><use xlink:href="#rule-icon"/></svg>
-                            <span>Pas de spoilers sur les jeux, films, ou séries.</span>
-                        </li>
-                        <li>
-                            <svg><use xlink:href="#rule-icon"/></svg>
-                            <span>Pas de politique, de religion, ou de sujets qui fâchent.</span>
-                        </li>
-                        <li>
-                            <svg><use xlink:href="#rule-icon"/></svg>
-                            <span>Écoutez les modérateurs, ils ont le dernier mot.</span>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-            </div>
-            </main>
+                </div> </div> </main>
 
     <script>
         // Script simple pour la déconnexion
