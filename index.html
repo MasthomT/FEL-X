@@ -166,7 +166,7 @@
             const REDIRECT_URI = window.location.origin + "/auth.html";
             
             // On demande la permission de lire le statut de follow, car app.js en a besoin
-            const SCOPES = "user:read:follows"; 
+            const SCOPES = "moderator:read:followers"; 
             
             const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
             
