@@ -50,7 +50,6 @@
         }
         
         /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -215,16 +214,13 @@
         .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 500;}
         .stat-card span { font-size: 3rem; font-weight: 800; color: var(--color-accent); }
         
-        /* !! MODIFICATION CSS !! */
-        /* Styles pour le texte principal (Abonné) */
         .stat-card span.text-stat {
              font-size: 2rem;
              font-weight: 500;
              color: var(--color-accent);
-             display: block; /* Force le saut de ligne */
+             display: block;
              line-height: 1.2;
         }
-        /* NOUVEAU: Style pour le sous-texte (Tier) */
         .stat-card small {
             font-size: 1rem;
             font-weight: 300;
@@ -319,11 +315,18 @@
     <main>
         
         <div id="stream-status-banner">
+            <div id="stream-status-header">
+                <div id="stream-status-indicator"></div>
+                <span id="stream-status-text">Chargement du statut...</span>
             </div>
+            <div id="stream-details"></div>
+        </div>
         
         <div id="profile-content">
             <div id="profile-header">
-                </div>
+                <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
+                <h1 id="display-name">Chargement...</h1>
+            </div>
             
             <div id="stats">
                 <div class="stat-card">
@@ -354,7 +357,9 @@
         </div>
         
         <div id="loading">
-            </div>
+            <h2>Chargement de votre profil...</h2>
+            <p>Connexion à Twitch et Firebase en cours.</p>
+        </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
