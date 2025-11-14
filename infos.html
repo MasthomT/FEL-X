@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infos & Commandes - Portail Viewer</title>
     <style>
-        /* --- Configuration Globale & Nouvelle Palette --- */
+        /* --- Configuration Globale --- */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -30,14 +30,19 @@
             overflow: hidden;
         }
         
+        /* --- CORRECTION CSS MAJEURE --- */
         main {
             flex-grow: 1;
-            overflow-y: auto;
-            height: 100vh;
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
             animation: fadeIn 0.5s ease-out;
+            
+            /* NOUVEAU: On transforme 'main' en conteneur flex vertical */
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* S'assure qu'il remplit la hauteur */
+            overflow: hidden; /* !! Plus de scrollbar sur main !! */
         }
         
         @keyframes fadeIn {
@@ -45,7 +50,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        h1 { color: var(--color-accent); margin-bottom: 1.5rem; }
+        h1 { 
+            color: var(--color-accent); 
+            margin-bottom: 1.5rem;
+            flex-shrink: 0; /* Empêche le titre de rétrécir */
+        }
 
         /* --- Menu Latéral (Sidebar) --- */
         /* (Styles identiques) */
@@ -132,19 +141,24 @@
             display: grid;
             grid-template-columns: 1.8fr 1fr; 
             gap: 1.5rem;
+            
+            /* NOUVEAU: La grille remplit l'espace et gère son propre overflow */
+            flex-grow: 1;
+            overflow: hidden; 
         }
         
-        /* Ajout d'un 'gap' pour espacer Planning et Règles */
         .main-column {
             display: flex;
             flex-direction: column;
             gap: 1.5rem; 
+            overflow-y: auto; /* NOUVEAU: La colonne de GAUCHE scrolle si besoin */
         }
         
         .sidebar-column {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            overflow-y: auto; /* NOUVEAU: La colonne de DROITE scrolle si besoin */
         }
         
         /* --- Styles du Contenu --- */
@@ -153,6 +167,7 @@
             border: 1px solid var(--color-border);
             border-radius: 8px; 
             padding: 1.5rem; 
+            flex-shrink: 0; /* Empêche les cartes de s'écraser */
         }
         .info-card h2 { 
             margin: 0 0 1.5rem 0; 
@@ -253,6 +268,14 @@
         @media (max-width: 992px) {
             .content-grid {
                 grid-template-columns: 1fr; /* La grille se remet en 1 colonne */
+                overflow: visible; /* Permet au contenu de s'étendre sur tablette */
+            }
+            main {
+                overflow-y: auto; /* Réactive le scroll de 'main' sur petit écran */
+                height: auto; /* Permet à 'main' de grandir */
+            }
+            .main-column, .sidebar-column {
+                overflow-y: visible; /* Désactive le scroll des colonnes */
             }
         }
         
@@ -373,14 +396,6 @@
                             <div class="planning-details">
                                 <span>10h00 - 14h00</span>
                                 <p>Stream Spécial / Événement</p>
-                            </div>
-                        </div>
-                        
-                        <div class="planning-day">
-                            <h3>Dimanche</h3>
-                            <div class="planning-details">
-                                <span>(Parfois)</span>
-                                <p>Stream surprise !</p>
                             </div>
                         </div>
 
