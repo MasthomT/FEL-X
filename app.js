@@ -115,7 +115,7 @@ if (document.getElementById("profile-content")) {
             // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
             
             // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
-            const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?user_id=${user.id}&broadcaster_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+            const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
             
             if (!followResponse.ok) {
                 console.error("Erreur API Follow:", await followResponse.text());
