@@ -1,8 +1,19 @@
 // CORRECTION : Cible le nouveau bouton du menu latéral
-document.getElementById("logout-sidebar").onclick = function() {
-    localStorage.removeItem("twitch_token");
-    window.location.replace("/index.html");
-};
+// (Nous corrigeons cela pendant que nous y sommes, car votre profile.html n'a plus de bouton "logout")
+if(document.getElementById("logout-sidebar")) {
+    document.getElementById("logout-sidebar").onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.replace("/index.html");
+    };
+}
+// (Votre ancien bouton "logout" n'existe plus que sur index.html)
+if(document.getElementById("logout")) {
+    document.getElementById("logout").onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.replace("/index.html");
+    };
+}
+
 
 // =================================================================
 // 2. CONFIGURATION FIREBASE (Inchangée)
@@ -69,7 +80,6 @@ async function loadProfile() {
         const xpSnapshot = await xpRef.get();
         const historySnapshot = await historyRef.get();
 
-        // (Le reste de la logique XP/History est maintenant correcte)
         if (xpSnapshot.exists()) {
             const xpData = xpSnapshot.val();
             const level = calculateLevel(xpData.xp);
