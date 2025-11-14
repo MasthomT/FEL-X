@@ -1,19 +1,8 @@
-// CORRECTION : Cible le nouveau bouton du menu latéral
-// (Nous corrigeons cela pendant que nous y sommes, car votre profile.html n'a plus de bouton "logout")
-if(document.getElementById("logout-sidebar")) {
-    document.getElementById("logout-sidebar").onclick = function() {
-        localStorage.removeItem("twitch_token");
-        window.location.replace("/index.html");
-    };
-}
-// (Votre ancien bouton "logout" n'existe plus que sur index.html)
-if(document.getElementById("logout")) {
-    document.getElementById("logout").onclick = function() {
-        localStorage.removeItem("twitch_token");
-        window.location.replace("/index.html");
-    };
-}
-
+// Cible le bouton de déconnexion sur le menu latéral
+document.getElementById("logout-sidebar").onclick = function() {
+    localStorage.removeItem("twitch_token");
+    window.location.replace("/index.html");
+};
 
 // =================================================================
 // 2. CONFIGURATION FIREBASE (Inchangée)
@@ -80,6 +69,7 @@ async function loadProfile() {
         const xpSnapshot = await xpRef.get();
         const historySnapshot = await historyRef.get();
 
+        // (La logique d'affichage XP est maintenant correcte)
         if (xpSnapshot.exists()) {
             const xpData = xpSnapshot.val();
             const level = calculateLevel(xpData.xp);
@@ -114,16 +104,19 @@ async function loadProfile() {
         // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
         const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
         
-        if (!followResponse.ok) throw new Error("Erreur lors de la vérification du follow.");
-
-        const followData = await followResponse.json();
-        
-        // CORRECTION N°2 (suite) : La réponse de cette API est différente
-        if (followData.total > 0 && followData.data.length > 0) {
-            const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
-            document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+        if (!followResponse.ok) {
+            // Si l'appel échoue (même avec la bonne API), on log l'erreur mais on ne plante pas
+            console.error("Erreur API Follow:", await followResponse.text());
+            document.getElementById("follow-status").textContent = "Erreur - Statut de follow indisponible";
         } else {
-            document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+            const followData = await followResponse.json();
+            
+            if (followData.total > 0 && followData.data.length > 0) {
+                const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
+                document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+            } else {
+                document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+            }
         }
 
         // === ÉTAPE D: Afficher le profil complet (Inchangé) ===
@@ -131,6 +124,7 @@ async function loadProfile() {
         document.getElementById("profile-content").style.display = "block";
 
     } catch (error) {
+        // Le "catch" est maintenant seulement pour les erreurs fatales (ex: token invalide)
         console.error("Erreur lors du chargement du profil:", error);
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html?error=session_expired");
