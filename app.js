@@ -1,4 +1,4 @@
-// CORRECTION 1 : Cible le nouveau bouton du menu latéral
+// CORRECTION : Cible le nouveau bouton du menu latéral
 document.getElementById("logout-sidebar").onclick = function() {
     localStorage.removeItem("twitch_token");
     window.location.replace("/index.html");
@@ -60,7 +60,7 @@ async function loadProfile() {
 
         // === ÉTAPE B: Récupérer les données XP (CORRIGÉ) ===
         
-        // CORRECTION 2 : Forcer le nom en minuscules pour correspondre à Firebase
+        // CORRECTION N°1 : Forcer le nom en minuscules pour correspondre à Firebase
         const userKey = user.login.toLowerCase(); 
         
         const xpRef = db.ref(`viewer_data/xp/${userKey}`);
@@ -101,15 +101,14 @@ async function loadProfile() {
         
         // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
         
-        // CORRECTION 1 : Utilisation de la bonne API (/users/follows)
+        // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
         const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
         
-        // (On ajoute une vérification de sécurité ici aussi)
         if (!followResponse.ok) throw new Error("Erreur lors de la vérification du follow.");
 
         const followData = await followResponse.json();
         
-        // CORRECTION 1 (suite) : La réponse de cette API est différente
+        // CORRECTION N°2 (suite) : La réponse de cette API est différente
         if (followData.total > 0 && followData.data.length > 0) {
             const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
             document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
