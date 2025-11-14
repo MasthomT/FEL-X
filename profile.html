@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil - Portail Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         /* --- Configuration Globale & Nouvelle Palette --- */
         :root {
@@ -15,7 +19,7 @@
             --color-text-secondary: #b9bbbe;
             --color-accent: #00f5c3;
             --color-danger: #ff6b6b;
-            --color-live: #e91e63; /* Rouge-rose pour "LIVE" */
+            --color-live: #e91e63;
             --transition-speed: 0.3s;
         }
 
@@ -24,7 +28,9 @@
         body { 
             background: var(--color-background); 
             color: var(--color-text-primary); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* NOUVEAU: Changement de police */
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: 300; /* Police plus fine par défaut */
             margin: 0;
             display: flex;
             height: 100vh;
@@ -45,7 +51,6 @@
         }
         
         /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -75,10 +80,15 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 800; /* Poids ajusté */
             color: var(--color-accent);
         }
-        .sidebar nav { display: flex; flex-direction: column; }
+        
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+        }
+        
         .sidebar a.nav-link {
             display: flex;
             align-items: center;
@@ -86,7 +96,7 @@
             padding: 1rem 1.5rem;
             color: var(--color-text-secondary);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 600; /* Poids ajusté */
             transition: all var(--transition-speed) ease;
             border-left: 4px solid transparent;
         }
@@ -106,6 +116,7 @@
             fill: currentColor;
             flex-shrink: 0;
         }
+        
         .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
@@ -118,19 +129,22 @@
             padding: 1rem 1.5rem;
             color: var(--color-danger);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 600; /* Poids ajusté */
             transition: all var(--transition-speed) ease;
         }
-        #logout-sidebar:hover { background: var(--color-surface); color: white; }
+        #logout-sidebar:hover { 
+            background: var(--color-surface); 
+            color: white;
+        }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
         /* --- Styles du Contenu --- */
         #profile-content { max-width: 900px; margin: 0 auto; display: none; } 
-        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; }
+        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 400;}
         
-        /* !! NOUVEAU: Bannière de Statut Live !! */
+        /* --- Bannière de Statut Live --- */
         #stream-status-banner {
-            display: none; /* Caché par défaut, activé par JS */
+            display: none; 
             background: var(--color-surface);
             border: 1px solid var(--color-border);
             border-radius: 8px;
@@ -161,13 +175,15 @@
         }
         #stream-status-text {
             font-size: 1.25rem;
-            font-weight: bold;
+            font-weight: 600; /* Poids ajusté */
         }
         #stream-details {
             color: var(--color-text-secondary);
+            font-weight: 400;
         }
         #stream-details strong {
             color: var(--color-text-primary);
+            font-weight: 600;
         }
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7); }
@@ -181,9 +197,9 @@
             border-radius: 50%; 
             border: 3px solid var(--color-accent); 
         }
-        #display-name { margin: 0; font-size: 2.5rem; color: white; }
+        #display-name { margin: 0; font-size: 2.5rem; color: white; font-weight: 800; }
         
-        /* !! MODIFIÉ: Grille à 3 colonnes pour les stats !! */
+        /* --- Grille de Stats --- */
         #stats { 
             margin-top: 2rem; 
             display: grid; 
@@ -202,16 +218,20 @@
             transform: translateY(-5px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
-        .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; }
-        .stat-card span { font-size: 3rem; font-weight: bold; color: var(--color-accent); }
-        /* Style pour les cartes avec texte au lieu de chiffres */
+        .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 600;}
+        .stat-card span { font-size: 3rem; font-weight: 800; color: var(--color-accent); }
         .stat-card span.text-stat {
-             font-size: 2rem; /* Plus petit pour le texte */
+             font-size: 2rem;
+             font-weight: 600;
         }
         
         #follow-status-card { margin-top: 1.5rem; }
-        #follow-status { font-size: 1.2rem; margin: 0; color: var(--color-text-secondary); }
+        #follow-status { font-size: 1.2rem; margin: 0; color: var(--color-text-secondary); font-weight: 400;}
         
+        h2.history-title { /* Ciblage du H2 pour l'historique */
+             margin-top: 2.5rem;
+             font-weight: 600;
+        }
         #xp-history { 
             list-style: none; padding: 0; margin-top: 1rem; 
             max-height: 400px; overflow-y: auto; 
@@ -219,10 +239,10 @@
             border: 1px solid var(--color-border);
             border-radius: 8px; 
         }
-        #xp-history li { padding: 1rem; border-bottom: 1px solid var(--color-border); }
+        #xp-history li { padding: 1rem; border-bottom: 1px solid var(--color-border); font-weight: 400;}
         #xp-history li:last-child { border-bottom: none; }
-        .xp-gain { color: #4caf50; }
-        .xp-loss { color: #f44336; }
+        .xp-gain { color: #4caf50; } 
+        .xp-loss { color: #f44336; } 
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
@@ -322,7 +342,7 @@
                 <h3 id="follow-status">Chargement du statut...</h3>
             </div>
             
-            <h2 style="margin-top: 2.5rem;">Historique d'XP Récent</h2>
+            <h2 class="history-title">Historique d'XP Récent</h2>
             <ul id="xp-history">
                 <li>Chargement de l'historique...</li>
             </ul>
