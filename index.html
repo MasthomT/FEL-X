@@ -145,9 +145,10 @@
     
     <script>
         // === 1. CONFIGURATION OBLIGATOIRE ===
-        // Remplacez par le NOUVEAU Client ID (celui du portail)
-        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; 
+        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // Votre CLIENT_ID
         const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
+        
+        // === CORRECTION ICI ===
         const SCOPES = "user:read:email user:read:follows";
 
         // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
@@ -160,7 +161,7 @@
         // Fonction de déconnexion
         logoutButton.onclick = function() {
             localStorage.removeItem("twitch_token");
-            window.location.reload(); // Recharge la page (qui affichera la vue déconnectée)
+            window.location.reload(); 
         };
 
         // === 3. LOGIQUE D'AFFICHAGE ===
@@ -171,16 +172,13 @@
             if (!token) {
                 // --- CAS 1 : NON CONNECTÉ ---
                 welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
-                // Construire le lien de connexion
                 const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
                 loginLink.href = authUrl;
-                // Afficher la vue déconnectée
                 loggedOutView.style.display = "block";
                 
             } else {
                 // --- CAS 2 : CONNECTÉ (Vérification du token) ---
                 try {
-                    // On vérifie si le token est valide en appelant l'API Twitch
                     const twitchHeaders = new Headers({
                         'Authorization': `Bearer ${token}`,
                         'Client-Id': CLIENT_ID
@@ -188,22 +186,18 @@
                     const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
 
                     if (!response.ok) {
-                        // Le token est expiré ou invalide
                         throw new Error("Token expiré");
                     }
                     
                     const data = await response.json();
                     const user = data.data[0];
                     
-                    // Le token est valide !
                     welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
                     loggedInView.style.display = "block";
 
                 } catch (error) {
-                    // Le token est invalide, on le supprime et on affiche la vue déconnectée
                     console.error(error);
                     localStorage.removeItem("twitch_token");
-                    // On relance la fonction, qui passera dans le "CAS 1"
                     checkLoginState();
                 }
             }

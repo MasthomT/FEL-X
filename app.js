@@ -1,8 +1,10 @@
 // Cible le bouton de déconnexion sur le menu latéral
-document.getElementById("logout-sidebar").onclick = function() {
-    localStorage.removeItem("twitch_token");
-    window.location.replace("/index.html");
-};
+if(document.getElementById("logout-sidebar")) {
+    document.getElementById("logout-sidebar").onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.replace("/index.html");
+    };
+}
 
 // =================================================================
 // 2. CONFIGURATION FIREBASE (Inchangée)
@@ -69,7 +71,6 @@ async function loadProfile() {
         const xpSnapshot = await xpRef.get();
         const historySnapshot = await historyRef.get();
 
-        // (La logique d'affichage XP est maintenant correcte)
         if (xpSnapshot.exists()) {
             const xpData = xpSnapshot.val();
             const level = calculateLevel(xpData.xp);
@@ -105,7 +106,6 @@ async function loadProfile() {
         const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
         
         if (!followResponse.ok) {
-            // Si l'appel échoue (même avec la bonne API), on log l'erreur mais on ne plante pas
             console.error("Erreur API Follow:", await followResponse.text());
             document.getElementById("follow-status").textContent = "Erreur - Statut de follow indisponible";
         } else {
@@ -124,7 +124,6 @@ async function loadProfile() {
         document.getElementById("profile-content").style.display = "block";
 
     } catch (error) {
-        // Le "catch" est maintenant seulement pour les erreurs fatales (ex: token invalide)
         console.error("Erreur lors du chargement du profil:", error);
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html?error=session_expired");
