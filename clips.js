@@ -27,13 +27,13 @@ if(document.getElementById("logout-sidebar")) {
         const clipsResponse = await fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=20`, { headers: twitchHeaders });
 
         if (!clipsResponse.ok) {
-            throw new Error("Impossible de récupérer les clips depuis l'API Twitch.");
+            throw new Error("Impossible de rÃ©cupÃ©rer les clips depuis l'API Twitch.");
         }
         
         const clipsData = await clipsResponse.json();
 
         if (clipsData.data.length === 0) {
-            loadingEl.textContent = "Aucun clip n'a été trouvé pour cette chaîne.";
+            loadingEl.textContent = "Aucun clip n'a Ã©tÃ© trouvÃ© pour cette chaÃ®ne.";
             return;
         }
 
@@ -57,7 +57,7 @@ if(document.getElementById("logout-sidebar")) {
                 <div class="clip-info">
                     <span class="title">${clip.title}</span>
                     <span class="details">
-                        Clippé par <strong>${clip.creator_name}</strong> &bull; ${clip.view_count.toLocaleString('fr-FR')} vues
+                        ClippÃ© par <strong>${clip.creator_name}</strong> &bull; ${clip.view_count.toLocaleString('fr-FR')} vues
                     </span>
                 </div>
             `;
