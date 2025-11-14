@@ -27,7 +27,7 @@
             background: var(--color-background); 
             color: var(--color-text-primary); 
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 200; 
+            font-weight: 200; /* Police extra-fine par défaut */
             margin: 0;
             padding: 2rem;
             display: grid;
@@ -53,7 +53,7 @@
             font-size: 4rem;
             color: var(--color-accent);
             margin: 0;
-            font-weight: 800;
+            font-weight: 800; /* Titre principal très gras */
         }
         #logo-image {
             width: 120px;
@@ -94,10 +94,10 @@
             box-shadow: 0 4px 15px rgba(0, 245, 195, 0.2);
         }
 
-        /* --- Grille de Navigation --- */
+        /* --- Grille de Navigation (3 colonnes) --- */
         .nav-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-top: 2rem;
         }
@@ -146,7 +146,7 @@
             body { padding: 1rem; }
             #logo-container h1 { font-size: 3rem; }
             .nav-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
             }
         }
     </style>
@@ -173,6 +173,10 @@
                 <a href="/infos.html" class="nav-card">
                     <h2>Infos & Commandes</h2>
                     <p>Retrouver le planning, le lien Discord, YouTube et les règles du chat.</p>
+                </a>
+                <a href="/leaderboard.html" class="nav-card">
+                    <h2>Classement</h2>
+                    <p>Voir le top 50 des viewers de la chaîne et leur classement par XP.</p>
                 </a>
             </div>
             <a id="logout" href="#">Se déconnecter</a>
@@ -206,7 +210,6 @@
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
             const REDIRECT_URI = window.location.origin + "/auth.html";
-            // On demande les permissions pour le follow et l'abonnement
             const SCOPES = "user:read:follows user:read:subscriptions"; 
             
             const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
@@ -235,7 +238,6 @@
 
             } catch (error) {
                 console.error(error);
-                // Si le token est expiré, on le supprime et on relance la fonction
                 localStorage.removeItem("twitch_token");
                 checkLoginState(); // Relance la fonction, qui passera dans le CAS 1
             }
