@@ -141,18 +141,18 @@
             padding-bottom: 0.5rem; 
         }
 
-        /* --- NOUVEAU: Grille Planning --- */
+        /* --- Grille Planning --- */
         .planning-grid {
             display: grid;
             gap: 1rem;
         }
         .planning-day {
-            background: #1e1e21; /* Un peu plus sombre */
+            background: #1e1e21;
             padding: 1rem 1.5rem;
             border-radius: 8px;
             border-left: 4px solid var(--color-accent);
             display: grid;
-            grid-template-columns: 100px 1fr; /* Colonnes pour le jour et le reste */
+            grid-template-columns: 100px 1fr;
             align-items: center;
             gap: 1rem;
         }
@@ -161,22 +161,14 @@
             font-size: 1.25rem;
             color: var(--color-accent);
         }
-        .planning-details {
-            line-height: 1.4;
-        }
-        .planning-details span {
-            font-weight: bold;
-            color: var(--color-text-primary);
-        }
-        .planning-details p {
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-        }
+        .planning-details { line-height: 1.4; }
+        .planning-details span { font-weight: bold; color: var(--color-text-primary); }
+        .planning-details p { font-size: 0.9rem; color: var(--color-text-secondary); }
         
-        /* --- NOUVEAU: Grille Réseaux --- */
+        /* --- NOUVEAU: Grille Réseaux (3 colonnes) --- */
         .social-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Deux colonnes */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes */
             gap: 1.5rem;
         }
         .social-button {
@@ -184,36 +176,41 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 2rem 1rem; /* Moins de padding pour 3 colonnes */
             border-radius: 8px;
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 1rem; /* Légèrement plus petit */
             font-weight: bold;
             color: var(--color-text-primary);
             background: #3a3e44;
             transition: all var(--transition-speed) ease;
         }
         .social-button svg {
-            width: 40px;
-            height: 40px;
+            width: 32px; /* Taille ajustée */
+            height: 32px;
             margin-bottom: 1rem;
             fill: white;
-            transition: fill var(--transition-speed) ease;
+            transition: all var(--transition-speed) ease;
         }
         .social-button:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             color: white;
         }
-        /* Couleurs spécifiques au survol */
+        
+        /* --- NOUVEAU: Couleurs de survol (Brand Colors) --- */
         .social-button.discord:hover { background: #5865F2; }
         .social-button.youtube:hover { background: #FF0000; }
-        
-        /* --- NOUVEAU: Liste de Règles --- */
-        .rules-list {
-            list-style: none;
-            padding: 0;
+        .social-button.twitch:hover { background: #9146FF; } /* Violet Twitch */
+        .social-button.tiktok:hover { background: #000; box-shadow: 0 5px 20px rgba(254, 44, 85, 0.5); } /* Noir + ombre rose/bleu */
+        .social-button.instagram:hover { 
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); 
         }
+        .social-button.paypal:hover { background: #0070BA; } /* Bleu PayPal */
+
+        
+        /* --- Liste de Règles --- */
+        .rules-list { list-style: none; padding: 0; }
         .rules-list li {
             display: flex;
             align-items: flex-start;
@@ -233,11 +230,7 @@
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                height: auto;
-                overflow-y: auto;
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -266,23 +259,20 @@
             #logout-sidebar { padding: 0.75rem; }
             #logout-sidebar span { display: none; }
             
-            main {
-                height: auto;
-                overflow-y: visible;
-                padding: 1rem;
-            }
+            main { height: auto; overflow-y: visible; padding: 1rem; }
             
-            /* Responsive pour les nouvelles grilles */
             .planning-day {
-                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+                grid-template-columns: 1fr;
                 gap: 0.5rem;
                 text-align: center;
                 border-left-width: 0;
-                border-top: 4px solid var(--color-accent); /* Borde en haut sur mobile */
+                border-top: 4px solid var(--color-accent);
             }
             .social-grid {
-                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+                grid-template-columns: 1fr 1fr; /* 2 colonnes sur mobile */
+                gap: 1rem;
             }
+            .social-button { padding: 1.5rem 1rem; }
         }
     </style>
 </head>
@@ -325,17 +315,17 @@
                 <div class="planning-grid">
                     
                     <div class="planning-day">
-                        <h3>Lundi</h3>
+                        <h3>Mardi</h3>
                         <div class="planning-details">
-                            <span>20h00 - 23h00</span>
+                            <span>18h00 - 23h00</span>
                             <p>Stream principal (ex: Nouveau jeu AAA)</p>
                         </div>
                     </div>
                     
                     <div class="planning-day">
-                        <h3>Mercredi</h3>
+                        <h3>Jeudi</h3>
                         <div class="planning-details">
-                            <span>20h00 - 23h00</span>
+                            <span>18h00 - 23h00</span>
                             <p>Stream chill & discussion</p>
                         </div>
                     </div>
@@ -343,11 +333,29 @@
                     <div class="planning-day">
                         <h3>Vendredi</h3>
                         <div class="planning-details">
-                            <span>21h00 - Tard</span>
+                            <span>20h00 - 00h00</span>
+                            <p>Stream communautaire (Multijoueur)</p>
+                        </div>
+                    <div class="planning-day">
+                        <h3>Samedi</h3>
+                        <div class="planning-details">
+                            <span>10h00 - 14h00</span>
+                            <p>Stream communautaire (Multijoueur)</p>
+                        </div>
+
+                    <div class="planning-day">
+                        <h3>Samedi</h3>
+                        <div class="planning-details">
+                            <span>20h00 - 00h00</span>
                             <p>Stream communautaire (Multijoueur)</p>
                         </div>
                     </div>
-
+                    <div class="planning-day">
+                        <h3>Dimache</h3>
+                        <div class="planning-details">
+                            <span>10h00 - 14h00</span>
+                            <p>Stream communautaire (Multijoueur)</p>
+                        </div>
                 </div>
             </div>
             
@@ -355,15 +363,36 @@
                 <h2>Rejoignez-nous</h2>
                 <div class="social-grid">
                     
-                    <a id="discord-link" href="https://discord.gg/VOTRE-LIEN" target="_blank" class="social-button discord">
-                        <svg viewBox="0 0 24 24"><path d="M20.317 4.369a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.229a18.06 18.06 0 00-3.658 0 18.06 18.06 0 00-.608-1.229.074.074 0 00-.079-.037A19.736 19.736 0 003.683 4.37a.074.074 0 00-.034.043 21.61 21.61 0 00-1.632 7.15c.006.117.021.232.036.346.015.114.036.225.057.336.021.111.047.22.077.327.03.108.064.214.1.318.037.105.078.207.12.307.042.1.088.197.135.29.048.094.1.185.152.274.053.09.108.178.164.264.057.087.115.17.174.25.06.082.12.16.182.233.062.073.125.142.19.208.064.066.13.128.196.187.068.06.136.115.206.168.07.053.14.103.212.15.072.048.145.09.218.13.074.04.15.074.225.106.075.032.152.06.228.086.077.026.155.048.232.068.078.02.157.036.236.048.08.013.16.023.24.03.08.008.16.013.24.013.08.002.16.002.24 0l.24-.013c.08-.007.16-.015.24-.03.078-.012.157-.028.236-.048.078-.02.155-.042.232-.068.076-.026.152-.054.228-.086.075-.032.15-.066.225-.106.073-.04.145-.082.218-.13.072-.047.142-.097.212-.15.068-.053.136-.108.206-.168.066-.059.132-.12.196-.187.064-.066.128-.135.19-.208.062-.073.124-.142.182-.233.06-.08.118-.162.174-.25.056-.084.114-.168.164-.264.052-.088.104-.18.152-.274.047-.093.093-.19.135-.29.042-.1.083-.202.12-.307.037-.105.074-.21.1-.318.03-.107.056-.216.077-.327.02-.11.037-.222.057-.336.016-.114.03-.229.036-.346a21.61 21.61 0 00-1.632-7.15.074.074 0 00-.034-.043zM8.02 15.33c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666zm7.96 0c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666z"></path></svg>
-                        <span>Rejoindre le Discord</span>
+                    <a href="http://twitch.tv/masthom_" target="_blank" class="social-button twitch">
+                        <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0h1.714v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3.428 3.429v-3.429H6.857V1.714h13.714z"></path></svg>
+                        <span>Twitch</span>
                     </a>
                     
-                    <a id="youtube-link" href="https://youtube.com/VOTRE-CHAINE" target="_blank" class="social-button youtube">
-                        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></Ssvg>
-                        <span>Chaîne YouTube</span>
+                    <a href="https://www.youtube.com/@MasthomT" target="_blank" class="social-button youtube">
+                        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+                        <span>YouTube</span>
                     </a>
+                    
+                    <a href="https://discord.com/invite/3R2GUxt6BV" target="_blank" class="social-button discord">
+                        <svg viewBox="0 0 24 24"><path d="M20.317 4.369a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.229a18.06 18.06 0 00-3.658 0 18.06 18.06 0 00-.608-1.229.074.074 0 00-.079-.037A19.736 19.736 0 003.683 4.37a.074.074 0 00-.034.043 21.61 21.61 0 00-1.632 7.15c.006.117.021.232.036.346.015.114.036.225.057.336.021.111.047.22.077.327.03.108.064.214.1.318.037.105.078.207.12.307.042.1.088.197.135.29.048.094.1.185.152.274.053.09.108.178.164.264.057.087.115.17.174.25.06.082.12.16.182.233.062.073.125.142.19.208.064.066.13.128.196.187.068.06.136.115.206.168.07.053.14.103.212.15.072.048.145.09.218.13.074.04.15.074.225.106.075.032.152.06.228.086.077.026.155.048.232.068.078.02.157.036.236.048.08.013.16.023.24.03.08.008.16.013.24.013.08.002.16.002.24 0l.24-.013c.08-.007.16-.015.24-.03.078-.012.157-.028.236-.048.078-.02.155-.042.232-.068.076-.026.152-.054.228-.086.075-.032.15-.066.225-.106.073-.04.145-.082.218-.13.072-.047.142-.097.212-.15.068-.053.136-.108.206-.168.066-.059.132-.12.196-.187.064-.066.128-.135.19-.208.062-.073.124-.142.182-.233.06-.08.118-.16.174-.25.056-.084.114-.168.164-.264.052-.088.104-.18.152-.274.047-.093.093-.19.135-.29.042-.1.083-.202.12-.307.037-.105.074-.21.1-.318.03-.107.056-.216.077-.327.02-.11.037-.222.057-.336.016-.114.03-.229.036-.346a21.61 21.61 0 00-1.632-7.15.074.074 0 00-.034-.043zM8.02 15.33c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666zm7.96 0c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666z"></path></svg>
+                        <span>Discord</span>
+                    </a>
+                    
+                    <a href="https://www.tiktok.com/@masthomt_" target="_blank" class="social-button tiktok">
+                        <svg viewBox="0 0 24 24"><path d="M12.525 0.02c1.31-.02 2.61-.01 3.91.02 0.5.01 0.98.02 1.48.04 2.03.09 3.19 1.23 3.21 3.28.02 2.5.01 4.99.01 7.49 0 2.06-1.35 3.11-3.3 3.11-1.31 0-2.61.01-3.92.01-0.5 0-0.98-.01-1.48-.03-2.04-.09-3.19-1.23-3.21-3.28-.02-2.5-.01-4.99-.01-7.49 0-2.06 1.35-3.11 3.3-3.11 1.31-.01 2.61-.01 3.92-.01zM7.99 6.8c-0.62 0-1.25.01-1.87.01C6.11 6.8 6.1 6.8 6.1 6.81c-.01.52-.01 1.05-.01 1.57 0 .28 0 .55.01.83 0 .08 0 .15.02.23.06.2.22.37.42.45.13.05.27.06.4.06 1.3 0 2.59-.01 3.89-.01 0.1 0 0.19.01.28.02.3.03.54.21.66.48.05.11.07.23.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18-.01.27-.03.3-.21.54-.48.66-.11.05-.23.07-.35.07-.64.01-1.28.01-1.92.01-0.09 0-0.18 0-0.27.01-.3.03-.54.21-.66.48-.05.11-.07.23-.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18-.01.27-.03.3-.21.54-.48.66-.11.05-.23.07-.35.07-.64.01-1.28.01-1.92.01-0.09 0-0.18 0-0.27.01-.3.03-.54.21-.66.48-.05.11-.07.23-.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18-.01.27-.03.3-.21.54-.48.66-.11.05-.23.07-.35.07-.64.01-1.28.01-1.92.01-0.28 0-0.55-.01-0.83-.01-0.08 0-0.15 0-0.23-.02-.2-.06-.37-.22-.45-.42-.05-.13-.06-.27-.06-.4 0-1.3.01-2.59.01-3.89 0-0.1 0-0.19-.01-0.28-.03-.3-.21-.54-.48-.66-.05-.11-.07-.23-.07-.35 0-.64.01-1.28.01-1.92 0-.09 0-.18.01-.27.03-.3.21.54.48.66.11-.05.23.07.35.07.64-.01 1.28-.01 1.92.01.09 0 .18 0 .27-.01.3-.03.54-.21.66.48.05.11.07.23.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18.01-.27.03-.3.21.54.48.66.11-.05.23.07.35.07.64-.01 1.28-.01 1.92.01.09 0 .18 0 .27-.01.3-.03.54.21.66.48.05.11.07.23.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18.01-.27.03-.3.21.54.48.66.11-.05.23.07.35.07-.64.01-1.28.01-1.92.01-0.09 0-0.18 0-0.27.01-.3.03-.54.21-.66.48-.05.11-.07.23-.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18-.01.27-.03.3-.21.54-.48.66-.11-.05-.23.07-.35.07-.64.01-1.28.01-1.92.01-0.28 0-0.55-.01-0.83-.01-0.08 0-0.15 0-0.23-.02-.2-.06-.37-.22-.45-.42-.05-.13-.06-.27-.06-.4 0-1.3.01-2.59.01-3.89 0-0.1 0-0.19-.01-0.28-.03-.3-.21-.54-.48-.66-.05-.11-.07-.23-.07-.35 0-.64.01-1.28.01-1.92 0-.09 0-.18.01-.27.03-.3.21.54.48.66.11-.05.23.07.35.07.64-.01 1.28-.01 1.92.01.09 0 .18 0 .27-.01.3-.03.54-.21.66.48.05.11.07.23.07.35 0 .64-.01 1.28-.01 1.92 0 .09 0 .18.01-.27.03-.3.21.54.48.66.11-.05.23.07.35-.07z"></path></svg>
+                        <span>TikTok</span>
+                    </a>
+                    
+                    <a href="https://www.instagram.com/masthomt_" target="_blank" class="social-button instagram">
+                        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.148 3.227-1.667 4.771-4.919 4.919-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.07-1.646-.07-4.85s.012-3.584.07-4.85c.148-3.227 1.667-4.771 4.919-4.919 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.273 0-3.663.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.284-.073 1.673-.073 4.947s.014 3.663.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.284.059 1.673.073 4.947.073s3.663-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.284.073-1.673.073-4.947s-.014-3.663-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.284-.059-1.673-.073-4.947-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.44-.645 1.44-1.44s-.645-1.44-1.44-1.44z"></path></svg>
+                        <span>Instagram</span>
+                    </a>
+                    
+                    <a href="https://www.paypal.com/paypalme/MasthomT?country.x=FR&locale.x=fr_FR" target="_blank" class="social-button paypal">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.3-1.02-2.36-2.65-2.58V7h-1.7v1.92c-1.34.25-2.29 1.14-2.29 2.4 0 1.55 1.01 2.5 2.65 2.91 1.8.44 2.34 1.01 2.34 1.71 0 .63-.61 1.43-2.13 1.43-1.41 0-2.2-.7-2.24-1.69H8.05c.05 1.34 1.12 2.4 2.85 2.62V17h1.7v-1.9c1.4-.24 2.29-1.12 2.29-2.39 0-1.72-1.09-2.69-2.88-3.17z"></path></svg>
+                        <span>Faire un Tip</span>
+                    </a>
+                    
                 </div>
             </div>
 
