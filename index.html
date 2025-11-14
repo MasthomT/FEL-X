@@ -135,14 +135,14 @@
     </main>
     
 <script>
-    // === 1. CONFIGURATION OBLIGATOIRE ===
+    // === 1. CONFIGURATION ===
     const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // Votre CLIENT_ID
     const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
     
     // === CORRECTION N°1 : Demander les bonnes permissions ===
     const SCOPES = "user:read:email user:read:follows";
     
-    // === CORRECTION N°2 : Demander un "code" (Code Flow) au lieu d'un "token" ===
+    // === CORRECTION N°2 : Demander un "code" (Code Flow) ===
     const RESPONSE_TYPE = "code"; 
 
     // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
