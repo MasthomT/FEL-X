@@ -1,8 +1,12 @@
+// CORRECTION : L'ID est maintenant "logout-sidebar"
 document.getElementById("logout-sidebar").onclick = function() {
     localStorage.removeItem("twitch_token");
     window.location.replace("/index.html");
 };
 
+// =================================================================
+// 2. CONFIGURATION FIREBASE
+// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -10,33 +14,39 @@ const firebaseConfig = {
     projectId: "fel-x-503f8",
     storageBucket: "fel-x-503f8.firebasestorage.app",
     messagingSenderId: "922613900734",
-    appId: "1:922613900734:web:4d192151bebd5e7ac885ef",
+    appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
+// Initialiser Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// =================================================================
+// 3. FONCTION DE CALCUL DE NIVEAU
+// =================================================================
 function calculateLevel(xp) {
     if (xp < 0) return 1;
-
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
     return Math.max(1, level);
 }
 
+// =================================================================
+// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL)
+// =================================================================
 async function loadProfile() {
-
     const token = localStorage.getItem("twitch_token");
     if (!token) {
-
         window.location.replace("/index.html");
         return;
     }
 
+    // --- VOS VARIABLES (Corrigées) ---
     const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
-    const BROADCASTER_ID = "439356462";
+    const BROADCASTER_ID = "439356462"; // CORRIGÉ (guillemet ajouté)
+    // -----------------------------
 
     try {
-
+        // === ÉTAPE A: Récupérer l'identité du viewer (depuis Twitch) ===
         const twitchHeaders = new Headers({
             'Authorization': `Bearer ${token}`,
             'Client-Id': CLIENT_ID
@@ -48,13 +58,15 @@ async function loadProfile() {
         const twitchData = await twitchResponse.json();
         const user = twitchData.data[0];
         
-        const twitch_login_name = user.login;
+        const twitch_login_name = user.login; 
         
         document.getElementById("display-name").textContent = user.display_name;
         document.getElementById("profile-pic").src = user.profile_image_url;
 
-        const xpRef = db.ref(`viewer_data/xp/${twitch_login_name}`);
-        const historyRef = db.ref(`viewer_data/history/${twitch_login_name}`);
+        // === ÉTAPE B: Récupérer les données XP (depuis Firebase) ===
+        const userKey = twitch_login_name.toLowerCase();
+        const xpRef = db.ref(`viewer_data/xp/${userKey}`);
+        const historyRef = db.ref(`viewer_data/history/${userKey}`);
 
         const xpSnapshot = await xpRef.get();
         const historySnapshot = await historyRef.get();
@@ -65,7 +77,6 @@ async function loadProfile() {
             document.getElementById("level").textContent = level;
             document.getElementById("xp").textContent = xpData.xp.toLocaleString('fr-FR');
         } else {
-
             document.getElementById("level").textContent = 1;
             document.getElementById("xp").textContent = 0;
         }
@@ -75,7 +86,6 @@ async function loadProfile() {
         
         if (historySnapshot.exists()) {
             const historyData = historySnapshot.val();
-
             const recentEntries = Object.values(historyData).reverse().slice(0, 20);
             
             recentEntries.forEach(entry => {
@@ -89,7 +99,8 @@ async function loadProfile() {
         } else {
             historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
         }
-
+        
+        // === ÉTAPE C: (Bonus) Récupérer le statut de Follow (depuis Twitch) ===
         const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`, { headers: twitchHeaders });
         const followData = await followResponse.json();
         
@@ -101,12 +112,12 @@ async function loadProfile() {
         }
 
 
+        // === ÉTAPE D: Afficher le profil complet ===
         document.getElementById("loading").style.display = "none";
         document.getElementById("profile-content").style.display = "block";
 
     } catch (error) {
         console.error("Erreur lors du chargement du profil:", error);
-
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html?error=session_expired");
     }

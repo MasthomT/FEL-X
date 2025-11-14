@@ -21,28 +21,38 @@
             text-align: center;
         }
         
+        /* --- Logo/Titre --- */
         #logo-container {
             margin-bottom: 2rem;
-            background-image: url('/logo.png'); */
-            background-size: contain; */
-            background-repeat: no-repeat; */
-            background-position: center; */
-            min-height: 150px; */
         }
         #logo-container h1 {
             font-size: 4rem;
             color: #9146ff;
             margin: 0;
         }
+        
+        /* Le style du logo (rond, 120px) */
+        #logo-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #9146ff;
+            margin: 1rem auto;
+            display: block;
+        }
+
         #welcome-message {
             font-size: 1.5rem;
             color: #e0e0e0;
         }
         
+        /* --- Contenu (Connecté / Déconnecté) --- */
         #logged-out-view, #logged-in-view {
             margin-top: 3rem;
         }
         
+        /* Bouton de Connexion */
         .btn-login { 
             background: #9146ff; 
             color: white; 
@@ -56,6 +66,7 @@
         }
         .btn-login:hover { background: #7a3be0; }
 
+        /* Grille de navigation (Connecté) */
         .nav-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -101,6 +112,7 @@
     <main>
         <div id="logo-container">
             <h1>FEL-X</h1>
+            <img src="/logo-felix.png" alt="Logo FEL-X" id="logo-image">
             <p id="welcome-message">Votre portail communautaire</p>
         </div>
 
@@ -116,7 +128,7 @@
                     <p>Voir mon niveau, mon XP, mon historique et mon statut de follow.</p>
                 </a>
                 
-                <a href="/info.html" class="nav-card">
+                <a href="/infos.html" class="nav-card">
                     <h2>Infos & Commandes</h2>
                     <p>Retrouver le planning, le lien Discord, YouTube et les règles du chat.</p>
                 </a>
@@ -132,33 +144,43 @@
     </main>
     
     <script>
-        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+        // === 1. CONFIGURATION OBLIGATOIRE ===
+        // Remplacez par le NOUVEAU Client ID (celui du portail)
+        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; 
         const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
         const SCOPES = "user:read:email";
 
+        // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
         const loggedInView = document.getElementById("logged-in-view");
         const loggedOutView = document.getElementById("logged-out-view");
         const welcomeMessage = document.getElementById("welcome-message");
         const loginLink = document.getElementById("login-link");
         const logoutButton = document.getElementById("logout");
 
+        // Fonction de déconnexion
         logoutButton.onclick = function() {
             localStorage.removeItem("twitch_token");
-            window.location.reload();
+            window.location.reload(); // Recharge la page (qui affichera la vue déconnectée)
         };
 
+        // === 3. LOGIQUE D'AFFICHAGE ===
         (async function checkLoginState() {
             
             const token = localStorage.getItem("twitch_token");
 
             if (!token) {
+                // --- CAS 1 : NON CONNECTÉ ---
                 welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
+                // Construire le lien de connexion
                 const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
                 loginLink.href = authUrl;
+                // Afficher la vue déconnectée
                 loggedOutView.style.display = "block";
                 
             } else {
+                // --- CAS 2 : CONNECTÉ (Vérification du token) ---
                 try {
+                    // On vérifie si le token est valide en appelant l'API Twitch
                     const twitchHeaders = new Headers({
                         'Authorization': `Bearer ${token}`,
                         'Client-Id': CLIENT_ID
@@ -166,18 +188,22 @@
                     const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
 
                     if (!response.ok) {
+                        // Le token est expiré ou invalide
                         throw new Error("Token expiré");
                     }
                     
                     const data = await response.json();
                     const user = data.data[0];
                     
+                    // Le token est valide !
                     welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
                     loggedInView.style.display = "block";
 
                 } catch (error) {
+                    // Le token est invalide, on le supprime et on affiche la vue déconnectée
                     console.error(error);
                     localStorage.removeItem("twitch_token");
+                    // On relance la fonction, qui passera dans le "CAS 1"
                     checkLoginState();
                 }
             }
