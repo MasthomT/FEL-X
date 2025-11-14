@@ -57,39 +57,20 @@ if (document.getElementById("profile-content")) {
         const BROADCASTER_ID = "439356462";
 
         try {
-// === ÉTAPE A: Récupérer l'identité du viewer ===
-const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
-const BROADCASTER_ID = "439356462";
-
-const twitchHeaders = {
-    'Authorization': 'Bearer ' + token,
-    'Client-Id': CLIENT_ID
-};
-
-let user;
-try {
-    const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { 
-        headers: twitchHeaders 
-    });
-
-    if (!twitchResponse.ok) {
-        const err = await twitchResponse.text();
-        console.error("Erreur users:", twitchResponse.status, err);
-        throw new Error("Token invalide ou expiré");
-    }
-
-    const twitchData = await twitchResponse.json();
-    user = twitchData.data[0];
-
-    document.getElementById("display-name").textContent = user.display_name;
-    document.getElementById("profile-pic").src = user.profile_image_url;
-
-} catch (err) {
-    console.error("Erreur auth:", err);
-    localStorage.removeItem("twitch_token");
-    window.location.replace("/index.html?error=session_expired");
-    return;
-}
+            // === ÉTAPE A: Récupérer l'identité du viewer (Inchangé) ===
+            const twitchHeaders = new Headers({
+                'Authorization': `Bearer ${token}`,
+                'Client-Id': CLIENT_ID
+            });
+            
+            const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
+            if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
+            
+            const twitchData = await twitchResponse.json();
+            const user = twitchData.data[0];
+            
+            document.getElementById("display-name").textContent = user.display_name;
+            document.getElementById("profile-pic").src = user.profile_image_url;
 
             // === ÉTAPE B: Récupérer les données XP (CORRIGÉ) ===
             
@@ -131,47 +112,24 @@ try {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-// === ÉTAPE C: Récupérer le statut de Follow (NOUVELLE API 2023+) ===
-const BROADCASTER_ID = "439356462";
-
-try {
-    // NOUVELLE URL : /channels/followed (broadcaster_id = chaîne à vérifier)
-    const followUrl = `https://api.twitch.tv/helix/channels/followed?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`;
-    
-    const followResponse = await fetch(followUrl, { 
-        headers: twitchHeaders  // Garde tes headers corrigés (objet {})
-    });
-
-    if (!followResponse.ok) {
-        const errorText = await followResponse.text();
-        console.error("Erreur API Follow (nouvelle):", followResponse.status, errorText);
-        
-        if (followResponse.status === 410) {
-            document.getElementById("follow-status").textContent = "API Twitch obsolète - Contactez l'admin.";
-        } else if (followResponse.status === 401) {
-            document.getElementById("follow-status").textContent = "Reconnexion requise.";
-            localStorage.removeItem("twitch_token");
-            setTimeout(() => window.location.replace("/index.html"), 2000);
-        } else {
-            document.getElementById("follow-status").textContent = "Erreur temporaire Twitch.";
-        }
-        return;
-    }
-
-    const followData = await followResponse.json();
-
-    // Si data n'est pas vide → le viewer suit la chaîne
-    if (followData.data && followData.data.length > 0) {
-        const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
-        document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
-    } else {
-        document.getElementById("follow-status").textContent = "Vous ne suivez pas encore la chaîne.";
-    }
-
-} catch (error) {
-    console.error("Exception dans le check follow (nouvelle API):", error);
-    document.getElementById("follow-status").textContent = "Erreur réseau - Réessayez.";
-}
+            // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
+            
+            // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
+            const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+            
+            if (!followResponse.ok) {
+                console.error("Erreur API Follow:", await followResponse.text());
+                document.getElementById("follow-status").textContent = "Erreur - Statut de follow indisponible";
+            } else {
+                const followData = await followResponse.json();
+                
+                if (followData.total > 0 && followData.data.length > 0) {
+                    const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
+                    document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+                } else {
+                    document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+                }
+            }
 
             // === ÉTAPE D: Afficher le profil complet (Inchangé) ===
             document.getElementById("loading").style.display = "none";
