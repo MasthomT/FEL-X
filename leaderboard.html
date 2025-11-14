@@ -6,7 +6,7 @@
     <title>Classement - Portail Viewer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -138,7 +138,7 @@
         #leaderboard-list {
             list-style: none;
             padding: 0;
-            display: none;
+            display: none; 
             flex-direction: column;
             gap: 0.5rem;
         }
@@ -146,7 +146,7 @@
         .leaderboard-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem; 
             background: var(--color-surface);
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -160,9 +160,9 @@
         
         .leaderboard-item .rank {
             font-size: 1.5rem;
-            font-weight: 800;
+            font-weight: 600; 
             color: var(--color-accent);
-            width: 30px;
+            width: 40px; 
             text-align: right;
         }
         
@@ -179,7 +179,7 @@
         
         .leaderboard-item .user-info .name {
             font-size: 1.25rem;
-            font-weight: 500;
+            font-weight: 400; 
             color: var(--color-text-primary);
         }
         .leaderboard-item .user-info .level {
@@ -190,7 +190,7 @@
         
         .leaderboard-item .xp-info {
             font-size: 1.5rem;
-            font-weight: 800;
+            font-weight: 600; 
             color: var(--color-accent);
         }
         .leaderboard-item .xp-info span {
@@ -231,7 +231,8 @@
             
             main { height: auto; overflow-y: visible; padding: 1rem; }
             
-            .leaderboard-item .rank { font-size: 1rem; width: 20px; }
+            .leaderboard-item { gap: 1rem; }
+            .leaderboard-item .rank { font-size: 1rem; width: 30px; }
             .leaderboard-item .avatar { width: 40px; height: 40px; }
             .leaderboard-item .user-info .name { font-size: 1rem; }
             .leaderboard-item .xp-info { font-size: 1.2rem; }
