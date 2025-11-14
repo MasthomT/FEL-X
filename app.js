@@ -74,10 +74,7 @@ if (document.getElementById("profile-content")) {
             document.getElementById("profile-pic").src = user.profile_image_url;
 
             // === ÉTAPE B: Récupérer les données XP (CORRIGÉ) ===
-            
-            // CORRECTION N°1 : Forcer le nom en minuscules pour correspondre à Firebase
             const userKey = user.login.toLowerCase(); 
-            
             const xpRef = db.ref(`viewer_data/xp/${userKey}`);
             const historyRef = db.ref(`viewer_data/history/${userKey}`);
 
@@ -114,8 +111,6 @@ if (document.getElementById("profile-content")) {
             }
             
             // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
-            
-            // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
             const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
             
             if (!followResponse.ok) {

@@ -21,7 +21,6 @@
             text-align: center;
         }
         
-        /* --- Logo/Titre --- */
         #logo-container {
             margin-bottom: 2rem;
         }
@@ -31,7 +30,6 @@
             margin: 0;
         }
         
-        /* Le style du logo (rond, 120px) */
         #logo-image {
             width: 120px;
             height: 120px;
@@ -47,12 +45,10 @@
             color: #e0e0e0;
         }
         
-        /* --- Contenu (Connecté / Déconnecté) --- */
         #logged-out-view, #logged-in-view {
             margin-top: 3rem;
         }
         
-        /* Bouton de Connexion */
         .btn-login { 
             background: #9146ff; 
             color: white; 
@@ -66,7 +62,6 @@
         }
         .btn-login:hover { background: #7a3be0; }
 
-        /* Grille de navigation (Connecté) */
         .nav-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -97,7 +92,6 @@
             line-height: 1.4;
         }
         
-        /* Lien de déconnexion */
         #logout { 
             color: #f44336; 
             cursor: pointer; 
@@ -140,41 +134,37 @@
         </div>
     </main>
     
-    <script>
-        // === 1. CONFIGURATION OBLIGATOIRE ===
-        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // Votre CLIENT_ID
+<script>
+        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; 
         const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
-        
-        // === CORRECTION ICI (Ligne 106) ===
+    
         const SCOPES = "user:read:email user:read:follows";
+        const RESPONSE_TYPE = "code"; 
 
-        // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
         const loggedInView = document.getElementById("logged-in-view");
         const loggedOutView = document.getElementById("logged-out-view");
         const welcomeMessage = document.getElementById("welcome-message");
         const loginLink = document.getElementById("login-link");
         const logoutButton = document.getElementById("logout");
 
-        // Fonction de déconnexion
         logoutButton.onclick = function() {
             localStorage.removeItem("twitch_token");
             window.location.reload(); 
         };
 
-        // === 3. LOGIQUE D'AFFICHAGE ===
         (async function checkLoginState() {
             
             const token = localStorage.getItem("twitch_token");
 
             if (!token) {
-                // --- CAS 1 : NON CONNECTÉ ---
+
                 welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
-                const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
+                const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES}`;
                 loginLink.href = authUrl;
                 loggedOutView.style.display = "block";
                 
             } else {
-                // --- CAS 2 : CONNECTÉ (Vérification du token) ---
+
                 try {
                     const twitchHeaders = new Headers({
                         'Authorization': `Bearer ${token}`,
@@ -196,9 +186,24 @@
                     console.error(error);
                     localStorage.removeItem("twitch_token");
                     checkLoginState();
+                try {
+                    const twitchHeaders = new Headers({
+                        'Authorization': `Bearer ${token}`,
+                        'Client-Id': CLIENT_ID
+                    });
+                    const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
+                    if (!response.ok) throw new Error("Token expiré");
+                    const data = await response.json();
+                    const user = data.data[0];
+                    welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
+                    loggedInView.style.display = "block";
+                } catch (error) {
+                    console.error(error);
+                    localStorage.removeItem("twitch_token");
+                    checkLoginState();
                 }
             }
         })();
-    </script>
+</script>
 </body>
 </html>
