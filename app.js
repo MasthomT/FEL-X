@@ -5,6 +5,14 @@ if(document.getElementById("logout-sidebar")) {
         window.location.replace("/index.html");
     };
 }
+// (Ajout d'une sécurité pour le bouton de la page d'accueil)
+if(document.getElementById("logout")) {
+    document.getElementById("logout").onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.replace("/index.html");
+    };
+}
+
 
 // =================================================================
 // 2. CONFIGURATION FIREBASE (Inchangée)
@@ -124,11 +132,4 @@ async function loadProfile() {
         document.getElementById("profile-content").style.display = "block";
 
     } catch (error) {
-        console.error("Erreur lors du chargement du profil:", error);
-        localStorage.removeItem("twitch_token");
-        window.location.replace("/index.html?error=session_expired");
-    }
-}
-
-// Lancer le chargement de la page
-loadProfile();
+        console.error("Erreur lors du chargement du profil:",
