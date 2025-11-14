@@ -12,7 +12,7 @@
             color: white; 
             font-family: sans-serif; 
             margin: 0;
-            display: flex; /* Layout avec menu latéral */
+            display: flex; /* Layout avec menu latÃ©ral */
             height: 100vh;
             overflow: hidden;
         }
@@ -26,7 +26,7 @@
         }
         h1 { color: #9146ff; }
 
-        /* --- Menu Latéral (Sidebar) --- */
+        /* --- Menu LatÃ©ral (Sidebar) --- */
         .sidebar {
             width: 250px;
             background-color: #2c2f33;
@@ -122,24 +122,6 @@
             color: #e0e0e0; 
             text-decoration: none;
         }
-        .info-card a:hover { text-decoration: underline; }
-
-        /* Style pour l'embed de don */
-        .donation-embed-container {
-            position: relative;
-            width: 100%;
-            height: 600px;
-            overflow: hidden;
-            border-radius: 8px;
-        }
-        .donation-embed-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
 
         /* Styles pour le formulaire PayPal */
         .paypal-form-group {
@@ -198,7 +180,7 @@
         <div class="sidebar-footer">
             <a id="logout-sidebar" href="#">
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
-                <span>Se déconnecter</span>
+                <span>Se dÃ©connecter</span>
             </a>
         </div>
     </nav>
@@ -207,25 +189,10 @@
         <h1>Faire un Don</h1>
         
         <div class="info-card">
-            <h2>Soutenir la chaîne (Streamlabs)</h2>
-            <p style="margin-bottom: 1.5rem;">
-                Vous pouvez faire un don directement sur cette page en utilisant le formulaire sécurisé de Streamlabs.
-            </p>
-            <div class="donation-embed-container">
-                <iframe 
-                    src="https://streamlabs.com/embed/tip/VOTRE_NOM_STREAMLABS" 
-                    frameborder="0" 
-                    scrolling="no" 
-                    allowtransparency="true">
-                </iframe>
-            </div>
-        </div>
-
-        <div class="info-card">
-            <h2>Alternative (PayPal)</h2>
+            <h2>Soutenir la chaÃ®ne (PayPal)</h2>
             <p>
                 Vous pouvez faire un don directement via PayPal.
-                Une fenêtre de paiement sécurisée s'ouvrira.
+                Une fenÃªtre de paiement sÃ©curisÃ©e s'ouvrira.
             </p>
             
             <div class="paypal-form-group">
@@ -248,7 +215,7 @@
     <script>
         // Rendu des boutons PayPal
         
-        // Vérifie si le SDK PayPal a chargé
+        // VÃ©rifie si le SDK PayPal a chargÃ©
         if (typeof paypal !== 'undefined') {
             paypal.Buttons({
                 style: {
@@ -258,25 +225,25 @@
                     label:  'paypal'
                 },
                 
-                // Création de la transaction
+                // CrÃ©ation de la transaction
                 createOrder: function(data, actions) {
-                    // Récupère le montant depuis le champ input
+                    // RÃ©cupÃ¨re le montant depuis le champ input
                     const amountInput = document.getElementById('donation-amount');
                     let amountValue = parseFloat(amountInput.value);
                     
-                    // Sécurité : vérifie si le montant est valide
+                    // SÃ©curitÃ© : vÃ©rifie si le montant est valide
                     if (isNaN(amountValue) || amountValue <= 0) {
                         alert("Veuillez entrer un montant valide.");
                         return;
                     }
                     
-                    // Crée l'ordre avec le montant dynamique
+                    // CrÃ©e l'ordre avec le montant dynamique
                     return actions.order.create({
                         purchase_units: [{
                             description: 'Don pour FEL-X',
                             amount: {
                                 currency_code: 'EUR',
-                                value: amountValue.toFixed(2) // Assure 2 décimales
+                                value: amountValue.toFixed(2) // Assure 2 dÃ©cimales
                             }
                         }]
                     });
@@ -297,13 +264,13 @@
                 },
                 
                 onCancel: function (data) {
-                    console.log("Paiement annulé.");
+                    console.log("Paiement annulÃ©.");
                 }
 
             }).render('#paypal-button-container');
         } else {
-            // Le SDK n'a pas chargé (peut-être à cause du Client ID)
-            document.getElementById('paypal-error').textContent = "Erreur: Impossible de charger le module de paiement PayPal. Vérifiez le Client ID.";
+            // Le SDK n'a pas chargÃ© (peut-Ãªtre Ã  cause du Client ID)
+            document.getElementById('paypal-error').textContent = "Erreur: Impossible de charger le module de paiement PayPal. VÃ©rifiez le Client ID.";
             document.getElementById('paypal-error').style.display = "block";
         }
 
