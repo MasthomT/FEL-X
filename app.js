@@ -1,11 +1,11 @@
-// CORRECTION : L'ID est maintenant "logout-sidebar"
+// CORRECTION 1 : Cible le nouveau bouton du menu latéral
 document.getElementById("logout-sidebar").onclick = function() {
     localStorage.removeItem("twitch_token");
     window.location.replace("/index.html");
 };
 
 // =================================================================
-// 2. CONFIGURATION FIREBASE
+// 2. CONFIGURATION FIREBASE (Inchangée)
 // =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
@@ -17,12 +17,11 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Initialiser Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // =================================================================
-// 3. FONCTION DE CALCUL DE NIVEAU
+// 3. FONCTION DE CALCUL DE NIVEAU (Inchangée)
 // =================================================================
 function calculateLevel(xp) {
     if (xp < 0) return 1;
@@ -31,7 +30,7 @@ function calculateLevel(xp) {
 }
 
 // =================================================================
-// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL)
+// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL) - CORRIGÉE
 // =================================================================
 async function loadProfile() {
     const token = localStorage.getItem("twitch_token");
@@ -40,13 +39,11 @@ async function loadProfile() {
         return;
     }
 
-    // --- VOS VARIABLES (Corrigées) ---
     const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
-    const BROADCASTER_ID = "439356462"; // CORRIGÉ (guillemet ajouté)
-    // -----------------------------
+    const BROADCASTER_ID = "439356462";
 
     try {
-        // === ÉTAPE A: Récupérer l'identité du viewer (depuis Twitch) ===
+        // === ÉTAPE A: Récupérer l'identité du viewer (Inchangé) ===
         const twitchHeaders = new Headers({
             'Authorization': `Bearer ${token}`,
             'Client-Id': CLIENT_ID
@@ -58,19 +55,21 @@ async function loadProfile() {
         const twitchData = await twitchResponse.json();
         const user = twitchData.data[0];
         
-        const twitch_login_name = user.login; 
-        
         document.getElementById("display-name").textContent = user.display_name;
         document.getElementById("profile-pic").src = user.profile_image_url;
 
-        // === ÉTAPE B: Récupérer les données XP (depuis Firebase) ===
-        const userKey = twitch_login_name.toLowerCase();
+        // === ÉTAPE B: Récupérer les données XP (CORRIGÉ) ===
+        
+        // CORRECTION 2 : Forcer le nom en minuscules pour correspondre à Firebase
+        const userKey = user.login.toLowerCase(); 
+        
         const xpRef = db.ref(`viewer_data/xp/${userKey}`);
         const historyRef = db.ref(`viewer_data/history/${userKey}`);
 
         const xpSnapshot = await xpRef.get();
         const historySnapshot = await historyRef.get();
 
+        // (Le reste de la logique XP/History est maintenant correcte)
         if (xpSnapshot.exists()) {
             const xpData = xpSnapshot.val();
             const level = calculateLevel(xpData.xp);
@@ -100,19 +99,25 @@ async function loadProfile() {
             historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
         }
         
-        // === ÉTAPE C: (Bonus) Récupérer le statut de Follow (depuis Twitch) ===
-        const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`, { headers: twitchHeaders });
+        // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
+        
+        // CORRECTION 1 : Utilisation de la bonne API (/users/follows)
+        const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+        
+        // (On ajoute une vérification de sécurité ici aussi)
+        if (!followResponse.ok) throw new Error("Erreur lors de la vérification du follow.");
+
         const followData = await followResponse.json();
         
-        if (followData.total > 0) {
+        // CORRECTION 1 (suite) : La réponse de cette API est différente
+        if (followData.total > 0 && followData.data.length > 0) {
             const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
             document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
         } else {
             document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
         }
 
-
-        // === ÉTAPE D: Afficher le profil complet ===
+        // === ÉTAPE D: Afficher le profil complet (Inchangé) ===
         document.getElementById("loading").style.display = "none";
         document.getElementById("profile-content").style.display = "block";
 
@@ -123,4 +128,5 @@ async function loadProfile() {
     }
 }
 
+// Lancer le chargement de la page
 loadProfile();
