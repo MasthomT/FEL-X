@@ -44,6 +44,7 @@ function calculateLevel(xp) {
 // =================================================================
 // 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL) - CORRIGÉE
 // =================================================================
+// On vérifie que la fonction loadProfile ne s'exécute que sur la page profile.html
 if (document.getElementById("profile-content")) {
     (async function loadProfile() {
         const token = localStorage.getItem("twitch_token");
@@ -53,6 +54,7 @@ if (document.getElementById("profile-content")) {
         }
 
         const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+        const BROADCASTER_ID = "439356462";
 
         try {
             // === ÉTAPE A: Récupérer l'identité du viewer (Inchangé) ===
@@ -110,11 +112,23 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === ÉTAPE C: STATUT DE FOLLOW (SUPPRIMÉ) ===
-            // On supprime cette section qui cause le bug
-            const followStatusElement = document.getElementById("follow-status-card");
-            if (followStatusElement) {
-                followStatusElement.style.display = "none"; // On cache la carte
+            // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
+            
+            // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
+            const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+            
+            if (!followResponse.ok) {
+                console.error("Erreur API Follow:", await followResponse.text());
+                document.getElementById("follow-status").textContent = "Erreur - Statut de follow indisponible";
+            } else {
+                const followData = await followResponse.json();
+                
+                if (followData.total > 0 && followData.data.length > 0) {
+                    const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
+                    document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+                } else {
+                    document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+                }
             }
 
             // === ÉTAPE D: Afficher le profil complet (Inchangé) ===
@@ -126,5 +140,5 @@ if (document.getElementById("profile-content")) {
             localStorage.removeItem("twitch_token");
             window.location.replace("/index.html?error=session_expired");
         }
-    })();
+    })(); // Exécute la fonction loadProfile
 }

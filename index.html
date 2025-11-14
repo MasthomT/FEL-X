@@ -135,12 +135,8 @@
     </main>
     
 <script>
-    // === 1. CONFIGURATION (RETOUR AU MODE SIMPLE) ===
-    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // Votre CLIENT_ID
-    const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
-    
-    // On ne demande QUE l'email. C'est la clé.
-    const SCOPES = "user:read:email"; 
+    // === 1. CONFIGURATION ===
+    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // (Juste pour la vérification du token)
 
     // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
     const loggedInView = document.getElementById("logged-in-view");
@@ -164,10 +160,10 @@
             // --- CAS 1 : NON CONNECTÉ ---
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
-            // Construit l'URL (ancienne méthode "token", qui va marcher)
-            const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPES}`;
+            // --- CORRECTION : On pointe vers auth.html ---
+            // (auth.html va maintenant gérer la redirection vers Twitch)
+            loginLink.href = "/auth.html"; 
             
-            loginLink.href = authUrl;
             loggedOutView.style.display = "block";
             
         } else {
