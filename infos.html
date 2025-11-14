@@ -6,7 +6,7 @@
     <title>Infos & Commandes - Portail Viewer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -27,11 +27,11 @@
             background: var(--color-background); 
             color: var(--color-text-primary); 
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 200; 
+            font-weight: 300;
             margin: 0;
             display: flex;
             height: 100vh;
-            overflow: hidden;
+            overflow: hidden; 
         }
         
         main {
@@ -44,7 +44,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh; 
-            overflow: hidden; 
+            overflow-y: auto;
         }
         
         @keyframes fadeIn {
@@ -56,7 +56,7 @@
             color: var(--color-accent); 
             margin-bottom: 1.5rem;
             flex-shrink: 0; 
-            font-weight: 800;
+            font-weight: 600;
         }
 
         .sidebar {
@@ -88,7 +88,7 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: 800;
+            font-weight: 600;
             color: var(--color-accent);
         }
         .sidebar nav { display: flex; flex-direction: column; }
@@ -142,21 +142,21 @@
             grid-template-columns: 1.8fr 1fr; 
             gap: 1.5rem;
             flex-grow: 1;
-            overflow: hidden; 
+            overflow: visible; 
         }
         
         .main-column {
             display: flex;
             flex-direction: column;
             gap: 1.5rem; 
-            overflow-y: auto; 
+            overflow-y: visible;
         }
         
         .sidebar-column {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
-            overflow-y: auto; 
+            overflow-y: visible;
         }
         
         .info-card { 
@@ -261,15 +261,13 @@
             font-weight: 300;
         }
 
-        
         @media (max-width: 992px) {
             .content-grid {
                 grid-template-columns: 1fr; 
                 overflow: visible; 
             }
             main {
-                overflow-y: auto; 
-                height: auto; 
+                height: 100vh;
             }
             .main-column, .sidebar-column {
                 overflow-y: visible; 
@@ -372,7 +370,7 @@
                             <h3>Mardi</h3>
                             <div class="planning-details">
                                 <span>18h00 - 23h00</span>
-                                <p>Stream principal</p>
+                                <p>Stream principal (ex: Nouveau jeu AAA)</p>
                             </div>
                         </div>
                         
@@ -380,7 +378,7 @@
                             <h3>Jeudi</h3>
                             <div class="planning-details">
                                 <span>18h00 - 23h00</span>
-                                <p>Stream FPS</p>
+                                <p>Stream chill & discussion</p>
                             </div>
                         </div>
                         
@@ -396,21 +394,7 @@
                             <h3>Samedi</h3>
                             <div class="planning-details">
                                 <span>10h00 - 14h00</span>
-                                <p>Stream chill</p>
-                            </div>
-                        </div>
-                        <div class="planning-day">
-                            <h3>Samedi</h3>
-                            <div class="planning-details">
-                                <span>20h00 - 00h00</span>
-                                <p>Stream principal</p>
-                            </div>
-                        </div>
-                        <div class="planning-day">
-                            <h3>Dimanche</h3>
-                            <div class="planning-details">
-                                <span>10h00 - 14h00</span>
-                                <p>Stream chill</p>
+                                <p>Stream Spécial / Événement</p>
                             </div>
                         </div>
 
