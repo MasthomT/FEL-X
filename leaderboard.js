@@ -47,7 +47,7 @@ function calculateLevel(xp) {
         const xpSnapshot = await xpRef.get();
 
         if (!xpSnapshot.exists()) {
-            throw new Error("Aucune donnée d'XP trouvée dans Firebase.");
+            throw new Error("Aucune donnÃ©e d'XP trouvÃ©e dans Firebase.");
         }
         
         const xpData = xpSnapshot.val();
@@ -64,7 +64,7 @@ function calculateLevel(xp) {
         
         const twitchResponse = await fetch(`https://api.twitch.tv/helix/users?${loginQuery}`, { headers: twitchHeaders });
         if (!twitchResponse.ok) {
-            throw new Error("Impossible de récupérer les profils Twitch.");
+            throw new Error("Impossible de rÃ©cupÃ©rer les profils Twitch.");
         }
         
         const twitchData = await twitchResponse.json();
