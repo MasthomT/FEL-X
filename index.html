@@ -27,7 +27,6 @@
             background: var(--color-background); 
             color: var(--color-text-primary); 
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            /* NOUVEAU: Police par défaut encore plus fine */
             font-weight: 200; 
             margin: 0;
             padding: 2rem;
@@ -54,7 +53,7 @@
             font-size: 4rem;
             color: var(--color-accent);
             margin: 0;
-            font-weight: 800; /* Titre principal très gras */
+            font-weight: 800;
         }
         #logo-image {
             width: 120px;
@@ -68,7 +67,7 @@
         #welcome-message {
             font-size: 1.5rem;
             color: var(--color-text-secondary);
-            font-weight: 300; /* Poids ajusté */
+            font-weight: 300;
         }
         
         /* --- Vues & Boutons --- */
@@ -82,7 +81,7 @@
             padding: 1rem 2rem; 
             border-radius: 8px; 
             text-decoration: none; 
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
             font-size: 1.2rem;
             transition: all var(--transition-speed) ease;
             display: inline-block;
@@ -120,13 +119,13 @@
         .nav-card h2 {
             margin: 0 0 0.5rem 0;
             color: var(--color-accent);
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
         }
         .nav-card p {
             margin: 0;
             color: var(--color-text-secondary);
             line-height: 1.4;
-            font-weight: 300; /* Poids ajusté */
+            font-weight: 300;
         }
         
         /* --- Déconnexion --- */
@@ -138,7 +137,7 @@
             margin-top: 3rem;
             font-size: 1.1rem;
             transition: color var(--transition-speed) ease;
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
         }
         #logout:hover { color: white; }
         
@@ -181,7 +180,67 @@
     </main>
     
 <script>
-    // ... (Le script JS est identique) ...
+    // === 1. CONFIGURATION ===
+    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+    
+    // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
+    const loggedInView = document.getElementById("logged-in-view");
+    const loggedOutView = document.getElementById("logged-out-view");
+    const welcomeMessage = document.getElementById("welcome-message");
+    const loginLink = document.getElementById("login-link");
+    const logoutButton = document.getElementById("logout");
+
+    // Fonction de déconnexion
+    logoutButton.onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.reload(); 
+    };
+
+    // === 3. LOGIQUE D'AFFICHAGE ===
+    (async function checkLoginState() {
+        
+        const token = localStorage.getItem("twitch_token");
+
+        if (!token) {
+            // --- CAS 1 : NON CONNECTÉ ---
+            welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
+            
+            const REDIRECT_URI = window.location.origin + "/auth.html";
+            // On demande les permissions pour le follow et l'abonnement
+            const SCOPES = "user:read:follows user:read:subscriptions"; 
+            
+            const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+            
+            loginLink.href = authUrl; 
+            loggedOutView.style.display = "block";
+            
+        } else {
+            // --- CAS 2 : CONNECTÉ (Vérification du token) ---
+            try {
+                const twitchHeaders = new Headers({
+                    'Authorization': `Bearer ${token}`,
+                    'Client-Id': CLIENT_ID
+                });
+                const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
+
+                if (!response.ok) {
+                    throw new Error("Token expiré");
+                }
+                
+                const data = await response.json();
+                const user = data.data[0];
+                
+                welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
+                loggedInView.style.display = "block";
+
+            } catch (error) {
+                console.error(error);
+                // Si le token est expiré, on le supprime et on relance la fonction
+                localStorage.removeItem("twitch_token");
+                checkLoginState(); // Relance la fonction, qui passera dans le CAS 1
+            }
+        }
+    })();
 </script>
 </body>
 </html>
