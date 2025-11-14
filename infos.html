@@ -45,9 +45,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        h1 { color: var(--color-accent); }
+        h1 { color: var(--color-accent); margin-bottom: 1.5rem; }
 
         /* --- Menu Latéral (Sidebar) --- */
+        /* (Styles identiques à profile.html pour la cohérence) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -80,12 +81,7 @@
             font-weight: bold;
             color: var(--color-accent);
         }
-        
-        .sidebar nav {
-            display: flex;
-            flex-direction: column;
-        }
-        
+        .sidebar nav { display: flex; flex-direction: column; }
         .sidebar a.nav-link {
             display: flex;
             align-items: center;
@@ -113,7 +109,6 @@
             fill: currentColor;
             flex-shrink: 0;
         }
-        
         .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
@@ -129,10 +124,7 @@
             font-weight: 600;
             transition: all var(--transition-speed) ease;
         }
-        #logout-sidebar:hover { 
-            background: var(--color-surface); 
-            color: white;
-        }
+        #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
         /* --- Styles du Contenu --- */
@@ -142,29 +134,102 @@
             border-radius: 8px; 
             padding: 1.5rem; 
             margin-top: 1.5rem; 
-            transition: all var(--transition-speed) ease;
-        }
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
         .info-card h2 { 
-            margin: 0 0 1rem 0; 
+            margin: 0 0 1.5rem 0; 
             border-bottom: 2px solid var(--color-accent); 
             padding-bottom: 0.5rem; 
         }
-        .info-card p, .info-card a { 
-            font-size: 1.1rem; 
-            line-height: 1.6; 
-            color: var(--color-text-primary); 
-            text-decoration: none; 
-            white-space: pre-wrap; /* Respecte les sauts de ligne */ 
+
+        /* --- NOUVEAU: Grille Planning --- */
+        .planning-grid {
+            display: grid;
+            gap: 1rem;
         }
-        .info-card a {
+        .planning-day {
+            background: #1e1e21; /* Un peu plus sombre */
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-accent);
+            display: grid;
+            grid-template-columns: 100px 1fr; /* Colonnes pour le jour et le reste */
+            align-items: center;
+            gap: 1rem;
+        }
+        .planning-day h3 {
+            margin: 0;
+            font-size: 1.25rem;
             color: var(--color-accent);
-            font-weight: bold;
         }
-        .info-card a:hover { text-decoration: underline; }
+        .planning-details {
+            line-height: 1.4;
+        }
+        .planning-details span {
+            font-weight: bold;
+            color: var(--color-text-primary);
+        }
+        .planning-details p {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+        
+        /* --- NOUVEAU: Grille Réseaux --- */
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Deux colonnes */
+            gap: 1.5rem;
+        }
+        .social-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--color-text-primary);
+            background: #3a3e44;
+            transition: all var(--transition-speed) ease;
+        }
+        .social-button svg {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 1rem;
+            fill: white;
+            transition: fill var(--transition-speed) ease;
+        }
+        .social-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        /* Couleurs spécifiques au survol */
+        .social-button.discord:hover { background: #5865F2; }
+        .social-button.youtube:hover { background: #FF0000; }
+        
+        /* --- NOUVEAU: Liste de Règles --- */
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+        .rules-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            padding: 0.5rem 0;
+            line-height: 1.6;
+        }
+        .rules-list li svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--color-accent);
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
@@ -182,13 +247,8 @@
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
             }
-            .sidebar-header {
-                padding: 0;
-                border: none;
-            }
-            .sidebar nav {
-                flex-direction: row;
-            }
+            .sidebar-header { padding: 0; border: none; }
+            .sidebar nav { flex-direction: row; }
             .sidebar a.nav-link {
                 padding: 0.75rem;
                 border-left: none;
@@ -201,25 +261,27 @@
                 border-bottom-color: var(--color-accent);
                 color: white;
             }
-            .sidebar a.nav-link span { /* Cache le texte, garde l'icône */
-                display: none;
-            }
-            .sidebar-footer {
-                margin: 0 0 0 auto; /* Pousse la déconnexion à droite */
-                padding: 0;
-                border: none;
-            }
-            #logout-sidebar {
-                padding: 0.75rem;
-            }
-            #logout-sidebar span { /* Cache le texte, garde l'icône */
-                display: none;
-            }
+            .sidebar a.nav-link span { display: none; }
+            .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
+            #logout-sidebar { padding: 0.75rem; }
+            #logout-sidebar span { display: none; }
             
             main {
                 height: auto;
                 overflow-y: visible;
                 padding: 1rem;
+            }
+            
+            /* Responsive pour les nouvelles grilles */
+            .planning-day {
+                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+                gap: 0.5rem;
+                text-align: center;
+                border-left-width: 0;
+                border-top: 4px solid var(--color-accent); /* Borde en haut sur mobile */
+            }
+            .social-grid {
+                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
             }
         }
     </style>
@@ -257,40 +319,90 @@
         <h1>Infos & Commandes</h1>
         
         <div id="info-content">
-            <div class="info-card">
+            
+            <div class="info-card planning-card">
                 <h2>Planning des streams</h2>
-                <p id="planning">Lundi : 20h - Minuit
-Mercredi : 20h - Minuit
-Vendredi : Soirée spéciale à 21h</p>
+                <div class="planning-grid">
+                    
+                    <div class="planning-day">
+                        <h3>Lundi</h3>
+                        <div class="planning-details">
+                            <span>20h00 - 23h00</span>
+                            <p>Stream principal (ex: Nouveau jeu AAA)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="planning-day">
+                        <h3>Mercredi</h3>
+                        <div class="planning-details">
+                            <span>20h00 - 23h00</span>
+                            <p>Stream chill & discussion</p>
+                        </div>
+                    </div>
+                    
+                    <div class="planning-day">
+                        <h3>Vendredi</h3>
+                        <div class="planning-details">
+                            <span>21h00 - Tard</span>
+                            <p>Stream communautaire (Multijoueur)</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
             
-            <div class="info-card">
-                <h2>Discord</h2>
-                <p>Rejoignez la communauté !</p>
-                <a id="discord-link" href="https://discord.gg/VOTRE-LIEN" target="_blank">
-                    https://discord.gg/VOTRE-LIEN
-                </a>
-            </div>
-            
-            <div class="info-card">
-                <h2>YouTube</h2>
-                <p>Retrouvez les rediffusions et best-of.</p>
-                <a id="youtube-link" href="https://youtube.com/VOTRE-CHAINE" target="_blank">
-                    Lien de la chaîne
-                </a>
+            <div class="info-card social-card">
+                <h2>Rejoignez-nous</h2>
+                <div class="social-grid">
+                    
+                    <a id="discord-link" href="https://discord.gg/VOTRE-LIEN" target="_blank" class="social-button discord">
+                        <svg viewBox="0 0 24 24"><path d="M20.317 4.369a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.229a18.06 18.06 0 00-3.658 0 18.06 18.06 0 00-.608-1.229.074.074 0 00-.079-.037A19.736 19.736 0 003.683 4.37a.074.074 0 00-.034.043 21.61 21.61 0 00-1.632 7.15c.006.117.021.232.036.346.015.114.036.225.057.336.021.111.047.22.077.327.03.108.064.214.1.318.037.105.078.207.12.307.042.1.088.197.135.29.048.094.1.185.152.274.053.09.108.178.164.264.057.087.115.17.174.25.06.082.12.16.182.233.062.073.125.142.19.208.064.066.13.128.196.187.068.06.136.115.206.168.07.053.14.103.212.15.072.048.145.09.218.13.074.04.15.074.225.106.075.032.152.06.228.086.077.026.155.048.232.068.078.02.157.036.236.048.08.013.16.023.24.03.08.008.16.013.24.013.08.002.16.002.24 0l.24-.013c.08-.007.16-.015.24-.03.078-.012.157-.028.236-.048.078-.02.155-.042.232-.068.076-.026.152-.054.228-.086.075-.032.15-.066.225-.106.073-.04.145-.082.218-.13.072-.047.142-.097.212-.15.068-.053.136-.108.206-.168.066-.059.132-.12.196-.187.064-.066.128-.135.19-.208.062-.073.124-.142.182-.233.06-.08.118-.162.174-.25.056-.084.114-.168.164-.264.052-.088.104-.18.152-.274.047-.093.093-.19.135-.29.042-.1.083-.202.12-.307.037-.105.074-.21.1-.318.03-.107.056-.216.077-.327.02-.11.037-.222.057-.336.016-.114.03-.229.036-.346a21.61 21.61 0 00-1.632-7.15.074.074 0 00-.034-.043zM8.02 15.33c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666zm7.96 0c-.886 0-1.6-.746-1.6-1.666 0-.92.714-1.666 1.6-1.666.886 0 1.6.746 1.6 1.666 0 .92-.714 1.666-1.6 1.666z"></path></svg>
+                        <span>Rejoindre le Discord</span>
+                    </a>
+                    
+                    <a id="youtube-link" href="https://youtube.com/VOTRE-CHAINE" target="_blank" class="social-button youtube">
+                        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></Ssvg>
+                        <span>Chaîne YouTube</span>
+                    </a>
+                </div>
             </div>
 
-            <div class="info-card">
+            <div class="info-card rules-card">
                 <h2>Règles du chat</h2>
-                <p id="rules">1. Respectez-vous les uns les autres.
-2. Pas de spam, pas de majuscules abusives.
-3. Pas de pub ou de liens non autorisés.
-4. Écoutez les modérateurs.</p>
+                <svg width="0" height="0" style="display:none;">
+                    <symbol id="rule-icon" viewBox="0 0 24 24">
+                        <path d="M10 17l5-5-5-5v10z"></path>
+                    </symbol>
+                </svg>
+                
+                <ul class="rules-list">
+                    <li>
+                        <svg><use xlink:href="#rule-icon"/></svg>
+                        <span>Respectez tout le monde (streamer, modos, et les autres viewers).</span>
+                    </li>
+                    <li>
+                        <svg><use xlink:href="#rule-icon"/></svg>
+                        <span>Pas de spam, pas de majuscules abusives, pas de publicité.</span>
+                    </li>
+                    <li>
+                        <svg><use xlink:href="#rule-icon"/></svg>
+                        <span>Pas de spoilers sur les jeux, films, ou séries.</span>
+                    </li>
+                    <li>
+                        <svg><use xlink:href="#rule-icon"/></svg>
+                        <span>Pas de politique, de religion, ou de sujets qui fâchent.</span>
+                    </li>
+                    <li>
+                        <svg><use xlink:href="#rule-icon"/></svg>
+                        <span>Écoutez les modérateurs, ils ont le dernier mot.</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </main>
 
     <script>
+        // Script simple pour la déconnexion
         document.getElementById("logout-sidebar").onclick = function() {
             localStorage.removeItem("twitch_token");
             window.location.replace("/index.html");
