@@ -5,44 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil - Portail Viewer</title>
     <style>
+        /* --- Configuration Globale & Nouvelle Palette --- */
+        :root {
+            --color-background: #18181b;
+            --color-surface: #2a2a2d;
+            --color-sidebar: #2c2f33;
+            --color-border: #36363a;
+            --color-text-primary: #f0f0f0;
+            --color-text-secondary: #b9bbbe;
+            --color-accent: #00f5c3;
+            --color-danger: #ff6b6b;
+            --transition-speed: 0.3s;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            background: #18181b; 
-            color: white; 
-            font-family: sans-serif; 
+            background: var(--color-background); 
+            color: var(--color-text-primary); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            display: flex; /* Layout avec menu latéral */
+            display: flex;
             height: 100vh;
             overflow: hidden;
         }
+        
         main {
             flex-grow: 1;
-            overflow-y: auto; /* Scroll sur le contenu, pas le menu */
+            overflow-y: auto;
             height: 100vh;
             padding: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         /* --- Menu Latéral (Sidebar) --- */
         .sidebar {
             width: 250px;
-            background-color: #2c2f33;
+            background-color: var(--color-sidebar);
             flex-shrink: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 1rem 0;
-            border-right: 1px solid #36363a;
+            border-right: 1px solid var(--color-border);
+            transition: width var(--transition-speed) ease;
         }
         .sidebar-header {
             padding: 0 1.5rem 1rem 1.5rem;
-            border-bottom: 1px solid #36363a;
+            border-bottom: 1px solid var(--color-border);
         }
         .sidebar-header .logo-link {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             text-decoration: none;
-            color: white;
         }
         .sidebar-header .logo-link img {
             width: 40px;
@@ -53,28 +74,34 @@
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #9146ff;
+            color: var(--color-accent);
         }
+        
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+        }
+        
         .sidebar a.nav-link {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem 1.5rem;
-            color: #b9bbbe;
+            color: var(--color-text-secondary);
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.2s ease;
+            transition: all var(--transition-speed) ease;
             border-left: 4px solid transparent;
         }
         .sidebar a.nav-link:hover {
-            background: #36393f;
+            background: var(--color-surface);
             color: white;
-            border-left-color: #9146ff;
+            border-left-color: var(--color-accent);
         }
-        .sidebar a.nav-link.active { /* Page active */
+        .sidebar a.nav-link.active {
             background: #3a3e44;
             color: white;
-            border-left-color: #9146ff;
+            border-left-color: var(--color-accent);
         }
         .sidebar a.nav-link svg {
             width: 22px;
@@ -82,40 +109,137 @@
             fill: currentColor;
             flex-shrink: 0;
         }
+        
         .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 1px solid #36363a;
+            border-top: 1px solid var(--color-border);
         }
         #logout-sidebar {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem 1.5rem;
-            color: #f44336;
+            color: var(--color-danger);
             text-decoration: none;
             font-weight: 600;
-            transition: background 0.2s ease;
+            transition: all var(--transition-speed) ease;
         }
-        #logout-sidebar:hover { background: #36393f; }
+        #logout-sidebar:hover { 
+            background: var(--color-surface); 
+            color: white;
+        }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* --- Styles du contenu (copiés de l'ancien profile.html) --- */
-        #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
-        #profile-pic { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #9146ff; }
-        #display-name { margin: 0; font-size: 2.5rem; }
-        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; }
+        /* --- Styles du Contenu --- */
         #profile-content { max-width: 900px; margin: 0 auto; display: none; } /* Caché par défaut */
-        #stats { margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-        .stat-card { background: #2a2a2d; border-radius: 8px; padding: 1.5rem; text-align: center; }
-        .stat-card h2 { margin: 0; font-size: 1.2rem; color: #a9a9a9; text-transform: uppercase; }
-        .stat-card span { font-size: 3rem; font-weight: bold; color: #9146ff; }
-        #follow-status { font-size: 1.2rem; margin-top: 1rem; color: #c0c0c0; }
-        #xp-history { list-style: none; padding: 0; margin-top: 1rem; max-height: 400px; overflow-y: auto; background: #2a2a2d; border-radius: 8px; }
-        #xp-history li { padding: 1rem; border-bottom: 1px solid #36363a; }
+        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; }
+        
+        #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
+        #profile-pic { 
+            width: 100px; height: 100px; 
+            border-radius: 50%; 
+            border: 3px solid var(--color-accent); 
+        }
+        #display-name { margin: 0; font-size: 2.5rem; color: white; }
+        
+        #stats { 
+            margin-top: 2rem; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.5rem; 
+        }
+        .stat-card { 
+            background: var(--color-surface); 
+            border: 1px solid var(--color-border);
+            border-radius: 8px; 
+            padding: 1.5rem; 
+            text-align: center; 
+            transition: all var(--transition-speed) ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; }
+        .stat-card span { font-size: 3rem; font-weight: bold; color: var(--color-accent); }
+        
+        #follow-status-card { margin-top: 1.5rem; }
+        #follow-status { font-size: 1.2rem; margin: 0; color: var(--color-text-secondary); }
+        
+        #xp-history { 
+            list-style: none; padding: 0; margin-top: 1rem; 
+            max-height: 400px; overflow-y: auto; 
+            background: var(--color-surface); 
+            border: 1px solid var(--color-border);
+            border-radius: 8px; 
+        }
+        #xp-history li { padding: 1rem; border-bottom: 1px solid var(--color-border); }
         #xp-history li:last-child { border-bottom: none; }
-        .xp-gain { color: #4caf50; }
-        .xp-loss { color: #f44336; }
+        .xp-gain { color: #4caf50; } /* Gardé vert pour "gain" */
+        .xp-loss { color: #f44336; } /* Gardé rouge pour "perte" */
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 0.5rem 1rem;
+                border-right: none;
+                border-bottom: 1px solid var(--color-border);
+            }
+            .sidebar-header {
+                padding: 0;
+                border: none;
+            }
+            .sidebar nav {
+                flex-direction: row;
+            }
+            .sidebar a.nav-link {
+                padding: 0.75rem;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+            .sidebar a.nav-link:hover,
+            .sidebar a.nav-link.active {
+                background: none;
+                border-left-color: transparent;
+                border-bottom-color: var(--color-accent);
+                color: white;
+            }
+            .sidebar a.nav-link span { /* Cache le texte, garde l'icône */
+                display: none;
+            }
+            .sidebar-footer {
+                margin: 0 0 0 auto; /* Pousse la déconnexion à droite */
+                padding: 0;
+                border: none;
+            }
+            #logout-sidebar {
+                padding: 0.75rem;
+            }
+            #logout-sidebar span { /* Cache le texte, garde l'icône */
+                display: none;
+            }
+            
+            main {
+                height: auto;
+                overflow-y: visible;
+                padding: 1rem;
+            }
+            #profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            #display-name { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
@@ -128,19 +252,16 @@
             </a>
         </div>
         
-        <a href="/profile.html" class="nav-link active" id="nav-profile"> <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
-            <span>Mon Profil</span>
-        </a>
-        
-        <a href="/infos.html" class="nav-link" id="nav-info">
-            <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
-            <span>Infos & Commandes</span>
-        </a>
-        
-        <a href="/don.html" class="nav-link" id="nav-don">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.26 14.24c-.18.18-.44.29-.71.29s-.53-.11-.71-.29l-2.29-2.29c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.59 1.59 5.59-5.59c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41l-6.29 6.29z"></path></svg>
-            <span>Faire un Don</span>
-        </a>
+        <nav>
+            <a href="/profile.html" class="nav-link active" id="nav-profile"> <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                <span>Mon Profil</span>
+            </a>
+            
+            <a href="/infos.html" class="nav-link" id="nav-info">
+                <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                <span>Infos & Commandes</span>
+            </a>
+        </nav>
 
         <div class="sidebar-footer">
             <a id="logout-sidebar" href="#"> <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
@@ -148,37 +269,38 @@
             </a>
         </div>
     </nav>
-    <main id="profile-content">
-        <div id="profile-header">
-            <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
-            <h1 id="display-name">Chargement...</h1>
-        </div>
-        
-        <div id="stats">
-            <div class="stat-card">
-                <h2>Niveau</h2>
-                <span id="level">1</span>
+    <main>
+        <div id="profile-content">
+            <div id="profile-header">
+                <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
+                <h1 id="display-name">Chargement...</h1>
             </div>
-            <div class="stat-card">
-                <h2>XP Total</h2>
-                <span id="xp">0</span>
+            
+            <div id="stats">
+                <div class="stat-card">
+                    <h2>Niveau</h2>
+                    <span id="level">1</span>
+                </div>
+                <div class="stat-card">
+                    <h2>XP Total</h2>
+                    <span id="xp">0</span>
+                </div>
             </div>
-        </div>
-        <div class="stat-card" style="margin-top: 1.5rem;" id="follow-status-card">
-            <h3 id="follow-status">Chargement du statut...</h3>
+            <div class="stat-card" style="margin-top: 1.5rem;" id="follow-status-card">
+                <h3 id="follow-status">Chargement du statut...</h3>
+            </div>
+            
+            <h2 style="margin-top: 2.5rem;">Historique d'XP Récent</h2>
+            <ul id="xp-history">
+                <li>Chargement de l'historique...</li>
+            </ul>
         </div>
         
-        <h2 style="margin-top: 2.5rem;">Historique d'XP Récent</h2>
-        <ul id="xp-history">
-            <li>Chargement de l'historique...</li>
-        </ul>
-        
-        </main>
-    
-    <div id="loading">
-        <h2>Chargement de votre profil...</h2>
-        <p>Connexion à Twitch et Firebase en cours.</p>
-    </div>
+        <div id="loading">
+            <h2>Chargement de votre profil...</h2>
+            <p>Connexion à Twitch et Firebase en cours.</p>
+        </div>
+    </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>

@@ -5,101 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEL-X : Portail Viewer</title>
     <style>
-        /* ... (Styles CSS identiques) ... */
+        /* --- Configuration Globale & Nouvelle Palette --- */
+        :root {
+            --color-background: #18181b;
+            --color-surface: #2a2a2d;
+            --color-border: #36363a;
+            --color-text-primary: #f0f0f0;
+            --color-text-secondary: #b9bbbe;
+            --color-accent: #00f5c3;
+            --color-danger: #ff6b6b;
+            --transition-speed: 0.3s;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            background: #18181b; 
-            color: white; 
-            font-family: sans-serif; 
+            background: var(--color-background); 
+            color: var(--color-text-primary); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 2rem;
             display: grid;
             place-items: center;
             min-height: 90vh;
         }
+        
         main {
             max-width: 900px;
             width: 100%;
             text-align: center;
+            animation: fadeIn 0.5s ease-out;
         }
         
-        #logo-container {
-            margin-bottom: 2rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        /* --- Logo --- */
+        #logo-container { margin-bottom: 2rem; }
         #logo-container h1 {
             font-size: 4rem;
-            color: #9146ff;
+            color: var(--color-accent);
             margin: 0;
+            font-weight: 800;
         }
-        
         #logo-image {
             width: 120px;
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #9146ff;
+            border: 3px solid var(--color-accent);
             margin: 1rem auto;
             display: block;
         }
-
         #welcome-message {
             font-size: 1.5rem;
-            color: #e0e0e0;
+            color: var(--color-text-secondary);
         }
         
+        /* --- Vues & Boutons --- */
         #logged-out-view, #logged-in-view {
             margin-top: 3rem;
         }
         
-        .btn-login { 
-            background: #9146ff; 
-            color: white; 
+        .btn-primary { 
+            background: var(--color-accent); 
+            color: #18181b; /* Texte foncé pour l'accent vif */
             padding: 1rem 2rem; 
             border-radius: 8px; 
             text-decoration: none; 
             font-weight: bold;
             font-size: 1.2rem;
-            transition: background 0.2s ease;
+            transition: all var(--transition-speed) ease;
             display: inline-block;
+            border: none;
         }
-        .btn-login:hover { background: #7a3be0; }
+        .btn-primary:hover { 
+            background: white;
+            color: #18181b;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 245, 195, 0.2);
+        }
 
+        /* --- Grille de Navigation (Maintenant 2 cartes) --- */
         .nav-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-top: 2rem;
         }
         .nav-card {
             display: block;
-            background: #2a2a2d;
-            border: 2px solid #36363a;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
             border-radius: 8px;
             padding: 2rem;
             text-decoration: none;
-            color: white;
-            transition: transform 0.2s ease, background 0.2s ease;
+            color: var(--color-text-primary);
+            transition: all var(--transition-speed) ease;
         }
         .nav-card:hover {
             transform: translateY(-5px);
-            background: #36363a;
+            border-color: var(--color-accent);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
         .nav-card h2 {
             margin: 0 0 0.5rem 0;
-            color: #9146ff;
+            color: var(--color-accent);
         }
         .nav-card p {
             margin: 0;
-            color: #c0c0c0;
+            color: var(--color-text-secondary);
             line-height: 1.4;
         }
         
+        /* --- Déconnexion --- */
         #logout { 
-            color: #f44336; 
+            color: var(--color-danger); 
             cursor: pointer; 
-            text-decoration: underline;
+            text-decoration: none;
             display: inline-block;
             margin-top: 3rem;
             font-size: 1.1rem;
+            transition: color var(--transition-speed) ease;
+        }
+        #logout:hover { color: white; }
+        
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            #logo-container h1 { font-size: 3rem; }
+            .nav-grid {
+                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+            }
         }
     </style>
 </head>
@@ -112,8 +151,8 @@
         </div>
 
         <div id="logged-out-view" style="display:none;">
-            <p>Connectez-vous avec Twitch pour accéder à votre profil, votre XP et plus encore.</p>
-            <a id="login-link" class="btn-login" href="#">Se connecter avec Twitch</a>
+            <p>Connectez-vous avec Twitch pour accéder à votre profil et votre XP.</p>
+            <a id="login-link" class="btn-primary" href="#">Se connecter avec Twitch</a>
         </div>
 
         <div id="logged-in-view" style="display:none;">
@@ -126,10 +165,6 @@
                     <h2>Infos & Commandes</h2>
                     <p>Retrouver le planning, le lien Discord, YouTube et les règles du chat.</p>
                 </a>
-                <a href="/don.html" class="nav-card">
-                    <h2>Faire un Don</h2>
-                    <p>Soutenir la chaîne via PayPal, Streamlabs ou d'autres plateformes.</p>
-                </a>
             </div>
             <a id="logout" href="#">Se déconnecter</a>
         </div>
@@ -137,8 +172,8 @@
     
 <script>
     // === 1. CONFIGURATION ===
-    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // (Juste pour la vérification du token)
-
+    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+    
     // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
     const loggedInView = document.getElementById("logged-in-view");
     const loggedOutView = document.getElementById("logged-out-view");
@@ -158,21 +193,15 @@
         const token = localStorage.getItem("twitch_token");
 
         if (!token) {
-            // --- CAS 1 : NON CONNECTÉ (CORRIGÉ) ---
+            // --- CAS 1 : NON CONNECTÉ ---
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
-            // On construit le VRAI lien de connexion Twitch
-            // On utilise window.location.origin pour que cela fonctionne en local (http://localhost:XXXX) et en production (https://monsite.com)
             const REDIRECT_URI = window.location.origin + "/auth.html";
-            
-            // On demande la permission de lire le statut de follow, car app.js en a besoin
-            // NOUVELLE LIGNE
-            const SCOPES = "user:read:follows";
+            const SCOPES = "user:read:follows"; 
             
             const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
             
             loginLink.href = authUrl; 
-            
             loggedOutView.style.display = "block";
             
         } else {
