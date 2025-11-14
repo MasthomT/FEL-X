@@ -31,14 +31,13 @@
             font-weight: 300; 
             margin: 0;
             display: flex;
-            height: 100%; /* CORRIGÉ: Permet au body de grandir */
+            height: 100%; 
             overflow-x: hidden;
         }
         
         main {
             flex-grow: 1;
-            /* !! CORRECTION: 'main' ne scrolle plus, il grandit !! */
-            overflow-y: visible;
+            overflow-y: auto;
             height: auto;
             min-height: 100vh;
             padding: 2rem;
@@ -50,18 +49,17 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* --- Menu Latéral (Sidebar) --- */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
             flex-shrink: 0;
-            height: 100vh; /* Reste à 100% de la fenêtre */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
             transition: width var(--transition-speed) ease;
-            position: sticky; /* !! CORRECTION: Reste en place !! */
+            position: sticky; 
             top: 0;
         }
         .sidebar-header {
@@ -82,7 +80,7 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: 600; /* Poids adouci */
+            font-weight: 600;
             color: var(--color-accent);
         }
         .sidebar nav { display: flex; flex-direction: column; }
@@ -134,11 +132,9 @@
         }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* --- Styles du Contenu --- */
         #profile-content { max-width: 900px; margin: 0 auto; display: none; } 
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
-        /* --- Bannière de Statut Live --- */
         #stream-status-banner {
             display: none; 
             background: var(--color-surface);
@@ -195,7 +191,6 @@
         }
         #display-name { margin: 0; font-size: 2.5rem; color: white; font-weight: 600; }
         
-        /* --- Grille de Stats --- */
         #stats { 
             margin-top: 2rem; 
             display: grid; 
@@ -276,12 +271,11 @@
         .xp-gain { color: #4caf50; } 
         .xp-loss { color: #f44336; } 
 
-        /* --- Responsive --- */
         @media (max-width: 768px) {
             body { 
                 flex-direction: column; 
                 height: auto; 
-                overflow-y: auto; /* Active le scroll body sur mobile */
+                overflow-y: auto; 
             }
             .sidebar {
                 width: 100%;
@@ -291,7 +285,7 @@
                 padding: 0.5rem 1rem;
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
-                position: static; /* Annule le sticky */
+                position: static; 
             }
             .sidebar-header { padding: 0; border: none; }
             .sidebar nav { flex-direction: row; }
@@ -346,6 +340,11 @@
             <a href="/leaderboard.html" class="nav-link" id="nav-leaderboard">
                 <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
                 <span>Classement</span>
+            </a>
+            
+            <a href="/clips.html" class="nav-link" id="nav-clips">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm4-4H7V9h8v2zm0-4H7V5h8v2z"></path></svg>
+                <span>Galerie de Clips</span>
             </a>
         </nav>
 

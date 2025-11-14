@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classement - Portail Viewer</title>
+    <title>Galerie de Clips - Portail Viewer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -36,12 +36,12 @@
         
         main {
             flex-grow: 1;
-            overflow-y: visible;
+            overflow-y: auto;
             height: auto;
             min-height: 100vh;
             padding: 2rem;
             animation: fadeIn 0.5s ease-out;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -53,7 +53,7 @@
         h1 { 
             color: var(--color-accent); 
             margin-bottom: 1.5rem;
-            font-weight: 600; 
+            font-weight: 600;
         }
 
         .sidebar {
@@ -66,7 +66,7 @@
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
             transition: width var(--transition-speed) ease;
-            position: sticky; 
+            position: sticky;
             top: 0;
         }
         .sidebar-header {
@@ -138,76 +138,79 @@
         
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
-        #leaderboard-list {
-            list-style: none;
-            padding: 0;
+        #clips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
             display: none;
-            flex-direction: column;
-            gap: 0.5rem;
         }
         
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
+        .clip-card {
             background: var(--color-surface);
-            padding: 0.75rem 1.5rem;
             border-radius: 8px;
             border: 1px solid var(--color-border);
+            text-decoration: none;
+            color: var(--color-text-primary);
+            overflow: hidden;
             transition: all var(--transition-speed) ease;
         }
-        .leaderboard-item:hover {
-            transform: scale(1.02);
+        .clip-card:hover {
+            transform: translateY(-5px);
             border-color: var(--color-accent);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
         
-        .leaderboard-item .rank {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            width: 40px; 
-            text-align: right;
+        .clip-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background-size: cover;
+            background-position: center;
         }
         
-        .leaderboard-item .avatar {
+        .clip-thumbnail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            transition: opacity var(--transition-speed) ease;
+        }
+        .clip-card:hover .clip-thumbnail-overlay {
+            opacity: 1;
+        }
+        .play-icon {
             width: 50px;
             height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--color-accent);
+            fill: white;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
         }
-        
-        .leaderboard-item .user-info {
-            flex-grow: 1;
+
+        .clip-info {
+            padding: 1rem;
         }
-        
-        .leaderboard-item .user-info .name {
-            font-size: 1.25rem;
-            font-weight: 400;
+        .clip-info .title {
+            font-size: 1.1rem;
+            font-weight: 500;
             color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            margin-bottom: 0.5rem;
         }
-        .leaderboard-item .user-info .level {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: var(--color-text-secondary);
-        }
-        
-        .leaderboard-item .xp-info {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-        }
-        .leaderboard-item .xp-info span {
+        .clip-info .details {
             font-size: 0.9rem;
             font-weight: 300;
             color: var(--color-text-secondary);
         }
 
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-                height: auto; 
-                overflow-y: auto; 
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -244,11 +247,9 @@
                 min-height: 0;
             }
             
-            .leaderboard-item { gap: 1rem; }
-            .leaderboard-item .rank { font-size: 1rem; width: 30px; }
-            .leaderboard-item .avatar { width: 40px; height: 40px; }
-            .leaderboard-item .user-info .name { font-size: 1rem; }
-            .leaderboard-item .xp-info { font-size: 1.2rem; }
+            #clips-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -273,12 +274,12 @@
                 <span>Infos & Commandes</span>
             </a>
 
-            <a href="/leaderboard.html" class="nav-link active" id="nav-leaderboard">
+            <a href="/leaderboard.html" class="nav-link" id="nav-leaderboard">
                 <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
                 <span>Classement</span>
             </a>
             
-            <a href="/clips.html" class="nav-link" id="nav-clips">
+            <a href="/clips.html" class="nav-link active" id="nav-clips">
                 <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm4-4H7V9h8v2zm0-4H7V5h8v2z"></path></svg>
                 <span>Galerie de Clips</span>
             </a>
@@ -287,25 +288,23 @@
         <div class="sidebar-footer">
             <a id="logout-sidebar" href="#">
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
-                <span>Se d√©connecter</span>
+                <span>Se dÈconnecter</span>
             </a>
         </div>
     </nav>
     <main>
-        <h1>Classement de la Communaut√©</h1>
+        <h1>Galerie de Clips</h1>
         
         <div id="loading">
-            <h2>Chargement du classement...</h2>
-            <p>Connexion √† Firebase et Twitch en cours.</p>
+            <h2>Chargement des clips...</h2>
+            <p>Connexion ‡ l'API Twitch en cours.</p>
         </div>
         
-        <ol id="leaderboard-list"></ol>
+        <div id="clips-grid">
+            </div>
         
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <script src="/leaderboard.js"></script> 
+    <script src="/clips.js"></script> 
 </body>
 </html>

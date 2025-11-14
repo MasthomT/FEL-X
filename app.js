@@ -1,11 +1,9 @@
-// Cible le bouton de déconnexion sur le menu latéral
 if(document.getElementById("logout-sidebar")) {
     document.getElementById("logout-sidebar").onclick = function() {
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html");
     };
 }
-// (Sécurité pour le bouton de la page d'accueil)
 if(document.getElementById("logout")) {
     document.getElementById("logout").onclick = function() {
         localStorage.removeItem("twitch_token");
@@ -13,9 +11,6 @@ if(document.getElementById("logout")) {
     };
 }
 
-// =================================================================
-// 2. CONFIGURATION FIREBASE
-// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -26,25 +21,17 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Évite l'erreur de "déjà initialisé"
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// =================================================================
-// 3. FONCTION DE CALCUL DE NIVEAU
-// =================================================================
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
     return Math.max(1, level);
 }
 
-// =================================================================
-// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL)
-// =================================================================
-// On vérifie que la fonction loadProfile ne s'exécute que sur la page profile.html
 if (document.getElementById("profile-content")) {
     (async function loadProfile() {
         const token = localStorage.getItem("twitch_token");
@@ -62,7 +49,6 @@ if (document.getElementById("profile-content")) {
         });
 
         try {
-            // === ÉTAPE A: Récupérer l'identité du viewer ===
             const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
             if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
             
@@ -73,7 +59,6 @@ if (document.getElementById("profile-content")) {
             document.getElementById("profile-pic").src = user.profile_image_url;
 
 
-            // === ÉTAPE B: Récupérer le statut du stream ===
             (async function fetchStreamStatus() {
                 const banner = document.getElementById("stream-status-banner");
                 const statusText = document.getElementById("stream-status-text");
@@ -85,13 +70,11 @@ if (document.getElementById("profile-content")) {
                     const streamData = await streamResponse.json();
                     
                     if (streamData.data.length > 0) {
-                        // LE STREAM EST EN LIGNE
                         const stream = streamData.data[0];
                         banner.classList.add("live");
                         statusText.textContent = "EN LIGNE";
                         detailsText.innerHTML = `<strong>${stream.title}</strong><br>Joue à : ${stream.game_name} | ${stream.viewer_count} viewers`;
                     } else {
-                        // LE STREAM EST HORS LIGNE
                         banner.classList.add("offline");
                         statusText.textContent = "HORS LIGNE";
                         detailsText.textContent = "La chaîne est actuellement hors ligne. Revenez plus tard !";
@@ -104,7 +87,6 @@ if (document.getElementById("profile-content")) {
             })();
             
 
-            // === ÉTAPE C: Récupérer les données XP ===
             const userKey = user.login.toLowerCase(); 
             const xpRef = db.ref(`viewer_data/xp/${userKey}`);
             const historyRef = db.ref(`viewer_data/history/${userKey}`);
@@ -141,7 +123,6 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === ÉTAPE D: Récupérer le statut de Follow ===
             (async function fetchFollowStatus() {
                 const followIndicator = document.getElementById("follow-indicator");
                 const followStatusEl = document.getElementById("follow-status");
@@ -156,19 +137,18 @@ if (document.getElementById("profile-content")) {
                     if (followData.total > 0 && followData.data.length > 0) {
                         const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
                         followStatusEl.textContent = `Vous suivez la chaîne depuis le ${followDate}`;
-                        followIndicator.style.backgroundColor = "var(--color-accent)"; // VERT
+                        followIndicator.style.backgroundColor = "var(--color-accent)";
                     } else {
                         followStatusEl.textContent = "Vous ne suivez pas la chaîne.";
-                        followIndicator.style.backgroundColor = "var(--color-danger)"; // ROUGE
+                        followIndicator.style.backgroundColor = "var(--color-danger)";
                     }
                 } catch (error) {
                      console.error("Erreur API Follow:", error);
                      followStatusEl.textContent = "Statut de follow indisponible";
-                     followIndicator.style.backgroundColor = "var(--color-text-secondary)"; // GRIS
+                     followIndicator.style.backgroundColor = "var(--color-text-secondary)";
                 }
             })();
 
-            // === ÉTAPE E: Récupérer le statut d'Abonnement ===
             (async function fetchSubscriptionStatus() {
                 const subStatusEl = document.getElementById("sub-status");
                 const subTierEl = document.getElementById("sub-tier");
@@ -197,7 +177,6 @@ if (document.getElementById("profile-content")) {
                 }
             })();
 
-            // === ÉTAPE F: Afficher le profil complet ===
             document.getElementById("loading").style.display = "none";
             document.getElementById("profile-content").style.display = "block";
 
