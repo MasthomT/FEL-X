@@ -73,7 +73,7 @@ if (document.getElementById("profile-content")) {
             document.getElementById("profile-pic").src = user.profile_image_url;
 
 
-            // === !! NOUVEAU: ÉTAPE B: Récupérer le statut du stream !! ===
+            // === ÉTAPE B: Récupérer le statut du stream (Inchangé) ===
             (async function fetchStreamStatus() {
                 const banner = document.getElementById("stream-status-banner");
                 const statusText = document.getElementById("stream-status-text");
@@ -141,7 +141,7 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === ÉTAPE D: Récupérer le statut de Follow (API Corrigée) ===
+            // === ÉTAPE D: Récupérer le statut de Follow (Inchangé) ===
             (async function fetchFollowStatus() {
                 try {
                     const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
@@ -162,27 +162,33 @@ if (document.getElementById("profile-content")) {
                 }
             })();
 
-            // === !! NOUVEAU: ÉTAPE E: Récupérer le statut d'Abonnement !! ===
+            // === !! MODIFICATION: ÉTAPE E: Récupérer le statut d'Abonnement !! ===
             (async function fetchSubscriptionStatus() {
                 const subStatusEl = document.getElementById("sub-status");
+                const subTierEl = document.getElementById("sub-tier"); // NOUVEAU
+                
                 try {
-                    // Cette API renvoie 200 s'ils sont abonnés, et 404 s'ils ne le sont pas
                     const subResponse = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`, { headers: twitchHeaders });
                     
                     if (subResponse.ok) {
                         const subData = await subResponse.json();
                         const tier = subData.data[0].tier;
-                        if (tier === "2000") subStatusEl.textContent = "Abonné (Tier 2)";
-                        else if (tier === "3000") subStatusEl.textContent = "Abonné (Tier 3)";
-                        else subStatusEl.textContent = "Abonné (Tier 1)";
+                        
+                        subStatusEl.textContent = "Abonné"; // Ligne 1
+                        
+                        // Ligne 2
+                        if (tier === "2000") subTierEl.textContent = "(Tier 2)";
+                        else if (tier === "3000") subTierEl.textContent = "(Tier 3)";
+                        else subTierEl.textContent = "(Tier 1)";
                         
                     } else {
-                        // L'erreur 404 est le comportement normal pour "non abonné"
                         subStatusEl.textContent = "Non Abonné";
+                        subTierEl.textContent = ""; // Pas de sous-texte
                     }
                 } catch (error) {
                     console.error("Erreur API Subscription:", error);
                     subStatusEl.textContent = "Indisponible";
+                    subTierEl.textContent = "";
                 }
             })();
 
@@ -193,11 +199,9 @@ if (document.getElementById("profile-content")) {
         } catch (error) {
             console.error("Erreur lors du chargement du profil:", error);
             if (error.message.includes("Token")) {
-                // Si le token principal (pour /users) échoue, on redirige
                 localStorage.removeItem("twitch_token");
                 window.location.replace("/index.html?error=session_expired");
             } else {
-                // Pour les autres erreurs (API partielles), on affiche une erreur
                 document.getElementById("loading").textContent = "Une erreur est survenue lors du chargement de certaines données.";
             }
         }
