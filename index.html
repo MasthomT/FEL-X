@@ -197,7 +197,10 @@
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
             const REDIRECT_URI = window.location.origin + "/auth.html";
-            const SCOPES = "user:read:follows"; 
+            
+            // !! MODIFICATION ICI !!
+            // Ajout de 'user:read:subscriptions' pour vérifier l'abonnement
+            const SCOPES = "user:read:follows user:read:subscriptions"; 
             
             const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
             

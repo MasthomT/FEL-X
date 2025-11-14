@@ -15,6 +15,7 @@
             --color-text-secondary: #b9bbbe;
             --color-accent: #00f5c3;
             --color-danger: #ff6b6b;
+            --color-live: #e91e63; /* Rouge-rose pour "LIVE" */
             --transition-speed: 0.3s;
         }
 
@@ -44,6 +45,7 @@
         }
         
         /* --- Menu Latéral (Sidebar) --- */
+        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -76,12 +78,7 @@
             font-weight: bold;
             color: var(--color-accent);
         }
-        
-        .sidebar nav {
-            display: flex;
-            flex-direction: column;
-        }
-        
+        .sidebar nav { display: flex; flex-direction: column; }
         .sidebar a.nav-link {
             display: flex;
             align-items: center;
@@ -109,7 +106,6 @@
             fill: currentColor;
             flex-shrink: 0;
         }
-        
         .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
@@ -125,16 +121,60 @@
             font-weight: 600;
             transition: all var(--transition-speed) ease;
         }
-        #logout-sidebar:hover { 
-            background: var(--color-surface); 
-            color: white;
-        }
+        #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
         /* --- Styles du Contenu --- */
-        #profile-content { max-width: 900px; margin: 0 auto; display: none; } /* Caché par défaut */
+        #profile-content { max-width: 900px; margin: 0 auto; display: none; } 
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; }
         
+        /* !! NOUVEAU: Bannière de Statut Live !! */
+        #stream-status-banner {
+            display: none; /* Caché par défaut, activé par JS */
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        #stream-status-banner.live {
+            border-left: 5px solid var(--color-live);
+        }
+        #stream-status-banner.offline {
+            border-left: 5px solid var(--color-text-secondary);
+        }
+        #stream-status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        #stream-status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-text-secondary);
+        }
+        #stream-status-banner.live #stream-status-indicator {
+            background: var(--color-live);
+            animation: pulse 1.5s infinite;
+        }
+        #stream-status-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        #stream-details {
+            color: var(--color-text-secondary);
+        }
+        #stream-details strong {
+            color: var(--color-text-primary);
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(233, 30, 99, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
+        }
+
         #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
         #profile-pic { 
             width: 100px; height: 100px; 
@@ -143,6 +183,7 @@
         }
         #display-name { margin: 0; font-size: 2.5rem; color: white; }
         
+        /* !! MODIFIÉ: Grille à 3 colonnes pour les stats !! */
         #stats { 
             margin-top: 2rem; 
             display: grid; 
@@ -163,6 +204,10 @@
         }
         .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; }
         .stat-card span { font-size: 3rem; font-weight: bold; color: var(--color-accent); }
+        /* Style pour les cartes avec texte au lieu de chiffres */
+        .stat-card span.text-stat {
+             font-size: 2rem; /* Plus petit pour le texte */
+        }
         
         #follow-status-card { margin-top: 1.5rem; }
         #follow-status { font-size: 1.2rem; margin: 0; color: var(--color-text-secondary); }
@@ -176,16 +221,12 @@
         }
         #xp-history li { padding: 1rem; border-bottom: 1px solid var(--color-border); }
         #xp-history li:last-child { border-bottom: none; }
-        .xp-gain { color: #4caf50; } /* Gardé vert pour "gain" */
-        .xp-loss { color: #f44336; } /* Gardé rouge pour "perte" */
+        .xp-gain { color: #4caf50; }
+        .xp-loss { color: #f44336; }
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                height: auto;
-                overflow-y: auto;
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -195,13 +236,8 @@
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
             }
-            .sidebar-header {
-                padding: 0;
-                border: none;
-            }
-            .sidebar nav {
-                flex-direction: row;
-            }
+            .sidebar-header { padding: 0; border: none; }
+            .sidebar nav { flex-direction: row; }
             .sidebar a.nav-link {
                 padding: 0.75rem;
                 border-left: none;
@@ -214,30 +250,13 @@
                 border-bottom-color: var(--color-accent);
                 color: white;
             }
-            .sidebar a.nav-link span { /* Cache le texte, garde l'icône */
-                display: none;
-            }
-            .sidebar-footer {
-                margin: 0 0 0 auto; /* Pousse la déconnexion à droite */
-                padding: 0;
-                border: none;
-            }
-            #logout-sidebar {
-                padding: 0.75rem;
-            }
-            #logout-sidebar span { /* Cache le texte, garde l'icône */
-                display: none;
-            }
+            .sidebar a.nav-link span { display: none; }
+            .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
+            #logout-sidebar { padding: 0.75rem; }
+            #logout-sidebar span { display: none; }
             
-            main {
-                height: auto;
-                overflow-y: visible;
-                padding: 1rem;
-            }
-            #profile-header {
-                flex-direction: column;
-                text-align: center;
-            }
+            main { height: auto; overflow-y: visible; padding: 1rem; }
+            #profile-header { flex-direction: column; text-align: center; }
             #display-name { font-size: 2rem; }
         }
     </style>
@@ -270,6 +289,15 @@
         </div>
     </nav>
     <main>
+        
+        <div id="stream-status-banner">
+            <div id="stream-status-header">
+                <div id="stream-status-indicator"></div>
+                <span id="stream-status-text">Chargement du statut...</span>
+            </div>
+            <div id="stream-details"></div>
+        </div>
+        
         <div id="profile-content">
             <div id="profile-header">
                 <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
@@ -284,6 +312,10 @@
                 <div class="stat-card">
                     <h2>XP Total</h2>
                     <span id="xp">0</span>
+                </div>
+                <div class="stat-card">
+                    <h2>Abonnement</h2>
+                    <span id="sub-status" class="text-stat">...</span>
                 </div>
             </div>
             <div class="stat-card" style="margin-top: 1.5rem;" id="follow-status-card">
