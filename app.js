@@ -42,9 +42,8 @@ function calculateLevel(xp) {
 }
 
 // =================================================================
-// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL) - MISE À JOUR
+// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL)
 // =================================================================
-// On vérifie que la fonction loadProfile ne s'exécute que sur la page profile.html
 if (document.getElementById("profile-content")) {
     (async function loadProfile() {
         const token = localStorage.getItem("twitch_token");
@@ -85,13 +84,11 @@ if (document.getElementById("profile-content")) {
                     const streamData = await streamResponse.json();
                     
                     if (streamData.data.length > 0) {
-                        // LE STREAM EST EN LIGNE
                         const stream = streamData.data[0];
                         banner.classList.add("live");
                         statusText.textContent = "EN LIGNE";
                         detailsText.innerHTML = `<strong>${stream.title}</strong><br>Joue à : ${stream.game_name} | ${stream.viewer_count} viewers`;
                     } else {
-                        // LE STREAM EST HORS LIGNE
                         banner.classList.add("offline");
                         statusText.textContent = "HORS LIGNE";
                         detailsText.textContent = "La chaîne est actuellement hors ligne. Revenez plus tard !";
@@ -100,7 +97,7 @@ if (document.getElementById("profile-content")) {
                     console.error("Erreur statut stream:", error);
                     statusText.textContent = "Statut du stream indisponible";
                 }
-                banner.style.display = "block"; // Affiche la bannière
+                banner.style.display = "block";
             })();
             
 
@@ -141,8 +138,12 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === ÉTAPE D: Récupérer le statut de Follow (Inchangé) ===
+            // === !! MODIFICATION: ÉTAPE D: Récupérer le statut de Follow !! ===
             (async function fetchFollowStatus() {
+                // NOUVEAU: Cibler les deux éléments
+                const followIndicator = document.getElementById("follow-indicator");
+                const followStatusEl = document.getElementById("follow-status");
+                
                 try {
                     const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
                     
@@ -152,20 +153,23 @@ if (document.getElementById("profile-content")) {
                     
                     if (followData.total > 0 && followData.data.length > 0) {
                         const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
-                        document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+                        followStatusEl.textContent = `Vous suivez la chaîne depuis le ${followDate}`;
+                        followIndicator.style.backgroundColor = "var(--color-accent)"; // VERT
                     } else {
-                        document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
+                        followStatusEl.textContent = "Vous ne suivez pas la chaîne.";
+                        followIndicator.style.backgroundColor = "var(--color-danger)"; // ROUGE
                     }
                 } catch (error) {
                      console.error("Erreur API Follow:", error);
-                     document.getElementById("follow-status").textContent = "Statut de follow indisponible";
+                     followStatusEl.textContent = "Statut de follow indisponible";
+                     followIndicator.style.backgroundColor = "var(--color-text-secondary)"; // GRIS
                 }
             })();
 
-            // === !! MODIFICATION: ÉTAPE E: Récupérer le statut d'Abonnement !! ===
+            // === ÉTAPE E: Récupérer le statut d'Abonnement (Inchangé) ===
             (async function fetchSubscriptionStatus() {
                 const subStatusEl = document.getElementById("sub-status");
-                const subTierEl = document.getElementById("sub-tier"); // NOUVEAU
+                const subTierEl = document.getElementById("sub-tier");
                 
                 try {
                     const subResponse = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${BROADCASTER_ID}&user_id=${user.id}`, { headers: twitchHeaders });
@@ -174,16 +178,15 @@ if (document.getElementById("profile-content")) {
                         const subData = await subResponse.json();
                         const tier = subData.data[0].tier;
                         
-                        subStatusEl.textContent = "Abonné"; // Ligne 1
+                        subStatusEl.textContent = "Abonné"; 
                         
-                        // Ligne 2
                         if (tier === "2000") subTierEl.textContent = "(Tier 2)";
                         else if (tier === "3000") subTierEl.textContent = "(Tier 3)";
                         else subTierEl.textContent = "(Tier 1)";
                         
                     } else {
                         subStatusEl.textContent = "Non Abonné";
-                        subTierEl.textContent = ""; // Pas de sous-texte
+                        subTierEl.textContent = ""; 
                     }
                 } catch (error) {
                     console.error("Erreur API Subscription:", error);
@@ -202,8 +205,9 @@ if (document.getElementById("profile-content")) {
                 localStorage.removeItem("twitch_token");
                 window.location.replace("/index.html?error=session_expired");
             } else {
+                // Affiche l'erreur que vous voyez
                 document.getElementById("loading").textContent = "Une erreur est survenue lors du chargement de certaines données.";
             }
         }
-    })(); // Exécute la fonction loadProfile
+    })();
 }
