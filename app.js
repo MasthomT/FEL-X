@@ -1,20 +1,18 @@
-// =================================================================
-// 1. LOGIQUE DE DÉCONNEXION (CORRIGÉE)
-// =================================================================
-// Gère le bouton de déconnexion sur les pages AVEC sidebar (profile, info, don)
-if (document.getElementById("logout-sidebar")) {
+// Cible le bouton de déconnexion sur le menu latéral
+if(document.getElementById("logout-sidebar")) {
     document.getElementById("logout-sidebar").onclick = function() {
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html");
     };
 }
-// Gère le bouton de déconnexion sur la page d'ACCUEIL (index.html)
-if (document.getElementById("logout")) {
+// (Ajout d'une sécurité pour le bouton de la page d'accueil)
+if(document.getElementById("logout")) {
     document.getElementById("logout").onclick = function() {
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html");
     };
 }
+
 
 // =================================================================
 // 2. CONFIGURATION FIREBASE (Inchangée)
@@ -29,7 +27,7 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Évite l'erreur de "déjà initialisé" si on navigue entre les pages
+// Évite l'erreur de "déjà initialisé"
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
