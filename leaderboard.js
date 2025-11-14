@@ -1,3 +1,8 @@
+// =================================================================
+// 1. CONFIGURATION
+// =================================================================
+
+// Cible le bouton de déconnexion
 if(document.getElementById("logout-sidebar")) {
     document.getElementById("logout-sidebar").onclick = function() {
         localStorage.removeItem("twitch_token");
@@ -20,12 +25,16 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
+// Fonction de calcul de niveau
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
     return Math.max(1, level);
 }
 
+// =================================================================
+// 2. LOGIQUE DU CLASSEMENT
+// =================================================================
 (async function loadLeaderboard() {
     const token = localStorage.getItem("twitch_token");
     if (!token) {
@@ -43,6 +52,7 @@ function calculateLevel(xp) {
     const listEl = document.getElementById("leaderboard-list");
 
     try {
+        // --- Étape 1: Récupérer tous les XP de Firebase ---
         const xpRef = db.ref('viewer_data/xp');
         const xpSnapshot = await xpRef.get();
 
@@ -52,14 +62,16 @@ function calculateLevel(xp) {
         
         const xpData = xpSnapshot.val();
 
+        // --- Étape 2: Trier les données et prendre le Top 50 ---
         const sortedUsers = Object.entries(xpData)
             .map(([login, data]) => ({
                 login: login,
                 xp: data.xp
             }))
-            .sort((a, b) => b.xp - a.xp)
-            .slice(0, 50); 
+            .sort((a, b) => b.xp - a.xp) // Tri décroissant par XP
+            .slice(0, 50); // On garde les 50 premiers
 
+        // --- Étape 3: Préparer l'appel à l'API Twitch ---
         const loginQuery = sortedUsers.map(u => `login=${encodeURIComponent(u.login)}`).join('&');
         
         const twitchResponse = await fetch(`https://api.twitch.tv/helix/users?${loginQuery}`, { headers: twitchHeaders });
@@ -76,7 +88,8 @@ function calculateLevel(xp) {
             return acc;
         }, {});
 
-        listEl.innerHTML = "";
+        // --- Étape 4: Construire le HTML ---
+        listEl.innerHTML = ""; // Vider la liste
         
         sortedUsers.forEach((user, index) => {
             const rank = index + 1;
@@ -102,6 +115,7 @@ function calculateLevel(xp) {
             listEl.appendChild(item);
         });
 
+        // --- Étape 5: Afficher le résultat ---
         loadingEl.style.display = "none";
         listEl.style.display = "flex";
 

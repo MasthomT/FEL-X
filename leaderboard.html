@@ -30,14 +30,16 @@
             font-weight: 300;
             margin: 0;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            height: 100%;
+            overflow-x: hidden;
         }
         
         main {
             flex-grow: 1;
-            overflow-y: auto;
-            height: 100vh;
+            /* !! CORRECTION: 'main' ne scrolle plus, il grandit !! */
+            overflow-y: visible;
+            height: auto;
+            min-height: 100vh;
             padding: 2rem;
             animation: fadeIn 0.5s ease-out;
             max-width: 900px;
@@ -52,9 +54,10 @@
         h1 { 
             color: var(--color-accent); 
             margin-bottom: 1.5rem;
-            font-weight: 600;
+            font-weight: 600; /* Poids adouci */
         }
 
+        /* --- Menu Latéral (Sidebar) --- */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -65,6 +68,8 @@
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
             transition: width var(--transition-speed) ease;
+            position: sticky; /* Reste en place */
+            top: 0;
         }
         .sidebar-header {
             padding: 0 1.5rem 1rem 1.5rem;
@@ -84,7 +89,7 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 600; /* Poids adouci */
             color: var(--color-accent);
         }
         .sidebar nav { display: flex; flex-direction: column; }
@@ -133,12 +138,13 @@
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
+        /* --- Styles du Classement --- */
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
         #leaderboard-list {
             list-style: none;
             padding: 0;
-            display: none;
+            display: none; /* Caché par défaut */
             flex-direction: column;
             gap: 0.5rem;
         }
@@ -179,7 +185,7 @@
         
         .leaderboard-item .user-info .name {
             font-size: 1.25rem;
-            font-weight: 400;
+            font-weight: 400; /* Poids 'Regular' */
             color: var(--color-text-primary);
         }
         .leaderboard-item .user-info .level {
@@ -199,8 +205,13 @@
             color: var(--color-text-secondary);
         }
 
+        /* --- Responsive --- */
         @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow-y: auto; }
+            body { 
+                flex-direction: column; 
+                height: auto; 
+                overflow-y: auto; 
+            }
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -209,6 +220,7 @@
                 padding: 0.5rem 1rem;
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
+                position: static;
             }
             .sidebar-header { padding: 0; border: none; }
             .sidebar nav { flex-direction: row; }
@@ -229,7 +241,12 @@
             #logout-sidebar { padding: 0.75rem; }
             #logout-sidebar span { display: none; }
             
-            main { height: auto; overflow-y: visible; padding: 1rem; }
+            main { 
+                height: auto; 
+                overflow-y: visible; 
+                padding: 1rem; 
+                min-height: 0;
+            }
             
             .leaderboard-item { gap: 1rem; }
             .leaderboard-item .rank { font-size: 1rem; width: 30px; }

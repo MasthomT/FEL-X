@@ -27,24 +27,23 @@
             background: var(--color-background); 
             color: var(--color-text-primary); 
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 300;
+            font-weight: 300; 
             margin: 0;
             display: flex;
-            height: 100vh;
-            overflow: hidden; 
+            height: 100%;
+            overflow-x: hidden;
         }
         
         main {
             flex-grow: 1;
+            /* !! CORRECTION: 'main' ne scrolle plus, il grandit !! */
+            overflow-y: visible;
+            height: auto;
+            min-height: 100vh;
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
             animation: fadeIn 0.5s ease-out;
-            
-            display: flex;
-            flex-direction: column;
-            height: 100vh; 
-            overflow-y: auto;
         }
         
         @keyframes fadeIn {
@@ -56,9 +55,10 @@
             color: var(--color-accent); 
             margin-bottom: 1.5rem;
             flex-shrink: 0; 
-            font-weight: 600;
+            font-weight: 600; /* Poids adouci */
         }
 
+        /* --- Menu Latéral (Sidebar) --- */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -69,6 +69,8 @@
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
             transition: width var(--transition-speed) ease;
+            position: sticky; /* Reste en place */
+            top: 0;
         }
         .sidebar-header {
             padding: 0 1.5rem 1rem 1.5rem;
@@ -88,7 +90,7 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 600; /* Poids adouci */
             color: var(--color-accent);
         }
         .sidebar nav { display: flex; flex-direction: column; }
@@ -137,6 +139,7 @@
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
+        /* --- Grille de Layout (Droite/Gauche) --- */
         .content-grid {
             display: grid;
             grid-template-columns: 1.8fr 1fr; 
@@ -149,16 +152,17 @@
             display: flex;
             flex-direction: column;
             gap: 1.5rem; 
-            overflow-y: visible;
+            overflow-y: visible; 
         }
         
         .sidebar-column {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
-            overflow-y: visible;
+            overflow-y: visible; 
         }
         
+        /* --- Styles du Contenu --- */
         .info-card { 
             background: var(--color-surface); 
             border: 1px solid var(--color-border);
@@ -173,6 +177,7 @@
             font-weight: 500;
         }
 
+        /* --- Grille Planning --- */
         .planning-grid {
             display: grid;
             gap: 1rem;
@@ -197,6 +202,7 @@
         .planning-details span { font-weight: 500; color: var(--color-text-primary); }
         .planning-details p { font-size: 0.9rem; color: var(--color-text-secondary); font-weight: 300;}
         
+        /* --- Grille Réseaux (3 colonnes) --- */
         .social-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr; 
@@ -229,6 +235,7 @@
             color: white;
         }
         
+        /* --- Couleurs de survol (Brand Colors) --- */
         .social-button.discord:hover { background: #5865F2; }
         .social-button.youtube:hover { background: #FF0000; }
         .social-button.twitch:hover { background: #9146FF; }
@@ -239,6 +246,7 @@
         .social-button.paypal:hover { background: #0070BA; }
 
         
+        /* --- Liste de Règles --- */
         .rules-list { list-style: none; padding: 0; }
         .rules-list li {
             display: flex;
@@ -261,21 +269,21 @@
             font-weight: 300;
         }
 
+        /* --- Responsive --- */
+        
         @media (max-width: 992px) {
             .content-grid {
                 grid-template-columns: 1fr; 
                 overflow: visible; 
             }
-            main {
-                height: 100vh;
-            }
-            .main-column, .sidebar-column {
-                overflow-y: visible; 
-            }
         }
         
         @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow-y: auto; }
+            body { 
+                flex-direction: column; 
+                height: auto; 
+                overflow-y: auto; 
+            }
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -284,6 +292,7 @@
                 padding: 0.5rem 1rem;
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
+                position: static; 
             }
             .sidebar-header { padding: 0; border: none; }
             .sidebar nav { flex-direction: row; }
@@ -304,7 +313,12 @@
             #logout-sidebar { padding: 0.75rem; }
             #logout-sidebar span { display: none; }
             
-            main { height: auto; overflow-y: visible; padding: 1rem; }
+            main { 
+                height: auto; 
+                overflow-y: visible; 
+                padding: 1rem; 
+                min-height: 0;
+            }
             
             .planning-day {
                 grid-template-columns: 1fr;
@@ -413,8 +427,7 @@
                                 <p>Stream chill</p>
                             </div>
                         </div>
-
-                    </div>
+                        </div>
                 </div>
 
                 <div class="info-card rules-card">
@@ -502,6 +515,7 @@
     </main>
 
     <script>
+        // Script simple pour la déconnexion
         document.getElementById("logout-sidebar").onclick = function() {
             localStorage.removeItem("twitch_token");
             window.location.replace("/index.html");
