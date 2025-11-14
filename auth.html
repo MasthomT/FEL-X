@@ -18,44 +18,25 @@
 <body>
     <p>Authentification en cours, veuillez patienter...</p>
 
-<script>
-    (async function handleAuth() {
+    <script>
+        // RETOUR À LA MÉTHODE SIMPLE (Implicit Flow)
         try {
-            // 1. Récupérer le "code" que Twitch envoie dans l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get("code");
+            // On lit le token après le '#'
+            const hash = window.location.hash.substring(1); 
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get("access_token");
 
-            if (code) {
-                // 2. Envoyer ce code à NOTRE backend (la fonction serverless)
-                const response = await fetch('/api/auth', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ code: code }),
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.access_token) {
-                    throw new Error(data.error || "Échec de l'échange de token");
-                }
-
-                // 3. On a le token sécurisé ! On le sauvegarde.
-                localStorage.setItem("twitch_token", data.access_token);
+            if (accessToken) {
+                localStorage.setItem("twitch_token", accessToken);
                 window.location.replace("/profile.html");
-
             } else {
-                // Twitch a renvoyé une erreur (ex: accès refusé)
-                const error = urlParams.get("error_description");
-                console.error("Authentification échouée:", error);
-                window.location.replace(`/index.html?error=${error || 'auth_failed'}`);
+                console.error("Authentification échouée, pas de token trouvé.");
+                window.location.replace("/index.html?error=auth_failed");
             }
         } catch (error) {
-            console.error("Erreur dans auth.html:", error);
-            window.location.replace(`/index.html?error=${error.message || 'script_error'}`);
+            console.error("Erreur lors du parsing de l'URL:", error);
+            window.location.replace("/index.html?error=script_error");
         }
-    })();
-</script>
+    </script>
 </body>
 </html>
