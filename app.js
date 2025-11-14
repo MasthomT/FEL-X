@@ -1,4 +1,4 @@
-document.getElementById("logout").onclick = function() {
+document.getElementById("logout-sidebar").onclick = function() {
     localStorage.removeItem("twitch_token");
     window.location.replace("/index.html");
 };
