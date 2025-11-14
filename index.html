@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEL-X : Portail Viewer</title>
     <style>
+        /* ... (Styles CSS identiques) ... */
         body { 
             background: #18181b; 
             color: white; 
@@ -157,12 +158,19 @@
         const token = localStorage.getItem("twitch_token");
 
         if (!token) {
-            // --- CAS 1 : NON CONNECTÉ ---
+            // --- CAS 1 : NON CONNECTÉ (CORRIGÉ) ---
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
-            // --- CORRECTION : On pointe vers auth.html ---
-            // (auth.html va maintenant gérer la redirection vers Twitch)
-            loginLink.href = "/auth.html"; 
+            // On construit le VRAI lien de connexion Twitch
+            // On utilise window.location.origin pour que cela fonctionne en local (http://localhost:XXXX) et en production (https://monsite.com)
+            const REDIRECT_URI = window.location.origin + "/auth.html";
+            
+            // On demande la permission de lire le statut de follow, car app.js en a besoin
+            const SCOPES = "user:read:follows"; 
+            
+            const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+            
+            loginLink.href = authUrl; 
             
             loggedOutView.style.display = "block";
             
