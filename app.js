@@ -1,11 +1,9 @@
-// Cible le bouton de déconnexion sur le menu latéral
 if(document.getElementById("logout-sidebar")) {
     document.getElementById("logout-sidebar").onclick = function() {
         localStorage.removeItem("twitch_token");
         window.location.replace("/index.html");
     };
 }
-// (Sécurité pour le bouton de la page d'accueil)
 if(document.getElementById("logout")) {
     document.getElementById("logout").onclick = function() {
         localStorage.removeItem("twitch_token");
@@ -13,9 +11,6 @@ if(document.getElementById("logout")) {
     };
 }
 
-// =================================================================
-// 2. CONFIGURATION FIREBASE (Inchangée)
-// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -26,24 +21,17 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Évite l'erreur de "déjà initialisé"
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// =================================================================
-// 3. FONCTION DE CALCUL DE NIVEAU (Inchangée)
-// =================================================================
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
     return Math.max(1, level);
 }
 
-// =================================================================
-// 4. FONCTION PRINCIPALE (CHARGEMENT DU PROFIL)
-// =================================================================
 if (document.getElementById("profile-content")) {
     (async function loadProfile() {
         const token = localStorage.getItem("twitch_token");
@@ -61,7 +49,6 @@ if (document.getElementById("profile-content")) {
         });
 
         try {
-            // === ÉTAPE A: Récupérer l'identité du viewer (Inchangé) ===
             const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
             if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
             
@@ -72,7 +59,6 @@ if (document.getElementById("profile-content")) {
             document.getElementById("profile-pic").src = user.profile_image_url;
 
 
-            // === ÉTAPE B: Récupérer le statut du stream (Inchangé) ===
             (async function fetchStreamStatus() {
                 const banner = document.getElementById("stream-status-banner");
                 const statusText = document.getElementById("stream-status-text");
@@ -101,7 +87,6 @@ if (document.getElementById("profile-content")) {
             })();
             
 
-            // === ÉTAPE C: Récupérer les données XP (Inchangé) ===
             const userKey = user.login.toLowerCase(); 
             const xpRef = db.ref(`viewer_data/xp/${userKey}`);
             const historyRef = db.ref(`viewer_data/history/${userKey}`);
@@ -138,9 +123,7 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === !! MODIFICATION: ÉTAPE D: Récupérer le statut de Follow !! ===
             (async function fetchFollowStatus() {
-                // NOUVEAU: Cibler les deux éléments
                 const followIndicator = document.getElementById("follow-indicator");
                 const followStatusEl = document.getElementById("follow-status");
                 
@@ -154,19 +137,18 @@ if (document.getElementById("profile-content")) {
                     if (followData.total > 0 && followData.data.length > 0) {
                         const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
                         followStatusEl.textContent = `Vous suivez la chaîne depuis le ${followDate}`;
-                        followIndicator.style.backgroundColor = "var(--color-accent)"; // VERT
+                        followIndicator.style.backgroundColor = "var(--color-accent)";
                     } else {
                         followStatusEl.textContent = "Vous ne suivez pas la chaîne.";
-                        followIndicator.style.backgroundColor = "var(--color-danger)"; // ROUGE
+                        followIndicator.style.backgroundColor = "var(--color-danger)";
                     }
                 } catch (error) {
                      console.error("Erreur API Follow:", error);
                      followStatusEl.textContent = "Statut de follow indisponible";
-                     followIndicator.style.backgroundColor = "var(--color-text-secondary)"; // GRIS
+                     followIndicator.style.backgroundColor = "var(--color-text-secondary)"; 
                 }
             })();
 
-            // === ÉTAPE E: Récupérer le statut d'Abonnement (Inchangé) ===
             (async function fetchSubscriptionStatus() {
                 const subStatusEl = document.getElementById("sub-status");
                 const subTierEl = document.getElementById("sub-tier");
@@ -195,7 +177,6 @@ if (document.getElementById("profile-content")) {
                 }
             })();
 
-            // === ÉTAPE F: Afficher le profil complet (Inchangé) ===
             document.getElementById("loading").style.display = "none";
             document.getElementById("profile-content").style.display = "block";
 
@@ -205,7 +186,6 @@ if (document.getElementById("profile-content")) {
                 localStorage.removeItem("twitch_token");
                 window.location.replace("/index.html?error=session_expired");
             } else {
-                // Affiche l'erreur que vous voyez
                 document.getElementById("loading").textContent = "Une erreur est survenue lors du chargement de certaines données.";
             }
         }

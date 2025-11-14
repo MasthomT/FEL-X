@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- Configuration Globale & Nouvelle Palette --- */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -56,8 +55,6 @@
             font-weight: 800;
         }
 
-        /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques aux autres pages) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -136,15 +133,14 @@
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* --- NOUVEAU: Styles du Classement --- */
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
         #leaderboard-list {
             list-style: none;
             padding: 0;
-            display: none; /* Caché par défaut */
+            display: none;
             flex-direction: column;
-            gap: 0.5rem; /* Espace fin entre les rangs */
+            gap: 0.5rem;
         }
         
         .leaderboard-item {
@@ -166,7 +162,7 @@
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--color-accent);
-            width: 30px; /* Largeur fixe pour l'alignement */
+            width: 30px;
             text-align: right;
         }
         
@@ -178,7 +174,7 @@
         }
         
         .leaderboard-item .user-info {
-            flex-grow: 1; /* Pousse le XP tout à droite */
+            flex-grow: 1;
         }
         
         .leaderboard-item .user-info .name {
@@ -203,7 +199,6 @@
             color: var(--color-text-secondary);
         }
 
-        /* --- Responsive --- */
         @media (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {

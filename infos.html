@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- Configuration Globale & Nouvelle Palette --- */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -27,9 +26,8 @@
         body { 
             background: var(--color-background); 
             color: var(--color-text-primary); 
-            /* NOUVEAU: Changement de police */
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 200; /* Police plus fine par défaut */
+            font-weight: 200; 
             margin: 0;
             display: flex;
             height: 100vh;
@@ -58,11 +56,9 @@
             color: var(--color-accent); 
             margin-bottom: 1.5rem;
             flex-shrink: 0; 
-            font-weight: 800; /* Poids ajusté */
+            font-weight: 800;
         }
 
-        /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -92,7 +88,7 @@
         }
         .sidebar-header .logo-link span {
             font-size: 1.5rem;
-            font-weight: 800; /* Poids ajusté */
+            font-weight: 800;
             color: var(--color-accent);
         }
         .sidebar nav { display: flex; flex-direction: column; }
@@ -103,7 +99,7 @@
             padding: 1rem 1.5rem;
             color: var(--color-text-secondary);
             text-decoration: none;
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
             transition: all var(--transition-speed) ease;
             border-left: 4px solid transparent;
         }
@@ -135,13 +131,12 @@
             padding: 1rem 1.5rem;
             color: var(--color-danger);
             text-decoration: none;
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
             transition: all var(--transition-speed) ease;
         }
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* --- Grille de Layout (Droite/Gauche) --- */
         .content-grid {
             display: grid;
             grid-template-columns: 1.8fr 1fr; 
@@ -164,7 +159,6 @@
             overflow-y: auto; 
         }
         
-        /* --- Styles du Contenu --- */
         .info-card { 
             background: var(--color-surface); 
             border: 1px solid var(--color-border);
@@ -176,10 +170,9 @@
             margin: 0 0 1.5rem 0; 
             border-bottom: 2px solid var(--color-accent); 
             padding-bottom: 0.5rem; 
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
         }
 
-        /* --- Grille Planning --- */
         .planning-grid {
             display: grid;
             gap: 1rem;
@@ -198,13 +191,12 @@
             margin: 0;
             font-size: 1.25rem;
             color: var(--color-accent);
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
         }
         .planning-details { line-height: 1.4; }
         .planning-details span { font-weight: 500; color: var(--color-text-primary); }
         .planning-details p { font-size: 0.9rem; color: var(--color-text-secondary); font-weight: 300;}
         
-        /* --- Grille Réseaux (3 colonnes) --- */
         .social-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr; 
@@ -219,7 +211,7 @@
             border-radius: 8px;
             text-decoration: none;
             font-size: 0.9rem; 
-            font-weight: 500; /* Poids ajusté */
+            font-weight: 500;
             color: var(--color-text-primary);
             background: #3a3e44;
             transition: all var(--transition-speed) ease;
@@ -237,7 +229,6 @@
             color: white;
         }
         
-        /* --- Couleurs de survol (Brand Colors) --- */
         .social-button.discord:hover { background: #5865F2; }
         .social-button.youtube:hover { background: #FF0000; }
         .social-button.twitch:hover { background: #9146FF; }
@@ -248,7 +239,6 @@
         .social-button.paypal:hover { background: #0070BA; }
 
         
-        /* --- Liste de Règles --- */
         .rules-list { list-style: none; padding: 0; }
         .rules-list li {
             display: flex;
@@ -258,7 +248,7 @@
             color: var(--color-text-secondary);
             padding: 0.5rem 0;
             line-height: 1.6;
-            font-weight: 300; /* Poids ajusté */
+            font-weight: 300;
         }
         .rules-list li svg {
             width: 20px;
@@ -268,10 +258,9 @@
             margin-top: 4px;
         }
         .rules-list li span {
-            font-weight: 300; /* Poids ajusté */
+            font-weight: 300;
         }
 
-        /* --- Responsive --- */
         
         @media (max-width: 992px) {
             .content-grid {
@@ -336,12 +325,21 @@
 </head>
 <body>
     
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <a href="/index.html" class="logo-link">
+                <img src="/logo-felix.png" alt="Logo FEL-X">
+                <span>FEL-X</span>
+            </a>
+        </div>
+        
         <nav>
-            <a href="/profile.html" class="nav-link active" id="nav-profile"> <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+            <a href="/profile.html" class="nav-link" id="nav-profile">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
                 <span>Mon Profil</span>
             </a>
             
-            <a href="/infos.html" class="nav-link" id="nav-info">
+            <a href="/infos.html" class="nav-link active" id="nav-info">
                 <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
                 <span>Infos & Commandes</span>
             </a>
@@ -358,6 +356,7 @@
                 <span>Se déconnecter</span>
             </a>
         </div>
+    </nav>
     <main>
         <h1>Infos & Commandes</h1>
         
@@ -436,7 +435,9 @@
                     </ul>
                 </div>
 
-            </div> <div class="sidebar-column">
+            </div> 
+            
+            <div class="sidebar-column">
                 
                 <div class="info-card social-card">
                     <h2>Rejoignez-nous</h2>
@@ -481,10 +482,12 @@
                     </div>
                 </div>
 
-            </div> </div> </main>
+            </div> 
+
+        </div> 
+    </main>
 
     <script>
-        // Script simple pour la déconnexion
         document.getElementById("logout-sidebar").onclick = function() {
             localStorage.removeItem("twitch_token");
             window.location.replace("/index.html");

@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- Configuration Globale & Nouvelle Palette --- */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -49,8 +48,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* --- Menu Latéral (Sidebar) --- */
-        /* (Styles identiques) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -132,11 +129,9 @@
         }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
-        /* --- Styles du Contenu --- */
         #profile-content { max-width: 900px; margin: 0 auto; display: none; } 
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
-        /* --- Bannière de Statut Live --- */
         #stream-status-banner {
             display: none; 
             background: var(--color-surface);
@@ -193,7 +188,6 @@
         }
         #display-name { margin: 0; font-size: 2.5rem; color: white; font-weight: 800; }
         
-        /* --- Grille de Stats --- */
         #stats { 
             margin-top: 2rem; 
             display: grid; 
@@ -232,10 +226,9 @@
         
         #follow-status-card { 
             margin-top: 1.5rem; 
-            padding: 1.25rem 1.5rem; /* Padding ajusté */
+            padding: 1.25rem 1.5rem;
         }
         
-        /* !! NOUVEAU: Conteneur pour le statut de follow !! */
         #follow-status-container {
             display: flex;
             align-items: center;
@@ -243,12 +236,11 @@
             gap: 0.75rem;
         }
         
-        /* !! NOUVEAU: Point indicateur (vert/rouge) !! */
         #follow-indicator {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--color-text-secondary); /* Gris par défaut */
+            background-color: var(--color-text-secondary);
             flex-shrink: 0;
             transition: background-color var(--transition-speed) ease;
         }
@@ -276,7 +268,6 @@
         .xp-gain { color: #4caf50; } 
         .xp-loss { color: #f44336; } 
 
-        /* --- Responsive --- */
         @media (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {
@@ -344,6 +335,7 @@
                 <span>Se déconnecter</span>
             </a>
         </div>
+    </nav>
     <main>
         
         <div id="stream-status-banner">

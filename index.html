@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- Configuration Globale & Nouvelle Palette --- */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -27,7 +26,7 @@
             background: var(--color-background); 
             color: var(--color-text-primary); 
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 200; /* Police extra-fine par défaut */
+            font-weight: 200;
             margin: 0;
             padding: 2rem;
             display: grid;
@@ -47,13 +46,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Logo --- */
         #logo-container { margin-bottom: 2rem; }
         #logo-container h1 {
             font-size: 4rem;
             color: var(--color-accent);
             margin: 0;
-            font-weight: 800; /* Titre principal très gras */
         }
         #logo-image {
             width: 120px;
@@ -70,7 +67,6 @@
             font-weight: 300;
         }
         
-        /* --- Vues & Boutons --- */
         #logged-out-view, #logged-in-view {
             margin-top: 3rem;
         }
@@ -94,7 +90,6 @@
             box-shadow: 0 4px 15px rgba(0, 245, 195, 0.2);
         }
 
-        /* --- Grille de Navigation (3 colonnes) --- */
         .nav-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -128,7 +123,6 @@
             font-weight: 300;
         }
         
-        /* --- Déconnexion --- */
         #logout { 
             color: var(--color-danger); 
             cursor: pointer; 
@@ -141,12 +135,11 @@
         }
         #logout:hover { color: white; }
         
-        /* --- Responsive --- */
         @media (max-width: 768px) {
             body { padding: 1rem; }
             #logo-container h1 { font-size: 3rem; }
             .nav-grid {
-                grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+                grid-template-columns: 1fr; 
             }
         }
     </style>
@@ -184,29 +177,24 @@
     </main>
     
 <script>
-    // === 1. CONFIGURATION ===
     const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
     
-    // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
     const loggedInView = document.getElementById("logged-in-view");
     const loggedOutView = document.getElementById("logged-out-view");
     const welcomeMessage = document.getElementById("welcome-message");
     const loginLink = document.getElementById("login-link");
     const logoutButton = document.getElementById("logout");
 
-    // Fonction de déconnexion
     logoutButton.onclick = function() {
         localStorage.removeItem("twitch_token");
         window.location.reload(); 
     };
 
-    // === 3. LOGIQUE D'AFFICHAGE ===
     (async function checkLoginState() {
         
         const token = localStorage.getItem("twitch_token");
 
         if (!token) {
-            // --- CAS 1 : NON CONNECTÉ ---
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
             const REDIRECT_URI = window.location.origin + "/auth.html";
@@ -218,7 +206,6 @@
             loggedOutView.style.display = "block";
             
         } else {
-            // --- CAS 2 : CONNECTÉ (Vérification du token) ---
             try {
                 const twitchHeaders = new Headers({
                     'Authorization': `Bearer ${token}`,
@@ -239,7 +226,7 @@
             } catch (error) {
                 console.error(error);
                 localStorage.removeItem("twitch_token");
-                checkLoginState(); // Relance la fonction, qui passera dans le CAS 1
+                checkLoginState();
             }
         }
     })();

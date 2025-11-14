@@ -19,9 +19,7 @@
     <p>Authentification en cours, veuillez patienter...</p>
 
     <script>
-        // RETOUR À LA MÉTHODE SIMPLE (Implicit Flow)
         try {
-            // On lit le token après le '#'
             const hash = window.location.hash.substring(1); 
             const params = new URLSearchParams(hash);
             const accessToken = params.get("access_token");
