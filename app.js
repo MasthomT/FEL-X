@@ -57,20 +57,39 @@ if (document.getElementById("profile-content")) {
         const BROADCASTER_ID = "439356462";
 
         try {
-            // === ÉTAPE A: Récupérer l'identité du viewer (Inchangé) ===
-            const twitchHeaders = new Headers({
-                'Authorization': `Bearer ${token}`,
-                'Client-Id': CLIENT_ID
-            });
-            
-            const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
-            if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
-            
-            const twitchData = await twitchResponse.json();
-            const user = twitchData.data[0];
-            
-            document.getElementById("display-name").textContent = user.display_name;
-            document.getElementById("profile-pic").src = user.profile_image_url;
+// === ÉTAPE A: Récupérer l'identité du viewer ===
+const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+const BROADCASTER_ID = "439356462";
+
+const twitchHeaders = {
+    'Authorization': 'Bearer ' + token,
+    'Client-Id': CLIENT_ID
+};
+
+let user;
+try {
+    const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { 
+        headers: twitchHeaders 
+    });
+
+    if (!twitchResponse.ok) {
+        const err = await twitchResponse.text();
+        console.error("Erreur users:", twitchResponse.status, err);
+        throw new Error("Token invalide ou expiré");
+    }
+
+    const twitchData = await twitchResponse.json();
+    user = twitchData.data[0];
+
+    document.getElementById("display-name").textContent = user.display_name;
+    document.getElementById("profile-pic").src = user.profile_image_url;
+
+} catch (err) {
+    console.error("Erreur auth:", err);
+    localStorage.removeItem("twitch_token");
+    window.location.replace("/index.html?error=session_expired");
+    return;
+}
 
             // === ÉTAPE B: Récupérer les données XP (CORRIGÉ) ===
             
@@ -112,24 +131,33 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
             
-            // === ÉTAPE C: Récupérer le statut de Follow (CORRIGÉ) ===
-            
-            // CORRECTION N°2 : Utilisation de la bonne API (/users/follows)
-            const followResponse = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
-            
-            if (!followResponse.ok) {
-                console.error("Erreur API Follow:", await followResponse.text());
-                document.getElementById("follow-status").textContent = "Erreur - Statut de follow indisponible";
-            } else {
-                const followData = await followResponse.json();
-                
-                if (followData.total > 0 && followData.data.length > 0) {
-                    const followDate = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
-                    document.getElementById("follow-status").textContent = `Vous suivez la chaîne depuis le ${followDate}`;
-                } else {
-                    document.getElementById("follow-status").textContent = "Vous ne suivez pas la chaîne.";
-                }
-            }
+// === ÉTAPE C: Follow status ===
+try {
+    const followResponse = await fetch(
+        `https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${BROADCASTER_ID}`,
+        { headers: twitchHeaders }
+    );
+
+    if (!followResponse.ok) {
+        const err = await followResponse.text();
+        console.error("Follow API error:", followResponse.status, err);
+        document.getElementById("follow-status").textContent = "Erreur Twitch (vérifiez la console)";
+        return;
+    }
+
+    const followData = await followResponse.json();
+
+    if (followData.total > 0) {
+        const date = new Date(followData.data[0].followed_at).toLocaleDateString('fr-FR');
+        document.getElementById("follow-status").textContent = `Vous suivez depuis le ${date}`;
+    } else {
+        document.getElementById("follow-status").textContent = "Vous ne suivez pas encore la chaîne.";
+    }
+
+} catch (err) {
+    console.error("Exception follow:", err);
+    document.getElementById("follow-status").textContent = "Erreur réseau.";
+}
 
             // === ÉTAPE D: Afficher le profil complet (Inchangé) ===
             document.getElementById("loading").style.display = "none";
