@@ -135,75 +135,70 @@
     </main>
     
 <script>
-        const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; 
-        const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
+    // === 1. CONFIGURATION OBLIGATOIRE ===
+    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec"; // Votre CLIENT_ID
+    const REDIRECT_URI = "https://fel-x.vercel.app/auth.html";
     
-        const SCOPES = "user:read:email user:read:follows";
-        const RESPONSE_TYPE = "code"; 
+    // === CORRECTION N°1 : Demander les bonnes permissions ===
+    const SCOPES = "user:read:email user:read:follows";
+    
+    // === CORRECTION N°2 : Demander un "code" (Code Flow) au lieu d'un "token" ===
+    const RESPONSE_TYPE = "code"; 
 
-        const loggedInView = document.getElementById("logged-in-view");
-        const loggedOutView = document.getElementById("logged-out-view");
-        const welcomeMessage = document.getElementById("welcome-message");
-        const loginLink = document.getElementById("login-link");
-        const logoutButton = document.getElementById("logout");
+    // === 2. RÉCUPÉRATION DES ÉLÉMENTS ===
+    const loggedInView = document.getElementById("logged-in-view");
+    const loggedOutView = document.getElementById("logged-out-view");
+    const welcomeMessage = document.getElementById("welcome-message");
+    const loginLink = document.getElementById("login-link");
+    const logoutButton = document.getElementById("logout");
 
-        logoutButton.onclick = function() {
-            localStorage.removeItem("twitch_token");
-            window.location.reload(); 
-        };
+    // Fonction de déconnexion
+    logoutButton.onclick = function() {
+        localStorage.removeItem("twitch_token");
+        window.location.reload(); 
+    };
 
-        (async function checkLoginState() {
+    // === 3. LOGIQUE D'AFFICHAGE ===
+    (async function checkLoginState() {
+        
+        const token = localStorage.getItem("twitch_token");
+
+        if (!token) {
+            // --- CAS 1 : NON CONNECTÉ ---
+            welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
-            const token = localStorage.getItem("twitch_token");
+            // Construit l'URL avec les bonnes corrections (code + scopes)
+            const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES}`;
+            
+            loginLink.href = authUrl;
+            loggedOutView.style.display = "block";
+            
+        } else {
+            // --- CAS 2 : CONNECTÉ (Vérification du token) ---
+            try {
+                const twitchHeaders = new Headers({
+                    'Authorization': `Bearer ${token}`,
+                    'Client-Id': CLIENT_ID
+                });
+                const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
 
-            if (!token) {
-
-                welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
-                const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES}`;
-                loginLink.href = authUrl;
-                loggedOutView.style.display = "block";
-                
-            } else {
-
-                try {
-                    const twitchHeaders = new Headers({
-                        'Authorization': `Bearer ${token}`,
-                        'Client-Id': CLIENT_ID
-                    });
-                    const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
-
-                    if (!response.ok) {
-                        throw new Error("Token expiré");
-                    }
-                    
-                    const data = await response.json();
-                    const user = data.data[0];
-                    
-                    welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
-                    loggedInView.style.display = "block";
-
-                } catch (error) {
-                    console.error(error);
-                    localStorage.removeItem("twitch_token");
-                    checkLoginState();
-                try {
-                    const twitchHeaders = new Headers({
-                        'Authorization': `Bearer ${token}`,
-                        'Client-Id': CLIENT_ID
-                    });
-                    const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
-                    if (!response.ok) throw new Error("Token expiré");
-                    const data = await response.json();
-                    const user = data.data[0];
-                    welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
-                    loggedInView.style.display = "block";
-                } catch (error) {
-                    console.error(error);
-                    localStorage.removeItem("twitch_token");
-                    checkLoginState();
+                if (!response.ok) {
+                    throw new Error("Token expiré");
                 }
+                
+                const data = await response.json();
+                const user = data.data[0];
+                
+                welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
+                loggedInView.style.display = "block";
+
+            } catch (error) {
+                console.error(error);
+                localStorage.removeItem("twitch_token");
+                checkLoginState(); // Relance la fonction, qui passera dans le CAS 1
             }
-        })();
+        }
+    })();
 </script>
 </body>
 </html>
