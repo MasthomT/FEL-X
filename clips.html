@@ -209,6 +209,35 @@
             color: var(--color-text-secondary);
         }
 
+        #filter-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+        
+        #clip-search, #filter-sort {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            background: var(--color-sidebar);
+            color: var(--color-text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color var(--transition-speed) ease;
+        }
+        
+        #clip-search:focus, #filter-sort:focus {
+            border-color: var(--color-accent);
+        }
+        
+        #filter-sort {
+            width: 200px;
+            cursor: pointer;
+        }
+
+
         @media (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar {
