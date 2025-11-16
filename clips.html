@@ -293,8 +293,15 @@
         </div>
     </nav>
     <main>
-        <h1>Galerie de Clips</h1>
+<h1>Galerie de Clips</h1>
         
+        <div id="filter-form" style="display: none;">
+            <input type="text" id="clip-search" placeholder="Rechercher par titre ou créateur..." style="flex-grow: 1;">
+            <select id="filter-sort">
+                <option value="date_desc">Trier par : Plus Récent</option>
+                <option value="views_desc">Trier par : Plus de Vues</option>
+            </select>
+        </div>
         <div id="loading">
             <h2>Chargement des clips...</h2>
             <p>Connexion à l'API Twitch en cours.</p>
