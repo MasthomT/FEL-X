@@ -5,9 +5,9 @@ if(document.getElementById("logout-sidebar")) {
     };
 }
 
-// Liste Statique des Commandes (MISE À JOUR)
+// Liste Statique des Commandes (MISE À JOUR AVEC CATÉGORIE INFO/TRADUCTION HARMONISÉE)
 const ALL_COMMANDS = [
-    // --- Commandes Générales (Commands) ---
+    // --- Commandes Générales (Catégorie: info, xp, fun) ---
     { 
         trigger: "!bug", 
         description: "Signaler un bug ou une erreur au Streamer.", 
@@ -117,7 +117,27 @@ const ALL_COMMANDS = [
         access: "Viewer" 
     },
     
-    // --- Commandes Sonores ---
+    // --- Commandes Modérateur ---
+    { 
+        trigger: "!ban <user>", 
+        description: "Bannir définitivement un utilisateur du chat. (Utilisation : !ban mauvaisutilisateur)", 
+        category: "moderator", 
+        access: "Modérateur" 
+    },
+    { 
+        trigger: "!timeout <user> <time>", 
+        description: "Mettre en temps mort un utilisateur pour une durée spécifique. (Utilisation : !timeout spammer 60s)", 
+        category: "moderator", 
+        access: "Modérateur" 
+    },
+    { 
+        trigger: "!addcmd <cmd> <reponse>", 
+        description: "Ajouter une nouvelle commande personnalisée au bot.", 
+        category: "moderator", 
+        access: "Modérateur" 
+    },
+
+    // --- Commandes Sonores et Emotes (Catégorie: fun) ---
     { trigger: "!anniversaire", description: "Déclenche le son 'anniversaire'. (Aliases : !anniversaire)", category: "fun", access: "Viewer" },
     { trigger: "!crétin", description: "Déclenche le son 'crétin'. (Aliases : !crétin)", category: "fun", access: "Viewer" },
     { trigger: "!deshonneur", description: "Déclenche le son 'déshonneur'. (Aliases : !deshonneur)", category: "fun", access: "Viewer" },
@@ -134,8 +154,6 @@ const ALL_COMMANDS = [
     { trigger: "!salope ou !salop", description: "Déclenche le son 'salope'. (Aliases : !salope, !salop)", category: "fun", access: "Viewer" },
     { trigger: "!seul", description: "Déclenche le son 'seul'. (Aliases : !seul)", category: "fun", access: "Viewer" },
     { trigger: "!tagueule", description: "Déclenche le son 'ta gueule'. (Aliases : !tagueule)", category: "fun", access: "Viewer" },
-
-    // --- Commandes Emotes ---
     { 
         trigger: "!dance ou !danse", 
         description: "Affiche une emote de danse dans le chat. (Aliases : !dance, !danse)", 
@@ -167,52 +185,52 @@ const ALL_COMMANDS = [
         access: "Viewer" 
     },
 
-    [cite_start]// --- Commandes de Traduction [cite: 1] ---
+    // --- Commandes de Traduction (Catégorie: info) ---
     { 
         trigger: "!ar ou !ara <texte>", 
-        [cite_start]description: "Traduit le texte en Arabe. (Aliases : !ar, !ara) [cite: 1]", 
+        description: "Traduit le texte en Arabe. (Aliases : !ar, !ara)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!ch ou !chi <texte>", 
-        description: "Traduit le texte en Chinois. (Aliases : !ch, !chi) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Chinois. (Aliases : !ch, !chi)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!eng ou !len ou !lang ou !lan <texte>", 
-        description: "Traduit le texte en Anglais. (Aliases : !eng, !len, !lang, !lan) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Anglais. (Aliases : !eng, !len, !lang, !lan)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!esp ou !les <texte>", 
-        description: "Traduit le texte en Espagnol. (Aliases : !esp, !les) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Espagnol. (Aliases : !esp, !les)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!fr ou !fra <texte>", 
-        description: "Traduit le texte en Français. (Aliases : !fr, !fra) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Français. (Aliases : !fr, !fra)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!ge ou !ger ou !tall ou !tal <texte>", 
-        description: "Traduit le texte en Allemand. (Aliases : !ge, !ger, !tall, !tal) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Allemand. (Aliases : !ge, !ger, !tall, !tal)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!it ou !ita <texte>", 
-        description: "Traduit le texte en Italien. (Aliases : !it, !ita) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Italien. (Aliases : !it, !ita)", 
         category: "info", 
         access: "Viewer" 
     },
     { 
         trigger: "!ja ou !jap <texte>", 
-        description: "Traduit le texte en Japonais. (Aliases : !ja, !jap) [cite_start][cite: 1]", 
+        description: "Traduit le texte en Japonais. (Aliases : !ja, !jap)", 
         category: "info", 
         access: "Viewer" 
     },
@@ -247,9 +265,6 @@ function renderCommands(commands) {
         categoryCell.textContent = cmd.category.charAt(0).toUpperCase() + cmd.category.slice(1);
         
         const accessCell = row.insertCell();
-        // L'accès est par défaut "Viewer" dans le script, si vous souhaitez
-        // un accès plus précis (Modérateur, Streamer, ou Level X), il faudrait
-        // ajouter ces informations dans la liste des commandes ci-dessus.
         accessCell.innerHTML = `<span class="command-level">${cmd.access}</span>`; 
     });
 }
@@ -262,11 +277,10 @@ function applyFiltersAndSearch() {
 
     // 1. Appliquer le filtre par catégorie
     if (filterCategory !== 'all') {
-        // La catégorie 'info' est utilisée pour les commandes de traduction
-        const categoryKey = filterCategory === 'info' ? ['info', 'translation'] : [filterCategory];
-
+        // La logique est simplifiée : on filtre uniquement sur la catégorie choisie.
+        // Puisque les traductions sont maintenant étiquetées 'info', elles seront incluses.
         filteredCommands = filteredCommands.filter(cmd => 
-            categoryKey.includes(cmd.category)
+            cmd.category === filterCategory
         );
     }
     
