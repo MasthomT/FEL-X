@@ -8,7 +8,6 @@ if(document.getElementById("logout-sidebar")) {
 const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
 const BROADCASTER_ID = "439356462"; 
 let allClipsData = []; // Variable pour stocker tous les clips chargés
-const CLIPS_MAX_LIMIT = 100; // Limite pratique pour éviter un temps de chargement trop long
 
 const loadingEl = document.getElementById("loading");
 const gridEl = document.getElementById("clips-grid");
@@ -93,11 +92,11 @@ function applyFiltersAndSearch() {
     });
     
     let cursor = null;
-    const limitPerRequest = 20; 
+    const limitPerRequest = 100; // Augmenté à 100 pour maximiser les résultats par requête Twitch
 
     try {
-        // Boucle de Pagination
-        while (allClipsData.length < CLIPS_MAX_LIMIT) {
+        // Boucle de Pagination : Continue tant qu'un curseur est présent
+        do {
             let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=${limitPerRequest}`;
             if (cursor) {
                 url += `&after=${cursor}`;
@@ -112,16 +111,15 @@ function applyFiltersAndSearch() {
             const clipsData = await clipsResponse.json();
 
             if (clipsData.data.length === 0) {
+                // Plus de clips à charger
                 break;
             }
             
             allClipsData.push(...clipsData.data);
-            cursor = clipsData.pagination.cursor;
+            cursor = clipsData.pagination.cursor; // Récupère le curseur pour la page suivante
             
-            if (!cursor || allClipsData.length >= CLIPS_MAX_LIMIT) {
-                break;
-            }
-        }
+        } while (cursor); // La boucle continue tant qu'il y a un curseur
+
         
         if (allClipsData.length === 0) {
             loadingEl.textContent = "Aucun clip n'a été trouvé pour cette chaîne.";
