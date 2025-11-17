@@ -167,7 +167,6 @@ try {
 
         document.getElementById("stat-avg-level").textContent = avgLevel;
         document.getElementById("stat-avg-xp").textContent = avgXP;
-        document.getElementById("stat-total-clips-aggregated").textContent = clipsDisplayValue;
 
         
         loadingEl.style.display = "none";
