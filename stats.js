@@ -5,7 +5,7 @@ if(document.getElementById("logout-sidebar")) {
     };
 }
 
-// Configuration Firebase (Réutilisation des données de app.js / leaderboard.js)
+// Configuration Firebase (RÃ©utilisation des donnÃ©es de app.js / leaderboard.js)
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -24,7 +24,7 @@ const db = firebase.database();
 const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
 const BROADCASTER_ID = "439356462"; 
 
-// Fonction de calcul de niveau (Réutilisation de la logique de app.js / leaderboard.js)
+// Fonction de calcul de niveau (RÃ©utilisation de la logique de app.js / leaderboard.js)
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
@@ -34,7 +34,7 @@ function calculateLevel(xp) {
 const loadingEl = document.getElementById("loading");
 const statsContentEl = document.getElementById("stats-content");
 
-// Fonction pour récupérer le nom d'affichage Twitch à partir du login
+// Fonction pour rÃ©cupÃ©rer le nom d'affichage Twitch Ã  partir du login
 async function getTwitchUserInfo(logins, token) {
     if (logins.length === 0) return {};
     
@@ -47,7 +47,7 @@ async function getTwitchUserInfo(logins, token) {
     
     try {
         const response = await fetch(`https://api.twitch.tv/helix/users?${loginQuery}`, { headers: twitchHeaders });
-        if (!response.ok) throw new Error("Impossible de récupérer les profils Twitch.");
+        if (!response.ok) throw new Error("Impossible de rÃ©cupÃ©rer les profils Twitch.");
         
         const data = await response.json();
         return data.data.reduce((acc, user) => {
@@ -58,7 +58,7 @@ async function getTwitchUserInfo(logins, token) {
             return acc;
         }, {});
     } catch (error) {
-        console.error("Erreur lors de la récupération des infos Twitch:", error);
+        console.error("Erreur lors de la rÃ©cupÃ©ration des infos Twitch:", error);
         return {};
     }
 }
@@ -72,7 +72,7 @@ async function getTwitchUserInfo(logins, token) {
     }
 
     try {
-        // --- 1. Récupérer les données XP de Firebase ---
+        // --- 1. RÃ©cupÃ©rer les donnÃ©es XP de Firebase ---
         const xpRef = db.ref('viewer_data/xp');
         const xpSnapshot = await xpRef.get();
         let totalXP = 0;
@@ -96,21 +96,21 @@ async function getTwitchUserInfo(logins, token) {
         document.getElementById("stat-max-level").textContent = maxLevel;
 
         
-        // --- 2. Récupérer les données de clips Twitch pour le Top Créateur ---
+        // --- 2. RÃ©cupÃ©rer les donnÃ©es de clips Twitch pour le Top CrÃ©ateur ---
         const clipHeaders = new Headers({
             'Authorization': `Bearer ${token}`,
             'Client-Id': CLIENT_ID
         });
 
         const clipsResponse = await fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=100`, { headers: clipHeaders });
-        if (!clipsResponse.ok) throw new Error("Impossible de récupérer les clips.");
+        if (!clipsResponse.ok) throw new Error("Impossible de rÃ©cupÃ©rer les clips.");
         
         const clipsData = await clipsResponse.json();
         const clips = clipsData.data;
 
         document.getElementById("stat-total-clips").textContent = clips.length.toLocaleString('fr-FR');
 
-        // Compter les créateurs de clips
+        // Compter les crÃ©ateurs de clips
         const creatorCounts = {};
         const creatorLogins = new Set();
         clips.forEach(clip => {
@@ -119,12 +119,12 @@ async function getTwitchUserInfo(logins, token) {
             creatorLogins.add(login);
         });
 
-        // Trier les créateurs par nombre de clips
+        // Trier les crÃ©ateurs par nombre de clips
         const topCreators = Object.entries(creatorCounts)
             .sort(([, countA], [, countB]) => countB - countA)
             .slice(0, 5);
         
-        // Récupérer les informations Twitch (avatar, display name) pour le Top 5
+        // RÃ©cupÃ©rer les informations Twitch (avatar, display name) pour le Top 5
         const topCreatorLogins = topCreators.map(([login]) => login);
         const twitchUsersInfo = await getTwitchUserInfo(topCreatorLogins, token);
         

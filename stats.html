@@ -136,7 +136,7 @@
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
 
-        /* Styles Spécifiques à la page Stats */
+        /* Styles SpÃ©cifiques Ã  la page Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -270,16 +270,16 @@
         <div class="sidebar-footer">
             <a id="logout-sidebar" href="#">
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
-                <span>Se déconnecter</span>
+                <span>Se dÃ©connecter</span>
             </a>
         </div>
     </nav>
     <main>
-        <h1>Statistiques de la Communauté</h1>
+        <h1>Statistiques de la CommunautÃ©</h1>
         
         <div id="loading">
             <h2>Chargement des statistiques...</h2>
-            <p>Connexion à Firebase et à l'API Twitch en cours.</p>
+            <p>Connexion Ã  Firebase et Ã  l'API Twitch en cours.</p>
         </div>
         
         <div id="stats-content" style="display: none;">
@@ -288,12 +288,12 @@
                 
                 <div class="stat-card">
                     <div class="value" id="stat-viewer-count">...</div>
-                    <div class="label">Viewers Enregistrés</div>
+                    <div class="label">Viewers EnregistrÃ©s</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="value" id="stat-total-xp">...</div>
-                    <div class="label">XP Totale Distribuée</div>
+                    <div class="label">XP Totale DistribuÃ©e</div>
                 </div>
                 
                 <div class="stat-card">
@@ -303,16 +303,16 @@
                 
                 <div class="stat-card">
                     <div class="value" id="stat-total-clips">...</div>
-                    <div class="label">Clips Créés (Total)</div>
+                    <div class="label">Clips CrÃ©Ã©s (Total)</div>
                 </div>
                 
             </div>
 
             <div class="top-users-card">
-                <h2>Top 5 des Créateurs de Clips</h2>
+                <h2>Top 5 des CrÃ©ateurs de Clips</h2>
                 <ul class="top-users-list" id="top-clip-creators">
                     </ul>
-                <p id="no-clip-data" style="display:none; text-align: center; color: var(--color-text-secondary);">Aucune donnée de clip récente disponible.</p>
+                <p id="no-clip-data" style="display:none; text-align: center; color: var(--color-text-secondary);">Aucune donnÃ©e de clip rÃ©cente disponible.</p>
             </div>
             
         </div>
