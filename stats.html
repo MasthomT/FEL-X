@@ -207,10 +207,29 @@
             font-weight: 600;
             color: var(--color-accent);
         }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #36363a; /* var(--color-border) */
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        #stat-followers-progress {
+            height: 100%;
+            background-color: var(--color-accent);
+            transition: width 0.5s ease-in-out;
+            text-align: right;
+            line-height: 20px;
+            font-size: 0.8rem;
+            color: #18181b;
+            font-weight: 600;
+            padding-right: 5px;
+        }
         
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300; }
 
-        /* Media Queries */
         @media (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
             .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 0.5rem 1rem; border-right: none; border-bottom: 1px solid var(--color-border); position: static; }
@@ -274,60 +293,70 @@
             </a>
         </div>
     </nav>
-    <main>
-        <h1>Statistiques de la Communauté</h1>
+<main>
+    <h1>Statistiques de la Communauté</h1>
+    
+    <div id="loading">
+        <h2>Chargement des statistiques...</h2>
+        <p>Connexion à Firebase et à l'API Twitch en cours.</p>
+    </div>
+    
+    <div id="stats-content" style="display: none;">
         
-        <div id="loading">
-            <h2>Chargement des statistiques...</h2>
-            <p>Connexion à Firebase et à l'API Twitch en cours.</p>
-        </div>
-        
-        <div id="stats-content" style="display: none;">
-            
         <div class="stats-grid">
-                
-                <div class="stat-card">
-                    <div class="value" id="stat-followers">...</div>
-                    <div class="label">Followers Totaux</div>
+            
+            <div class="stat-card" id="followers-progress-card" style="grid-column: span 2; text-align: left; padding: 2rem;">
+                <div class="label" style="font-size: 1.1rem; margin-bottom: 0.5rem; text-align: center;">Objectif de Followers</div>
+                <div class="value" id="stat-followers-current" style="font-size: 3rem; text-align: center;">...</div>
+                <div class="label" id="stat-followers-goal-label" style="text-align: center; color: var(--color-accent); font-size: 1.2rem;">... / ...</div>
+                <div class="progress-bar-container" style="height: 10px; background: var(--color-border); border-radius: 5px; margin-top: 1rem;">
+                    <div id="stat-followers-progress" style="height: 100%; width: 0%; background: var(--color-accent); border-radius: 5px; transition: width 0.5s;"></div>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="value" id="stat-viewer-count">...</div>
-                    <div class="label">Viewers Enregistrés (XP)</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="value" id="stat-total-xp">...</div>
-                    <div class="label">XP Totale Distribuée</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="value" id="stat-max-level">...</div>
-                    <div class="label">Plus Haut Niveau Atteint</div>
-                </div>
-
-                <div class="stat-card" id="stream-status-card">
-                    <div class="value" id="stat-stream-status">...</div>
-                    <div class="label">Statut du Stream</div>
-                </div>
-                
-                <div class="stat-card" style="grid-column: span 2;">
-                    <div class="value" id="stat-followers-goal">...</div>
-                    <div class="label">Objectif de Followers Actuel</div>
-                </div>
-                
             </div>
             
-            <div class="top-users-card">
-                <h2>Top 5 des Créateurs de Clips</h2>
-                <ul class="top-users-list" id="top-clip-creators">
-                    </ul>
-                <p id="no-clip-data" style="display:none; text-align: center; color: var(--color-text-secondary);">Aucune donnée de clip récente disponible.</p>
+            <div class="stat-card">
+                <div class="value" id="stat-viewer-count">...</div>
+                <div class="label">Viewers Enregistrés (XP)</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="value" id="stat-total-xp">...</div>
+                <div class="label">XP Totale Distribuée</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="value" id="stat-max-level">...</div>
+                <div class="label">Plus Haut Niveau Atteint</div>
+            </div>
+            
+            <div class="stat-card" id="stream-status-card">
+                <div class="value" id="stat-stream-status">...</div>
+                <div class="label">Statut du Stream</div>
             </div>
             
         </div>
+
+        <div class="top-users-card" style="margin-top: 1.5rem;">
+            <h2>Statistiques Agrégées de la Communauté</h2>
+            <ul class="top-users-list" id="aggregated-stats-list">
+                <li class="top-users-item">
+                    <span class="name">Niveau Moyen de la Communauté :</span>
+                    <span class="count" id="stat-avg-level">...</span>
+                </li>
+                <li class="top-users-item">
+                    <span class="name">XP Moyenne par Viewer :</span>
+                    <span class="count" id="stat-avg-xp">...</span>
+                </li>
+                <li class="top-users-item">
+                    <span class="name">Total Clips Créés :</span>
+                    <span class="count" id="stat-total-clips">...</span>
+                </li>
+            </ul>
+        </div>
         
-    </main>
+    </div>
+    
+</main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
