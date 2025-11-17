@@ -33,6 +33,37 @@ function calculateLevel(xp) {
 const loadingEl = document.getElementById("loading");
 const statsContentEl = document.getElementById("stats-content");
 
+async function getTwitchUserInfo(logins, token) {
+    if (logins.length === 0) return {};
+    
+    const loginQuery = logins.map(l => `login=${encodeURIComponent(l)}`).join('&');
+    
+    const twitchHeaders = new Headers({
+        'Authorization': `Bearer ${token}`,
+        'Client-Id': CLIENT_ID
+    });
+    
+    try {
+        const response = await fetch(`https://api.twitch.tv/helix/users?${loginQuery}`, { headers: twitchHeaders });
+        if (!response.ok) {
+             console.error(`[TWITCH ERROR] Erreur API users: Statut ${response.status}`);
+             return {};
+        }
+        
+        const data = await response.json();
+        return data.data.reduce((acc, user) => {
+            acc[user.login] = {
+                display_name: user.display_name,
+                avatar: user.profile_image_url
+            };
+            return acc;
+        }, {});
+    } catch (error) {
+        console.error("[TWITCH ERROR] Erreur lors de la récupération des infos Twitch:", error);
+        return {};
+    }
+}
+
 async function getTwitchStats(token) {
     const twitchHeaders = new Headers({
         'Authorization': `Bearer ${token}`,
@@ -46,11 +77,9 @@ async function getTwitchStats(token) {
         if (followersResponse.ok) {
             const data = await followersResponse.json();
             stats.followers = data.total;
-        } else {
-             console.warn(`[TWITCH WARN] Erreur API Followers: Statut ${followersResponse.status}.`);
-        }
+        } 
     } catch (e) {
-        console.warn("[TWITCH WARN] Impossible de récupérer les followers:", e);
+        console.warn("[TWITCH WARN] Impossible de récupérer les followers.");
     }
     
     try {
@@ -58,11 +87,9 @@ async function getTwitchStats(token) {
         if (streamResponse.ok) {
             const data = await streamResponse.json();
             stats.isLive = data.data.length > 0;
-        } else {
-             console.warn(`[TWITCH WARN] Erreur API Stream Status: Statut ${streamResponse.status}.`);
         }
     } catch (e) {
-        console.warn("[TWITCH WARN] Impossible de vérifier le statut du stream:", e);
+        console.warn("[TWITCH WARN] Impossible de vérifier le statut du stream.");
     }
     
     try {
@@ -70,14 +97,10 @@ async function getTwitchStats(token) {
         if (clipsResponse.ok) {
             const data = await clipsResponse.json();
             stats.totalClips = data.pagination.total || 0; 
-            
             console.log(`[DEBUG CLIPS] Total clips après requête : ${stats.totalClips}`);
-
-        } else {
-             console.warn(`[TWITCH WARN] Erreur API Total Clips: Statut ${clipsResponse.status}.`);
         }
     } catch (e) {
-        console.warn("[TWITCH WARN] Impossible de récupérer le total des clips:", e);
+        console.warn("[TWITCH WARN] Impossible de récupérer le total des clips.");
     }
 
     return stats;
@@ -111,7 +134,8 @@ async function getTwitchStats(token) {
             statusEl.style.color = "var(--color-danger)";
         }
         
-        document.getElementById("stat-total-clips").textContent = twitchStats.totalClips.toLocaleString('fr-FR');
+        const clipsDisplayValue = twitchStats.totalClips > 0 ? twitchStats.totalClips.toLocaleString('fr-FR') : 'N/A';
+        document.getElementById("stat-total-clips").textContent = clipsDisplayValue;
 
 
         const xpRef = db.ref('viewer_data/xp');
@@ -119,15 +143,23 @@ async function getTwitchStats(token) {
         let totalXP = 0;
         let viewerCount = 0;
         let maxLevel = 1;
+        let topViewerLogin = 'N/A';
+        let maxXP = -1; 
         let totalLevels = 0;
 
         if (xpSnapshot.exists()) {
             const xpData = xpSnapshot.val();
             viewerCount = Object.keys(xpData).length;
             
-            Object.values(xpData).forEach(user => {
+            Object.entries(xpData).forEach(([login, user]) => {
                 const xp = user.xp || 0;
                 const level = calculateLevel(xp);
+
+                if (xp > maxXP) { 
+                    maxXP = xp;
+                    topViewerLogin = login;
+                }
+                
                 totalXP += xp;
                 totalLevels += level;
                 maxLevel = Math.max(maxLevel, level);
@@ -141,9 +173,18 @@ async function getTwitchStats(token) {
         document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString('fr-FR');
         document.getElementById("stat-max-level").textContent = maxLevel;
 
+        if (topViewerLogin !== 'N/A') {
+            const twitchUserInfo = await getTwitchUserInfo([topViewerLogin], token);
+            const displayName = twitchUserInfo[topViewerLogin.toLowerCase()]?.display_name || topViewerLogin;
+            document.getElementById("stat-top-viewer-name").textContent = `${displayName} (Niv. ${maxLevel})`;
+        } else {
+            document.getElementById("stat-top-viewer-name").textContent = 'Aucun viewer trouvé';
+        }
+        
+
         document.getElementById("stat-avg-level").textContent = avgLevel;
         document.getElementById("stat-avg-xp").textContent = avgXP;
-        document.getElementById("stat-total-clips-aggregated").textContent = twitchStats.totalClips.toLocaleString('fr-FR');
+        document.getElementById("stat-total-clips-aggregated").textContent = clipsDisplayValue;
 
         
         loadingEl.style.display = "none";
