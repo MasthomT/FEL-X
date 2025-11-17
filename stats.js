@@ -165,6 +165,8 @@ try {
         document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString('fr-FR');
         document.getElementById("stat-max-level").textContent = maxLevel;
 
+        document.getElementById("stat-avg-level").textContent = avgLevel;
+        document.getElementById("stat-avg-xp").textContent = avgXP;
         document.getElementById("stat-total-clips-aggregated").textContent = clipsDisplayValue;
 
         
