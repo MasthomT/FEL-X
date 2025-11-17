@@ -47,10 +47,10 @@ async function getTwitchStats(token) {
             const data = await followersResponse.json();
             stats.followers = data.total;
         } else {
-             console.warn(`Erreur API Followers: Statut ${followersResponse.status}. (Utilisation de 0)`);
+             console.warn(`[TWITCH WARN] Erreur API Followers: Statut ${followersResponse.status}.`);
         }
     } catch (e) {
-        console.warn("Impossible de récupérer les followers:", e);
+        console.warn("[TWITCH WARN] Impossible de récupérer les followers:", e);
     }
     
     try {
@@ -59,10 +59,10 @@ async function getTwitchStats(token) {
             const data = await streamResponse.json();
             stats.isLive = data.data.length > 0;
         } else {
-             console.warn(`Erreur API Stream Status: Statut ${streamResponse.status}. (Utilisation de Hors Ligne)`);
+             console.warn(`[TWITCH WARN] Erreur API Stream Status: Statut ${streamResponse.status}.`);
         }
     } catch (e) {
-        console.warn("Impossible de vérifier le statut du stream:", e);
+        console.warn("[TWITCH WARN] Impossible de vérifier le statut du stream:", e);
     }
     
     try {
@@ -70,11 +70,14 @@ async function getTwitchStats(token) {
         if (clipsResponse.ok) {
             const data = await clipsResponse.json();
             stats.totalClips = data.pagination.total || 0; 
+            
+            console.log(`[DEBUG CLIPS] Total clips après requête : ${stats.totalClips}`);
+
         } else {
-             console.warn(`Erreur API Total Clips: Statut ${clipsResponse.status}. (Utilisation de 0)`);
+             console.warn(`[TWITCH WARN] Erreur API Total Clips: Statut ${clipsResponse.status}.`);
         }
     } catch (e) {
-        console.warn("Impossible de récupérer le total des clips:", e);
+        console.warn("[TWITCH WARN] Impossible de récupérer le total des clips:", e);
     }
 
     return stats;
