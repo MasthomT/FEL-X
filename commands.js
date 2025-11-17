@@ -117,26 +117,6 @@ const ALL_COMMANDS = [
         access: "Viewer" 
     },
     
-    // --- Commandes Modérateur ---
-    { 
-        trigger: "!ban <user>", 
-        description: "Bannir définitivement un utilisateur du chat. (Utilisation : !ban mauvaisutilisateur)", 
-        category: "moderator", 
-        access: "Modérateur" 
-    },
-    { 
-        trigger: "!timeout <user> <time>", 
-        description: "Mettre en temps mort un utilisateur pour une durée spécifique. (Utilisation : !timeout spammer 60s)", 
-        category: "moderator", 
-        access: "Modérateur" 
-    },
-    { 
-        trigger: "!addcmd <cmd> <reponse>", 
-        description: "Ajouter une nouvelle commande personnalisée au bot.", 
-        category: "moderator", 
-        access: "Modérateur" 
-    },
-
     // --- Commandes Sonores et Emotes (Catégorie: fun) ---
     { trigger: "!anniversaire", description: "Déclenche le son 'anniversaire'. (Aliases : !anniversaire)", category: "fun", access: "Viewer" },
     { trigger: "!crétin", description: "Déclenche le son 'crétin'. (Aliases : !crétin)", category: "fun", access: "Viewer" },
@@ -184,56 +164,6 @@ const ALL_COMMANDS = [
         category: "fun", 
         access: "Viewer" 
     },
-
-    // --- Commandes de Traduction (Catégorie: info) ---
-    { 
-        trigger: "!ar ou !ara <texte>", 
-        description: "Traduit le texte en Arabe. (Aliases : !ar, !ara)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!ch ou !chi <texte>", 
-        description: "Traduit le texte en Chinois. (Aliases : !ch, !chi)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!eng ou !len ou !lang ou !lan <texte>", 
-        description: "Traduit le texte en Anglais. (Aliases : !eng, !len, !lang, !lan)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!esp ou !les <texte>", 
-        description: "Traduit le texte en Espagnol. (Aliases : !esp, !les)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!fr ou !fra <texte>", 
-        description: "Traduit le texte en Français. (Aliases : !fr, !fra)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!ge ou !ger ou !tall ou !tal <texte>", 
-        description: "Traduit le texte en Allemand. (Aliases : !ge, !ger, !tall, !tal)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!it ou !ita <texte>", 
-        description: "Traduit le texte en Italien. (Aliases : !it, !ita)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!ja ou !jap <texte>", 
-        description: "Traduit le texte en Japonais. (Aliases : !ja, !jap)", 
-        category: "info", 
-        access: "Viewer" 
-    },
 ];
 
 const commandsListEl = document.getElementById("commands-list");
@@ -275,16 +205,12 @@ function applyFiltersAndSearch() {
     
     let filteredCommands = ALL_COMMANDS;
 
-    // 1. Appliquer le filtre par catégorie
     if (filterCategory !== 'all') {
-        // La logique est simplifiée : on filtre uniquement sur la catégorie choisie.
-        // Puisque les traductions sont maintenant étiquetées 'info', elles seront incluses.
         filteredCommands = filteredCommands.filter(cmd => 
             cmd.category === filterCategory
         );
     }
     
-    // 2. Appliquer la recherche par mot-clé
     if (searchTerm) {
         filteredCommands = filteredCommands.filter(cmd => 
             cmd.trigger.toLowerCase().includes(searchTerm) || 
@@ -295,7 +221,6 @@ function applyFiltersAndSearch() {
     renderCommands(filteredCommands);
 }
 
-// Initialisation: Afficher toutes les commandes au chargement et attacher les écouteurs
 renderCommands(ALL_COMMANDS);
 searchInput.addEventListener('input', applyFiltersAndSearch);
 filterSelect.addEventListener('change', applyFiltersAndSearch);
