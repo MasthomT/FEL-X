@@ -7,7 +7,7 @@ if(document.getElementById("logout-sidebar")) {
 
 const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
 const BROADCASTER_ID = "439356462"; 
-let allClipsData = []; // Variable pour stocker tous les clips chargés
+let allClipsData = []; 
 
 const loadingEl = document.getElementById("loading");
 const gridEl = document.getElementById("clips-grid");
@@ -59,7 +59,6 @@ function applyFiltersAndSearch() {
     
     let filteredClips = allClipsData;
 
-    // 1. Appliquer la recherche (Filtre)
     if (searchTerm) {
         filteredClips = allClipsData.filter(clip => 
             clip.title.toLowerCase().includes(searchTerm) || 
@@ -67,11 +66,9 @@ function applyFiltersAndSearch() {
         );
     }
     
-    // 2. Appliquer le tri (Sort)
     if (sortValue === 'views_desc') {
         filteredClips.sort((a, b) => b.view_count - a.view_count);
     } else if (sortValue === 'date_desc') {
-        // La date de création (created_at) est un ISO string, on peut comparer directement
         filteredClips.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
     
@@ -118,7 +115,7 @@ function applyFiltersAndSearch() {
             
         } while (cursor);
 
-        
+        localStorage.setItem("twitch_clip_count", allClipsData.length);
         if (allClipsData.length === 0) {
             loadingEl.textContent = "Aucun clip n'a été trouvé pour cette chaîne.";
             return;
