@@ -60,6 +60,38 @@ async function getTwitchUserInfo(logins, token) {
     }
 }
 
+async function getTwitchStats(token) {
+    const twitchHeaders = new Headers({
+        'Authorization': `Bearer ${token}`,
+        'Client-Id': CLIENT_ID
+    });
+    
+    const stats = { followers: 0, isLive: false };
+
+    try {
+        const followersResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+        if (followersResponse.ok) {
+            const data = await followersResponse.json();
+            stats.followers = data.total;
+        }
+    } catch (e) {
+        console.warn("Impossible de récupérer les followers:", e);
+    }
+    
+    try {
+        const streamResponse = await fetch(`https://api.twitch.tv/helix/streams?user_id=${BROADCASTER_ID}`, { headers: twitchHeaders });
+        if (streamResponse.ok) {
+            const data = await streamResponse.json();
+            stats.isLive = data.data.length > 0;
+        }
+    } catch (e) {
+        console.warn("Impossible de vérifier le statut du stream:", e);
+    }
+
+    return stats;
+}
+
+
 (async function loadStats() {
     const token = localStorage.getItem("twitch_token");
     if (!token) {
@@ -68,6 +100,24 @@ async function getTwitchUserInfo(logins, token) {
     }
 
     try {
+        
+        const twitchStats = await getTwitchStats(token);
+        
+        const goalFollowers = 500;
+        
+        document.getElementById("stat-followers").textContent = twitchStats.followers.toLocaleString('fr-FR');
+        document.getElementById("stat-followers-goal").textContent = `${twitchStats.followers.toLocaleString('fr-FR')} / ${goalFollowers.toLocaleString('fr-FR')}`;
+
+        const statusEl = document.getElementById("stat-stream-status");
+        if (twitchStats.isLive) {
+            statusEl.textContent = "EN LIGNE";
+            statusEl.style.color = "var(--color-accent)";
+        } else {
+            statusEl.textContent = "HORS LIGNE";
+            statusEl.style.color = "var(--color-danger)";
+        }
+
+
         const xpRef = db.ref('viewer_data/xp');
         const xpSnapshot = await xpRef.get();
         let totalXP = 0;
@@ -101,14 +151,10 @@ async function getTwitchUserInfo(logins, token) {
         const clipsData = await clipsResponse.json();
         const clips = clipsData.data;
 
-        document.getElementById("stat-total-clips").textContent = clips.length.toLocaleString('fr-FR');
-
         const creatorCounts = {};
-        const creatorLogins = new Set();
         clips.forEach(clip => {
             const login = clip.creator_name.toLowerCase();
             creatorCounts[login] = (creatorCounts[login] || 0) + 1;
-            creatorLogins.add(login);
         });
 
         const topCreators = Object.entries(creatorCounts)
