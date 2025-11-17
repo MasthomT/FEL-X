@@ -303,59 +303,64 @@
     
     <div id="stats-content" style="display: none;">
         
-<div class="stats-grid">
+        <div class="stats-grid">
+            
+            <div class="stat-card" id="followers-progress-card" style="grid-column: 1 / -1; padding: 1.5rem 2rem; text-align: left;"> 
                 
-                <div class="stat-card" id="followers-progress-card" style="padding: 1.5rem;"> 
-                    <div class="label" style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--color-text-primary);">Followers Totaux</div>
-                    <div class="value" id="stat-followers-current" style="font-size: 2.5rem; margin-bottom: 0.75rem;">...</div>
-                    <div class="label" id="stat-followers-goal-label" style="font-size: 0.9rem; color: var(--color-accent); margin-bottom: 0.5rem;">... / ...</div>
-                    <div class="progress-bar-container" style="height: 8px; background: var(--color-border); border-radius: 5px;">
-                        <div id="stat-followers-progress" style="height: 100%; width: 0%; background: var(--color-accent); border-radius: 5px; transition: width 0.5s;"></div>
-                    </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                    <div class="label" style="font-size: 1.1rem; color: var(--color-text-primary); font-weight: 500;">Objectif de Followers :</div>
+                    <div class="label" id="stat-followers-goal-label" style="font-size: 1.2rem; color: var(--color-accent); font-weight: 600;">... / ...</div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="value" id="stat-viewer-count">...</div>
-                    <div class="label">Viewers Enregistrés (XP)</div>
-                </div>
+                <div class="value" id="stat-followers-current" style="font-size: 3rem; margin: 0.5rem 0 1rem 0;">...</div>
                 
-                <div class="stat-card">
-                    <div class="value" id="stat-total-xp">...</div>
-                    <div class="label">XP Totale Distribuée</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="value" id="stat-total-clips">...</div>
-                    <div class="label">Clips Créés (Total)</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="value" id="stat-max-level">...</div>
-                    <div class="label">Plus Haut Niveau Atteint</div>
-                </div>
-                
-                <div class="stat-card" id="stream-status-card">
-                    <div class="value" id="stat-stream-status">...</div>
-                    <div class="label">Statut du Stream</div>
+                <div class="progress-bar-container" style="height: 15px; background: var(--color-border); border-radius: 8px;">
+                    <div id="stat-followers-progress" style="height: 100%; width: 0%; background: var(--color-accent); border-radius: 8px; transition: width 0.5s;"></div>
                 </div>
             </div>
+            
+            <div class="stat-card">
+                <div class="value" id="stat-viewer-count">...</div>
+                <div class="label">Viewers Enregistrés (XP)</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="value" id="stat-total-xp">...</div>
+                <div class="label">XP Totale Distribuée</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="value" id="stat-total-clips">...</div>
+                <div class="label">Clips Créés (Total)</div>
+            </div>
 
-        <div class="top-users-card" style="margin-top: 1.5rem;">
-            <h2>Statistiques Agrégées de la Communauté</h2>
-            <ul class="top-users-list" id="aggregated-stats-list">
-                <li class="top-users-item">
-                    <span class="name">Niveau Moyen de la Communauté :</span>
-                    <span class="count" id="stat-avg-level">...</span>
-                </li>
-                <li class="top-users-item">
-                    <span class="name">XP Moyenne par Viewer :</span>
-                    <span class="count" id="stat-avg-xp">...</span>
-                </li>
-                <li class="top-users-item">
-                    <span class="name">Total Clips Créés :</span>
-                    <span class="count" id="stat-total-clips">...</span>
-                </li>
-            </ul>
+            <div class="stat-card">
+                <div class="value" id="stat-max-level">...</div>
+                <div class="label">Plus Haut Niveau Atteint</div>
+            </div>
+            
+            <div class="stat-card" id="stream-status-card">
+                <div class="value" id="stat-stream-status">...</div>
+                <div class="label">Statut du Stream</div>
+            </div>
+
+            <div class="top-users-card" style="grid-column: 1 / -1; margin-top: 1.5rem;">
+                <h2>Statistiques Agrégées de la Communauté</h2>
+                <ul class="top-users-list" id="aggregated-stats-list">
+                    <li class="top-users-item">
+                        <span class="name">Niveau Moyen de la Communauté :</span>
+                        <span class="count" id="stat-avg-level">...</span>
+                    </li>
+                    <li class="top-users-item">
+                        <span class="name">XP Moyenne par Viewer :</span>
+                        <span class="count" id="stat-avg-xp">...</span>
+                    </li>
+                    <li class="top-users-item">
+                        <span class="name">Clips Créés (Total) :</span>
+                        <span class="count" id="stat-total-clips-aggregated">...</span> </li>
+                </ul>
+            </div>
+            
         </div>
         
     </div>

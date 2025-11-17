@@ -135,7 +135,7 @@ async function getTwitchStats(token) {
         const avgXP = viewerCount > 0 ? (totalXP / viewerCount).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : 0;
         
         document.getElementById("stat-viewer-count").textContent = viewerCount.toLocaleString('fr-FR');
-        document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString('fr-FR');
+        document.getElementById("stat-total-clips-aggregated").textContent = twitchStats.totalClips.toLocaleString('fr-FR');
         document.getElementById("stat-max-level").textContent = maxLevel;
         document.getElementById("stat-avg-level").textContent = avgLevel;
         document.getElementById("stat-avg-xp").textContent = avgXP;
