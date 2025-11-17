@@ -92,10 +92,9 @@ function applyFiltersAndSearch() {
     });
     
     let cursor = null;
-    const limitPerRequest = 100; // Augmenté à 100 pour maximiser les résultats par requête Twitch
+    const limitPerRequest = 100;
 
     try {
-        // Boucle de Pagination : Continue tant qu'un curseur est présent
         do {
             let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=${limitPerRequest}`;
             if (cursor) {
@@ -111,29 +110,26 @@ function applyFiltersAndSearch() {
             const clipsData = await clipsResponse.json();
 
             if (clipsData.data.length === 0) {
-                // Plus de clips à charger
                 break;
             }
             
             allClipsData.push(...clipsData.data);
-            cursor = clipsData.pagination.cursor; // Récupère le curseur pour la page suivante
+            cursor = clipsData.pagination.cursor;
             
-        } while (cursor); // La boucle continue tant qu'il y a un curseur
+        } while (cursor);
 
         
         if (allClipsData.length === 0) {
             loadingEl.textContent = "Aucun clip n'a été trouvé pour cette chaîne.";
             return;
         }
-
-        // Trier par défaut par date (le plus récent)
+        localStorage.setItem("twitch_clip_count", allClipsData.length);
         allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         
-        // Rendre les clips et attacher les écouteurs
         renderClips(allClipsData);
         searchInput.addEventListener('input', applyFiltersAndSearch);
         filterSortSelect.addEventListener('change', applyFiltersAndSearch);
-        document.getElementById("filter-form").style.display = 'flex'; // Afficher la barre de filtre/recherche
+        document.getElementById("filter-form").style.display = 'flex';
         
     } catch (error) {
         console.error("Erreur lors du chargement des clips:", error);

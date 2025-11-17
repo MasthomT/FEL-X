@@ -92,16 +92,15 @@ async function getTwitchStats(token) {
         console.warn("[TWITCH WARN] Impossible de vérifier le statut du stream.");
     }
     
-    try {
-        const clipsResponse = await fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=1`, { headers: twitchHeaders });
-        if (clipsResponse.ok) {
-            const data = await clipsResponse.json();
-            stats.totalClips = data.pagination.total || 0; 
-            console.log(`[DEBUG CLIPS] Total clips après requête : ${stats.totalClips}`);
-        }
-    } catch (e) {
-        console.warn("[TWITCH WARN] Impossible de récupérer le total des clips.");
-    }
+try {
+        const cachedClips = localStorage.getItem("twitch_clip_count");
+        if (cachedClips !== null) {
+            stats.totalClips = parseInt(cachedClips, 10) || 0; 
+        }
+    } catch (e) {
+        console.warn("[STATS] Impossible de lire le cache des clips.", e);
+        stats.totalClips = 0;
+    }
 
     return stats;
 }
