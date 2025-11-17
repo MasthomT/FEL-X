@@ -5,7 +5,6 @@ if(document.getElementById("logout-sidebar")) {
     };
 }
 
-// Configuration Firebase (Réutilisation des données de app.js / leaderboard.js)
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -24,7 +23,6 @@ const db = firebase.database();
 const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
 const BROADCASTER_ID = "439356462"; 
 
-// Fonction de calcul de niveau (Réutilisation de la logique de app.js / leaderboard.js)
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
@@ -34,7 +32,6 @@ function calculateLevel(xp) {
 const loadingEl = document.getElementById("loading");
 const statsContentEl = document.getElementById("stats-content");
 
-// Fonction pour récupérer le nom d'affichage Twitch à partir du login
 async function getTwitchUserInfo(logins, token) {
     if (logins.length === 0) return {};
     
@@ -63,7 +60,6 @@ async function getTwitchUserInfo(logins, token) {
     }
 }
 
-// Fonction principale de chargement des statistiques
 (async function loadStats() {
     const token = localStorage.getItem("twitch_token");
     if (!token) {
@@ -72,7 +68,6 @@ async function getTwitchUserInfo(logins, token) {
     }
 
     try {
-        // --- 1. Récupérer les données XP de Firebase ---
         const xpRef = db.ref('viewer_data/xp');
         const xpSnapshot = await xpRef.get();
         let totalXP = 0;
@@ -90,13 +85,11 @@ async function getTwitchUserInfo(logins, token) {
             });
         }
 
-        // Afficher les statistiques XP/Niveau
         document.getElementById("stat-viewer-count").textContent = viewerCount.toLocaleString('fr-FR');
         document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString('fr-FR');
         document.getElementById("stat-max-level").textContent = maxLevel;
 
         
-        // --- 2. Récupérer les données de clips Twitch pour le Top Créateur ---
         const clipHeaders = new Headers({
             'Authorization': `Bearer ${token}`,
             'Client-Id': CLIENT_ID
@@ -110,7 +103,6 @@ async function getTwitchUserInfo(logins, token) {
 
         document.getElementById("stat-total-clips").textContent = clips.length.toLocaleString('fr-FR');
 
-        // Compter les créateurs de clips
         const creatorCounts = {};
         const creatorLogins = new Set();
         clips.forEach(clip => {
@@ -119,12 +111,10 @@ async function getTwitchUserInfo(logins, token) {
             creatorLogins.add(login);
         });
 
-        // Trier les créateurs par nombre de clips
         const topCreators = Object.entries(creatorCounts)
             .sort(([, countA], [, countB]) => countB - countA)
             .slice(0, 5);
         
-        // Récupérer les informations Twitch (avatar, display name) pour le Top 5
         const topCreatorLogins = topCreators.map(([login]) => login);
         const twitchUsersInfo = await getTwitchUserInfo(topCreatorLogins, token);
         

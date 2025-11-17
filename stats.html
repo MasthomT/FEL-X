@@ -284,11 +284,16 @@
         
         <div id="stats-content" style="display: none;">
             
-            <div class="stats-grid">
+        <div class="stats-grid">
+                
+                <div class="stat-card">
+                    <div class="value" id="stat-followers">...</div>
+                    <div class="label">Followers Totaux</div>
+                </div>
                 
                 <div class="stat-card">
                     <div class="value" id="stat-viewer-count">...</div>
-                    <div class="label">Viewers Enregistrés</div>
+                    <div class="label">Viewers Enregistrés (XP)</div>
                 </div>
                 
                 <div class="stat-card">
@@ -300,14 +305,19 @@
                     <div class="value" id="stat-max-level">...</div>
                     <div class="label">Plus Haut Niveau Atteint</div>
                 </div>
+
+                <div class="stat-card" id="stream-status-card">
+                    <div class="value" id="stat-stream-status">...</div>
+                    <div class="label">Statut du Stream</div>
+                </div>
                 
-                <div class="stat-card">
-                    <div class="value" id="stat-total-clips">...</div>
-                    <div class="label">Clips Créés (Total)</div>
+                <div class="stat-card" style="grid-column: span 2;">
+                    <div class="value" id="stat-followers-goal">...</div>
+                    <div class="label">Objectif de Followers Actuel</div>
                 </div>
                 
             </div>
-
+            
             <div class="top-users-card">
                 <h2>Top 5 des Créateurs de Clips</h2>
                 <ul class="top-users-list" id="top-clip-creators">

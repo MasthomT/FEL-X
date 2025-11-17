@@ -5,9 +5,7 @@ if(document.getElementById("logout-sidebar")) {
     };
 }
 
-// Liste Statique des Commandes (MISE À JOUR AVEC CATÉGORIE INFO/TRADUCTION HARMONISÉE)
 const ALL_COMMANDS = [
-    // --- Commandes Générales (Catégorie: info, xp, fun) ---
     { 
         trigger: "!bug", 
         description: "Signaler un bug ou une erreur au Streamer.", 
@@ -117,7 +115,6 @@ const ALL_COMMANDS = [
         access: "Viewer" 
     },
     
-    // --- Commandes Sonores et Emotes (Catégorie: fun) ---
     { trigger: "!anniversaire", description: "Déclenche le son 'anniversaire'. (Aliases : !anniversaire)", category: "fun", access: "Viewer" },
     { trigger: "!crétin", description: "Déclenche le son 'crétin'. (Aliases : !crétin)", category: "fun", access: "Viewer" },
     { trigger: "!deshonneur", description: "Déclenche le son 'déshonneur'. (Aliases : !deshonneur)", category: "fun", access: "Viewer" },
