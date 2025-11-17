@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classement - Portail Viewer</title>
+    <title>Statistiques - Portail Viewer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@
             min-height: 100vh;
             padding: 2rem;
             animation: fadeIn 0.5s ease-out;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -56,6 +56,7 @@
             font-weight: 600; 
         }
 
+        /* Styles de la Sidebar (Identiques aux autres fichiers) */
         .sidebar {
             width: 250px;
             background-color: var(--color-sidebar);
@@ -65,7 +66,6 @@
             flex-direction: column;
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
-            transition: width var(--transition-speed) ease;
             position: sticky; 
             top: 0;
         }
@@ -135,120 +135,89 @@
         }
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+
+        /* Styles Spécifiques à la page Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
         
-        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .label {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
         
-        #leaderboard-list {
+        .top-users-card {
+            grid-column: 1 / -1;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .top-users-card h2 {
+            color: var(--color-accent);
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 1.5rem;
+        }
+        .top-users-list {
             list-style: none;
             padding: 0;
-            display: none;
-            flex-direction: column;
-            gap: 0.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
         }
-        
-        .leaderboard-item {
+        .top-users-item {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            background: var(--color-surface);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-            transition: all var(--transition-speed) ease;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: #1e1e21;
+            border-radius: 6px;
         }
-        .leaderboard-item:hover {
-            transform: scale(1.02);
-            border-color: var(--color-accent);
-        }
-        
-        .leaderboard-item .rank {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            width: 40px; 
-            text-align: right;
-        }
-        
-        .leaderboard-item .avatar {
-            width: 50px;
-            height: 50px;
+        .top-users-item .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 2px solid var(--color-accent);
+            object-fit: cover;
         }
-        
-        .leaderboard-item .user-info {
+        .top-users-item .name {
+            font-weight: 500;
             flex-grow: 1;
         }
-        
-        .leaderboard-item .user-info .name {
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: var(--color-text-primary);
-        }
-        .leaderboard-item .user-info .level {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: var(--color-text-secondary);
-        }
-        
-        .leaderboard-item .xp-info {
-            font-size: 1.5rem;
+        .top-users-item .count {
             font-weight: 600;
             color: var(--color-accent);
         }
-        .leaderboard-item .xp-info span {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: var(--color-text-secondary);
-        }
+        
+        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300; }
 
+        /* Media Queries */
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-                height: auto; 
-                overflow-y: auto; 
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                align-items: center;
-                padding: 0.5rem 1rem;
-                border-right: none;
-                border-bottom: 1px solid var(--color-border);
-                position: static;
-            }
-            .sidebar-header { padding: 0; border: none; }
-            .sidebar nav { flex-direction: row; }
-            .sidebar a.nav-link {
-                padding: 0.75rem;
-                border-left: none;
-                border-bottom: 4px solid transparent;
-            }
-            .sidebar a.nav-link:hover,
-            .sidebar a.nav-link.active {
-                background: none;
-                border-left-color: transparent;
-                border-bottom-color: var(--color-accent);
-                color: white;
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 0.5rem 1rem; border-right: none; border-bottom: 1px solid var(--color-border); position: static; }
             .sidebar a.nav-link span { display: none; }
             .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
-            #logout-sidebar { padding: 0.75rem; }
             #logout-sidebar span { display: none; }
-            
-            main { 
-                height: auto; 
-                overflow-y: visible; 
-                padding: 1rem; 
-                min-height: 0;
-            }
-            
-            .leaderboard-item { gap: 1rem; }
-            .leaderboard-item .rank { font-size: 1rem; width: 30px; }
-            .leaderboard-item .avatar { width: 40px; height: 40px; }
-            .leaderboard-item .user-info .name { font-size: 1rem; }
-            .leaderboard-item .xp-info { font-size: 1.2rem; }
+            main { padding: 1rem; min-height: 0; }
         }
     </style>
 </head>
@@ -263,7 +232,8 @@
         </div>
         
         <nav>
-            <a href="/profile.html" class="nav-link" id="nav-profile"> <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+            <a href="/profile.html" class="nav-link" id="nav-profile">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
                 <span>Mon Profil</span>
             </a>
             
@@ -272,7 +242,7 @@
                 <span>Infos & Commandes</span>
             </a>
 
-            <a href="/leaderboard.html" class="nav-link active" id="nav-leaderboard">
+            <a href="/leaderboard.html" class="nav-link" id="nav-leaderboard">
                 <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
                 <span>Classement</span>
             </a>
@@ -281,37 +251,76 @@
                 <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm4-4H7V9h8v2zm0-4H7V5h8v2z"></path></svg>
                 <span>Galerie de Clips</span>
             </a>
+            
             <a href="/commands.html" class="nav-link" id="nav-commands">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 17h8v2H8zm0-4h8v2H8zm0-4h8v2H8z"></path></svg>
                 <span>Commandes du Bot</span>
             </a>
+
             <a href="/stats.html" class="nav-link" id="nav-stats">
+                <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
+                <span>Statistiques</span>
+            </a>
+            <a href="/stats.html" class="nav-link active" id="nav-stats">
                 <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
                 <span>Statistiques</span>
             </a>
         </nav>
 
         <div class="sidebar-footer">
-            <a id="logout-sidebar" href="#"> <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
-                <span>Se dÃ©connecter</span>
+            <a id="logout-sidebar" href="#">
+                <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
+                <span>Se déconnecter</span>
             </a>
         </div>
     </nav>
     <main>
-        <h1>Classement de la CommunautÃ©</h1>
+        <h1>Statistiques de la Communauté</h1>
         
         <div id="loading">
-            <h2>Chargement du classement...</h2>
-            <p>Connexion Ã  Firebase et Twitch en cours.</p>
+            <h2>Chargement des statistiques...</h2>
+            <p>Connexion à Firebase et à l'API Twitch en cours.</p>
         </div>
         
-        <ol id="leaderboard-list"></ol>
+        <div id="stats-content" style="display: none;">
+            
+            <div class="stats-grid">
+                
+                <div class="stat-card">
+                    <div class="value" id="stat-viewer-count">...</div>
+                    <div class="label">Viewers Enregistrés</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="value" id="stat-total-xp">...</div>
+                    <div class="label">XP Totale Distribuée</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="value" id="stat-max-level">...</div>
+                    <div class="label">Plus Haut Niveau Atteint</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="value" id="stat-total-clips">...</div>
+                    <div class="label">Clips Créés (Total)</div>
+                </div>
+                
+            </div>
+
+            <div class="top-users-card">
+                <h2>Top 5 des Créateurs de Clips</h2>
+                <ul class="top-users-list" id="top-clip-creators">
+                    </ul>
+                <p id="no-clip-data" style="display:none; text-align: center; color: var(--color-text-secondary);">Aucune donnée de clip récente disponible.</p>
+            </div>
+            
+        </div>
         
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <script src="/leaderboard.js"></script> 
+    <script src="/stats.js"></script> 
 </body>
 </html>
