@@ -182,7 +182,7 @@
             list-style: none;
             padding: 0;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             align-items: start;
         }
@@ -341,17 +341,17 @@
             </div>
 
             <div class="top-users-card" style="grid-column: 1 / -1; margin-top: 1.5rem;">
-            <h2>Statistiques Agrégées de la Communauté</h2>
+            <h2>Statistiques Globales de la Communauté</h2>
             <ul class="top-users-list" id="aggregated-stats-list">
                 
                 <li class="top-users-item">
                     <span class="name">Niveau Moyen de la Communauté :</span>
-                                        <span class="count" id="stat-avg-level">...</span>
+                    <span class="count" id="stat-avg-level">...</span>
                 </li>
                 
                 <li class="top-users-item">
                     <span class="name">XP Moyenne par Viewer :</span>
-                                        <span class="count" id="stat-avg-xp">...</span>
+                    <span class="count" id="stat-avg-xp">...</span>
                 </li>
                 
                 <li class="top-users-item">
