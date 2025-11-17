@@ -142,8 +142,6 @@ try {
         let totalXP = 0;
         let viewerCount = 0;
         let maxLevel = 1;
-        let topViewerLogin = 'N/A';
-        let maxXP = -1; 
         let totalLevels = 0;
 
         if (xpSnapshot.exists()) {
@@ -154,11 +152,6 @@ try {
                 const xp = user.xp || 0;
                 const level = calculateLevel(xp);
 
-                if (xp > maxXP) { 
-                    maxXP = xp;
-                    topViewerLogin = login;
-                }
-                
                 totalXP += xp;
                 totalLevels += level;
                 maxLevel = Math.max(maxLevel, level);
@@ -171,15 +164,6 @@ try {
         document.getElementById("stat-viewer-count").textContent = viewerCount.toLocaleString('fr-FR');
         document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString('fr-FR');
         document.getElementById("stat-max-level").textContent = maxLevel;
-
-        if (topViewerLogin !== 'N/A') {
-            const twitchUserInfo = await getTwitchUserInfo([topViewerLogin], token);
-            const displayName = twitchUserInfo[topViewerLogin.toLowerCase()]?.display_name || topViewerLogin;
-            document.getElementById("stat-top-viewer-name").textContent = `${displayName} (Niv. ${maxLevel})`;
-        } else {
-            document.getElementById("stat-top-viewer-name").textContent = 'Aucun viewer trouvé';
-        }
-        
 
         document.getElementById("stat-avg-level").textContent = avgLevel;
         document.getElementById("stat-avg-xp").textContent = avgXP;
