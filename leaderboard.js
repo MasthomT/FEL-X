@@ -33,7 +33,7 @@ function calculateLevel(xp) {
         return;
     }
 
-    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+    const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const twitchHeaders = new Headers({
         'Authorization': `Bearer ${token}`,
         'Client-Id': CLIENT_ID

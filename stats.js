@@ -20,7 +20,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
+const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 const BROADCASTER_ID = "439356462"; 
 const FOLLOWERS_GOAL = 1500;
 
