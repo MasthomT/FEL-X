@@ -183,13 +183,22 @@
             100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
         }
 
-        #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
+        #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
         #profile-pic { 
             width: 100px; height: 100px; 
             border-radius: 50%; 
             border: 3px solid var(--color-accent); 
         }
+        #profile-header-info {
+            display: flex;
+            flex-direction: column;
+        }
         #display-name { margin: 0; font-size: 2.5rem; color: white; font-weight: 600; }
+        #user-first-seen {
+            color: var(--color-text-secondary);
+            margin-top: -0.5rem;
+            font-size: 0.9rem;
+        }
         
         #stats { 
             margin-top: 2rem; 
@@ -209,8 +218,8 @@
             transform: translateY(-5px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
-        .stat-card h2 { margin: 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 500;}
-        .stat-card span { font-size: 3rem; font-weight: 600; color: var(--color-accent); }
+        .stat-card h2 { margin: 0 0 0.5rem 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 500;}
+        .stat-card span { font-size: 3rem; font-weight: 600; color: var(--color-accent); line-height: 1.1; display: block; }
         
         .stat-card span.text-stat {
              font-size: 2rem;
@@ -271,6 +280,77 @@
         .xp-gain { color: #4caf50; } 
         .xp-loss { color: #f44336; } 
 
+
+        /* NOUVEAUX STYLES POUR LA BARRE D'XP */
+        .xp-progress-container {
+            margin-top: 1rem;
+        }
+        .xp-progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--color-background); /* Fond sombre */
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .xp-progress-fill {
+            height: 100%;
+            width: 0%; /* Sera défini par JS */
+            background-color: var(--color-accent);
+            transition: width 0.5s ease;
+        }
+        .xp-progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.25rem;
+        }
+        .xp-progress-total {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            margin-top: 0.25rem;
+        }
+        
+        /* NOUVEAUX STYLES POUR LA GRILLE DE CLIPS */
+        #user-clips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .clip-card {
+            background: var(--color-surface);
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            text-decoration: none;
+            color: var(--color-text-primary);
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+        .clip-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-accent);
+        }
+        .clip-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-size: cover;
+            background-position: center;
+        }
+        .clip-info {
+            padding: 1rem;
+        }
+        .clip-info .title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            font-size: 0.9rem;
+        }
+        
         @media (max-width: 768px) {
             body { 
                 flex-direction: column; 
@@ -312,8 +392,9 @@
                 padding: 1rem; 
                 min-height: 0;
             }
-            #profile-header { flex-direction: column; text-align: center; }
+            #profile-header { flex-direction: column; text-align: center; gap: 0.5rem; }
             #display-name { font-size: 2rem; }
+            #user-first-seen { margin-top: 0; }
         }
     </style>
 </head>
@@ -376,14 +457,28 @@
         <div id="profile-content">
             <div id="profile-header">
                 <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
-                <h1 id="display-name">Chargement...</h1>
+                <div id="profile-header-info">
+                    <h1 id="display-name">Chargement...</h1>
+                    <p id="user-first-seen"></p> </div>
             </div>
             
             <div id="stats">
                 <div class="stat-card">
                     <h2>Niveau</h2>
                     <span id="level">1</span>
+                    
+                    <div class="xp-progress-container">
+                        <div class="xp-progress-bar">
+                            <div class="xp-progress-fill" id="xp-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="xp-progress-labels">
+                            <span id="xp-current-label">0 XP</span>
+                            <span id="xp-next-label">Niv. 2</span>
+                        </div>
+                        <div class="xp-progress-total" id="xp-total-label">0 / 100 XP</div>
+                    </div>
                 </div>
+                
                 <div class="stat-card">
                     <h2>XP Total</h2>
                     <span id="xp">0</span>
@@ -394,7 +489,13 @@
                     <div id="sub-status-container">
                         <span id="sub-status" class="text-stat">...</span>
                         <small id="sub-tier"></small>
+                        <small id="sub-duration" style="margin-top: 5px;"></small>
                     </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>Votre Rang</h2>
+                    <span id="rank">#...</span>
                 </div>
             </div>
             
@@ -409,6 +510,19 @@
             <ul id="xp-history">
                 <li>Chargement de l'historique...</li>
             </ul>
+            
+            <h2 class="history-title" style="margin-top: 2.5rem;">Vos Clips Récents</h2>
+            
+            <div id="user-clips-grid">
+                </div>
+            
+            <p id="user-clips-loading" style="display: none; text-align: center; padding: 1rem;">
+                Chargement de vos clips...
+            </p>
+            
+            <p id="user-clips-none" style="display: none; text-align: center; padding: 1rem; color: var(--color-text-secondary);">
+                Vous n'avez créé aucun clip sur cette chaîne.
+            </p>
         </div>
         
         <div id="loading">
