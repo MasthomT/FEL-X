@@ -281,20 +281,18 @@
         .xp-loss { color: #f44336; } 
 
 
-        /* NOUVEAUX STYLES POUR LA BARRE D'XP */
         .xp-progress-container {
-            margin-top: 1rem;
         }
         .xp-progress-bar {
             width: 100%;
             height: 8px;
-            background-color: var(--color-background); /* Fond sombre */
+            background-color: var(--color-background);
             border-radius: 4px;
             overflow: hidden;
         }
         .xp-progress-fill {
             height: 100%;
-            width: 0%; /* Sera défini par JS */
+            width: 0%;
             background-color: var(--color-accent);
             transition: width 0.5s ease;
         }
@@ -312,7 +310,6 @@
             margin-top: 0.25rem;
         }
         
-        /* NOUVEAUX STYLES POUR LA GRILLE DE CLIPS */
         #user-clips-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -335,7 +332,7 @@
         .clip-thumbnail {
             position: relative;
             width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            padding-top: 56.25%;
             background-size: cover;
             background-position: center;
         }
@@ -466,17 +463,6 @@
                 <div class="stat-card">
                     <h2>Niveau</h2>
                     <span id="level">1</span>
-                    
-                    <div class="xp-progress-container">
-                        <div class="xp-progress-bar">
-                            <div class="xp-progress-fill" id="xp-fill" style="width: 0%;"></div>
-                        </div>
-                        <div class="xp-progress-labels">
-                            <span id="xp-current-label">0 XP</span>
-                            <span id="xp-next-label">Niv. 2</span>
-                        </div>
-                        <div class="xp-progress-total" id="xp-total-label">0 / 100 XP</div>
-                    </div>
                 </div>
                 
                 <div class="stat-card">
@@ -496,6 +482,17 @@
                 <div class="stat-card">
                     <h2>Votre Rang</h2>
                     <span id="rank">#...</span>
+                </div>
+            </div> <div class="stat-card" style="margin-top: 1.5rem;">
+                <div class="xp-progress-container">
+                    <div class="xp-progress-bar">
+                        <div class="xp-progress-fill" id="xp-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="xp-progress-labels">
+                        <span id="xp-current-label">0 XP</span>
+                        <span id="xp-next-label">Niv. 2</span>
+                    </div>
+                    <div class="xp-progress-total" id="xp-total-label">0 / 100 XP</div>
                 </div>
             </div>
             

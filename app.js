@@ -26,23 +26,14 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-/**
- * Calcule le niveau d'un utilisateur en fonction de son XP.
- */
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
     return Math.max(1, level);
 }
 
-/**
- * NOUVELLE FONCTION
- * Calcule le seuil d'XP minimum requis pour atteindre un certain niveau.
- * C'est l'inverse de calculateLevel.
- */
 function calculateXpForLevel(level) {
     if (level <= 1) return 0;
-    // Formule inverse : xp = pow(L - 1, 2.2) * 100
     const xp = Math.ceil(Math.pow(level - 1, 2.2) * 100);
     return xp;
 }
@@ -65,7 +56,6 @@ if (document.getElementById("profile-content")) {
         });
 
         try {
-            // 1. Récupérer les infos de l'utilisateur Twitch
             const twitchResponse = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
             if (!twitchResponse.ok) throw new Error("Token Twitch invalide ou expiré.");
             
@@ -76,16 +66,14 @@ if (document.getElementById("profile-content")) {
             document.getElementById("profile-pic").src = user.profile_image_url;
 
 
-            // 2. Lancer les appels API non bloquants en parallèle
             fetchStreamStatus(twitchHeaders, BROADCASTER_ID);
             fetchFollowStatus(twitchHeaders, user.id, BROADCASTER_ID);
             fetchSubscriptionStatus(twitchHeaders, user.id, BROADCASTER_ID);
-            loadUserClips(user.id, token, CLIENT_ID, BROADCASTER_ID); // NOUVEAU
+            loadUserClips(user.id, token, CLIENT_ID, BROADCASTER_ID);
             
 
-            // 3. Récupérer les données Firebase (XP, Rang, Historique)
             const userKey = user.login.toLowerCase(); 
-            const xpRef = db.ref(`viewer_data/xp`); // On prend TOUTE la base XP pour le rang
+            const xpRef = db.ref(`viewer_data/xp`);
             const historyRef = db.ref(`viewer_data/history/${userKey}`);
 
             const xpSnapshot = await xpRef.get();
@@ -105,7 +93,6 @@ if (document.getElementById("profile-content")) {
                     document.getElementById("level").textContent = currentLevel;
                     document.getElementById("xp").textContent = currentXp.toLocaleString('fr-FR');
                     
-                    // NOUVEAU: Afficher la date "Membre depuis..."
                     if (userXpData.first_seen) {
                          const date = new Date(userXpData.first_seen);
                          document.getElementById("user-first-seen").textContent = "Membre depuis le " + 
@@ -118,7 +105,6 @@ if (document.getElementById("profile-content")) {
                     document.getElementById("xp").textContent = 0;
                 }
 
-                // NOUVEAU: Calculer le RANG
                 const sortedViewers = Object.entries(allXpData)
                     .map(([login, data]) => ({ login, xp: data.xp || 0 }))
                     .sort((a, b) => b.xp - a.xp);
@@ -128,7 +114,6 @@ if (document.getElementById("profile-content")) {
                 document.getElementById("rank").textContent = (userRank > 0) ? `#${userRank}` : "#N/A";
 
             } else {
-                // Cas où la base de données XP est vide
                 document.getElementById("level").textContent = 1;
                 document.getElementById("xp").textContent = 0;
                 document.getElementById("rank").textContent = "#N/A";
@@ -148,7 +133,6 @@ if (document.getElementById("profile-content")) {
                 `${currentXp.toLocaleString('fr-FR')} / ${xpForNextLevel.toLocaleString('fr-FR')} XP`;
 
 
-            // 4. Afficher l'historique d'XP
             const historyList = document.getElementById("xp-history");
             historyList.innerHTML = "";
             
@@ -168,7 +152,6 @@ if (document.getElementById("profile-content")) {
                 historyList.innerHTML = "<li>Aucun historique d'XP trouvé.</li>";
             }
 
-            // 5. Afficher le contenu
             document.getElementById("loading").style.display = "none";
             document.getElementById("profile-content").style.display = "block";
 
@@ -184,9 +167,6 @@ if (document.getElementById("profile-content")) {
     })();
 }
 
-/**
- * Récupère le statut du stream (En ligne / Hors ligne)
- */
 async function fetchStreamStatus(twitchHeaders, BROADCASTER_ID) {
     const banner = document.getElementById("stream-status-banner");
     const statusText = document.getElementById("stream-status-text");
@@ -214,9 +194,6 @@ async function fetchStreamStatus(twitchHeaders, BROADCASTER_ID) {
     banner.style.display = "block";
 }
 
-/**
- * Vérifie si l'utilisateur suit la chaîne
- */
 async function fetchFollowStatus(twitchHeaders, userId, BROADCASTER_ID) {
     const followIndicator = document.getElementById("follow-indicator");
     const followStatusEl = document.getElementById("follow-status");
@@ -243,16 +220,12 @@ async function fetchFollowStatus(twitchHeaders, userId, BROADCASTER_ID) {
     }
 }
 
-/**
- * Vérifie le statut d'abonnement de l'utilisateur
- */
 async function fetchSubscriptionStatus(twitchHeaders, userId, BROADCASTER_ID) {
     const subStatusEl = document.getElementById("sub-status");
     const subTierEl = document.getElementById("sub-tier");
     const subDurationEl = document.getElementById("sub-duration");
     
     try {
-        // Utilisation de l'endpoint API correct
         const subResponse = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${BROADCASTER_ID}&user_id=${userId}`, { headers: twitchHeaders });
         
         if (subResponse.ok) {
@@ -267,16 +240,13 @@ async function fetchSubscriptionStatus(twitchHeaders, userId, BROADCASTER_ID) {
                 else if (tier === "3000") subTierEl.textContent = "(Tier 3)";
                 else subTierEl.textContent = "(Tier 1)";
                 
-                // TODO: La durée (streak) n'est pas disponible via cet endpoint.
-                // Elle est gérée via les badges de chat (API /chat/badges) ou EventSub.
-                subDurationEl.textContent = ""; // Laisser vide pour l'instant
+                subDurationEl.textContent = "";
                 
             } else {
                 subStatusEl.textContent = "Non Abonné";
                 subTierEl.textContent = ""; 
             }
         } else {
-            // Un statut 404 ici signifie juste "pas abonné"
             subStatusEl.textContent = "Non Abonné";
             subTierEl.textContent = "";
         }
@@ -287,10 +257,6 @@ async function fetchSubscriptionStatus(twitchHeaders, userId, BROADCASTER_ID) {
     }
 }
 
-/**
- * NOUVELLE FONCTION
- * Charge les clips créés par l'utilisateur connecté.
- */
 async function loadUserClips(userId, token, clientId, broadcasterId) {
     document.getElementById("user-clips-loading").style.display = "block";
     
