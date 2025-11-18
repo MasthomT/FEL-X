@@ -47,7 +47,7 @@ if (document.getElementById("profile-content")) {
             return;
         }
 
-        const CLIENT_ID = ""kgyfzs0k3wk8enx7p3pd6299ro4izv"";
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
         const BROADCASTER_ID = "439356462";
         
         const twitchHeaders = new Headers({
