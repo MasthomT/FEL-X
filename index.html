@@ -190,35 +190,50 @@
     </main>
     
 <script>
-    const CLIENT_ID = "8jpfq5497uee7kdrsx4djhb7nw2xec";
-    
-    const loggedInView = document.getElementById("logged-in-view");
-    const loggedOutView = document.getElementById("logged-out-view");
-    const welcomeMessage = document.getElementById("welcome-message");
-    const loginLink = document.getElementById("login-link");
-    const logoutButton = document.getElementById("logout");
-
-    logoutButton.onclick = function() {
-        localStorage.removeItem("twitch_token");
-        window.location.reload(); 
-    };
-
     (async function checkLoginState() {
+        const loginLink = document.getElementById("login-link");
+        const loggedOutView = document.getElementById("logged-out");
+        const loggedInView = document.getElementById("logged-in");
+        const welcomeMessage = document.getElementById("welcome-message");
+
+        // --- CONFIGURATION ---
+        // Mettez ici le Client ID de votre App Vercel (si vous en avez créé une 2ème)
+        // Sinon, laissez celui-ci s'il est correct.
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
         
+        // CORRECTION ICI : On renvoie vers la racine du site, pas vers auth.html
+        const REDIRECT_URI = window.location.origin; 
+
+        // --- 1. Gestion du retour de Twitch (Hash URL) ---
+        // Si l'URL contient #access_token=..., c'est que le viewer revient de Twitch
+        if (window.location.hash) {
+            const params = new URLSearchParams(window.location.hash.substring(1));
+            if (params.has("access_token")) {
+                // On sauvegarde le token
+                localStorage.setItem("twitch_token", params.get("access_token"));
+                // On nettoie l'URL pour faire joli (enlève le token visible)
+                window.history.replaceState({}, document.title, "/");
+            }
+        }
+
+        // --- 2. Vérification du Token ---
         const token = localStorage.getItem("twitch_token");
 
         if (!token) {
+            // CAS : Pas connecté
             welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
             
-            const REDIRECT_URI = window.location.origin + "/auth.html";
             const SCOPES = "user:read:follows user:read:subscriptions"; 
             
+            // URL de connexion corrigée
             const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
             
             loginLink.href = authUrl; 
             loggedOutView.style.display = "block";
+            loggedInView.style.display = "none";
             
         } else {
+            // CAS : Connecté (Token présent)
             try {
                 const twitchHeaders = new Headers({
                     'Authorization': `Bearer ${token}`,
@@ -234,12 +249,14 @@
                 const user = data.data[0];
                 
                 welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
+                loggedOutView.style.display = "none";
                 loggedInView.style.display = "block";
 
             } catch (error) {
                 console.error(error);
+                // Si le token est invalide, on le supprime et on recharge
                 localStorage.removeItem("twitch_token");
-                checkLoginState();
+                window.location.reload();
             }
         }
     })();
