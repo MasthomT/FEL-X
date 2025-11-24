@@ -219,109 +219,125 @@
     </main>
 
 <script>
-        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
-        const BROADCASTER_NAME = "masthom_"; 
+    // --- CONFIGURATION ---
+    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
+    const BROADCASTER_NAME = "masthom_"; 
 
-        (async function initProfile() {
-            const token = localStorage.getItem("twitch_token");
-            
-            // Gestion Logout
-            const logoutBtn = document.getElementById("logout-sidebar");
-            if(logoutBtn) {
-                logoutBtn.onclick = function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem("twitch_token");
-                    window.location.href = "/";
-                };
-            }
-
-            if (!token) {
+    // --- LOGIQUE PRINCIPALE ---
+    (async function initProfile() {
+        const token = localStorage.getItem("twitch_token");
+        
+        // Gestion déconnexion
+        const logoutBtn = document.getElementById("logout-sidebar");
+        if(logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem("twitch_token");
                 window.location.href = "/";
+            };
+        }
+
+        if (!token) {
+            window.location.href = "/";
+            return;
+        }
+
+        try {
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Client-Id': CLIENT_ID_VERCEL
+            };
+
+            // 1. Récupérer Viewer et Streamer
+            const [userResp, channelResp] = await Promise.all([
+                fetch('https://api.twitch.tv/helix/users', { headers }),
+                fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers })
+            ]);
+
+            if (!userResp.ok) throw new Error("Token invalide (Reconnexion requise)");
+            
+            const userData = await userResp.json();
+            const channelData = await channelResp.json();
+            
+            if (channelData.data.length === 0) {
+                console.error("Streamer introuvable !");
                 return;
             }
 
-            try {
-                const headers = {
-                    'Authorization': `Bearer ${token}`,
-                    'Client-Id': CLIENT_ID_VERCEL
-                };
+            const viewer = userData.data[0];
+            const broadcasterId = channelData.data[0].id;
 
-                // 1. Récupérer Viewer et Streamer
-                const [userResp, channelResp] = await Promise.all([
-                    fetch('https://api.twitch.tv/helix/users', { headers }),
-                    fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers })
-                ]);
+            // 2. Afficher les infos de base
+            document.getElementById("profile-pic").src = viewer.profile_image_url;
+            document.getElementById("display-name").textContent = viewer.display_name;
 
-                if (!userResp.ok) throw new Error("Token invalide");
-                
-                const userData = await userResp.json();
-                const channelData = await channelResp.json();
-                
-                const viewer = userData.data[0];
-                const broadcasterId = channelData.data[0].id;
+            // 3. DÉBLOQUER L'AFFICHAGE
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("profile-content").style.display = "block";
 
-                // 2. Afficher les infos de base
-                document.getElementById("profile-pic").src = viewer.profile_image_url;
-                document.getElementById("display-name").textContent = viewer.display_name;
+            // 4. Vérifier Follow
+            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
+            const followData = await followResp.json();
+            
+            const followStat = document.getElementById("follow-status");
+            const followInd = document.getElementById("follow-indicator");
 
-                // 3. DEBLOQUER L'AFFICHAGE (C'est ça qui corrige le bug)
-                document.getElementById("loading").style.display = "none";
-                document.getElementById("profile-content").style.display = "block";
+            if (followData.data && followData.data.length > 0) {
+                const date = new Date(followData.data[0].followed_at).toLocaleDateString("fr-FR");
+                followStat.textContent = `Suit depuis le ${date}`;
+                followStat.style.color = "#43b581";
+                followInd.style.backgroundColor = "#43b581";
+            } else {
+                followStat.textContent = "Ne suit pas la chaîne";
+                followStat.style.color = "#f04747";
+                followInd.style.backgroundColor = "#f04747";
+            }
 
-                // 4. Vérifier Follow
-                const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
-                const followData = await followResp.json();
-                
-                const followStat = document.getElementById("follow-status");
-                const followInd = document.getElementById("follow-indicator");
+            // 5. Vérifier Sub (Avec Diagnostic d'erreur)
+            const subText = document.getElementById("sub-status");
+            const subTier = document.getElementById("sub-tier");
 
-                if (followData.data && followData.data.length > 0) {
-                    const date = new Date(followData.data[0].followed_at).toLocaleDateString("fr-FR");
-                    followStat.textContent = `Suit depuis le ${date}`;
-                    followStat.style.color = "#43b581";
-                    followInd.style.backgroundColor = "#43b581";
+            if (viewer.id === broadcasterId) {
+                subText.textContent = "👑 Créateur";
+                subText.style.color = "#e91e63";
+            } else {
+                const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
+
+                if (subResp.status === 200) {
+                    // C'est un ABONNÉ
+                    const subData = await subResp.json();
+                    const info = subData.data[0];
+                    let tierName = "Niveau 1";
+                    if (info.tier === "2000") tierName = "Niveau 2";
+                    if (info.tier === "3000") tierName = "Niveau 3";
+                    if (info.is_gift) tierName += " (Offert 🎁)";
+
+                    subText.textContent = "Abonné ✅";
+                    subText.style.color = "#e91e63";
+                    subTier.textContent = tierName;
+                } else if (subResp.status === 404) {
+                    // C'est un NON-ABONNÉ (Réponse normale)
+                    subText.textContent = "Non abonné";
+                    subText.style.color = "#b9bbbe";
+                    subTier.textContent = "";
                 } else {
-                    followStat.textContent = "Ne suit pas la chaîne";
-                    followStat.style.color = "#f04747";
-                    followInd.style.backgroundColor = "#f04747";
-                }
-
-                // 5. Vérifier Sub
-                if (viewer.id === broadcasterId) {
-                    document.getElementById("sub-status").textContent = "👑 Créateur";
-                    document.getElementById("sub-status").style.color = "#e91e63";
-                } else {
-                    const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
-                    const subText = document.getElementById("sub-status");
-                    const subTier = document.getElementById("sub-tier");
-
-                    if (subResp.status === 200) {
-                        const subData = await subResp.json();
-                        const info = subData.data[0];
-                        let tierName = "Niveau 1";
-                        if (info.tier === "2000") tierName = "Niveau 2";
-                        if (info.tier === "3000") tierName = "Niveau 3";
-                        if (info.is_gift) tierName += " (Offert 🎁)";
-
-                        subText.textContent = "Abonné ✅";
-                        subText.style.color = "#e91e63";
-                        subTier.textContent = tierName;
-                    } else {
-                        subText.textContent = "Non abonné";
-                        subText.style.color = "#b9bbbe";
-                        subTier.textContent = "";
-                    }
-                }
-
-            } catch (error) {
-                console.error("Erreur:", error);
-                if(error.message === "Token invalide") {
-                    localStorage.removeItem("twitch_token");
-                    window.location.href = "/";
+                    // C'est une ERREUR (Permission, etc.)
+                    console.error("Erreur Sub API:", subResp.status);
+                    subText.textContent = "Erreur " + subResp.status; // Affiche le code pour debugger
+                    subText.style.color = "#f04747";
+                    subTier.textContent = "Reconnectez-vous !";
                 }
             }
-        })();
-    </script>
+
+        } catch (error) {
+            console.error("Erreur:", error);
+            if(error.message.includes("Token")) {
+                localStorage.removeItem("twitch_token");
+                window.location.href = "/";
+            }
+        }
+    })();
+</script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
