@@ -4,13 +4,31 @@
     <meta charset="UTF-8">
     <title>Overlay Shoutout</title>
     <style>
-        body { margin: 0; overflow: hidden; background: transparent; }
-        #player {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; /* Plein écran */
-            display: none;
+        /* CSS CORRIGÉ POUR LE PLEIN ÉCRAN */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; /* Fond transparent pour OBS */
         }
-        iframe { width: 100%; height: 100%; border: none; }
+        
+        #player {
+            position: fixed; /* Utilise fixed pour bien se caler au viewport */
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; /* Prend 100% des 1920x1080 */
+            display: none;
+            /* Le reste du style (bordure/background) est optionnel ici si tu veux juste la vidéo */
+        }
+        
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
     </style>
 </head>
 <body>
@@ -19,9 +37,9 @@
     </div>
 
     <script>
-        // METS ICI L'IP DE TON RASPBERRY PI
+        // --- CONFIGURATION ---
+        // L'adresse LOCALE de ton Pi.
         const PI_API_URL = "http://192.168.1.109:8080/api/overlay_status";
-
         let currentUrl = "";
 
         setInterval(() => {
@@ -33,7 +51,7 @@
 
                     if (data.active && data.url) {
                         if (currentUrl !== data.url) {
-                            console.log("Chargement:", data.url);
+                            console.log("Nouveau clip détecté :", data.url);
                             frame.src = data.url;
                             currentUrl = data.url;
                             div.style.display = 'block';
@@ -47,7 +65,7 @@
                     }
                 })
                 .catch(err => {
-                    // Erreur silencieuse (le Pi est peut-être éteint)
+                    // Erreur silencieuse
                 });
         }, 1000);
     </script>
