@@ -2,17 +2,35 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Overlay Shoutout</title>
+    <title>Lecteur Plein Écran</title>
     <style>
-        body { margin: 0; overflow: hidden; background: transparent; }
-        #player {
-            position: absolute; top: 20px; right: 20px;
-            width: 480px; height: 272px;
-            display: none;
-            border: 4px solid #9146FF; border-radius: 12px;
-            background: #000;
+        /* On supprime toutes les marges et on force le plein écran */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; 
         }
-        iframe { width: 100%; height: 100%; border: none; }
+
+        #player {
+            /* Positionnement absolu en haut à gauche */
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* Taille maximale */
+            width: 100%; 
+            height: 100%;
+            display: none;
+            /* Pas de bordure, pas de fond noir pour un rendu propre */
+        }
+
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
     </style>
 </head>
 <body>
@@ -21,28 +39,39 @@
     </div>
 
     <script>
-        // ADRESSE DE VOTRE PI (Vérifiez les : et les /)
-        const PI_API_URL = "http://192.168.1.109:8080/api/overlay_status";
+        // --- IP DE TON RASPBERRY PI ---
+        const PI_URL = "http://192.168.1.109:8080/api/overlay_status";
+        // ------------------------------
+
+        let currentId = "";
 
         setInterval(() => {
-            fetch(PI_API_URL)
+            fetch(PI_URL)
                 .then(r => r.json())
                 .then(data => {
                     const div = document.getElementById('player');
                     const frame = document.getElementById('clip-frame');
 
                     if (data.active && data.url) {
-                        if (frame.src !== data.url) {
-                            console.log("Chargement:", data.url);
-                            frame.src = data.url;
+                        // Si on a un nouvel ID
+                        if (currentId !== data.url) {
+                            console.log("Nouveau Clip:", data.url);
+                            currentId = data.url;
+                            
+                            // On force l'autoplay et le parent localhost
+                            frame.src = `https://clips.twitch.tv/embed?clip=${currentId}&parent=localhost&autoplay=true&muted=false`;
+                            
                             div.style.display = 'block';
                         }
                     } else {
-                        div.style.display = 'none';
-                        frame.src = "";
+                        if (div.style.display !== 'none') {
+                            div.style.display = 'none';
+                            frame.src = "";
+                            currentId = "";
+                        }
                     }
                 })
-                .catch(err => console.log("Attente connexion..."));
+                .catch(e => console.log("Attente du Pi..."));
         }, 1000);
     </script>
 </body>
