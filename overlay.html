@@ -1,61 +1,49 @@
-!DOCTYPE html
-html lang=fr
-head
-    meta charset=UTF-8
-    titleOverlay Shoutouttitle
-    style
-        body { margin 0; overflow hidden; background transparent; }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Overlay Shoutout</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: transparent; }
         #player {
-            position absolute; top 20px; right 20px;
-            width 480px; height 272px;
-            display none;
-            border 4px solid #9146FF; border-radius 12px;
-            background #000;  Fond noir propre 
+            position: absolute; top: 20px; right: 20px;
+            width: 480px; height: 272px;
+            display: none;
+            border: 4px solid #9146FF; border-radius: 12px;
+            background: #000;
         }
-        iframe { width 100%; height 100%; border none; }
-    style
-head
-body
-    div id=player
-        iframe id=clip-frame src= allow=autoplay; fullscreeniframe
-    div
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <div id="player">
+        <iframe id="clip-frame" src="" allow="autoplay; fullscreen"></iframe>
+    </div>
 
-    script
-         --- ADRESSE LOCALE DE VOTRE PI ---
-         OBS étant sur le même réseau, il pourra accéder à cette IP même depuis Vercel !
-        const PI_API_URL = http192.168.1.1098080apioverlay_status; 
-         ----------------------------------
+    <script>
+        // ADRESSE DE VOTRE PI (Vérifiez les : et les /)
+        const PI_API_URL = "http://192.168.1.109:8080/api/overlay_status";
 
-        let currentUrl = ;
-
-        setInterval(() = {
+        setInterval(() => {
             fetch(PI_API_URL)
-                .then(r = r.json())
-                .then(data = {
+                .then(r => r.json())
+                .then(data => {
                     const div = document.getElementById('player');
                     const frame = document.getElementById('clip-frame');
 
                     if (data.active && data.url) {
-                         Si l'URL a changé, on la met à jour
-                        if (currentUrl !== data.url) {
-                            console.log(Nouveau clip détecté , data.url);
+                        if (frame.src !== data.url) {
+                            console.log("Chargement:", data.url);
                             frame.src = data.url;
-                            currentUrl = data.url;
                             div.style.display = 'block';
                         }
                     } else {
-                         Si inactif, on cache
-                        if (div.style.display !== 'none') {
-                            div.style.display = 'none';
-                            frame.src = ;
-                            currentUrl = ;
-                        }
+                        div.style.display = 'none';
+                        frame.src = "";
                     }
                 })
-                .catch(err = {
-                     On échoue silencieusement en attendant la connexion
-                });
+                .catch(err => console.log("Attente connexion..."));
         }, 1000);
-    script
-body
-html
+    </script>
+</body>
+</html>
