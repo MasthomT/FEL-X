@@ -58,147 +58,42 @@
             flex-direction: column;
             padding: 1rem 0;
             border-right: 1px solid var(--color-border);
-            transition: width var(--transition-speed) ease;
             position: sticky; 
             top: 0;
         }
-        .sidebar-header {
-            padding: 0 1.5rem 1rem 1.5rem;
-            border-bottom: 1px solid var(--color-border);
-        }
-        .sidebar-header .logo-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-        }
-        .sidebar-header .logo-link img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .sidebar-header .logo-link span {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-        }
+        .sidebar-header { padding: 0 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--color-border); }
+        .sidebar-header .logo-link { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .sidebar-header .logo-link img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .sidebar-header .logo-link span { font-size: 1.5rem; font-weight: 600; color: var(--color-accent); }
         .sidebar nav { display: flex; flex-direction: column; }
         .sidebar a.nav-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
-            border-left: 4px solid transparent;
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+            color: var(--color-text-secondary); text-decoration: none; font-weight: 500;
+            transition: all var(--transition-speed) ease; border-left: 4px solid transparent;
         }
-        .sidebar a.nav-link:hover {
-            background: var(--color-surface);
-            color: white;
-            border-left-color: var(--color-accent);
+        .sidebar a.nav-link:hover, .sidebar a.nav-link.active {
+            background: var(--color-surface); color: white; border-left-color: var(--color-accent);
         }
-        .sidebar a.nav-link.active {
-            background: #3a3e44;
-            color: white;
-            border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-            flex-shrink: 0;
-        }
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-border);
-        }
+        .sidebar a.nav-link svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+        .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--color-border); }
         #logout-sidebar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-danger);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+            color: var(--color-danger); text-decoration: none; font-weight: 500;
         }
-        #logout-sidebar:hover { 
-            background: var(--color-surface); 
-            color: white;
-        }
+        #logout-sidebar:hover { background: var(--color-surface); color: white; }
         #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         
         #profile-content { max-width: 900px; margin: 0 auto; display: none; } 
         #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
         
-        #stream-status-banner {
-            display: none; 
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        #stream-status-banner.live {
-            border-left: 5px solid var(--color-live);
-        }
-        #stream-status-banner.offline {
-            border-left: 5px solid var(--color-text-secondary);
-        }
-        #stream-status-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        #stream-status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--color-text-secondary);
-        }
-        #stream-status-banner.live #stream-status-indicator {
-            background: var(--color-live);
-            animation: pulse 1.5s infinite;
-        }
-        #stream-status-text {
-            font-size: 1.25rem;
-            font-weight: 500;
-        }
-        #stream-details {
-            color: var(--color-text-secondary);
-            font-weight: 300;
-        }
-        #stream-details strong {
-            color: var(--color-text-primary);
-            font-weight: 500;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(233, 30, 99, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
-        }
-
         #profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
         #profile-pic { 
             width: 100px; height: 100px; 
             border-radius: 50%; 
             border: 3px solid var(--color-accent); 
         }
-        #profile-header-info {
-            display: flex;
-            flex-direction: column;
-        }
+        #profile-header-info { display: flex; flex-direction: column; }
         #display-name { margin: 0; font-size: 2.5rem; color: white; font-weight: 600; }
-        #user-first-seen {
-            color: var(--color-text-secondary);
-            margin-top: -0.5rem;
-            font-size: 0.9rem;
-        }
         
         #stats { 
             margin-top: 2rem; 
@@ -214,60 +109,19 @@
             text-align: center; 
             transition: all var(--transition-speed) ease;
         }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); }
         .stat-card h2 { margin: 0 0 0.5rem 0; font-size: 1.2rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 500;}
         .stat-card span { font-size: 3rem; font-weight: 600; color: var(--color-accent); line-height: 1.1; display: block; }
         
-        .stat-card span.text-stat {
-             font-size: 2rem;
-             font-weight: 500;
-             color: var(--color-accent);
-             display: block;
-             line-height: 1.2;
-        }
-        .stat-card small {
-            font-size: 1rem;
-            font-weight: 300;
-            color: var(--color-text-secondary);
-            display: block;
-        }
+        .stat-card span.text-stat { font-size: 2rem; font-weight: 500; color: var(--color-accent); display: block; line-height: 1.2; }
+        .stat-card small { font-size: 1rem; font-weight: 300; color: var(--color-text-secondary); display: block; }
         
+        #follow-status-card { margin-top: 1.5rem; padding: 1.25rem 1.5rem; }
+        #follow-status-container { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+        #follow-indicator { width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-text-secondary); flex-shrink: 0; }
+        #follow-status { font-size: 1.2rem; margin: 0; color: var(--color-text-secondary); font-weight: 300; }
         
-        #follow-status-card { 
-            margin-top: 1.5rem; 
-            padding: 1.25rem 1.5rem;
-        }
-        
-        #follow-status-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-        }
-        
-        #follow-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--color-text-secondary);
-            flex-shrink: 0;
-            transition: background-color var(--transition-speed) ease;
-        }
-
-        #follow-status { 
-            font-size: 1.2rem; 
-            margin: 0; 
-            color: var(--color-text-secondary); 
-            font-weight: 300;
-        }
-        
-        h2.history-title {
-             margin-top: 2.5rem;
-             font-weight: 500;
-        }
+        h2.history-title { margin-top: 2.5rem; font-weight: 500; }
         #xp-history { 
             list-style: none; padding: 0; margin-top: 1rem; 
             max-height: 400px; overflow-y: auto; 
@@ -277,121 +131,20 @@
         }
         #xp-history li { padding: 1rem; border-bottom: 1px solid var(--color-border); font-weight: 300;}
         #xp-history li:last-child { border-bottom: none; }
-        .xp-gain { color: #4caf50; } 
-        .xp-loss { color: #f44336; } 
 
-
-        .xp-progress-container {
-        }
-        .xp-progress-bar {
-            width: 100%;
-            height: 8px;
-            background-color: var(--color-background);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .xp-progress-fill {
-            height: 100%;
-            width: 0%;
-            background-color: var(--color-accent);
-            transition: width 0.5s ease;
-        }
-        .xp-progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--color-text-secondary);
-            margin-top: 0.25rem;
-        }
-        .xp-progress-total {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--color-text-primary);
-            margin-top: 0.25rem;
-        }
-        
-        #user-clips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-        .clip-card {
-            background: var(--color-surface);
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-            text-decoration: none;
-            color: var(--color-text-primary);
-            overflow: hidden;
-            transition: all var(--transition-speed) ease;
-        }
-        .clip-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--color-accent);
-        }
-        .clip-thumbnail {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            background-size: cover;
-            background-position: center;
-        }
-        .clip-info {
-            padding: 1rem;
-        }
-        .clip-info .title {
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-            font-size: 0.9rem;
-        }
-        
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-                height: auto; 
-                overflow-y: auto; 
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                align-items: center;
-                padding: 0.5rem 1rem;
-                border-right: none;
-                border-bottom: 1px solid var(--color-border);
-                position: static; 
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 0.5rem 1rem; border-right: none; border-bottom: 1px solid var(--color-border); position: static; }
             .sidebar-header { padding: 0; border: none; }
             .sidebar nav { flex-direction: row; }
-            .sidebar a.nav-link {
-                padding: 0.75rem;
-                border-left: none;
-                border-bottom: 4px solid transparent;
-            }
-            .sidebar a.nav-link:hover,
-            .sidebar a.nav-link.active {
-                background: none;
-                border-left-color: transparent;
-                border-bottom-color: var(--color-accent);
-                color: white;
-            }
+            .sidebar a.nav-link { padding: 0.75rem; border-left: none; border-bottom: 4px solid transparent; }
+            .sidebar a.nav-link:hover, .sidebar a.nav-link.active { background: none; border-left-color: transparent; border-bottom-color: var(--color-accent); color: white; }
             .sidebar a.nav-link span { display: none; }
             .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
             #logout-sidebar { padding: 0.75rem; }
             #logout-sidebar span { display: none; }
-            
-            main { 
-                height: auto; 
-                overflow-y: visible; 
-                padding: 1rem; 
-                min-height: 0;
-            }
+            main { height: auto; overflow-y: visible; padding: 1rem; min-height: 0; }
             #profile-header { flex-direction: column; text-align: center; gap: 0.5rem; }
-            #display-name { font-size: 2rem; }
-            #user-first-seen { margin-top: 0; }
         }
     </style>
 </head>
@@ -404,59 +157,26 @@
                 <span>FEL-X</span>
             </a>
         </div>
-        
         <nav>
             <a href="/profile.html" class="nav-link active" id="nav-profile">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
                 <span>Mon Profil</span>
             </a>
-
-            <a href="/infos.html" class="nav-link" id="nav-info">
-                <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
-                <span>Infos</span>
-            </a>
-
-            <a href="/leaderboard.html" class="nav-link" id="nav-leaderboard">
-                <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
-                <span>Classement</span>
-            </a>
-            
-            <a href="/clips.html" class="nav-link" id="nav-clips">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm4-4H7V9h8v2zm0-4H7V5h8v2z"></path></svg>
-                <span>Galerie de Clips</span>
-            </a>
-            <a href="/commands.html" class="nav-link id="nav-commands">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 17h8v2H8zm0-4h8v2H8zm0-4h8v2H8z"></path></svg>
-                <span>Commandes du Bot</span>
-            </a>
-            <a href="/stats.html" class="nav-link" id="nav-stats">
-                <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
-                <span>Statistiques</span>
-            </a>
-        </nav>
-
+            </nav>
         <div class="sidebar-footer">
             <a id="logout-sidebar" href="#"> <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
                 <span>Se déconnecter</span>
             </a>
         </div>
     </nav>
+
     <main>
-        
-        <div id="stream-status-banner">
-            <div id="stream-status-header">
-                <div id="stream-status-indicator"></div>
-                <span id="stream-status-text">Chargement du statut...</span>
-            </div>
-            <div id="stream-details"></div>
-        </div>
-        
         <div id="profile-content">
             <div id="profile-header">
-                <img id="profile-pic" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Avatar">
+                <img id="profile-pic" src="" alt="Avatar">
                 <div id="profile-header-info">
                     <h1 id="display-name">Chargement...</h1>
-                    <p id="user-first-seen"></p> </div>
+                </div>
             </div>
             
             <div id="stats">
@@ -475,27 +195,10 @@
                     <div id="sub-status-container">
                         <span id="sub-status" class="text-stat">...</span>
                         <small id="sub-tier"></small>
-                        <small id="sub-duration" style="margin-top: 5px;"></small>
                     </div>
-                </div>
-                
-                <div class="stat-card">
-                    <h2>Votre Rang</h2>
-                    <span id="rank">#...</span>
-                </div>
-            </div> <div class="stat-card" style="margin-top: 1.5rem;">
-                <div class="xp-progress-container">
-                    <div class="xp-progress-bar">
-                        <div class="xp-progress-fill" id="xp-fill" style="width: 0%;"></div>
-                    </div>
-                    <div class="xp-progress-labels">
-                        <span id="xp-current-label">0 XP</span>
-                        <span id="xp-next-label">Niv. 2</span>
-                    </div>
-                    <div class="xp-progress-total" id="xp-total-label">0 / 100 XP</div>
                 </div>
             </div>
-            
+
             <div class="stat-card" style="margin-top: 1.5rem;" id="follow-status-card">
                 <div id="follow-status-container">
                     <span id="follow-indicator"></span>
@@ -507,108 +210,121 @@
             <ul id="xp-history">
                 <li>Chargement de l'historique...</li>
             </ul>
-            
-            <h2 class="history-title" style="margin-top: 2.5rem;">Vos Clips Récents</h2>
-            
-            <div id="user-clips-grid">
-                </div>
-            
-            <p id="user-clips-loading" style="display: none; text-align: center; padding: 1rem;">
-                Chargement de vos clips...
-            </p>
-            
-            <p id="user-clips-none" style="display: none; text-align: center; padding: 1rem; color: var(--color-text-secondary);">
-                Vous n'avez créé aucun clip sur cette chaîne.
-            </p>
         </div>
         
         <div id="loading">
             <h2>Chargement de votre profil...</h2>
-            <p>Connexion à Twitch et Firebase en cours.</p>
+            <p>Connexion à Twitch en cours.</p>
         </div>
     </main>
 
-<script>
-    // --- SCRIPT DE VÉRIFICATION LIVE (Follow & Sub) ---
-    const VERCEL_CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
-    const STREAMER_NAME = "masthom_"; // Votre pseudo exact
+    <script>
+        // --- CONFIGURATION ---
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
+        const BROADCASTER_NAME = "masthom_"; 
 
-    async function checkRealTimeStatus() {
-        const token = localStorage.getItem("twitch_token");
-        if (!token) return;
+        // --- LOGIQUE PRINCIPALE ---
+        (async function initProfile() {
+            const token = localStorage.getItem("twitch_token");
+            
+            // Gestion déconnexion
+            document.getElementById("logout-sidebar").onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem("twitch_token");
+                window.location.href = "/";
+            };
 
-        const headers = {
-            'Authorization': `Bearer ${token}`,
-            'Client-Id': VERCEL_CLIENT_ID
-        };
-
-        try {
-            // 1. Récupérer les IDs (Viewer et Streamer)
-            const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
-            const userData = await userResp.json();
-            const viewerId = userData.data[0].id;
-
-            const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${STREAMER_NAME}`, { headers });
-            const channelData = await channelResp.json();
-            const broadcasterId = channelData.data[0].id;
-
-            // Cas spécial : Si c'est vous (le streamer)
-            if (viewerId === broadcasterId) {
-                document.getElementById("sub-status").textContent = "👑 Créateur";
-                document.getElementById("sub-status").style.color = "#e91e63";
+            if (!token) {
+                window.location.href = "/";
                 return;
             }
 
-            // 2. VÉRIFICATION DU FOLLOW
-            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${viewerId}`, { headers });
-            const followData = await followResp.json();
-            
-            const followStat = document.getElementById("follow-status");
-            const followInd = document.getElementById("follow-indicator");
+            try {
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Client-Id': CLIENT_ID_VERCEL
+                };
 
-            if (followData.data && followData.data.length > 0) {
-                const date = new Date(followData.data[0].followed_at).toLocaleDateString("fr-FR");
-                followStat.textContent = `Suit depuis le ${date}`;
-                followStat.style.color = "#43b581"; // Vert
-                if(followInd) followInd.style.backgroundColor = "#43b581";
-            } else {
-                followStat.textContent = "Ne suit pas la chaîne";
-                followStat.style.color = "#f04747"; // Rouge
-                if(followInd) followInd.style.backgroundColor = "#f04747";
-            }
+                // 1. Récupérer Viewer et Streamer
+                const [userResp, channelResp] = await Promise.all([
+                    fetch('https://api.twitch.tv/helix/users', { headers }),
+                    fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers })
+                ]);
 
-            // 3. VÉRIFICATION DU SUB (L'étape qui vous manquait)
-            const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${viewerId}`, { headers });
-            
-            const subText = document.getElementById("sub-status");
-            const subTier = document.getElementById("sub-tier");
-
-            if (subResp.status === 200) { // 200 = Abonné
-                const subData = await subResp.json();
-                const info = subData.data[0];
+                if (!userResp.ok) throw new Error("Token invalide");
                 
-                let tierName = "Niveau 1";
-                if (info.tier === "2000") tierName = "Niveau 2";
-                if (info.tier === "3000") tierName = "Niveau 3";
-                if (info.is_gift) tierName += " (Offert 🎁)";
+                const userData = await userResp.json();
+                const channelData = await channelResp.json();
+                
+                const viewer = userData.data[0];
+                const broadcasterId = channelData.data[0].id;
 
-                subText.textContent = "Abonné ✅";
-                subText.style.color = "#e91e63"; // Rose
-                if(subTier) subTier.textContent = tierName;
-            } else {
-                // 404 = Pas abonné
-                subText.textContent = "Non abonné";
-                subText.style.color = "#b9bbbe"; // Gris
-                if(subTier) subTier.textContent = "";
+                // 2. Afficher les infos de base
+                document.getElementById("profile-pic").src = viewer.profile_image_url;
+                document.getElementById("display-name").textContent = viewer.display_name;
+
+                // 3. DEBLOQUER L'AFFICHAGE (C'est ça qui corrige le bug)
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("profile-content").style.display = "block";
+
+                // 4. Vérifier Follow
+                const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
+                const followData = await followResp.json();
+                
+                const followStat = document.getElementById("follow-status");
+                const followInd = document.getElementById("follow-indicator");
+
+                if (followData.data && followData.data.length > 0) {
+                    const date = new Date(followData.data[0].followed_at).toLocaleDateString("fr-FR");
+                    followStat.textContent = `Suit depuis le ${date}`;
+                    followStat.style.color = "#43b581";
+                    followInd.style.backgroundColor = "#43b581";
+                } else {
+                    followStat.textContent = "Ne suit pas la chaîne";
+                    followStat.style.color = "#f04747";
+                    followInd.style.backgroundColor = "#f04747";
+                }
+
+                // 5. Vérifier Sub
+                if (viewer.id === broadcasterId) {
+                    document.getElementById("sub-status").textContent = "👑 Créateur";
+                    document.getElementById("sub-status").style.color = "#e91e63";
+                } else {
+                    const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${viewer.id}`, { headers });
+                    const subText = document.getElementById("sub-status");
+                    const subTier = document.getElementById("sub-tier");
+
+                    if (subResp.status === 200) {
+                        const subData = await subResp.json();
+                        const info = subData.data[0];
+                        let tierName = "Niveau 1";
+                        if (info.tier === "2000") tierName = "Niveau 2";
+                        if (info.tier === "3000") tierName = "Niveau 3";
+                        if (info.is_gift) tierName += " (Offert 🎁)";
+
+                        subText.textContent = "Abonné ✅";
+                        subText.style.color = "#e91e63";
+                        subTier.textContent = tierName;
+                    } else {
+                        subText.textContent = "Non abonné";
+                        subText.style.color = "#b9bbbe";
+                        subTier.textContent = "";
+                    }
+                }
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                // En cas d'erreur critique, on renvoie à l'accueil pour se reconnecter
+                if(error.message === "Token invalide") {
+                    localStorage.removeItem("twitch_token");
+                    window.location.href = "/";
+                }
             }
+        })();
+    </script>
 
-        } catch (e) {
-            console.error("Erreur vérification Twitch:", e);
-        }
-    }
-
-    // Lancer la vérification dès que la page s'affiche
-    checkRealTimeStatus();
-</script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="/app.js"></script> 
 </body>
 </html>
