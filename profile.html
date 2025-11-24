@@ -528,9 +528,87 @@
         </div>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <script src="/app.js"></script> 
+<script>
+    // --- SCRIPT DE VÉRIFICATION LIVE (Follow & Sub) ---
+    const VERCEL_CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
+    const STREAMER_NAME = "masthom_"; // Votre pseudo exact
+
+    async function checkRealTimeStatus() {
+        const token = localStorage.getItem("twitch_token");
+        if (!token) return;
+
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Client-Id': VERCEL_CLIENT_ID
+        };
+
+        try {
+            // 1. Récupérer les IDs (Viewer et Streamer)
+            const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
+            const userData = await userResp.json();
+            const viewerId = userData.data[0].id;
+
+            const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${STREAMER_NAME}`, { headers });
+            const channelData = await channelResp.json();
+            const broadcasterId = channelData.data[0].id;
+
+            // Cas spécial : Si c'est vous (le streamer)
+            if (viewerId === broadcasterId) {
+                document.getElementById("sub-status").textContent = "👑 Créateur";
+                document.getElementById("sub-status").style.color = "#e91e63";
+                return;
+            }
+
+            // 2. VÉRIFICATION DU FOLLOW
+            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${viewerId}`, { headers });
+            const followData = await followResp.json();
+            
+            const followStat = document.getElementById("follow-status");
+            const followInd = document.getElementById("follow-indicator");
+
+            if (followData.data && followData.data.length > 0) {
+                const date = new Date(followData.data[0].followed_at).toLocaleDateString("fr-FR");
+                followStat.textContent = `Suit depuis le ${date}`;
+                followStat.style.color = "#43b581"; // Vert
+                if(followInd) followInd.style.backgroundColor = "#43b581";
+            } else {
+                followStat.textContent = "Ne suit pas la chaîne";
+                followStat.style.color = "#f04747"; // Rouge
+                if(followInd) followInd.style.backgroundColor = "#f04747";
+            }
+
+            // 3. VÉRIFICATION DU SUB (L'étape qui vous manquait)
+            const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${viewerId}`, { headers });
+            
+            const subText = document.getElementById("sub-status");
+            const subTier = document.getElementById("sub-tier");
+
+            if (subResp.status === 200) { // 200 = Abonné
+                const subData = await subResp.json();
+                const info = subData.data[0];
+                
+                let tierName = "Niveau 1";
+                if (info.tier === "2000") tierName = "Niveau 2";
+                if (info.tier === "3000") tierName = "Niveau 3";
+                if (info.is_gift) tierName += " (Offert 🎁)";
+
+                subText.textContent = "Abonné ✅";
+                subText.style.color = "#e91e63"; // Rose
+                if(subTier) subTier.textContent = tierName;
+            } else {
+                // 404 = Pas abonné
+                subText.textContent = "Non abonné";
+                subText.style.color = "#b9bbbe"; // Gris
+                if(subTier) subTier.textContent = "";
+            }
+
+        } catch (e) {
+            console.error("Erreur vérification Twitch:", e);
+        }
+    }
+
+    // Lancer la vérification dès que la page s'affiche
+    checkRealTimeStatus();
+</script>
 </body>
 </html>
