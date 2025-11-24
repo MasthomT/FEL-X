@@ -6,11 +6,9 @@
     <style>
         body { margin: 0; overflow: hidden; background: transparent; }
         #player {
-            position: absolute; top: 20px; right: 20px;
-            width: 480px; height: 272px;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; /* Plein écran */
             display: none;
-            /* Fond transparent pour éviter le carré noir */
-            background: transparent; 
         }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
@@ -21,7 +19,7 @@
     </div>
 
     <script>
-        // ADRESSE LOCALE DU PI
+        // METS ICI L'IP DE TON RASPBERRY PI
         const PI_API_URL = "http://192.168.1.109:8080/api/overlay_status";
 
         let currentUrl = "";
@@ -35,7 +33,7 @@
 
                     if (data.active && data.url) {
                         if (currentUrl !== data.url) {
-                            console.log("Nouveau clip :", data.url);
+                            console.log("Chargement:", data.url);
                             frame.src = data.url;
                             currentUrl = data.url;
                             div.style.display = 'block';
@@ -49,7 +47,7 @@
                     }
                 })
                 .catch(err => {
-                    // Erreur silencieuse en attendant la connexion
+                    // Erreur silencieuse (le Pi est peut-être éteint)
                 });
         }, 1000);
     </script>
