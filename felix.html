@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        /* MÊME DESIGN QUE LE RESTE */
         :root { --bg: #18181b; --surface: #2a2a2d; --accent: #00f5c3; --text: #f0f0f0; --text-dim: #b9bbbe; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: flex; height: 100vh; overflow: hidden; }
@@ -72,26 +71,35 @@
                 <span>Félix et moi</span>
             </a>
         </nav>
+
+        <div class="sidebar-footer">
+            <a id="logout-sidebar" href="#">
+                <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
+                <span>Se déconnecter</span>
+            </a>
+        </div>
+    </nav>
+
     <main>
         <div class="container">
             <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧠 Félix et moi</h1>
-            <p style="color: var(--text-dim);">Remplissez ce dossier pour que l'IA vous connaisse vraiment. (Tout est optionnel !)</p>
+            <p style="color: var(--text-dim);">Aide Félix à te connaître ! (Tout est optionnel)</p>
 
             <form id="felixForm">
                 
-                <div class="section-title">1. Identité & Vibe</div>
+                <div class="section-title">1. Identité</div>
                 <div class="card">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Surnom(s) / Comment t'appeler ?</label>
-                            <input type="text" id="nickname" placeholder="Ex: Chef, La Menace...">
+                            <label>Surnom(s)</label>
+                            <input type="text" id="nickname" placeholder="Ex: Le Chef...">
                         </div>
                         <div class="form-group">
-                            <label>Anniversaire (Pour que je te le souhaite !)</label>
+                            <label>Anniversaire 🎂</label>
                             <input type="date" id="birthday">
                         </div>
                         <div class="form-group">
-                            <label>Tes Pronoms</label>
+                            <label>Pronoms</label>
                             <select id="pronouns">
                                 <option value="">Peu importe</option>
                                 <option value="il">Il / Lui</option>
@@ -100,49 +108,53 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Ta personnalité en 2 mots</label>
-                            <input type="text" id="vibe" placeholder="Ex: Chill & Timide, ou Chaotique & Bruyant">
+                            <label>Ta Vibe</label>
+                            <input type="text" id="vibe" placeholder="Ex: Chill, Chaotique...">
                         </div>
                     </div>
                 </div>
 
-                <div class="section-title">2. Gaming & Passions</div>
+                <div class="section-title">2. Gaming</div>
                 <div class="card">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Jeu de cœur (Ton favori de tous les temps)</label>
-                            <input type="text" id="favorite_game" placeholder="Ex: The Witcher 3, Minecraft...">
+                            <label>Jeu Favori ❤️</label>
+                            <input type="text" id="favorite_game">
                         </div>
                         <div class="form-group">
-                            <label>Genre de jeu détesté</label>
-                            <input type="text" id="hated_genre" placeholder="Ex: Les jeux d'horreur, les FPS...">
+                            <label>Genre Détesté ❌</label>
+                            <input type="text" id="hated_genre">
                         </div>
                         <div class="form-group form-full">
-                            <label>Une passion hors jeux vidéo ?</label>
-                            <input type="text" id="hobby" placeholder="Ex: Je fais de la guitare, j'aime la cuisine...">
+                            <label>Passion hors jeux ?</label>
+                            <input type="text" id="hobby">
                         </div>
                     </div>
                 </div>
 
-                <div class="section-title">3. Goûts & Anecdotes</div>
+                <div class="section-title">3. Goûts</div>
                 <div class="card">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Ton plat ou snack "plaisir coupable"</label>
-                            <input type="text" id="favorite_food" placeholder="Ex: Pizza Ananas, Tacos 3 viandes...">
+                            <label>Plat / Snack 🍕</label>
+                            <input type="text" id="favorite_food">
                         </div>
                         <div class="form-group">
-                            <label>Ta boisson de stream</label>
-                            <input type="text" id="favorite_drink" placeholder="Ex: Ice Tea, Café noir...">
-                        </div>
-                        <div class="form-group form-full">
-                            <label>Autre chose à savoir sur toi ? (Fais-toi plaisir)</label>
-                            <textarea id="anything_else" rows="3" placeholder="Ex: Je suis là depuis 2020, j'ai peur des araignées..."></textarea>
+                            <label>Boisson 🥤</label>
+                            <input type="text" id="favorite_drink">
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" id="saveBtn" class="btn">Sauvegarder mon Profil Félix</button>
+                <div class="section-title">4. Zone Libre (Infos supplémentaires)</div>
+                <div class="card">
+                    <div class="form-group">
+                        <label>Raconte ce que tu veux à Félix (Bio, Anecdote, Message...)</label>
+                        <textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec, je suis graphiste, j'aime quand tu rages..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="saveBtn" class="btn">Sauvegarder</button>
                 <div id="statusMsg" class="status-msg"></div>
             </form>
         </div>
@@ -152,7 +164,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // CONFIG FIREBASE (Celle de app.js)
         const firebaseConfig = {
             apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
             authDomain: "fel-x-503f8.firebaseapp.com",
@@ -165,7 +176,6 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // LOGIQUE
         const token = localStorage.getItem("twitch_token");
         if (!token) window.location.href = "/index.html";
 
@@ -184,14 +194,13 @@
             } catch { return null; }
         }
 
-        // LISTE DES CHAMPS À SAUVEGARDER
-        const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'anything_else'];
+        // LISTE COMPLÈTE DES CHAMPS (AVEC LE NOUVEAU 'free_message')
+        const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
 
         document.addEventListener('DOMContentLoaded', async () => {
             const userId = await getUserId();
             if (!userId) return;
 
-            // Lecture
             db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
                 const data = snapshot.val() || {};
                 fields.forEach(f => {
@@ -199,7 +208,6 @@
                 });
             });
 
-            // Sauvegarde
             document.getElementById('felixForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 document.getElementById('saveBtn').textContent = "Sauvegarde...";
@@ -212,9 +220,9 @@
 
                 await db.ref('viewer_data/ai_context/' + userId).set(payload);
                 
-                document.getElementById('saveBtn').textContent = "Sauvegarder mon Profil Félix";
+                document.getElementById('saveBtn').textContent = "Sauvegarder";
                 const msg = document.getElementById('statusMsg');
-                msg.textContent = "✅ Profil mis à jour ! Félix te connaît mieux maintenant.";
+                msg.textContent = "✅ Profil sauvegardé !";
                 msg.classList.add('success');
                 msg.style.display = 'block';
                 setTimeout(() => msg.style.display = 'none', 5000);
