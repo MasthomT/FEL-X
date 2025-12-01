@@ -9,110 +9,119 @@
         .info-container {
             max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 350px; /* Planning large, Réseaux fixes */
+            gap: 2rem;
         }
 
         /* --- 1. PLANNING (STYLE CALENDRIER) --- */
-        .planning-section h2 {
-            text-align: center; font-size: 2rem; color: white;
-            margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 2px;
+        .planning-card h2 {
+            text-align: center; font-size: 1.8rem; color: white;
+            margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 1px;
         }
         
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
         }
 
         .day-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border);
-            border-radius: 16px; padding: 1.5rem 1rem; text-align: center;
+            border-radius: 12px; padding: 1.5rem 1rem; text-align: center;
             transition: transform 0.3s, border-color 0.3s, background 0.3s;
             position: relative; overflow: hidden;
         }
         
         .day-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
             border-color: var(--accent);
             background: rgba(0, 245, 195, 0.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .day-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
             background: var(--accent); opacity: 0.5; transition: 0.3s;
         }
-        .day-card:hover::before { opacity: 1; height: 8px; }
+        .day-card:hover::before { opacity: 1; height: 6px; }
 
-        .day-name { font-size: 1.1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; }
-        .day-time { font-size: 2rem; font-weight: 800; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .day-event { font-size: 0.85rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+        .day-name { font-size: 1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; }
+        .day-time { font-size: 1.8rem; font-weight: 800; color: white; }
+        .day-event { font-size: 0.8rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
 
-        .planning-note { text-align: center; margin-top: 2rem; color: var(--text-dim); font-style: italic; opacity: 0.8; }
+        .planning-note { text-align: center; margin-top: 2rem; color: var(--text-dim); font-style: italic; font-size: 0.9rem; }
 
-        /* --- 2. RÉSEAUX & SETUP --- */
-        .secondary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .info-card {
+        /* --- 2. RÉSEAUX (L'EFFET DEMANDÉ) --- */
+        .social-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px; padding: 2rem;
-            display: flex; flex-direction: column; justify-content: center;
-        }
-        .info-card h3 { color: var(--accent); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; font-size: 1.4rem; }
-
-        .social-btn {
-            display: flex; align-items: center; gap: 15px; padding: 15px; margin-bottom: 15px;
-            border-radius: 8px; text-decoration: none; font-weight: bold; color: white;
-            transition: 0.2s; background: rgba(255,255,255,0.05);
-        }
-        .social-btn:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .discord { border-left: 4px solid #5865F2; }
-        .discord:hover { background: rgba(88, 101, 242, 0.2); }
-        .youtube { border-left: 4px solid #FF0000; }
-        .youtube:hover { background: rgba(255, 0, 0, 0.2); }
-
-        ul.setup-list { list-style: none; padding: 0; }
-        ul.setup-list li { margin-bottom: 12px; color: var(--text-dim); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-        ul.setup-list strong { color: white; margin-right: 10px; }
-
-        /* --- 3. RÈGLES (Liste Simple) --- */
-        .full-width { grid-column: 1 / -1; }
-        
-        ul.simple-rules {
-            list-style: none;
-            padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 2 colonnes sur grand écran */
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
         }
-        
-        ul.simple-rules li {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            line-height: 1.5;
-            transition: background 0.2s;
+        .social-card h3 { color: var(--accent); margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        .social-link {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            border-radius: 8px; text-decoration: none; font-weight: bold; color: var(--text-main);
+            background: rgba(255,255,255,0.03); border: 1px solid transparent;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
         }
-        ul.simple-rules li:hover { background: rgba(255,255,255,0.05); }
         
-        .rule-emoji { font-size: 1.5rem; min-width: 30px; }
+        .social-link svg { width: 24px; height: 24px; fill: currentColor; z-index: 2; transition: transform 0.3s; }
+        .social-text { z-index: 2; }
+
+        /* EFFET COULEUR AU SURVOL */
+        .social-link::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 0.3s; z-index: 1;
+        }
+        
+        .social-link:hover { transform: translateX(5px); color: white; border-color: rgba(255,255,255,0.2); }
+        .social-link:hover::before { opacity: 1; }
+        .social-link:hover svg { transform: scale(1.1); }
+
+        /* Discord (Bleu) */
+        .discord:hover { background: transparent; }
+        .discord::before { background: linear-gradient(90deg, #5865F2, #4752c4); }
+        
+        /* YouTube (Rouge) */
+        .youtube:hover { background: transparent; }
+        .youtube::before { background: linear-gradient(90deg, #FF0000, #cc0000); }
+
+        /* Twitch (Violet) */
+        .twitch:hover { background: transparent; }
+        .twitch::before { background: linear-gradient(90deg, #9146FF, #772ce8); }
+
+        /* Tips (Vert) */
+        .tips:hover { background: transparent; }
+        .tips::before { background: linear-gradient(90deg, #00f5c3, #00dbaf); }
+
+
+        /* --- 3. RÈGLES (Liste simple avec émojis) --- */
+        .rules-card { 
+            grid-column: 1 / -1; 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;
+        }
+        .rules-card h3 { color: var(--danger); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        ul.simple-rules {
+            list-style: none; padding: 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
+        }
+        ul.simple-rules li {
+            padding: 10px; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4;
+            border-radius: 6px; transition: background 0.2s;
+        }
+        ul.simple-rules li:hover { background: rgba(255,255,255,0.03); }
+        .emoji { font-size: 1.2rem; min-width: 25px; }
 
         @media (max-width: 900px) { 
-            .calendar-grid { grid-template-columns: 1fr 1fr; } 
-            .secondary-grid { grid-template-columns: 1fr; }
-            ul.simple-rules { grid-template-columns: 1fr; }
+            .info-container { grid-template-columns: 1fr; } 
+            .calendar-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -130,88 +139,81 @@
     </nav>
 
     <main>
+        <h1>ℹ️ Informations du Stream</h1>
+
         <div class="info-container">
             
-            <section class="planning-section">
+            <div class="info-card planning-card">
                 <h2>📅 Emploi du Temps</h2>
                 <div class="calendar-grid">
-                    
                     <div class="day-card">
                         <div class="day-name">Mardi</div>
                         <div class="day-time">18h00</div>
                         <div class="day-event">Live Soirée</div>
                     </div>
-
                     <div class="day-card">
                         <div class="day-name">Jeudi</div>
                         <div class="day-time">18h00</div>
                         <div class="day-event">Live Soirée</div>
                     </div>
-
                     <div class="day-card">
                         <div class="day-name">Vendredi</div>
                         <div class="day-time">20h00</div>
                         <div class="day-event">Weekend !</div>
                     </div>
-
                     <div class="day-card" style="border-color:var(--accent);">
                         <div class="day-name">Samedi</div>
-                        <div class="day-time">10h00</div>
-                        <div class="day-event">Matin</div>
-                        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:5px 0;">
-                        <div class="day-time">20h00</div>
-                        <div class="day-event">Soirée</div>
+                        <div class="day-time">10h & 20h</div>
+                        <div class="day-event">Double Dose</div>
                     </div>
-
                     <div class="day-card">
                         <div class="day-name">Dimanche</div>
                         <div class="day-time">10h00</div>
                         <div class="day-event">Chill Matin</div>
                     </div>
-
                 </div>
                 <p class="planning-note">🔔 Activez la cloche Twitch ! Des lives sauvages peuvent apparaître à tout moment.</p>
-            </section>
+            </div>
 
-            <div class="secondary-grid">
-                
-                <div class="info-card">
-                    <h3>🌐 Rejoins la commu</h3>
-                    <div class="social-links">
-                        <a id="link-discord" href="#" target="_blank" class="social-btn discord">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z"/></svg>
-                            Rejoindre le Discord
-                        </a>
-                        <a id="link-youtube" href="#" target="_blank" class="social-btn youtube">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                            Chaîne YouTube
-                        </a>
-                    </div>
-                </div>
+            <div class="social-card">
+                <h3>🌐 Rejoins la commu</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    
+                    <a id="link-discord" href="#" target="_blank" class="social-link discord">
+                        <svg viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z"/></svg>
+                        <span class="social-text">Rejoindre le Discord</span>
+                    </a>
 
-                <div class="info-card">
-                    <h3>🖥️ Setup</h3>
-                    <ul class="setup-list">
-                        <li><strong>PC :</strong> Bientôt...</li>
-                        <li><strong>Micro :</strong> Shure SM7B</li>
-                        <li><strong>Caméra :</strong> Sony A6000</li>
-                        <li><strong>Console :</strong> PS5 & Switch</li>
-                    </ul>
+                    <a id="link-youtube" href="#" target="_blank" class="social-link youtube">
+                        <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                        <span class="social-text">Chaîne YouTube</span>
+                    </a>
+
+                    <a href="https://twitch.tv/masthom_" target="_blank" class="social-link twitch">
+                        <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                        <span class="social-text">Chaîne Twitch</span>
+                    </a>
+
+                    <a href="#" class="social-link tips">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05 1.18 1.91 2.53 1.91 1.29 0 2.13-.81 2.13-1.88 0-1.34-.87-1.67-2.79-2.18-2.08-.55-3.1-1.49-3.1-3.2 0-1.68 1.28-2.78 2.92-3.12V4h2.67v1.93c1.38.35 2.48 1.31 2.63 2.95h-1.96c-.11-.9-1.11-1.54-2.23-1.54-1.18 0-2.05.72-2.05 1.69 0 1.1.86 1.45 2.82 1.96 2.06.54 3.15 1.5 3.15 3.38 0 1.69-1.29 2.88-3.28 3.21z"/></svg>
+                        <span class="social-text">Soutenir / Tips</span>
+                    </a>
+
                 </div>
             </div>
 
-            <div class="info-card full-width">
-                <h3>📝 Règles & Comportement</h3>
+            <div class="rules-card full-width">
+                <h3>📝 Règles de la Communauté</h3>
                 <ul class="simple-rules">
-                    <li><span class="rule-emoji">🛑</span> Pas d'abus avec les majuscules.</li>
-                    <li><span class="rule-emoji">🕊️</span> Évitez au plus possible les sujets sensibles.</li>
-                    <li><span class="rule-emoji">🤐</span> <strong>Spoil ou Backseat INTERDIT</strong> (sauf si demandé).</li>
-                    <li><span class="rule-emoji">🤝</span> Respectez les viewers et le streamer.</li>
-                    <li><span class="rule-emoji">🚫</span> Pas de spam.</li>
-                    <li><span class="rule-emoji">😊</span> Ne propagez pas une mauvaise ambiance.</li>
-                    <li><span class="rule-emoji">⛔</span> Propos racistes, homophobes, sexistes = <strong>BAN</strong>.</li>
-                    <li><span class="rule-emoji">📢</span> Toute pub même "dissimulée" est interdite.</li>
-                    <li><span class="rule-emoji">⚠️</span> <strong>Au bout de 3 avertissements, le ban est définitif.</strong></li>
+                    <li><span class="emoji">🛑</span> Pas d'abus avec les majuscules</li>
+                    <li><span class="emoji">🕊️</span> Évitez au plus possible les sujets sensibles</li>
+                    <li><span class="emoji">🤐</span> <strong>Spoil ou Backseat INTERDIT</strong> (sauf si demandé)</li>
+                    <li><span class="emoji">🤝</span> Respectez les viewers ou le streamer</li>
+                    <li><span class="emoji">🚫</span> Pas de spam</li>
+                    <li><span class="emoji">😊</span> Ne propagez pas une mauvaise ambiance</li>
+                    <li><span class="emoji">⛔</span> Propos racistes, homophobe, sexiste = <strong>BAN</strong></li>
+                    <li><span class="emoji">📢</span> Toute pub même "dissimulée" est interdite</li>
+                    <li><span class="emoji">⚠️</span> <strong>Au bout de 3 avertissements, le ban est définitif</strong></li>
                 </ul>
             </div>
 
