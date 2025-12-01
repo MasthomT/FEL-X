@@ -3,295 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galerie de Clips - Portail Viewer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Clips - FEL-X</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --color-background: #18181b;
-            --color-surface: #2a2a2d;
-            --color-sidebar: #2c2f33;
-            --color-border: #36363a;
-            --color-text-primary: #f0f0f0;
-            --color-text-secondary: #b9bbbe;
-            --color-accent: #00f5c3;
-            --color-danger: #ff6b6b;
-            --transition-speed: 0.3s;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #18181b; --surface: #2a2a2d; --sidebar: #2c2f33; --accent: #00f5c3; --text: #f0f0f0; --dim: #b9bbbe; --border: #36363a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 1rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-title { padding: 0 1.5rem 1rem; font-weight: bold; font-size: 1.5rem; color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .nav-link { padding: 0.8rem 1.5rem; color: var(--dim); text-decoration: none; display: block; font-weight: 500; transition: 0.2s; }
+        .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-link.active { color: white; border-left: 3px solid var(--accent); background: var(--surface); }
+        main { flex-grow: 1; padding: 2rem; overflow-y: auto; }
+        .container { max-width: 1000px; margin: 0 auto; }
         
-        body { 
-            background: var(--color-background); 
-            color: var(--color-text-primary); 
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 300;
-            margin: 0;
-            display: flex;
-            height: 100%;
-            overflow-x: hidden;
-        }
+        .clips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .clip-card { background: var(--surface); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); text-decoration: none; color: white; transition: 0.2s; display: block; }
+        .clip-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .clip-thumbnail { width: 100%; height: 160px; background-size: cover; background-position: center; }
+        .clip-info { padding: 1rem; }
+        .clip-title { font-weight: bold; display: block; margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        main {
-            flex-grow: 1;
-            overflow-y: auto;
-            height: auto;
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease-out;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        h1 { 
-            color: var(--color-accent); 
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .sidebar {
-            width: 250px;
-            background-color: var(--color-sidebar);
-            flex-shrink: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0;
-            border-right: 1px solid var(--color-border);
-            transition: width var(--transition-speed) ease;
-            position: sticky;
-            top: 0;
-        }
-        .sidebar-header {
-            padding: 0 1.5rem 1rem 1.5rem;
-            border-bottom: 1px solid var(--color-border);
-        }
-        .sidebar-header .logo-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-        }
-        .sidebar-header .logo-link img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .sidebar-header .logo-link span {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-        }
-        .sidebar nav { display: flex; flex-direction: column; }
-        .sidebar a.nav-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
-            border-left: 4px solid transparent;
-        }
-        .sidebar a.nav-link:hover {
-            background: var(--color-surface);
-            color: white;
-            border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link.active {
-            background: #3a3e44;
-            color: white;
-            border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-            flex-shrink: 0;
-        }
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-border);
-        }
-        #logout-sidebar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-danger);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
-        }
-        #logout-sidebar:hover { background: var(--color-surface); color: white; }
-        #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
-        
-        #loading { font-size: 1.5rem; text-align: center; padding: 4rem 0; font-weight: 300;}
-        
-        #clips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            display: none;
-        }
-        
-        .clip-card {
-            background: var(--color-surface);
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-            text-decoration: none;
-            color: var(--color-text-primary);
-            overflow: hidden;
-            transition: all var(--transition-speed) ease;
-        }
-        .clip-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--color-accent);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .clip-thumbnail {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .clip-thumbnail-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.3);
-            display: grid;
-            place-items: center;
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-        }
-        .clip-card:hover .clip-thumbnail-overlay {
-            opacity: 1;
-        }
-        .play-icon {
-            width: 50px;
-            height: 50px;
-            fill: white;
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
-        }
-
-        .clip-info {
-            padding: 1rem;
-        }
-        .clip-info .title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--color-text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        .clip-info .details {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: var(--color-text-secondary);
-        }
-
-        #filter-form {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            align-items: center;
-        }
-        
-        #clip-search, #filter-sort {
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            border: 1px solid var(--color-border);
-            background: var(--color-sidebar);
-            color: var(--color-text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: border-color var(--transition-speed) ease;
-        }
-        
-        #clip-search:focus, #filter-sort:focus {
-            border-color: var(--color-accent);
-        }
-        
-        #filter-sort {
-            width: 200px;
-            cursor: pointer;
-        }
-
-
         @media (max-width: 768px) {
             body { flex-direction: column; height: auto; overflow-y: auto; }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                align-items: center;
-                padding: 0.5rem 1rem;
-                border-right: none;
-                border-bottom: 1px solid var(--color-border);
-                position: static;
-            }
-            .sidebar-header { padding: 0; border: none; }
-            .sidebar nav { flex-direction: row; }
-            .sidebar a.nav-link {
-                padding: 0.75rem;
-                border-left: none;
-                border-bottom: 4px solid transparent;
-            }
-            .sidebar a.nav-link:hover,
-            .sidebar a.nav-link.active {
-                background: none;
-                border-left-color: transparent;
-                border-bottom-color: var(--color-accent);
-                color: white;
-            }
-            .sidebar a.nav-link span { display: none; }
-            .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
-            #logout-sidebar { padding: 0.75rem; }
-            #logout-sidebar span { display: none; }
-            
-            main { 
-                height: auto; 
-                overflow-y: visible; 
-                padding: 1rem; 
-                min-height: 0;
-            }
-            
-            #clips-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            main { overflow-y: visible; }
         }
     </style>
 </head>
 <body>
-    
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <a href="/index.html" class="logo-link">
-                <img src="/logo-felix.png" alt="Logo FEL-X">
-                <span>FEL-X</span>
-            </a>
-        </div>
-        
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="/index.html" class="logo-link">
@@ -340,29 +80,17 @@
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
                 <span>Se déconnecter</span>
             </a>
-        </div>
+</div>
     </nav>
 
     <main>
-<h1>Galerie de Clips</h1>
-        
-        <div id="filter-form" style="display: none;">
-            <input type="text" id="clip-search" placeholder="Rechercher par titre ou créateur..." style="flex-grow: 1;">
-            <select id="filter-sort">
-                <option value="date_desc">Trier par : Plus Récent</option>
-                <option value="views_desc">Trier par : Plus de Vues</option>
-            </select>
+        <div class="container">
+            <h1>🎬 Clips de la Chaîne</h1>
+            <div id="loading" style="text-align: center; margin-top: 2rem;">Chargement des clips Twitch...</div>
+            <div id="clips-grid" class="clips-grid"></div>
         </div>
-        <div id="loading">
-            <h2>Chargement des clips...</h2>
-            <p>Connexion à l'API Twitch en cours.</p>
-        </div>
-        
-        <div id="clips-grid">
-            </div>
-        
     </main>
 
-    <script src="/clips.js"></script> 
+    <script src="/clips.js"></script>
 </body>
 </html>
