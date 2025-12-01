@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             allCommands.sort((a, b) => a.category.localeCompare(b.category) || a.trigger.localeCompare(b.trigger));
             renderCommands(allCommands);
         } else {
+            // Si la base est vide, on affiche un message
             listEl.innerHTML = "<tr><td colspan='5' style='text-align:center'>Aucune commande trouvée.</td></tr>";
         }
     });
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if(cmd.category === "fun") badgeColor = "background:rgba(233, 30, 99, 0.2); color:#e91e63;"; // Fun (Rose)
             if(cmd.category === "xp") badgeColor = "background:rgba(255, 215, 0, 0.1); color:#FFD700;"; // XP (Or)
             if(cmd.category === "moderator") badgeColor = "background:rgba(240, 71, 71, 0.2); color:#f04747;"; // Modo (Rouge)
+            if(cmd.category === "game") badgeColor = "background:rgba(46, 204, 113, 0.2); color:#2ecc71;"; // Jeu (Vert)
 
             let actionsHTML = "";
             if (isAdmin) {
@@ -93,7 +95,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // --- FONCTIONS ADMIN ---
 
-    // Ouvrir Modal Ajout
     document.getElementById("btn-add-cmd").onclick = () => {
         document.getElementById("cmd-form").reset();
         document.getElementById("cmd-id").value = "";
@@ -101,7 +102,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("cmd-modal").style.display = "flex";
     };
 
-    // Sauvegarder (Ajout ou Modif)
     document.getElementById("cmd-form").onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById("cmd-id").value;
@@ -120,7 +120,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeModal();
     };
 
-    // Éditer
     window.editCmd = (id) => {
         const cmd = allCommands.find(c => c.id === id);
         if(cmd) {
@@ -134,7 +133,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Supprimer
     window.deleteCmd = async (id) => {
         if(confirm("Supprimer cette commande ?")) {
             await db.ref('viewer_data/commands/' + id).remove();
@@ -145,110 +143,113 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("cmd-modal").style.display = "none";
     };
 
-    // INITIALISATION MASSIVE (VOTRE LISTE OFFICIELLE)
-    document.getElementById("btn-init-db").onclick = async () => {
-        if(confirm("ATTENTION : Cela va ajouter toutes les commandes des screenshots à la base de données Firebase. Continuer ?")) {
+    // --- INITIALISATION UNIQUE (VOTRE LISTE STRICTE) ---
+    // Ce bouton est caché, vous pouvez l'appeler via la console JS : initMyCommands()
+    // OU l'ajouter temporairement pour cliquer une fois.
+    window.initMyCommands = async () => {
+        if(confirm("ACTION IRRÉVERSIBLE : Cela va effacer la base et mettre VOTRE liste exacte. Continuer ?")) {
             
-            // Je vide d'abord la liste actuelle pour éviter les doublons
+            // 1. VIDER LA BASE
             await db.ref('viewer_data/commands').remove();
 
-            const officialCommands = [
-                // --- MODÉRATION ---
-                { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "moderator", access: "Modérateur" },
-                { trigger: "!clear", description: "Efface tous les messages visibles.", category: "moderator", access: "Modérateur" },
-                { trigger: "!setgame (!sg)", description: "Définit le jeu en cours.", category: "moderator", access: "Modérateur" },
-                { trigger: "!settitle (!st)", description: "Définit le titre du stream.", category: "moderator", access: "Modérateur" },
-                { trigger: "!so", description: "Fait la promotion d'un autre diffuseur.", category: "moderator", access: "Modérateur" },
+            // 2. LA LISTE STRICTE
+            const myOfficialList = [
+                // MODÉRATION
+                { trigger: "!ban", description: "Bannit un utilisateur de manière permanente du chat.", category: "moderator", access: "Modérateur" },
+                { trigger: "!clear", description: "Efface tous les messages visibles dans le chat.", category: "moderator", access: "Modérateur" },
+                { trigger: "!setgame (!sg)", description: "Définit le jeu en cours de diffusion.", category: "moderator", access: "Modérateur" },
+                { trigger: "!settitle (!st)", description: "Définit le titre du stream actuel.", category: "moderator", access: "Modérateur" },
+                { trigger: "!so (!shoutout)", description: "Fait la promotion d'un autre diffuseur.", category: "moderator", access: "Modérateur" },
                 { trigger: "!to30m", description: "Timeout 30 minutes.", category: "moderator", access: "Modérateur" },
                 { trigger: "!to1h", description: "Timeout 1 heure.", category: "moderator", access: "Modérateur" },
                 { trigger: "!to12h", description: "Timeout 12 heures.", category: "moderator", access: "Modérateur" },
                 { trigger: "!to24h", description: "Timeout 24 heures.", category: "moderator", access: "Modérateur" },
                 { trigger: "!to1s", description: "Timeout 1 semaine.", category: "moderator", access: "Modérateur" },
-                { trigger: "!toMax", description: "Timeout Max (2 semaines).", category: "moderator", access: "Modérateur" },
-                { trigger: "!torando", description: "Timeout un utilisateur aléatoire (Fun).", category: "moderator", access: "Modérateur" },
+                { trigger: "!toMax", description: "Timeout Max (~2 semaines).", category: "moderator", access: "Modérateur" },
+                { trigger: "!torando", description: "Timeout un utilisateur aléatoire.", category: "moderator", access: "Modérateur" },
                 { trigger: "!untimeout (!unto)", description: "Annule une exclusion temporaire.", category: "moderator", access: "Modérateur" },
-                { trigger: "!permit", description: "Autorise un utilisateur à poster un lien.", category: "moderator", access: "Modérateur" },
-                { trigger: "!unpermit", description: "Retire la permission de lien.", category: "moderator", access: "Modérateur" },
-                { trigger: "!tts (!oral)", description: "Active le Text-to-Speech.", category: "moderator", access: "Modérateur" },
-                
-                // --- CHAT MODES ---
-                { trigger: "!emoton / !emotoff", description: "Active/Désactive le mode Emotes Only.", category: "moderator", access: "Modérateur" },
-                { trigger: "!followon / !followoff", description: "Active/Désactive le mode Followers Only.", category: "moderator", access: "Modérateur" },
-                { trigger: "!shieldOn / !shieldOff", description: "Active/Désactive le bouclier.", category: "moderator", access: "Modérateur" },
-                { trigger: "!subon", description: "Active le mode Abonnés Only.", category: "moderator", access: "Modérateur" },
+                { trigger: "!permit", description: "Donne une permission unique d'envoyer un lien.", category: "moderator", access: "Modérateur" },
+                { trigger: "!unpermit", description: "Retire la permission d'envoyer un lien.", category: "moderator", access: "Modérateur" },
+                { trigger: "!tts (!oral)", description: "Active le Text-to-Speech dans le chat.", category: "moderator", access: "Modérateur" },
+                { trigger: "!oral / !taistoi", description: "Commandes d'action personnalisées.", category: "moderator", access: "Modérateur" },
 
-                // --- VIP ---
-                { trigger: "!addvip", description: "Ajoute un VIP.", category: "moderator", access: "Modérateur" },
-                { trigger: "!extendvip", description: "Prolonge un VIP.", category: "moderator", access: "Modérateur" },
-                { trigger: "!revokevip", description: "Retire un VIP.", category: "moderator", access: "Modérateur" },
-                { trigger: "!myvip", description: "Vérifier son statut VIP.", category: "xp", access: "Viewer" },
+                // CHAT MODE
+                { trigger: "!emotoff / !emoton", description: "Active/Désactive le mode Emotes Seules.", category: "moderator", access: "Modérateur" },
+                { trigger: "!followoff / !followon", description: "Active/Désactive le mode Abonnés Seules.", category: "moderator", access: "Modérateur" },
+                { trigger: "!shieldOff / !shieldOn", description: "Active/Désactive le mode Shield.", category: "moderator", access: "Modérateur" },
+                { trigger: "!subon", description: "Active le mode Abonnés Payants Seules.", category: "moderator", access: "Modérateur" },
 
-                // --- INFOS ---
+                // VIP
+                { trigger: "!addvip", description: "Ajoute un utilisateur à la liste des VIP.", category: "moderator", access: "Modérateur" },
+                { trigger: "!extendvip", description: "Prolonge la durée du statut VIP.", category: "moderator", access: "Modérateur" },
+                { trigger: "!revokevip (!unvip)", description: "Retire le statut VIP.", category: "moderator", access: "Modérateur" },
+                { trigger: "!myvip", description: "Permet de vérifier le statut VIP.", category: "xp", access: "Viewer" },
+
+                // INFO GÉNÉRALES
                 { trigger: "!bug", description: "Signaler un problème.", category: "info", access: "Viewer" },
-                { trigger: "!clip", description: "Créer un clip des 30 dernières secondes.", category: "info", access: "Viewer" },
-                { trigger: "!commandes", description: "Affiche cette liste.", category: "info", access: "Viewer" },
-                { trigger: "!discord", description: "Lien du Discord.", category: "info", access: "Viewer" },
-                { trigger: "!tips (!don)", description: "Faire un don.", category: "info", access: "Viewer" },
-                { trigger: "!followinfo", description: "Depuis quand vous suivez la chaîne.", category: "info", access: "Viewer" },
-                { trigger: "!game", description: "Jeu actuel.", category: "info", access: "Viewer" },
-                { trigger: "!giveaway", description: "Info concours.", category: "info", access: "Viewer" },
-                { trigger: "!myinfo", description: "Vos stats personnelles.", category: "xp", access: "Viewer" },
-                { trigger: "!level (!niveau)", description: "Votre niveau actuel.", category: "xp", access: "Viewer" },
-                { trigger: "!onlyfan", description: "Lien OnlyFans (Humour ?).", category: "info", access: "Viewer" },
+                { trigger: "!clip", description: "Crée un clip des 30 dernières secondes.", category: "info", access: "Viewer" },
+                { trigger: "!commandes (!cmde)", description: "Affiche la liste des commandes.", category: "info", access: "Viewer" },
+                { trigger: "!discord (!dc)", description: "Affiche le lien vers le serveur Discord.", category: "info", access: "Viewer" },
+                { trigger: "!tips (!don)", description: "Affiche le lien pour faire un don.", category: "info", access: "Viewer" },
+                { trigger: "!followinfo", description: "Infos sur votre suivi.", category: "info", access: "Viewer" },
+                { trigger: "!game (!gameinfo)", description: "Jeu actuellement diffusé.", category: "info", access: "Viewer" },
+                { trigger: "!giveaway (!roue)", description: "Infos concours / tirage au sort.", category: "info", access: "Viewer" },
+                { trigger: "!myinfo (!level)", description: "Vos informations (Niveau, XP...).", category: "xp", access: "Viewer" },
+                { trigger: "!onlyfan (!of)", description: "Lien OnlyFans.", category: "info", access: "Viewer" },
                 { trigger: "!planning", description: "Calendrier des streams.", category: "info", access: "Viewer" },
-                { trigger: "!rs (!social)", description: "Réseaux sociaux.", category: "info", access: "Viewer" },
+                { trigger: "!rs (!social)", description: "Liens réseaux sociaux.", category: "info", access: "Viewer" },
                 { trigger: "!team", description: "Info équipe Twitch.", category: "info", access: "Viewer" },
                 { trigger: "!tiktok", description: "Lien TikTok.", category: "info", access: "Viewer" },
-                { trigger: "!top3", description: "Classement des meilleurs viewers.", category: "xp", access: "Viewer" },
-                { trigger: "!watchtime", description: "Votre temps de visionnage.", category: "xp", access: "Viewer" },
+                { trigger: "!top3", description: "Classement des 3 meilleurs viewers.", category: "xp", access: "Viewer" },
+                { trigger: "!watchtime", description: "Temps total passé sur le stream.", category: "xp", access: "Viewer" },
                 { trigger: "!youtube", description: "Lien YouTube.", category: "info", access: "Viewer" },
 
-                // --- TRADUCTION ---
-                { trigger: "!fr", description: "Traduire en Français.", category: "info", access: "Viewer" },
-                { trigger: "!eng", description: "Traduire en Anglais.", category: "info", access: "Viewer" },
-                { trigger: "!esp", description: "Traduire en Espagnol.", category: "info", access: "Viewer" },
-                { trigger: "!it", description: "Traduire en Italien.", category: "info", access: "Viewer" },
-                { trigger: "!ge", description: "Traduire en Allemand.", category: "info", access: "Viewer" },
-                { trigger: "!jp", description: "Traduire en Japonais.", category: "info", access: "Viewer" },
-                { trigger: "!ar", description: "Traduire en Arabe.", category: "info", access: "Viewer" },
-                { trigger: "!ch", description: "Traduire en Chinois.", category: "info", access: "Viewer" },
+                // TRADUCTION
+                { trigger: "!ar (!ara)", description: "Traduire en Arabe.", category: "info", access: "Viewer" },
+                { trigger: "!ch (!chi)", description: "Traduire en Chinois.", category: "info", access: "Viewer" },
+                { trigger: "!eng (!en)", description: "Traduire en Anglais.", category: "info", access: "Viewer" },
+                { trigger: "!esp (!es)", description: "Traduire en Espagnol.", category: "info", access: "Viewer" },
+                { trigger: "!fr (!fra)", description: "Traduire en Français.", category: "info", access: "Viewer" },
+                { trigger: "!ge (!all)", description: "Traduire en Allemand.", category: "info", access: "Viewer" },
+                { trigger: "!it (!ita)", description: "Traduire en Italien.", category: "info", access: "Viewer" },
+                { trigger: "!ja (!jap)", description: "Traduire en Japonais.", category: "info", access: "Viewer" },
 
-                // --- TIMERS ---
-                { trigger: "!settimer", description: "Définir un timer.", category: "moderator", access: "Modérateur" },
-                { trigger: "!stoptimer", description: "Arrêter un timer.", category: "moderator", access: "Modérateur" },
+                // TIMER
+                { trigger: "!settimer", description: "Définit ou active un timer.", category: "moderator", access: "Modérateur" },
+                { trigger: "!stoptimer", description: "Arrête ou désactive un timer.", category: "moderator", access: "Modérateur" },
 
-                // --- EMOTES ---
-                { trigger: "!dance", description: "Avalanche d'emotes Danse.", category: "fun", access: "Viewer" },
-                { trigger: "!hype", description: "Avalanche d'emotes Hype.", category: "fun", access: "Viewer" },
-                { trigger: "!love", description: "Avalanche d'emotes Amour.", category: "fun", access: "Viewer" },
-                { trigger: "!raid", description: "Avalanche d'emotes Raid.", category: "fun", access: "Viewer" },
-                { trigger: "!sub", description: "Avalanche d'emotes Money.", category: "fun", access: "Viewer" },
+                // EMOTES
+                { trigger: "!dance", description: "Avalanche d'emote Danse.", category: "fun", access: "Viewer" },
+                { trigger: "!hype", description: "Avalanche d'emote Hype.", category: "fun", access: "Viewer" },
+                { trigger: "!love", description: "Avalanche d'emote Love.", category: "fun", access: "Viewer" },
+                { trigger: "!raid", description: "Avalanche d'emote Raid.", category: "fun", access: "Viewer" },
+                { trigger: "!sub", description: "Avalanche d'emote Money.", category: "fun", access: "Viewer" },
 
-                // --- SONS ---
-                { trigger: "!anniversaire", description: "Joyeux Anniversaire !", category: "fun", access: "Viewer" },
-                { trigger: "!dodo", description: "Bonne nuit !", category: "fun", access: "Viewer" },
-                { trigger: "!faim", description: "J'ai faim !", category: "fun", access: "Viewer" },
-                { trigger: "!felix", description: "Appel à Félix.", category: "fun", access: "Viewer" },
+                // SONS
+                { trigger: "!anniversaire", description: "Son Joyeux Anniversaire.", category: "fun", access: "Viewer" },
+                { trigger: "!dodo", description: "Son Dodo.", category: "fun", access: "Viewer" },
+                { trigger: "!faim", description: "Son Faim.", category: "fun", access: "Viewer" },
+                { trigger: "!felix", description: "Son Félix.", category: "fun", access: "Viewer" },
                 { trigger: "!fouet", description: "Bruit de fouet.", category: "fun", access: "Viewer" },
                 { trigger: "!honte", description: "Son de la honte.", category: "fun", access: "Viewer" },
-                { trigger: "!lurk", description: "Passage en mode Lurk.", category: "fun", access: "Viewer" },
+                { trigger: "!lurk", description: "Mode Lurk.", category: "fun", access: "Viewer" },
                 { trigger: "!magnifique", description: "C'est magnifique !", category: "fun", access: "Viewer" },
-                { trigger: "!ohe", description: "Réveiller le streamer.", category: "fun", access: "Viewer" },
-                { trigger: "!purge", description: "Alerte purge (Modo).", category: "moderator", access: "Modérateur" },
+                { trigger: "!ohe", description: "Réveil streamer.", category: "fun", access: "Viewer" },
+                { trigger: "!purge", description: "Alerte purge.", category: "moderator", access: "Modérateur" },
                 { trigger: "!salope", description: "Son humoristique.", category: "fun", access: "Viewer" },
-                { trigger: "!seul", description: "Moment solitude.", category: "fun", access: "Viewer" },
+                { trigger: "!seul", description: "Son solitude.", category: "fun", access: "Viewer" },
                 { trigger: "!tg", description: "Faire taire.", category: "fun", access: "Viewer" },
                 { trigger: "!deshonneur", description: "Déshonneur !", category: "fun", access: "Viewer" },
 
-                // --- JEU DE LA BOMBE ---
-                { trigger: "!bombstart", description: "Lancer une bombe.", category: "fun", access: "Streamer" },
-                { trigger: "!stopbombe", description: "Arrêter la bombe.", category: "fun", access: "Streamer" },
-                { trigger: "!pass", description: "Passer la bombe à un autre viewer.", category: "fun", access: "Viewer" }
+                // GAME BOMB
+                { trigger: "!bombstart", description: "Lancer la bombe.", category: "game", access: "Streamer" },
+                { trigger: "!stopbombe", description: "Arrêter la bombe.", category: "game", access: "Streamer" },
+                { trigger: "!pass {pseudo}", description: "Passer la bombe.", category: "game", access: "Viewer" }
             ];
             
-            // Envoi vers Firebase
+            // ENVOI MASSIF
             officialCommands.forEach(c => db.ref('viewer_data/commands').push(c));
-            alert("Base de données mise à jour avec la liste officielle !");
+            alert("✅ Liste officielle restaurée avec succès !");
         }
     };
 });
