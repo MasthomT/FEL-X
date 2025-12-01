@@ -4,99 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Félix et moi - FEL-X</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        /* MÊME CSS QUE PROFILE.HTML POUR LA COHÉRENCE */
-        :root {
-            --color-background: #18181b;
-            --color-surface: #2a2a2d;
-            --color-sidebar: #2c2f33;
-            --color-border: #36363a;
-            --color-text-primary: #f0f0f0;
-            --color-text-secondary: #b9bbbe;
-            --color-accent: #00f5c3;
-            --color-danger: #ff6b6b;
-            --transition-speed: 0.3s;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* MÊME DESIGN QUE LE RESTE */
+        :root { --bg: #18181b; --surface: #2a2a2d; --accent: #00f5c3; --text: #f0f0f0; --text-dim: #b9bbbe; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
-        body { 
-            background: var(--color-background); 
-            color: var(--color-text-primary); 
-            font-family: "Inter", sans-serif;
-            font-weight: 300; 
-            margin: 0; display: flex; height: 100vh; overflow-x: hidden;
-        }
+        .sidebar { width: 250px; background: #2c2f33; border-right: 1px solid #36363a; padding: 1rem 0; display: flex; flex-direction: column; }
+        .nav-link { padding: 1rem; color: var(--text-dim); text-decoration: none; display: flex; gap: 10px; }
+        .nav-link.active { color: white; border-left: 3px solid var(--accent); background: var(--surface); }
         
-        /* Sidebar */
-        .sidebar { width: 250px; background-color: var(--color-sidebar); flex-shrink: 0; height: 100vh; display: flex; flex-direction: column; padding: 1rem 0; border-right: 1px solid var(--color-border); position: sticky; top: 0; }
-        .sidebar-header { padding: 0 1.5rem 1rem; border-bottom: 1px solid var(--color-border); }
-        .logo-link { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
-        .logo-link img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .logo-link span { font-size: 1.5rem; font-weight: 600; color: var(--color-accent); }
-        
-        .nav-link { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: var(--color-text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-speed); border-left: 4px solid transparent; }
-        .nav-link:hover, .nav-link.active { background: var(--color-surface); color: white; border-left-color: var(--color-accent); }
-        .nav-link svg { width: 22px; height: 22px; fill: currentColor; }
-        
-        .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--color-border); }
-        #logout-sidebar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: var(--color-danger); text-decoration: none; font-weight: 500; cursor: pointer; }
-        #logout-sidebar:hover { background: var(--color-surface); color: white; }
-        #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; }
-
-        /* Main Content */
         main { flex-grow: 1; padding: 2rem; overflow-y: auto; }
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 3rem; }
         
-        .content-card { max-width: 800px; margin: 0 auto; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; }
-        h1 { font-size: 2.2rem; margin-bottom: 1rem; font-weight: 600; color: white; }
-        p.description { color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 300; line-height: 1.5; }
+        .section-title { color: var(--accent); font-size: 1.1rem; margin-top: 2rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; border-bottom: 1px solid #36363a; padding-bottom: 0.5rem; }
         
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--color-accent); }
-        input[type="text"], textarea { 
-            width: 100%; padding: 12px; border-radius: 6px; 
-            border: 1px solid var(--color-border); background-color: var(--color-background); 
-            color: white; font-size: 1rem; font-family: inherit; transition: 0.3s;
-        }
-        input:focus, textarea:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 2px rgba(0, 245, 195, 0.1); }
-        textarea { min-height: 100px; resize: vertical; }
+        .card { background: var(--surface); border-radius: 8px; padding: 2rem; border: 1px solid #36363a; }
         
-        .btn-primary { 
-            background-color: var(--color-accent); color: var(--color-background); border: none; 
-            padding: 12px 30px; font-weight: 600; font-size: 1rem; border-radius: 6px; 
-            cursor: pointer; transition: transform 0.1s, background-color 0.2s; display: inline-block;
-        }
-        .btn-primary:hover { background-color: #00dbaf; transform: translateY(-2px); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-full { grid-column: span 2; }
         
-        .status-msg { margin-top: 1rem; font-weight: 500; display: none; padding: 1rem; border-radius: 6px; }
-        .success { background: rgba(0, 245, 195, 0.1); color: var(--color-accent); border: 1px solid var(--color-accent); }
-        .error { background: rgba(255, 107, 107, 0.1); color: var(--color-danger); border: 1px solid var(--color-danger); }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--bg); border: 1px solid #36363a; color: white; border-radius: 6px; font-size: 1rem; }
+        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        
+        .btn { background: var(--accent); color: #000; border: none; padding: 12px 24px; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 2rem; font-size: 1.1rem; transition: 0.2s; }
+        .btn:hover { background: #00dbaf; transform: translateY(-2px); }
 
-        /* Loader */
-        .loader { border: 3px solid var(--color-surface); border-top: 3px solid var(--color-accent); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin-left: 10px; vertical-align: middle; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; }
-            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--color-border); }
-            main { padding: 1rem; }
-        }
+        .status-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; text-align: center; font-weight: 600;}
+        .success { background: rgba(0, 245, 195, 0.1); color: var(--accent); }
     </style>
 </head>
 <body>
-
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <a href="/index.html" class="logo-link">
-                <img src="/logo-felix.png" alt="Logo FEL-X">
-                <span>FEL-X</span>
-            </a>
-        </div>
-        
         <nav>
             <a href="/profile.html" class="nav-link" id="nav-profile">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
@@ -131,194 +72,154 @@
                 <span>Félix et moi</span>
             </a>
         </nav>
-
-        <div class="sidebar-footer">
-            <a id="logout-sidebar" href="#">
-                <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
-                <span>Se déconnecter</span>
-            </a>
-        </div>
-    </nav>
-
     <main>
-        <div class="content-card">
-            <h1>🤖 Félix et moi</h1>
-            <p class="description">
-                Aidez <strong>Félix IA</strong> à mieux vous connaître ! Remplissez ces informations pour qu'il puisse personnaliser ses réponses quand il vous parle sur le chat.
-            </p>
-            
-            <div style="border-top: 1px solid var(--color-border); margin: 1.5rem 0;"></div>
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧠 Félix et moi</h1>
+            <p style="color: var(--text-dim);">Remplissez ce dossier pour que l'IA vous connaisse vraiment. (Tout est optionnel !)</p>
 
             <form id="felixForm">
-                <div class="form-group">
-                    <label for="favorite_game">Quel est votre jeu du moment ou favori ?</label>
-                    <input type="text" id="favorite_game" placeholder="Ex: Elden Ring, Valorant, Minecraft...">
-                </div>
-
-                <div class="form-group">
-                    <label for="favorite_food">Votre plat ou boisson signature ?</label>
-                    <input type="text" id="favorite_food" placeholder="Ex: Pizza ananas, Café noir...">
-                </div>
-
-                <div class="form-group">
-                    <label for="anything_else">Autre chose à savoir sur vous ?</label>
-                    <textarea id="anything_else" placeholder="Ex: Je suis étudiant en art, j'aime le ski, mon surnom est..."></textarea>
-                </div>
                 
-                <button type="submit" class="btn-primary" id="saveBtn">
-                    Sauvegarder
-                    <div class="loader" id="loader"></div>
-                </button>
-            </form>
+                <div class="section-title">1. Identité & Vibe</div>
+                <div class="card">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Surnom(s) / Comment t'appeler ?</label>
+                            <input type="text" id="nickname" placeholder="Ex: Chef, La Menace...">
+                        </div>
+                        <div class="form-group">
+                            <label>Anniversaire (Pour que je te le souhaite !)</label>
+                            <input type="date" id="birthday">
+                        </div>
+                        <div class="form-group">
+                            <label>Tes Pronoms</label>
+                            <select id="pronouns">
+                                <option value="">Peu importe</option>
+                                <option value="il">Il / Lui</option>
+                                <option value="elle">Elle</option>
+                                <option value="iel">Iel / Neutre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ta personnalité en 2 mots</label>
+                            <input type="text" id="vibe" placeholder="Ex: Chill & Timide, ou Chaotique & Bruyant">
+                        </div>
+                    </div>
+                </div>
 
-            <div id="statusMsg" class="status-msg"></div>
+                <div class="section-title">2. Gaming & Passions</div>
+                <div class="card">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Jeu de cœur (Ton favori de tous les temps)</label>
+                            <input type="text" id="favorite_game" placeholder="Ex: The Witcher 3, Minecraft...">
+                        </div>
+                        <div class="form-group">
+                            <label>Genre de jeu détesté</label>
+                            <input type="text" id="hated_genre" placeholder="Ex: Les jeux d'horreur, les FPS...">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Une passion hors jeux vidéo ?</label>
+                            <input type="text" id="hobby" placeholder="Ex: Je fais de la guitare, j'aime la cuisine...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">3. Goûts & Anecdotes</div>
+                <div class="card">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Ton plat ou snack "plaisir coupable"</label>
+                            <input type="text" id="favorite_food" placeholder="Ex: Pizza Ananas, Tacos 3 viandes...">
+                        </div>
+                        <div class="form-group">
+                            <label>Ta boisson de stream</label>
+                            <input type="text" id="favorite_drink" placeholder="Ex: Ice Tea, Café noir...">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Autre chose à savoir sur toi ? (Fais-toi plaisir)</label>
+                            <textarea id="anything_else" rows="3" placeholder="Ex: Je suis là depuis 2020, j'ai peur des araignées..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="saveBtn" class="btn">Sauvegarder mon Profil Félix</button>
+                <div id="statusMsg" class="status-msg"></div>
+            </form>
         </div>
     </main>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<script>
-    // --- 1. CONFIGURATION FIREBASE ---
-    // (Copiée de votre fichier app.js existant)
-    const firebaseConfig = {
-        apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
-        authDomain: "fel-x-503f8.firebaseapp.com",
-        databaseURL: "https://fel-x-503f8-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "fel-x-503f8",
-        storageBucket: "fel-x-503f8.firebasestorage.app",
-        messagingSenderId: "922613900734",
-        appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
-    };
+    <script>
+        // CONFIG FIREBASE (Celle de app.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
+            authDomain: "fel-x-503f8.firebaseapp.com",
+            databaseURL: "https://fel-x-503f8-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "fel-x-503f8",
+            storageBucket: "fel-x-503f8.firebasestorage.app",
+            messagingSenderId: "922613900734",
+            appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    // Initialisation de Firebase si ce n'est pas déjà fait
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
+        // LOGIQUE
+        const token = localStorage.getItem("twitch_token");
+        if (!token) window.location.href = "/index.html";
 
-    // --- 2. GESTION DE LA SESSION UTILISATEUR ---
-    
-    // Vérification de la présence du token Twitch
-    const token = localStorage.getItem("twitch_token");
-    if (!token) {
-        window.location.href = "/index.html"; // Redirection si non connecté
-    }
-
-    // Gestion du bouton de déconnexion
-    const logoutBtn = document.getElementById("logout-sidebar");
-    if(logoutBtn) {
-        logoutBtn.onclick = function(e) {
-            e.preventDefault();
+        document.getElementById("logout-btn").onclick = () => {
             localStorage.removeItem("twitch_token");
             window.location.href = "/index.html";
         };
-    }
 
-    // Fonction pour récupérer l'ID utilisateur Twitch via l'API
-    // Cela permet d'identifier l'utilisateur de manière unique dans Firebase
-    async function getUserId() {
-        try {
-            const response = await fetch('https://api.twitch.tv/helix/users', {
-                headers: { 
-                    'Authorization': `Bearer ${token}`, 
-                    'Client-Id': 'kgyfzs0k3wk8enx7p3pd6299ro4izv' 
-                }
+        async function getUserId() {
+            try {
+                const r = await fetch('https://api.twitch.tv/helix/users', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': 'kgyfzs0k3wk8enx7p3pd6299ro4izv' }
+                });
+                const d = await r.json();
+                return d.data[0].id;
+            } catch { return null; }
+        }
+
+        // LISTE DES CHAMPS À SAUVEGARDER
+        const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'anything_else'];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = await getUserId();
+            if (!userId) return;
+
+            // Lecture
+            db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                fields.forEach(f => {
+                    if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
+                });
             });
-            const data = await response.json();
-            if (data.data && data.data.length > 0) {
-                return data.data[0].id;
-            }
-            return null;
-        } catch (e) { 
-            console.error("Erreur lors de la récupération de l'ID Twitch:", e);
-            return null; 
-        }
-    }
 
-    // --- 3. CHARGEMENT ET SAUVEGARDE DES DONNÉES ---
-
-    // Au chargement de la page
-    document.addEventListener('DOMContentLoaded', async () => {
-        const userId = await getUserId();
-        
-        if (!userId) {
-            showStatus("Erreur : Impossible de récupérer votre identifiant Twitch.", "error");
-            return;
-        }
-
-        // A. LECTURE DES DONNÉES (Depuis Firebase)
-        // On va chercher les infos dans le dossier 'viewer_data/ai_context/[ID_UTILISATEUR]'
-        db.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // Si des données existent, on remplit les champs du formulaire
-                if(document.getElementById('favorite_game')) 
-                    document.getElementById('favorite_game').value = data.favorite_game || "";
+            // Sauvegarde
+            document.getElementById('felixForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                document.getElementById('saveBtn').textContent = "Sauvegarde...";
                 
-                if(document.getElementById('favorite_food')) 
-                    document.getElementById('favorite_food').value = data.favorite_food || "";
+                const payload = { updated_at: new Date().toISOString() };
+                fields.forEach(f => {
+                    const el = document.getElementById(f);
+                    if(el) payload[f] = el.value;
+                });
+
+                await db.ref('viewer_data/ai_context/' + userId).set(payload);
                 
-                if(document.getElementById('anything_else')) 
-                    document.getElementById('anything_else').value = data.anything_else || "";
-            }
-        }).catch((error) => {
-            console.error("Erreur de lecture Firebase:", error);
+                document.getElementById('saveBtn').textContent = "Sauvegarder mon Profil Félix";
+                const msg = document.getElementById('statusMsg');
+                msg.textContent = "✅ Profil mis à jour ! Félix te connaît mieux maintenant.";
+                msg.classList.add('success');
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 5000);
+            });
         });
-
-        // B. SAUVEGARDE DES DONNÉES (Vers Firebase)
-        const form = document.getElementById('felixForm');
-        if(form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault(); // Empêche le rechargement de la page
-                
-                const btn = document.getElementById('saveBtn');
-                const loader = document.getElementById('loader');
-                
-                // Désactive le bouton et affiche le chargement
-                if(btn) btn.disabled = true;
-                if(loader) loader.style.display = "inline-block";
-
-                // Prépare les données à envoyer
-                const payload = {
-                    favorite_game: document.getElementById('favorite_game').value,
-                    favorite_food: document.getElementById('favorite_food').value,
-                    anything_else: document.getElementById('anything_else').value,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP // Ajoute la date serveur
-                };
-
-                try {
-                    // Écriture dans Firebase
-                    await db.ref('viewer_data/ai_context/' + userId).set(payload);
-                    showStatus("✅ Informations sauvegardées ! Félix les récupérera bientôt.", "success");
-                } catch (error) {
-                    console.error("Erreur d'écriture Firebase:", error);
-                    showStatus("❌ Erreur : Permission refusée ou problème de connexion.", "error");
-                } finally {
-                    // Réactive le bouton
-                    if(btn) btn.disabled = false;
-                    if(loader) loader.style.display = "none";
-                }
-            });
-        }
-    });
-
-    // Fonction utilitaire pour afficher les messages de statut
-    function showStatus(msg, type) {
-        const el = document.getElementById('statusMsg');
-        if(el) {
-            el.textContent = msg;
-            el.className = `status-msg ${type}`; // Applique la classe CSS correspondante
-            el.style.display = 'block';
-            
-            // Cache le message après 5 secondes
-            setTimeout(() => { 
-                el.style.display = 'none'; 
-            }, 5000);
-        } else {
-            alert(msg); // Fallback si l'élément n'existe pas
-        }
-    }
-</script>
+    </script>
 </body>
 </html>
