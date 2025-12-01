@@ -1,98 +1,9 @@
-// --- VOTRE LISTE OFFICIELLE (Données en dur) ---
-const STATIC_COMMANDS = [
-    // --- INFOS ---
-    { trigger: "!bug", description: "Affiche l'information sur un bug ou un lien pour signaler un problème.", category: "info", access: "Viewer" },
-    { trigger: "!clip", description: "Crée un clip des 30 dernières secondes du stream.", category: "info", access: "Viewer" },
-    { trigger: "!commandes (!cmde)", description: "Affiche la liste des commandes disponibles dans le chat.", category: "info", access: "Viewer" },
-    { trigger: "!discord (!dc)", description: "Affiche le lien vers le serveur Discord du diffuseur.", category: "info", access: "Viewer" },
-    { trigger: "!tips (!don)", description: "Affiche le lien pour faire un don (tip) au diffuseur.", category: "info", access: "Viewer" },
-    { trigger: "!followinfo", description: "Fournit des informations sur le suivi de l'utilisateur.", category: "info", access: "Viewer" },
-    { trigger: "!game (!gameinfo)", description: "Affiche le jeu actuellement diffusé.", category: "info", access: "Viewer" },
-    { trigger: "!giveaway (!roue)", description: "Fournit des informations ou un lien pour un concours.", category: "info", access: "Viewer" },
-    { trigger: "!onlyfan (!of)", description: "Affiche le lien vers la page Onlyfans (Humour).", category: "info", access: "Viewer" },
-    { trigger: "!planning", description: "Affiche le calendrier des streams.", category: "info", access: "Viewer" },
-    { trigger: "!rs (!social)", description: "Affiche les liens vers les réseaux sociaux.", category: "info", access: "Viewer" },
-    { trigger: "!team", description: "Affiche l'information sur l'équipe Twitch.", category: "info", access: "Viewer" },
-    { trigger: "!tiktok", description: "Affiche le lien vers le compte TikTok.", category: "info", access: "Viewer" },
-    { trigger: "!youtube", description: "Affiche le lien vers la chaîne YouTube.", category: "info", access: "Viewer" },
-
-    // --- TRADUCTION ---
-    { trigger: "!ar (!ara)", description: "Traduit le texte en Arabe.", category: "info", access: "Viewer" },
-    { trigger: "!ch (!chi)", description: "Traduit le texte en Chinois.", category: "info", access: "Viewer" },
-    { trigger: "!eng (!en)", description: "Traduit le texte en Anglais.", category: "info", access: "Viewer" },
-    { trigger: "!esp (!es)", description: "Traduit le texte en Espagnol.", category: "info", access: "Viewer" },
-    { trigger: "!fr (!fra)", description: "Traduit le texte en Français.", category: "info", access: "Viewer" },
-    { trigger: "!ge (!all)", description: "Traduit le texte en Allemand.", category: "info", access: "Viewer" },
-    { trigger: "!it (!ita)", description: "Traduit le texte en Italien.", category: "info", access: "Viewer" },
-    { trigger: "!ja (!jap)", description: "Traduit le texte en Japonais.", category: "info", access: "Viewer" },
-
-    // --- XP & NIVEAUX ---
-    { trigger: "!myinfo (!ivl)", description: "Affiche les informations de l'utilisateur (points, niveau...).", category: "xp", access: "Viewer" },
-    { trigger: "!level (!nv)", description: "Affiche le niveau ou le classement d'un utilisateur.", category: "xp", access: "Viewer" },
-    { trigger: "!top3", description: "Affiche le classement des 3 meilleurs utilisateurs.", category: "xp", access: "Viewer" },
-    { trigger: "!watchtime", description: "Affiche le temps total passé à regarder le stream.", category: "xp", access: "Viewer" },
-    { trigger: "!myvip", description: "Permet de vérifier le statut VIP.", category: "xp", access: "Viewer" },
-
-    // --- FUN & SONS ---
-    { trigger: "!dance", description: "Déclenche une avalanche d'emote danse.", category: "fun", access: "Viewer" },
-    { trigger: "!hype", description: "Déclenche une avalanche d'emote hype.", category: "fun", access: "Viewer" },
-    { trigger: "!love", description: "Déclenche une avalanche d'emote amour.", category: "fun", access: "Viewer" },
-    { trigger: "!raid", description: "Déclenche une avalanche d'emote Raid.", category: "fun", access: "Viewer" },
-    { trigger: "!sub", description: "Déclenche une avalanche d'emote Money.", category: "fun", access: "Viewer" },
-    { trigger: "!anniversaire", description: "Son: Joyeux anniversaire.", category: "fun", access: "Viewer" },
-    { trigger: "!dodo", description: "Son: Quand tu vas dormir.", category: "fun", access: "Viewer" },
-    { trigger: "!faim", description: "Son: Quand tu as faim.", category: "fun", access: "Viewer" },
-    { trigger: "!felix", description: "Son et message liés à Félix.", category: "fun", access: "Viewer" },
-    { trigger: "!fouet", description: "Son: Bruit de fouet.", category: "fun", access: "Viewer" },
-    { trigger: "!honte", description: "Son: Honte.", category: "fun", access: "Viewer" },
-    { trigger: "!lurk", description: "Indique le mode Lurk.", category: "fun", access: "Viewer" },
-    { trigger: "!magnifique", description: "Son: C'est magnifique.", category: "fun", access: "Viewer" },
-    { trigger: "!ohe", description: "Son: Rappel au streamer de lire le chat.", category: "fun", access: "Viewer" },
-    { trigger: "!salope", description: "Son: Humoristique.", category: "fun", access: "Viewer" },
-    { trigger: "!seul", description: "Son: Solitude.", category: "fun", access: "Viewer" },
-    { trigger: "!tg", description: "Son: Faire taire.", category: "fun", access: "Viewer" },
-    { trigger: "!deshonneur", description: "Son: Déshonneur.", category: "fun", access: "Viewer" },
-    { trigger: "!pass {pseudo}", description: "Jeu Bombe: Passer la bombe.", category: "fun", access: "Viewer" },
-
-    // --- MODÉRATION (Tout à la fin !) ---
-    { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "moderator", access: "Modérateur" },
-    { trigger: "!clear", description: "Efface tous les messages visibles.", category: "moderator", access: "Modérateur" },
-    { trigger: "!setgame (!sg)", description: "Définit le jeu en cours.", category: "moderator", access: "Modérateur" },
-    { trigger: "!settitle (!st)", description: "Définit le titre du stream.", category: "moderator", access: "Modérateur" },
-    { trigger: "!so (!shoutout)", description: "Fait la promotion d'un autre diffuseur.", category: "moderator", access: "Modérateur" },
-    { trigger: "!to30m", description: "Timeout 30 minutes.", category: "moderator", access: "Modérateur" },
-    { trigger: "!to1h", description: "Timeout 1 heure.", category: "moderator", access: "Modérateur" },
-    { trigger: "!to12h", description: "Timeout 12 heures.", category: "moderator", access: "Modérateur" },
-    { trigger: "!to24h", description: "Timeout 24 heures.", category: "moderator", access: "Modérateur" },
-    { trigger: "!to1s", description: "Timeout 1 semaine.", category: "moderator", access: "Modérateur" },
-    { trigger: "!toMax", description: "Timeout Max.", category: "moderator", access: "Modérateur" },
-    { trigger: "!torando", description: "Timeout Random (Fun).", category: "moderator", access: "Modérateur" },
-    { trigger: "!untimeout", description: "Annule un timeout.", category: "moderator", access: "Modérateur" },
-    { trigger: "!permit", description: "Autorisation de lien unique.", category: "moderator", access: "Modérateur" },
-    { trigger: "!unpermit", description: "Retire l'autorisation de lien.", category: "moderator", access: "Modérateur" },
-    { trigger: "!tts (!oral)", description: "Active le TTS.", category: "moderator", access: "Modérateur" },
-    { trigger: "!emoton / !off", description: "Mode Emotes Only.", category: "moderator", access: "Modérateur" },
-    { trigger: "!followon / !off", description: "Mode Followers Only.", category: "moderator", access: "Modérateur" },
-    { trigger: "!shieldOn / !off", description: "Mode Bouclier.", category: "moderator", access: "Modérateur" },
-    { trigger: "!subon", description: "Mode Abonnés Only.", category: "moderator", access: "Modérateur" },
-    { trigger: "!settimer", description: "Définit un timer.", category: "moderator", access: "Modérateur" },
-    { trigger: "!stoptimer", description: "Arrête un timer.", category: "moderator", access: "Modérateur" },
-    { trigger: "!purge", description: "Son: Alerte purge.", category: "moderator", access: "Modérateur" },
-    { trigger: "!addvip", description: "Ajoute un VIP.", category: "moderator", access: "Modérateur" },
-    { trigger: "!extendvip", description: "Prolonge un VIP.", category: "moderator", access: "Modérateur" },
-    { trigger: "!revokevip", description: "Retire un VIP.", category: "moderator", access: "Modérateur" },
-    { trigger: "!bombstart", description: "Lance la bombe.", category: "moderator", access: "Streamer" },
-    { trigger: "!stopbombe", description: "Arrête la bombe.", category: "moderator", access: "Streamer" }
-];
-
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth();
+    checkAuth(); // Vérifie la connexion
     const db = firebase.database();
     const listEl = document.getElementById("cmd-list");
-    const searchInput = document.getElementById("cmd-search");
-    const filterSelect = document.getElementById("cmd-filter");
     
-    // Vérif Admin
+    // --- VÉRIFICATION ADMIN ---
     const token = localStorage.getItem("twitch_token");
     const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     let isAdmin = false;
@@ -103,76 +14,68 @@ document.addEventListener("DOMContentLoaded", async () => {
             const d = await r.json();
             if (d.data && d.data[0].login.toLowerCase() === "masthom_") {
                 isAdmin = true;
-                document.getElementById("admin-panel").style.display = "block";
-                document.getElementById("th-actions").style.display = "table-cell";
+                document.getElementById("admin-panel").style.display = "flex"; // Affiche les boutons Admin
+                document.getElementById("th-actions").style.display = "table-cell"; // Affiche la colonne Actions
             }
-        } catch(e) {}
+        } catch(e) { console.log("Mode Viewer"); }
     }
 
-    // 1. RECUPERATION DES COMMANDES (Mixte Static + Firebase)
-    let dynamicCommands = [];
-    
-    // On charge les commandes ajoutées manuellement via l'interface
-    try {
-        const snapshot = await db.ref('viewer_data/commands').once('value');
+    // --- LECTURE DES COMMANDES (FIREBASE) ---
+    let allCommands = [];
+
+    db.ref('viewer_data/commands').on('value', (snapshot) => {
         const data = snapshot.val();
+        listEl.innerHTML = "";
+        allCommands = [];
+
         if (data) {
             Object.entries(data).forEach(([key, cmd]) => {
                 cmd.id = key;
-                dynamicCommands.push(cmd);
+                allCommands.push(cmd);
             });
+            
+            // Tri par Catégorie puis par Nom
+            allCommands.sort((a, b) => a.category.localeCompare(b.category) || a.trigger.localeCompare(b.trigger));
+            renderCommands(allCommands);
+        } else {
+            listEl.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Aucune commande. Cliquez sur 'Restaurer la liste officielle' si vous êtes admin.</td></tr>";
         }
-    } catch (e) { console.error("Erreur Firebase", e); }
-
-    // Fusion : Liste Statique + Ajouts Dynamiques
-    let allCommands = [...STATIC_COMMANDS, ...dynamicCommands];
-
-    // 2. TRI AUTOMATIQUE PAR CATÉGORIE
-    // Ordre : Info -> XP -> Fun -> Moderator (à la fin)
-    const catOrder = { "info": 1, "xp": 2, "fun": 3, "moderator": 99 };
-    
-    allCommands.sort((a, b) => {
-        const scoreA = catOrder[a.category] || 50;
-        const scoreB = catOrder[b.category] || 50;
-        
-        if (scoreA !== scoreB) return scoreA - scoreB;
-        return a.trigger.localeCompare(b.trigger);
     });
 
-    // 3. AFFICHAGE
-    renderCommands(allCommands);
-
+    // --- AFFICHAGE ---
     function renderCommands(cmds) {
         listEl.innerHTML = "";
-        if (cmds.length === 0) {
-            listEl.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Aucune commande trouvée.</td></tr>";
-            return;
-        }
-
         cmds.forEach(cmd => {
             const tr = document.createElement("tr");
             
-            // Badges
-            let badgeColor = "background:rgba(114, 137, 218, 0.2); color:#7289da;"; 
-            if(cmd.category === "fun") badgeColor = "background:rgba(233, 30, 99, 0.2); color:#e91e63;";
-            if(cmd.category === "xp") badgeColor = "background:rgba(255, 215, 0, 0.1); color:#FFD700;";
-            if(cmd.category === "moderator") badgeColor = "background:rgba(240, 71, 71, 0.2); color:#f04747;";
+            // Gestion des couleurs de badges selon VOS catégories
+            let badgeColor = "background:rgba(128,128,128,0.2); color:#ccc;"; // Défaut
+            const cat = cmd.category;
 
+            if(cat === "Modération") badgeColor = "background:rgba(240, 71, 71, 0.2); color:#f04747;"; 
+            if(cat === "Chat Mode") badgeColor = "background:rgba(255, 165, 0, 0.2); color:#FFA500;";
+            if(cat === "VIP") badgeColor = "background:rgba(255, 215, 0, 0.2); color:#FFD700;";
+            if(cat === "Infos") badgeColor = "background:rgba(114, 137, 218, 0.2); color:#7289da;";
+            if(cat === "Traduction") badgeColor = "background:rgba(0, 255, 255, 0.2); color:#00FFFF;";
+            if(cat === "Timer") badgeColor = "background:rgba(255, 255, 255, 0.1); color:#fff;";
+            if(cat === "Emotes") badgeColor = "background:rgba(233, 30, 99, 0.2); color:#e91e63;";
+            if(cat === "Sons") badgeColor = "background:rgba(155, 89, 182, 0.2); color:#9b59b6;";
+            if(cat === "Game Bomb") badgeColor = "background:rgba(46, 204, 113, 0.2); color:#2ecc71;";
+
+            // Boutons d'action (Edit/Delete)
             let actionsHTML = "";
-            // On ne peut modifier/supprimer QUE les commandes dynamiques (celles avec un ID)
-            if (isAdmin && cmd.id) {
+            if (isAdmin) {
                 actionsHTML = `
                     <td class="cmd-actions">
-                        <button class="btn-icon btn-delete" onclick="deleteCmd('${cmd.id}')">🗑️</button>
+                        <button class="btn-icon btn-edit" onclick="editCmd('${cmd.id}')" title="Modifier">✏️</button>
+                        <button class="btn-icon btn-delete" onclick="deleteCmd('${cmd.id}')" title="Supprimer">🗑️</button>
                     </td>`;
-            } else if (isAdmin) {
-                actionsHTML = `<td><small style="opacity:0.5">Défaut</small></td>`;
             }
 
             tr.innerHTML = `
                 <td><span class="command-trigger">${cmd.trigger}</span></td>
                 <td style="color:var(--text-dim)">${cmd.description}</td>
-                <td><span style="padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; ${badgeColor}">${cmd.category.toUpperCase()}</span></td>
+                <td><span style="padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; ${badgeColor}">${cat}</span></td>
                 <td>${cmd.access}</td>
                 ${actionsHTML}
             `;
@@ -180,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // FILTRES
+    // --- FILTRES ---
     function filterCommands() {
         const searchTerm = document.getElementById("cmd-search").value.toLowerCase();
         const category = document.getElementById("cmd-filter").value;
@@ -193,34 +96,162 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         renderCommands(filtered);
     }
-
     document.getElementById("cmd-search").addEventListener("input", filterCommands);
     document.getElementById("cmd-filter").addEventListener("change", filterCommands);
 
-    // AJOUT MANUEL (Admin)
+    // --- GESTION ADMIN (Ajout / Modif / Init) ---
+
+    // Bouton "Ajouter"
     document.getElementById("btn-add-cmd").onclick = () => {
         document.getElementById("cmd-form").reset();
+        document.getElementById("cmd-id").value = "";
+        document.getElementById("modal-title").textContent = "Ajouter une commande";
         document.getElementById("cmd-modal").style.display = "flex";
     };
 
+    // Soumission formulaire
     document.getElementById("cmd-form").onsubmit = async (e) => {
         e.preventDefault();
+        const id = document.getElementById("cmd-id").value;
         const newCmd = {
             trigger: document.getElementById("in-trigger").value,
             description: document.getElementById("in-desc").value,
             category: document.getElementById("in-cat").value,
             access: document.getElementById("in-access").value
         };
-        await db.ref('viewer_data/commands').push(newCmd);
-        window.location.reload(); // Recharge pour voir l'ajout
+
+        if (id) { await db.ref('viewer_data/commands/' + id).update(newCmd); } 
+        else { await db.ref('viewer_data/commands').push(newCmd); }
+        closeModal();
+    };
+
+    // Fonctions Globales (pour le HTML)
+    window.editCmd = (id) => {
+        const cmd = allCommands.find(c => c.id === id);
+        if(cmd) {
+            document.getElementById("cmd-id").value = id;
+            document.getElementById("in-trigger").value = cmd.trigger;
+            document.getElementById("in-desc").value = cmd.description;
+            document.getElementById("in-cat").value = cmd.category;
+            document.getElementById("in-access").value = cmd.access;
+            document.getElementById("modal-title").textContent = "Modifier";
+            document.getElementById("cmd-modal").style.display = "flex";
+        }
     };
 
     window.deleteCmd = async (id) => {
-        if(confirm("Supprimer ?")) {
+        if(confirm("Supprimer définitivement cette commande ?")) {
             await db.ref('viewer_data/commands/' + id).remove();
-            window.location.reload();
         }
     };
-    
+
     window.closeModal = () => { document.getElementById("cmd-modal").style.display = "none"; };
+
+    // --- INITIALISATION : VOTRE LISTE EXACTE ---
+    document.getElementById("btn-init-db").onclick = async () => {
+        if(confirm("⚠️ ATTENTION : Cela va effacer toutes les commandes actuelles et remettre votre liste officielle propre. Continuer ?")) {
+            
+            // 1. Vider la table
+            await db.ref('viewer_data/commands').remove();
+            
+            // 2. La Liste EXACTE demandée
+            const officialList = [
+                // Modération
+                { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "Modération", access: "Modérateur" },
+                { trigger: "!clear", description: "Efface tous les messages visibles.", category: "Modération", access: "Modérateur" },
+                { trigger: "!setgame (!sg)", description: "Définit le jeu en cours.", category: "Modération", access: "Modérateur" },
+                { trigger: "!settitle (!st)", description: "Définit le titre du stream.", category: "Modération", access: "Modérateur" },
+                { trigger: "!so (!shoutout)", description: "Fait la promotion d'un autre diffuseur.", category: "Modération", access: "Modérateur" },
+                { trigger: "!to30m", description: "Timeout 30 minutes.", category: "Modération", access: "Modérateur" },
+                { trigger: "!to1h", description: "Timeout 1 heure.", category: "Modération", access: "Modérateur" },
+                { trigger: "!to12h", description: "Timeout 12 heures.", category: "Modération", access: "Modérateur" },
+                { trigger: "!to24h", description: "Timeout 24 heures.", category: "Modération", access: "Modérateur" },
+                { trigger: "!to1s", description: "Timeout 1 semaine.", category: "Modération", access: "Modérateur" },
+                { trigger: "!toMax", description: "Timeout Max (2 semaines).", category: "Modération", access: "Modérateur" },
+                { trigger: "!torando", description: "Timeout Random (Fun).", category: "Modération", access: "Modérateur" },
+                { trigger: "!untimeout (!unto)", description: "Annule une exclusion temporaire.", category: "Modération", access: "Modérateur" },
+                { trigger: "!permit", description: "Autorisation de lien unique.", category: "Modération", access: "Modérateur" },
+                { trigger: "!unpermit", description: "Retire l'autorisation de lien.", category: "Modération", access: "Modérateur" },
+                { trigger: "!tts (!oral)", description: "Active le Text-to-Speech.", category: "Modération", access: "Modérateur" },
+                { trigger: "!oral / !taistoi", description: "Action personnalisée.", category: "Modération", access: "Modérateur" },
+
+                // Chat Mode
+                { trigger: "!emoton / !emotoff", description: "Active/Désactive le mode Emotes Seules.", category: "Chat Mode", access: "Modérateur" },
+                { trigger: "!followon / !followoff", description: "Active/Désactive le mode Abonnés Seules.", category: "Chat Mode", access: "Modérateur" },
+                { trigger: "!shieldOn / !shieldOff", description: "Active/Désactive le mode Shield.", category: "Chat Mode", access: "Modérateur" },
+                { trigger: "!subon", description: "Active le mode Abonnés Payants Seules.", category: "Chat Mode", access: "Modérateur" },
+
+                // VIP
+                { trigger: "!addvip", description: "Ajoute un VIP.", category: "VIP", access: "Modérateur" },
+                { trigger: "!extendvip", description: "Prolonge un VIP.", category: "VIP", access: "Modérateur" },
+                { trigger: "!revokevip (!unvip)", description: "Retire un VIP.", category: "VIP", access: "Modérateur" },
+                { trigger: "!myvip", description: "Vérifier son statut VIP.", category: "VIP", access: "Modérateur" },
+
+                // Infos
+                { trigger: "!bug", description: "Signaler un problème.", category: "Infos", access: "Viewer" },
+                { trigger: "!clip", description: "Créer un clip (30s).", category: "Infos", access: "Viewer" },
+                { trigger: "!commandes (!cmde)", description: "Affiche la liste des commandes.", category: "Infos", access: "Viewer" },
+                { trigger: "!discord (!dc)", description: "Lien du Discord.", category: "Infos", access: "Viewer" },
+                { trigger: "!tips (!don)", description: "Faire un don.", category: "Infos", access: "Viewer" },
+                { trigger: "!followinfo", description: "Depuis quand vous suivez.", category: "Infos", access: "Viewer" },
+                { trigger: "!game (!gameinfo)", description: "Jeu actuel.", category: "Infos", access: "Viewer" },
+                { trigger: "!giveaway (!roue)", description: "Info concours.", category: "Infos", access: "Viewer" },
+                { trigger: "!myinfo (!level)", description: "Vos stats (XP, Niveau).", category: "Infos", access: "Viewer" },
+                { trigger: "!onlyfan (!of)", description: "Lien OnlyFans.", category: "Infos", access: "Viewer" },
+                { trigger: "!planning", description: "Calendrier des streams.", category: "Infos", access: "Viewer" },
+                { trigger: "!rs (!social)", description: "Réseaux sociaux.", category: "Infos", access: "Viewer" },
+                { trigger: "!team", description: "Info équipe Twitch.", category: "Infos", access: "Viewer" },
+                { trigger: "!tiktok", description: "Lien TikTok.", category: "Infos", access: "Viewer" },
+                { trigger: "!top3", description: "Classement top 3.", category: "Infos", access: "Viewer" },
+                { trigger: "!watchtime", description: "Temps de visionnage.", category: "Infos", access: "Viewer" },
+                { trigger: "!youtube", description: "Lien YouTube.", category: "Infos", access: "Viewer" },
+
+                // Traduction
+                { trigger: "!ar (!ara)", description: "Traduire en Arabe.", category: "Traduction", access: "Viewer" },
+                { trigger: "!ch (!chi)", description: "Traduire en Chinois.", category: "Traduction", access: "Viewer" },
+                { trigger: "!eng (!en)", description: "Traduire en Anglais.", category: "Traduction", access: "Viewer" },
+                { trigger: "!esp (!es)", description: "Traduire en Espagnol.", category: "Traduction", access: "Viewer" },
+                { trigger: "!fr (!fra)", description: "Traduire en Français.", category: "Traduction", access: "Viewer" },
+                { trigger: "!ge (!all)", description: "Traduire en Allemand.", category: "Traduction", access: "Viewer" },
+                { trigger: "!it (!ita)", description: "Traduire en Italien.", category: "Traduction", access: "Viewer" },
+                { trigger: "!ja (!jap)", description: "Traduire en Japonais.", category: "Traduction", access: "Viewer" },
+
+                // Timer
+                { trigger: "!settimer", description: "Définit un timer.", category: "Timer", access: "Modérateur" },
+                { trigger: "!stoptimer", description: "Arrête un timer.", category: "Timer", access: "Modérateur" },
+
+                // Emotes
+                { trigger: "!dance", description: "Avalanche d'emote Danse.", category: "Emotes", access: "Viewer" },
+                { trigger: "!hype", description: "Avalanche d'emote Hype.", category: "Emotes", access: "Viewer" },
+                { trigger: "!love", description: "Avalanche d'emote Love.", category: "Emotes", access: "Viewer" },
+                { trigger: "!raid", description: "Avalanche d'emote Raid.", category: "Emotes", access: "Viewer" },
+                { trigger: "!sub", description: "Avalanche d'emote Money.", category: "Emotes", access: "Viewer" },
+
+                // Sons
+                { trigger: "!anniversaire", description: "Son: Joyeux Anniversaire.", category: "Sons", access: "Viewer" },
+                { trigger: "!dodo", description: "Son: Dodo.", category: "Sons", access: "Viewer" },
+                { trigger: "!faim", description: "Son: Faim.", category: "Sons", access: "Viewer" },
+                { trigger: "!felix", description: "Son: Félix.", category: "Sons", access: "Viewer" },
+                { trigger: "!fouet", description: "Son: Fouet.", category: "Sons", access: "Viewer" },
+                { trigger: "!honte", description: "Son: Honte.", category: "Sons", access: "Viewer" },
+                { trigger: "!lurk", description: "Mode Lurk.", category: "Sons", access: "Viewer" },
+                { trigger: "!magnifique", description: "Son: Magnifique.", category: "Sons", access: "Viewer" },
+                { trigger: "!ohe", description: "Son: Réveil.", category: "Sons", access: "Viewer" },
+                { trigger: "!purge", description: "Alerte Purge (Son).", category: "Sons", access: "Modérateur" },
+                { trigger: "!salope", description: "Son: Humoristique.", category: "Sons", access: "Viewer" },
+                { trigger: "!seul", description: "Son: Solitude.", category: "Sons", access: "Viewer" },
+                { trigger: "!tg", description: "Son: Faire taire.", category: "Sons", access: "Viewer" },
+                { trigger: "!deshonneur", description: "Son: Déshonneur.", category: "Sons", access: "Viewer" },
+
+                // Game Bomb
+                { trigger: "!bombstart", description: "Lancer la bombe.", category: "Game Bomb", access: "Modérateur" },
+                { trigger: "!stopbombe", description: "Arrêter la bombe.", category: "Game Bomb", access: "Modérateur" },
+                { trigger: "!pass {pseudo}", description: "Passer la bombe.", category: "Game Bomb", access: "Viewer" }
+            ];
+
+            // Injection en base
+            officialList.forEach(c => db.ref('viewer_data/commands').push(c));
+            alert("✅ Liste restaurée avec succès !");
+        }
+    };
 });

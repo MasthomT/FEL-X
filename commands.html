@@ -6,18 +6,23 @@
     <title>Commandes - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* (Styles identiques au précédent message, je ne remets que le body pour être concis) */
         .controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
         .search-input { flex-grow: 1; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 8px; font-family: inherit; }
         .filter-select { padding: 12px; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 8px; font-family: inherit; cursor: pointer; }
         .search-input:focus, .filter-select:focus { border-color: var(--accent); outline: none; }
         
         .command-trigger { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 1.1em; }
-        .admin-controls { margin-bottom: 1rem; text-align: right; display: none; }
+        
+        /* BOUTONS ADMIN */
+        .admin-controls { margin-bottom: 1rem; display: none; justify-content: flex-end; gap: 10px; }
         .cmd-actions { text-align: right; }
-        .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-dim); padding: 5px; }
-        .btn-icon:hover { color: var(--danger); }
+        .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-dim); padding: 5px; font-size: 1rem; }
+        .btn-icon:hover { color: white; transform: scale(1.1); }
+        .btn-edit:hover { color: var(--accent); }
+        .btn-delete:hover { color: var(--danger); }
 
-        /* Modal */
+        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal { background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); width: 90%; max-width: 500px; }
         .modal h2 { margin-bottom: 1.5rem; color: white; }
@@ -53,17 +58,23 @@
         <h1>📜 Commandes du Chat</h1>
         
         <div id="admin-panel" class="admin-controls">
-            <button id="btn-add-cmd" class="btn-save">+ Ajouter une commande</button>
+            <button id="btn-add-cmd" class="btn-save" style="margin:0; width:auto;">+ Ajouter</button>
+            <button id="btn-init-db" class="btn-cancel" style="margin-left:10px;">🔄 Restaurer la liste officielle</button>
         </div>
 
         <div class="controls">
             <input type="text" id="cmd-search" class="search-input" placeholder="Rechercher une commande...">
             <select id="cmd-filter" class="filter-select">
                 <option value="all">Toutes les catégories</option>
-                <option value="info">Infos</option>
-                <option value="xp">XP & Niveaux</option>
-                <option value="fun">Fun</option>
-                <option value="moderator">Modération</option>
+                <option value="Infos">Infos</option>
+                <option value="Traduction">Traduction</option>
+                <option value="Emotes">Emotes</option>
+                <option value="Sons">Sons</option>
+                <option value="Modération">Modération</option>
+                <option value="Chat Mode">Chat Mode</option>
+                <option value="VIP">VIP</option>
+                <option value="Timer">Timer</option>
+                <option value="Game Bomb">Game Bomb</option>
             </select>
         </div>
 
@@ -71,10 +82,10 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Commande</th>
+                        <th width="25%">Commande</th>
                         <th>Description</th>
-                        <th>Catégorie</th>
-                        <th>Accès</th>
+                        <th width="15%">Catégorie</th>
+                        <th width="15%">Accès</th>
                         <th id="th-actions" style="display:none"></th>
                     </tr>
                 </thead>
@@ -87,28 +98,39 @@
         <div class="modal">
             <h2 id="modal-title">Ajouter une commande</h2>
             <form id="cmd-form">
+                <input type="hidden" id="cmd-id">
+                
                 <div class="form-group"><label>Commande</label><input type="text" id="in-trigger" required placeholder="Ex: !test"></div>
                 <div class="form-group"><label>Description</label><input type="text" id="in-desc" required></div>
-                <div class="form-group">
-                    <label>Catégorie</label>
-                    <select id="in-cat">
-                        <option value="info">Infos</option>
-                        <option value="fun">Fun</option>
-                        <option value="xp">XP</option>
-                        <option value="moderator">Modération</option>
-                    </select>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="in-cat">
+                            <option value="Infos">Infos</option>
+                            <option value="Traduction">Traduction</option>
+                            <option value="Emotes">Emotes</option>
+                            <option value="Sons">Sons</option>
+                            <option value="Modération">Modération</option>
+                            <option value="Chat Mode">Chat Mode</option>
+                            <option value="VIP">VIP</option>
+                            <option value="Timer">Timer</option>
+                            <option value="Game Bomb">Game Bomb</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Accès</label>
+                        <select id="in-access">
+                            <option value="Viewer">Viewer</option>
+                            <option value="Modérateur">Modérateur</option>
+                            <option value="Streamer">Streamer</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Accès</label>
-                    <select id="in-access">
-                        <option value="Viewer">Viewer</option>
-                        <option value="Modérateur">Modérateur</option>
-                        <option value="Streamer">Streamer</option>
-                    </select>
-                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
-                    <button type="submit" class="btn-save">Ajouter</button>
+                    <button type="submit" class="btn-save">Sauvegarder</button>
                 </div>
             </form>
         </div>
