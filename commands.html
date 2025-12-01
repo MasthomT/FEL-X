@@ -43,38 +43,71 @@
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
-
-    <main>
+<main>
         <h1>📜 Commandes du Chat</h1>
         
+        <div id="admin-panel" class="admin-controls">
+            <button id="btn-add-cmd" class="btn-save" style="margin:0; width:auto; padding: 10px 20px;">+ Ajouter une commande</button>
+            <button id="btn-init-db" class="btn-cancel" style="margin-left:10px;">⚠️ Réinitialiser liste par défaut</button>
+        </div>
+
         <div class="controls">
-            <input type="text" id="cmd-search" class="search-input" placeholder="Rechercher une commande...">
+            <input type="text" id="cmd-search" class="search-input" placeholder="Rechercher...">
             <select id="cmd-filter" class="filter-select">
-                <option value="all">Toutes les catégories</option>
+                <option value="all">Tout</option>
                 <option value="info">Infos</option>
-                <option value="xp">XP & Niveaux</option>
+                <option value="xp">XP</option>
                 <option value="fun">Fun</option>
+                <option value="soutien">Soutien</option>
+                <option value="matos">Matos</option>
             </select>
         </div>
 
         <div class="card">
             <table>
                 <thead>
-                    <tr>
-                        <th width="25%">Commande</th>
-                        <th>Description</th>
-                        <th width="15%">Catégorie</th>
-                        <th width="15%">Accès</th>
-                    </tr>
+                    <tr><th>Commande</th><th>Description</th><th>Catégorie</th><th>Accès</th><th id="th-actions" style="display:none">Actions</th></tr>
                 </thead>
-                <tbody id="cmd-list">
-                    </tbody>
+                <tbody id="cmd-list"></tbody>
             </table>
-            <div id="no-results" style="display: none; text-align: center; padding: 2rem; color: var(--text-dim);">
-                Aucune commande trouvée.
-            </div>
         </div>
     </main>
+
+    <div id="cmd-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Ajouter une commande</h2>
+            <form id="cmd-form">
+                <input type="hidden" id="cmd-id"> <div class="form-group"><label>Commande (ex: !test)</label><input type="text" id="in-trigger" required></div>
+                <div class="form-group"><label>Description</label><input type="text" id="in-desc" required></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="in-cat">
+                            <option value="info">Infos</option>
+                            <option value="xp">XP</option>
+                            <option value="fun">Fun</option>
+                            <option value="soutien">Soutien</option>
+                            <option value="matos">Matos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Accès</label>
+                        <select id="in-access">
+                            <option value="Viewer">Viewer</option>
+                            <option value="Moderateur">Modérateur</option>
+                            <option value="Streamer">Streamer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn-save">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
