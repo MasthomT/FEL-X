@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             watchtime: 0
         };
 
+        // On parcourt chaque utilisateur pour additionner
         Object.values(data).forEach(user => {
             stats.viewers++;
             stats.xp += (user.xp || 0);
@@ -32,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (lvl > stats.maxLvl) stats.maxLvl = lvl;
         });
 
-        // Mise à jour du DOM
+        // Mise à jour du HTML
         document.getElementById("total-viewers").textContent = stats.viewers.toLocaleString();
         document.getElementById("total-xp").textContent = stats.xp.toLocaleString();
         document.getElementById("total-messages").textContent = stats.messages.toLocaleString();
@@ -46,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         contentEl.style.display = "grid";
 
     } catch (e) {
-        console.error("Erreur stats:", e);
+        console.error("Erreur Stats:", e);
         loadingEl.textContent = "Erreur de chargement.";
     }
 });

@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html>
-<head><title>Redirection...</title></head>
+<head>
+    <title>Connexion en cours...</title>
+    <style>body { background: #18181b; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }</style>
+</head>
 <body>
+    <p>Authentification...</p>
     <script>
+        // On récupère le token dans le hash de l'URL (#access_token=...)
         if (window.location.hash) {
             const params = new URLSearchParams(window.location.hash.substring(1));
             if (params.has("access_token")) {
                 localStorage.setItem("twitch_token", params.get("access_token"));
+                // Redirection vers le profil
                 window.location.href = "/profile.html";
+            } else {
+                window.location.href = "/index.html";
             }
         } else {
             window.location.href = "/index.html";
