@@ -2,7 +2,7 @@ const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 const BROADCASTER_ID = "439356462"; // ID de Masthom
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const token = checkAuth();
+    const token = checkAuth(); // Vient de app.js
     if(!token) return;
 
     const loadingEl = document.getElementById("loading");
@@ -16,18 +16,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        if (!response.ok) throw new Error("Erreur API Twitch");
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Erreur Twitch (${response.status}): ${errText}`);
+        }
 
         const data = await response.json();
         const clips = data.data;
 
-        if (clips.length === 0) {
-            loadingEl.textContent = "Aucun clip trouvé.";
-            return;
-        }
-
+        // Nettoyage UI
         loadingEl.style.display = "none";
         gridEl.innerHTML = "";
+
+        if (!clips || clips.length === 0) {
+            gridEl.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Aucun clip trouvé.</p>';
+            return;
+        }
 
         clips.forEach(clip => {
             const card = document.createElement("a");
@@ -35,18 +39,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             card.href = clip.url;
             card.target = "_blank";
             
+            // Formatage de la vue
+            const views = clip.view_count.toLocaleString();
+            
             card.innerHTML = `
                 <div class="clip-thumbnail" style="background-image: url('${clip.thumbnail_url}')"></div>
                 <div class="clip-info">
-                    <span class="clip-title">${clip.title}</span>
-                    <span style="color: #b9bbbe; font-size: 0.8rem;">${clip.view_count} vues • par ${clip.creator_name}</span>
+                    <span class="title">${clip.title}</span>
+                    <small style="color:var(--text-dim)">${views} vues • ${new Date(clip.created_at).toLocaleDateString()}</small>
                 </div>
             `;
             gridEl.appendChild(card);
         });
 
     } catch (error) {
-        console.error(error);
-        loadingEl.textContent = "Erreur de chargement. Token expiré ?";
+        console.error("Erreur Clips:", error);
+        loadingEl.innerHTML = `<span style="color:#ff6b6b">Erreur de chargement.<br><small>${error.message}</small></span>`;
     }
 });

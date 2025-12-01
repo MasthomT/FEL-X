@@ -8,31 +8,65 @@
 <body>
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
+        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
         <a href="infos.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
+        <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
+        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
+        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
+        <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Statistiques</a>
+        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
     <main>
-        <h1>ℹ️ Informations de la Chaîne</h1>
-        <div class="grid">
+        <h1>ℹ️ Informations du Stream</h1>
+        <div id="loading">Chargement des infos...</div>
+
+        <div class="grid" id="infos-content" style="display:none;">
             <div class="card">
-                <h2>Planning</h2>
-                <p>Retrouvez-moi en live tous les soirs à partir de 21h !</p>
+                <h2>📅 Planning</h2>
+                <p id="info-planning">...</p>
             </div>
             <div class="card">
-                <h2>Setup</h2>
-                <ul>
-                    <li>PC : ...</li>
-                    <li>Micro : ...</li>
-                </ul>
+                <h2>📢 Discord</h2>
+                <a id="info-discord" href="#" target="_blank" style="color:var(--accent);">Rejoindre le Discord</a>
             </div>
             <div class="card">
-                <h2>Réseaux</h2>
-                <a href="#" style="color:var(--accent);">Twitter</a> <br>
-                <a href="#" style="color:var(--twitch);">Twitch</a>
+                <h2>📺 YouTube</h2>
+                <a id="info-youtube" href="#" target="_blank" style="color:var(--live);">Chaîne YouTube</a>
+            </div>
+            <div class="card" style="grid-column: 1/-1;">
+                <h2>📝 Règles & Autres</h2>
+                <p id="info-rules">...</p>
             </div>
         </div>
     </main>
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const db = firebase.database();
+            // Lecture des données synchronisées par le Bot
+            db.ref('viewer_data/public_info').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('info-planning').textContent = data.planning || "Non défini.";
+                document.getElementById('info-rules').textContent = data.other_rules || "Soyez sympas !";
+                
+                const discordEl = document.getElementById('info-discord');
+                if(data.discord_link) discordEl.href = data.discord_link;
+                else discordEl.textContent = "Lien non disponible";
+
+                const youtubeEl = document.getElementById('info-youtube');
+                if(data.youtube_link) youtubeEl.href = data.youtube_link;
+                else youtubeEl.textContent = "Lien non disponible";
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('infos-content').style.display = 'grid';
+            });
+        });
+    </script>
 </body>
 </html>

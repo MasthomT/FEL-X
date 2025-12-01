@@ -10,52 +10,41 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Initialisation Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
-
-// Configuration Twitch
-const TWITCH_CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-const STREAMER_NAME = "masthom_";
-
-// Gestion Auth
-function getAuthHeaders() {
-    const token = localStorage.getItem("twitch_token");
-    if (!token) return null;
-    return {
-        'Authorization': `Bearer ${token}`,
-        'Client-Id': TWITCH_CLIENT_ID
-    };
-}
-
-function logout() {
-    localStorage.removeItem("twitch_token");
-    window.location.href = "/index.html";
-}
-
-// Vérification de connexion globale
-function checkAuth() {
-    if (!localStorage.getItem("twitch_token") && window.location.pathname !== "/index.html" && window.location.pathname !== "/") {
-        window.location.href = "/index.html";
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    try {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialisé.");
+    } catch (e) {
+        console.error("Erreur Init Firebase:", e);
     }
 }
 
-// Fonction utilitaire pour formater les dates
-function formatDate(isoString) {
-    if (!isoString) return "N/A";
-    return new Date(isoString).toLocaleDateString('fr-FR', {
-        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+// --- 2. FONCTIONS GLOBALES ---
+
+// Vérification Auth Twitch
+function checkAuth() {
+    const token = localStorage.getItem("twitch_token");
+    const path = window.location.pathname;
+    
+    // Si pas de token et pas sur une page publique, on redirige
+    if (!token && path !== "/index.html" && path !== "/" && path !== "/auth.html") {
+        window.location.href = "/index.html";
+        return null;
+    }
+    return token;
 }
 
-// Exécution au chargement
-document.addEventListener("DOMContentLoaded", () => {
-    checkAuth();
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) logoutBtn.addEventListener("click", (e) => {
+// Déconnexion
+if (document.getElementById("logout-btn")) {
+    document.getElementById("logout-btn").onclick = function(e) {
         e.preventDefault();
-        logout();
-    });
-});
+        localStorage.removeItem("twitch_token");
+        window.location.href = "/index.html";
+    };
+}
+
+// Calcul niveau (Formule synchronisée avec main.py)
+function calculateLevel(xp) {
+    if (!xp || xp < 0) return 1;
+    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
+}
