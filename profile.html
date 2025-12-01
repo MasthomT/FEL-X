@@ -8,20 +8,22 @@
         /* Styles spécifiques Profil */
         .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 2rem; background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); }
         .avatar-large { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; }
-        .badges span { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-right: 5px; margin-top: 5px; border: 1px solid transparent; }
         
-        .xp-container { grid-column: 1 / -1; }
+        .xp-container { grid-column: 1 / -1; margin-bottom: 1rem; }
         .xp-bar-bg { width: 100%; height: 12px; background: #111; border-radius: 6px; overflow: hidden; margin-top: 10px; }
         .xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease-out; }
         .xp-text { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-top: 5px; }
 
         .ai-card { border-left: 4px solid var(--accent); grid-column: 1 / -1; }
-        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .ai-item { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-size: 0.95rem; border: 1px solid var(--border); }
-        .ai-label { color: var(--accent); font-size: 0.75rem; display: block; margin-bottom: 4px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
-        .ai-value { color: var(--text-main); white-space: pre-wrap; }
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
+        .ai-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.9rem; }
+        .ai-label { color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        
+        /* Style pour les statuts (Oui/Non) */
+        .status-yes { color: #43b581; font-weight: bold; }
+        .status-no { color: #f04747; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -46,11 +48,7 @@
             <img id="avatar" class="avatar-large" src="">
             <div style="flex-grow:1;">
                 <h1 id="username" style="margin:0; border:none;">...</h1>
-                <div class="badges" id="badges-container"></div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:2rem; font-weight:bold; color:var(--accent);" id="level">Niv. 1</div>
-                <div style="color:var(--text-dim);" id="rank">Rang #--</div>
+                <div id="rank" style="color:var(--text-dim); font-size:0.9rem;">Rang #--</div>
             </div>
         </div>
 
@@ -65,17 +63,30 @@
             </div>
 
             <div class="card">
-                <h2>⏳ Temps Visionné</h2>
-                <div class="stat-value" id="watchtime">0h</div>
+                <h2>⭐ Niveau</h2>
+                <div class="stat-value" id="stat-level">1</div>
             </div>
+            
             <div class="card">
-                <h2>💬 Messages</h2>
-                <div class="stat-value" id="messages">0</div>
+                <h2>✨ XP Total</h2>
+                <div class="stat-value" id="stat-xp">0</div>
+            </div>
+
+            <div class="card">
+                <h2>🟣 Abonnement</h2>
+                <div class="stat-value" id="stat-sub">...</div>
+                <small id="stat-sub-detail" style="color:var(--text-dim)"></small>
+            </div>
+
+            <div class="card">
+                <h2>💚 Follower</h2>
+                <div class="stat-value" id="stat-follow">...</div>
+                <small id="stat-follow-date" style="color:var(--text-dim)"></small>
             </div>
 
             <div class="card ai-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2>🧠 Carte d'Identité Félix</h2>
+                    <h2>🧠 Ce que Félix sait de vous</h2>
                     <a href="felix.html" style="color:var(--accent); font-size:0.9rem; text-decoration:none;">Modifier</a>
                 </div>
                 <div class="ai-grid" id="ai-context-grid">
@@ -90,7 +101,7 @@
     <script src="app.js"></script>
 
     <script>
-        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; // Votre ID Vercel
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
         const BROADCASTER_NAME = "masthom_";
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -98,9 +109,8 @@
             if (!token) return;
 
             try {
-                // 1. TWITCH : Identité
+                // 1. APPEL TWITCH (Identité)
                 const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
-                
                 const [userResp, channelResp] = await Promise.all([
                     fetch('https://api.twitch.tv/helix/users', { headers }),
                     fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers })
@@ -118,7 +128,7 @@
                 document.getElementById("avatar").src = user.profile_image_url;
                 document.getElementById("loading-overlay").style.display = "none";
 
-                // 2. FIREBASE : XP & Stats
+                // 2. APPEL FIREBASE (XP & Niveau)
                 const db = firebase.database();
                 const userKey = user.login.toLowerCase();
 
@@ -129,16 +139,16 @@
                     const xp = myData.xp || 0;
                     const level = calculateLevel(xp);
                     
-                    document.getElementById("level").textContent = "Niv. " + level;
-                    document.getElementById("watchtime").textContent = Math.floor((myData.WatchtimeInSeconds || 0) / 3600) + "h";
-                    document.getElementById("messages").textContent = (myData.MessageCount || 0).toLocaleString();
+                    // Remplissage des cartes
+                    document.getElementById("stat-level").textContent = level;
+                    document.getElementById("stat-xp").textContent = xp.toLocaleString();
 
-                    // Rang
+                    // Calcul Rang
                     const sortedUsers = Object.entries(allXpData)
                         .map(([k, v]) => ({ key: k, xp: v.xp || 0 }))
                         .sort((a, b) => b.xp - a.xp);
                     const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
-                    document.getElementById("rank").textContent = myRank > 0 ? `#${myRank}` : "-";
+                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
 
                     // Barre XP
                     const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
@@ -152,64 +162,69 @@
                     document.getElementById("next-level-xp").textContent = `Objectif: ${nextLevelXp.toLocaleString()}`;
                 });
 
-                // 3. FIREBASE : Carte d'Identité Félix (COMPLÈTE)
+                // AI Context
                 db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
                     const ctx = snapshot.val();
                     if (ctx) {
                         const grid = document.getElementById("ai-context-grid");
                         grid.innerHTML = "";
-                        
-                        // LISTE COMPLÈTE DES CHAMPS
-                        const labels = { 
-                            nickname: "Surnom", 
-                            birthday: "Anniversaire", 
-                            pronouns: "Pronoms", 
-                            vibe: "Vibe", 
-                            favorite_game: "Jeu Favori", 
-                            hated_genre: "Genre Détesté",
-                            hobby: "Passion",
-                            favorite_food: "Snack",
-                            favorite_drink: "Boisson",
-                            free_message: "Bio"
-                        };
-                        
-                        let hasInfo = false;
+                        const labels = { nickname:"Surnom", vibe:"Vibe", favorite_game:"Jeu Fav.", hobby:"Passion" };
                         Object.entries(labels).forEach(([k, label]) => {
-                            if (ctx[k]) {
-                                hasInfo = true;
-                                grid.innerHTML += `
-                                    <div class="ai-item">
-                                        <span class="ai-label">${label}</span>
-                                        <span class="ai-value">${ctx[k]}</span>
-                                    </div>`;
-                            }
+                            if (ctx[k]) grid.innerHTML += `<div class="ai-item"><span class="ai-label">${label}</span>${ctx[k]}</div>`;
                         });
-                        
-                        if (!hasInfo) grid.innerHTML = `<div class="ai-item">Aucune info renseignée. <a href="felix.html" style="color:var(--accent)">Remplir ma fiche</a></div>`;
                     }
                 });
 
-                // 4. TWITCH : Badges
-                const badgesDiv = document.getElementById("badges-container");
+                // 3. TWITCH STATUTS (Abo & Follow)
                 
-                // Follow
+                // --- Follow ---
                 fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
                     .then(r => r.json())
                     .then(d => {
+                        const elStatus = document.getElementById("stat-follow");
+                        const elDate = document.getElementById("stat-follow-date");
+                        
                         if (d.data && d.data.length > 0) {
                             const date = new Date(d.data[0].followed_at).toLocaleDateString();
-                            badgesDiv.innerHTML += `<span style="color:#43b581; border:1px solid #43b581;">Follower (${date})</span>`;
+                            elStatus.textContent = "Oui";
+                            elStatus.className = "stat-value status-yes";
+                            elDate.textContent = `Depuis le ${date}`;
+                        } else {
+                            elStatus.textContent = "Non";
+                            elStatus.className = "stat-value status-no";
+                            elDate.textContent = "Pas encore follower";
                         }
                     });
 
-                // Sub
+                // --- Sub ---
+                const subStatus = document.getElementById("stat-sub");
+                const subDetail = document.getElementById("stat-sub-detail");
+
                 if (user.id !== broadcasterId) {
                     fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
                         .then(r => { 
-                            if (r.status === 200) badgesDiv.innerHTML += `<span style="color:#e91e63; border:1px solid #e91e63;">Abonné</span>`; 
+                            if (r.status === 200) return r.json();
+                            throw new Error("Non abonné");
+                        })
+                        .then(data => {
+                            const info = data.data[0];
+                            let tierName = "Niveau 1";
+                            if (info.tier === "2000") tierName = "Niveau 2";
+                            if (info.tier === "3000") tierName = "Niveau 3";
+                            
+                            subStatus.textContent = "Oui";
+                            subStatus.className = "stat-value status-yes";
+                            subDetail.textContent = `${tierName} ${info.is_gift ? "(Offert 🎁)" : ""}`;
+                        })
+                        .catch(() => {
+                            subStatus.textContent = "Non";
+                            subStatus.className = "stat-value status-no";
+                            subDetail.textContent = "Aucun abonnement actif";
                         });
                 } else {
-                    badgesDiv.innerHTML += `<span style="color:#e91e63; border:1px solid #e91e63;">👑 Créateur</span>`;
+                    subStatus.textContent = "Créateur";
+                    subStatus.className = "stat-value status-yes";
+                    subDetail.textContent = "👑 Chef de la chaîne";
                 }
 
             } catch (e) {
