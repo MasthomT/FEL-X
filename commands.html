@@ -3,264 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commandes du Bot - Portail Viewer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Commandes - FEL-X</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --color-background: #18181b;
-            --color-surface: #2a2a2d;
-            --color-sidebar: #2c2f33;
-            --color-border: #36363a;
-            --color-text-primary: #f0f0f0;
-            --color-text-secondary: #b9bbbe;
-            --color-accent: #00f5c3;
-            --color-danger: #ff6b6b;
-            --transition-speed: 0.3s;
-        }
+        :root { --bg: #18181b; --surface: #2a2a2d; --sidebar: #2c2f33; --accent: #00f5c3; --text: #f0f0f0; --dim: #b9bbbe; --border: #36363a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 1rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-title { padding: 0 1.5rem 1rem; font-weight: bold; font-size: 1.5rem; color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .nav-link { padding: 0.8rem 1.5rem; color: var(--dim); text-decoration: none; display: block; font-weight: 500; transition: 0.2s; }
+        .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-link.active { color: white; border-left: 3px solid var(--accent); background: var(--surface); }
+        
+        main { flex-grow: 1; padding: 2rem; overflow-y: auto; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+        
+        /* Contrôles */
+        .controls { display: flex; gap: 1rem; margin-bottom: 2rem; background: var(--surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
+        input, select { padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; font-family: inherit; }
+        input { flex-grow: 1; }
+        input:focus, select:focus { border-color: var(--accent); outline: none; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Tableau */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--dim); font-size: 0.9rem; text-transform: uppercase; }
+        tr:hover { background: rgba(255,255,255,0.02); }
         
-        body { 
-            background: var(--color-background); 
-            color: var(--color-text-primary); 
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 300;
-            margin: 0;
-            display: flex;
-            height: 100%;
-            overflow-x: hidden;
-        }
+        .cmd-trigger { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 1.1rem; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background: #36363a; color: var(--dim); }
         
-        main {
-            flex-grow: 1;
-            overflow-y: visible;
-            height: auto;
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease-out;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        h1 { 
-            color: var(--color-accent); 
-            margin-bottom: 1.5rem;
-            font-weight: 600; 
-        }
-
-        .sidebar {
-            width: 250px;
-            background-color: var(--color-sidebar);
-            flex-shrink: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0;
-            border-right: 1px solid var(--color-border);
-            position: sticky; 
-            top: 0;
-        }
-        .sidebar-header {
-            padding: 0 1.5rem 1rem 1.5rem;
-            border-bottom: 1px solid var(--color-border);
-        }
-        .sidebar-header .logo-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-        }
-        .sidebar-header .logo-link img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .sidebar-header .logo-link span {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
-        }
-        .sidebar nav { display: flex; flex-direction: column; }
-        .sidebar a.nav-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
-            border-left: 4px solid transparent;
-        }
-        .sidebar a.nav-link:hover {
-            background: var(--color-surface);
-            color: white;
-            border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link.active {
-            background: #3a3e44;
-            color: white;
-            border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-            flex-shrink: 0;
-        }
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-border);
-        }
-        #logout-sidebar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--color-danger);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all var(--transition-speed) ease;
-        }
-        #logout-sidebar:hover { background: var(--color-surface); color: white; }
-        #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
-        
-        #controls-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        #command-search, #command-filter {
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            border: 1px solid var(--color-border);
-            background: var(--color-sidebar);
-            color: var(--color-text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            flex-grow: 1;
-        }
-        
-        #command-filter {
-            flex-grow: 0;
-            width: 200px;
-            cursor: pointer;
-        }
-
-        .command-table-container {
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-        }
-        
-        #commands-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-            min-width: 600px; 
-        }
-        
-        #commands-table th {
-            background: var(--color-surface);
-            padding: 1rem 1.25rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--color-accent);
-            border-bottom: 2px solid var(--color-border);
-        }
-        
-        #commands-table td {
-            background: var(--color-surface);
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--color-border);
-            color: var(--color-text-primary);
-        }
-        
-        #commands-table tr:hover td {
-            background: #3a3e44;
-        }
-        
-        #commands-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .command-trigger {
-            font-family: monospace;
-            font-weight: 600;
-            color: var(--color-accent);
-            background: #1e1e21;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-        }
-        
-        .command-level {
-            font-weight: 500;
-        }
-
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-                height: auto; 
-                overflow-y: auto; 
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                align-items: center;
-                padding: 0.5rem 1rem;
-                border-right: none;
-                border-bottom: 1px solid var(--color-border);
-                position: static; 
-            }
-            .sidebar-header { padding: 0; border: none; }
-            .sidebar nav { flex-direction: row; }
-            .sidebar a.nav-link {
-                padding: 0.75rem;
-                border-left: none;
-                border-bottom: 4px solid transparent;
-            }
-            .sidebar a.nav-link:hover,
-            .sidebar a.nav-link.active {
-                background: none;
-                border-left-color: transparent;
-                border-bottom-color: var(--color-accent);
-                color: white;
-            }
-            .sidebar a.nav-link span { display: none; }
-            .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
-            #logout-sidebar { padding: 0.75rem; }
-            #logout-sidebar span { display: none; }
-            
-            main { 
-                height: auto; 
-                overflow-y: visible; 
-                padding: 1rem; 
-                min-height: 0;
-            }
-            #controls-bar {
-                flex-direction: column;
-            }
-            #command-filter {
-                width: 100%;
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            main { overflow-y: visible; }
+            .controls { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="/index.html" class="logo-link">
@@ -313,42 +97,34 @@
     </nav>
 
     <main>
-        <h1>Commandes du Bot de Chat</h1>
-        
-        <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">Retrouvez toutes les commandes disponibles sur le chat. Les commandes Modérateur et Streamer sont réservées.</p>
+        <div class="container">
+            <h1>Commandes du Chat</h1>
+            
+            <div class="controls">
+                <input type="text" id="cmd-search" placeholder="Rechercher une commande...">
+                <select id="cmd-filter">
+                    <option value="all">Toutes les catégories</option>
+                    <option value="info">Infos</option>
+                    <option value="xp">XP & Niveaux</option>
+                    <option value="fun">Fun</option>
+                </select>
+            </div>
 
-        <div id="controls-bar">
-            <input type="text" id="command-search" placeholder="Rechercher une commande (ex: !xp, !discord...)">
-            <select id="command-filter">
-                <option value="all">Toutes les catégories</option>
-                <option value="info">Informations & Traduction</option>
-                <option value="xp">XP & Niveaux</option>
-                <option value="fun">Fun & Interactif</option>
-                <option value="moderator">Modérateur</option>
-            </select>
-        </div>
-
-        <div class="command-table-container">
-            <table id="commands-table">
+            <table>
                 <thead>
                     <tr>
                         <th>Commande</th>
                         <th>Description</th>
                         <th>Catégorie</th>
-                        <th>Accès (Minimum)</th>
                     </tr>
                 </thead>
-                <tbody id="commands-list">
+                <tbody id="cmd-list">
                     </tbody>
             </table>
+            <div id="no-results" style="display: none; text-align: center; padding: 2rem; color: var(--dim);">Aucune commande trouvée.</div>
         </div>
-        
-        <div id="no-results" style="display: none; text-align: center; padding: 2rem; color: var(--color-text-secondary);">
-            <p>Aucune commande trouvée pour la recherche et les filtres actuels.</p>
-        </div>
-        
     </main>
 
-    <script src="/commands.js"></script> 
+    <script src="/commands.js"></script>
 </body>
 </html>
