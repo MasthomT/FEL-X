@@ -1,96 +1,50 @@
-// On attend que Firebase soit dispo via app.js
-document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth(); // Vérif connexion
-
-    const loadingEl = document.getElementById("loading");
-    const containerEl = document.getElementById("leaderboard-container");
-    const listEl = document.getElementById("leaderboard-list");
-    const podiumEl = document.getElementById("podium-container");
-    const db = firebase.database();
-    
-    // Pour récupérer les avatars, on a besoin du token
-    const token = localStorage.getItem("twitch_token");
-    const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-
-    try {
-        const snapshot = await db.ref('viewer_data/xp').once('value');
-        const xpData = snapshot.val();
-
-        if (!xpData) {
-            loadingEl.textContent = "Aucune donnée d'XP trouvée.";
-            return;
-        }
-
-        let usersArray = [];
-        for (const [key, val] of Object.entries(xpData)) {
-            if (val && typeof val.xp === 'number') {
-                usersArray.push({
-                    username: val.username || key,
-                    key: key, // Pseudo Twitch minuscule (clé firebase)
-                    xp: val.xp,
-                    level: calculateLevel(val.xp)
-                });
-            }
-        }
-
-        // Tri par XP descendant
-        usersArray.sort((a, b) => b.xp - a.xp);
-
-        // --- 1. GESTION DU PODIUM (TOP 3) ---
-        const top3 = usersArray.slice(0, 3);
-        const rest = usersArray.slice(3, 50); // Le reste jusqu'à 50
-
-        // On récupère les avatars du Top 3 via l'API Twitch
-        let top3HTML = "";
-        if (token) {
-            // On prépare les pseudos pour l'API
-            const logins = top3.map(u => `login=${u.key}`).join('&');
-            const resp = await fetch(`https://api.twitch.tv/helix/users?${logins}`, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
-            });
-            const twitchData = await resp.json();
-            
-            // On associe l'avatar à l'utilisateur
-            top3.forEach((user, index) => {
-                const rank = index + 1;
-                const twitchUser = twitchData.data ? twitchData.data.find(u => u.login.toLowerCase() === user.key) : null;
-                const avatar = twitchUser ? twitchUser.profile_image_url : "logo-felix.png"; // Fallback
-
-                top3HTML += `
-                    <div class="podium-item place-${rank}">
-                        <img src="${avatar}" class="podium-avatar">
-                        <div class="podium-rank">${rank}</div>
-                        <div class="podium-name">${user.username}</div>
-                        <div class="podium-xp">Niv. ${user.level}</div>
-                        <small style="color:#777">${user.xp.toLocaleString()} XP</small>
-                    </div>
-                `;
-            });
-        }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Classement - FEL-X</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
         
-        // Si podiumEl existe (ajouté dans le HTML), on l'injecte
-        if(podiumEl) podiumEl.innerHTML = top3HTML;
+        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
+        <a href="infos.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
+        
+        <a href="leaderboard.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
+        
+        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
+        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
+        <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
+        <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
+        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
+    </nav>
 
+    <main>
+        <h1>🏆 Top 50 Global</h1>
+        <div id="loading">Chargement du classement...</div>
+        
+        <div class="card" id="leaderboard-container" style="display:none;">
+        <div id="podium-container" class="podium-container"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="10%">Rang</th>
+                        <th>Viewer</th>
+                        <th>Niveau</th>
+                        <th width="25%">XP Total</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-list">
+                    </tbody>
+            </table>
+        </div>
+    </main>
 
-        // --- 2. GESTION DU RESTE (TABLEAU) ---
-        listEl.innerHTML = "";
-        rest.forEach((user, index) => {
-            const rank = index + 4; // Commence à 4
-            const li = document.createElement("tr"); // Attention, c'est un tableau maintenant
-            li.innerHTML = `
-                <td>#${rank}</td>
-                <td style="font-weight:500;">${user.username}</td>
-                <td><span style="background:var(--surface); padding:2px 8px; border-radius:4px; font-size:0.9em;">Niv. ${user.level}</span></td>
-                <td style="color:var(--accent);">${user.xp.toLocaleString()} XP</td>
-            `;
-            listEl.appendChild(li);
-        });
-
-        loadingEl.style.display = "none";
-        containerEl.style.display = "block";
-
-    } catch (error) {
-        console.error("Erreur Leaderboard:", error);
-        loadingEl.textContent = "Erreur de chargement.";
-    }
-});
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="app.js"></script>
+    <script src="leaderboard.js"></script>
+</body>
+</html>
