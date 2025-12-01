@@ -2,135 +2,77 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Infos & Réseaux - FEL-X</title>
+    <title>Infos - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- MISE EN PAGE GLOBALE --- */
-        .info-container {
+        /* --- MISE EN PAGE --- */
+        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            max-width: 1400px; /* On utilise toute la largeur */
-            margin: 0 auto;
-        }
-
-        /* --- STYLE DES CARTES GÉNÉRALES --- */
-        .info-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .info-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            color: white;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 10px;
-        }
-
-        /* --- PLANNING (Design Tableau) --- */
-        .schedule-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 1.1rem;
-        }
-        .schedule-row:last-child { border-bottom: none; }
-        .day { font-weight: bold; color: var(--accent); }
-        .time { color: white; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; }
-
-        /* --- CARTES RÉSEAUX SOCIAUX (L'effet demandé !) --- */
-        .social-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 colonnes */
+            grid-template-columns: 1fr 350px; /* Planning large, Réseaux fixes */
             gap: 1.5rem;
         }
         
-        .social-card {
-            background: rgba(255,255,255,0.03);
-            border: 2px solid var(--border);
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: var(--text-dim);
-            transition: all 0.3s ease;
+            padding: 2rem;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            min-height: 150px;
         }
+        .info-card h2 {
+            display: flex; align-items: center; gap: 10px;
+            color: var(--accent); font-size: 1.4rem; margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+        }
+
+        /* --- PLANNING --- */
+        .schedule-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+        .schedule-highlight {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* --- RÉSEAUX (Style Boutons) --- */
+        .social-btn {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px; margin-bottom: 15px;
+            border-radius: 8px; text-decoration: none; font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+        }
+        .social-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .social-icon { width: 24px; height: 24px; fill: currentColor; }
         
-        .social-icon { width: 48px; height: 48px; margin-bottom: 10px; fill: currentColor; transition: 0.3s; }
-        .social-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; color: white; }
-        .social-desc { font-size: 0.9rem; }
-
-        /* COULEURS SPÉCIFIQUES AU SURVOL */
+        .btn-discord { background: #5865F2; }
+        .btn-discord:hover { background: #4752c4; }
         
-        /* Discord (Bleu) */
-        .social-card.discord:hover {
-            border-color: #5865F2;
-            background: rgba(88, 101, 242, 0.1);
-            box-shadow: 0 0 20px rgba(88, 101, 242, 0.2);
-            transform: translateY(-5px);
-        }
-        .social-card.discord:hover .social-icon { fill: #5865F2; transform: scale(1.1); }
+        .btn-youtube { background: #FF0000; }
+        .btn-youtube:hover { background: #cc0000; }
 
-        /* YouTube (Rouge) */
-        .social-card.youtube:hover {
-            border-color: #FF0000;
-            background: rgba(255, 0, 0, 0.1);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
-            transform: translateY(-5px);
-        }
-        .social-card.youtube:hover .social-icon { fill: #FF0000; transform: scale(1.1); }
-
-        /* Twitch (Violet) */
-        .social-card.twitch:hover {
-            border-color: #9146FF;
-            background: rgba(145, 70, 255, 0.1);
-            box-shadow: 0 0 20px rgba(145, 70, 255, 0.2);
-            transform: translateY(-5px);
-        }
-        .social-card.twitch:hover .social-icon { fill: #9146FF; transform: scale(1.1); }
-
-        /* Tips / Dons (Vert/Or) */
-        .social-card.tips:hover {
-            border-color: #00f5c3;
-            background: rgba(0, 245, 195, 0.1);
-            box-shadow: 0 0 20px rgba(0, 245, 195, 0.2);
-            transform: translateY(-5px);
-        }
-        .social-card.tips:hover .social-icon { fill: #00f5c3; transform: scale(1.1); }
-
-        /* --- SETUP & RÈGLES (Full width) --- */
-        .full-width { grid-column: 1 / -1; }
+        /* --- RÈGLES (Liste propre) --- */
+        .rules-container { grid-column: 1 / -1; } /* Prend toute la largeur */
         
-        ul.setup-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-        ul.setup-list li { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; border-left: 3px solid var(--accent); }
-        
-        ul.rules-list li { margin-bottom: 10px; padding-left: 25px; position: relative; }
-        ul.rules-list li::before { content: "❌"; position: absolute; left: 0; font-size: 0.8rem; top: 3px; }
+        ul.rules-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        ul.rules-list li {
+            background: rgba(255,255,255,0.03);
+            padding: 12px 15px;
+            border-radius: 6px;
+            border-left: 3px solid var(--danger);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        ul.rules-list li strong { color: var(--danger); }
 
-        @media (max-width: 768px) { .social-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
         <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
@@ -144,104 +86,73 @@
     </nav>
 
     <main>
-        <h1>ℹ️ Informations & Réseaux</h1>
+        <h1>ℹ️ Informations du Stream</h1>
 
-        <div class="info-container">
+        <div class="info-grid">
             
-            <div style="display:flex; flex-direction:column; gap:2rem;">
-                
-                <div class="info-card">
-                    <h2>📅 Planning Hebdo</h2>
-                    <div id="planning-content">
-                        <div class="schedule-row"><span class="day">Mardi & Jeudi</span> <span class="time">18h00</span></div>
-                        <div class="schedule-row"><span class="day">Vendredi & Samedi</span> <span class="time">20h00</span></div>
-                        <div class="schedule-row"><span class="day">Samedi & Dimanche</span> <span class="time">10h00</span></div>
-                        <p style="margin-top:20px; font-style:italic; color:var(--text-dim); font-size:0.9rem;">
-                            ⚠️ Lives "sauvages" fréquents ! Activez la cloche 🔔
-                        </p>
-                    </div>
-                </div>
-
-                <div class="info-card">
-                    <h2>🖥️ Setup & Matos</h2>
-                    <ul class="setup-list">
-                        <li><strong>PC :</strong> Bientôt...</li>
-                        <li><strong>Micro :</strong> Shure SM7B</li>
-                        <li><strong>Caméra :</strong> Sony A6000</li>
-                        <li><strong>Console :</strong> PS5 & Switch</li>
-                    </ul>
-                </div>
-
+            <div class="info-card">
+                <h2>📅 Planning</h2>
+                <p class="schedule-text">
+                    Je stream les <span class="schedule-highlight">mardi et jeudi à 18h00</span>,<br>
+                    les <span class="schedule-highlight">vendredi et samedi à 20h00</span><br>
+                    et les <span class="schedule-highlight">samedi et dimanche matin à 10h</span>.
+                </p>
+                <p style="margin-top:20px; font-style:italic; color:var(--text-dim);">
+                    ⚠️ Mais il y a souvent des petits live "sauvage", activez la cloche !
+                </p>
             </div>
 
-            <div class="info-card" style="background:transparent; border:none; padding:0; box-shadow:none;">
-                <div class="social-grid">
+            <div class="info-card">
+                <h2>🌐 Réseaux</h2>
+                <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
                     
-                    <a id="link-discord" href="#" target="_blank" class="social-card discord">
-                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z"/></svg>
-                        <div class="social-name">Discord</div>
-                        <div class="social-desc">Rejoins la communauté !</div>
+                    <a id="info-discord" href="#" target="_blank" class="social-btn btn-discord">
+                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z"/></svg>
+                        Rejoindre le Discord
                     </a>
-
-                    <a id="link-youtube" href="#" target="_blank" class="social-card youtube">
+                    
+                    <a id="info-youtube" href="#" target="_blank" class="social-btn btn-youtube">
                         <svg class="social-icon" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                        <div class="social-name">YouTube</div>
-                        <div class="social-desc">Rediffs et Best-Of</div>
-                    </a>
-
-                    <a href="https://twitch.tv/masthom_" target="_blank" class="social-card twitch">
-                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-                        <div class="social-name">Twitch</div>
-                        <div class="social-desc">Là où tout se passe</div>
-                    </a>
-
-                    <a href="#" class="social-card tips">
-                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05 1.18 1.91 2.53 1.91 1.29 0 2.13-.81 2.13-1.88 0-1.34-.87-1.67-2.79-2.18-2.08-.55-3.1-1.49-3.1-3.2 0-1.68 1.28-2.78 2.92-3.12V4h2.67v1.93c1.38.35 2.48 1.31 2.63 2.95h-1.96c-.11-.9-1.11-1.54-2.23-1.54-1.18 0-2.05.72-2.05 1.69 0 1.1.86 1.45 2.82 1.96 2.06.54 3.15 1.5 3.15 3.38 0 1.69-1.29 2.88-3.28 3.21z"/></svg>
-                        <div class="social-name">Soutenir</div>
-                        <div class="social-desc">Faire un Tip / Don</div>
+                        Chaîne YouTube
                     </a>
 
                 </div>
             </div>
 
-            <div class="info-card full-width">
-                <h2>📝 Règles de la Communauté</h2>
-                <div style="columns: 2 300px; gap: 2rem;">
-                    <ul class="rules-list" id="rules-list">
-                        <li>Pas d'abus avec les majuscules.</li>
-                        <li>Évitez les sujets sensibles (Politique, Religion).</li>
-                        <li><strong>Spoil et Backseat interdits</strong> (sauf si demandé).</li>
-                        <li>Respectez les viewers et le streamer.</li>
-                        <li>Pas de spam.</li>
-                        <li>Zéro tolérance : Racisme, Homophobie, Sexisme = <strong>BAN</strong>.</li>
-                        <li>Pas de pub (même dissimulée).</li>
-                        <li><strong>3 Avertissements = Ban Définitif.</strong></li>
-                    </ul>
-                </div>
+            <div class="info-card rules-container">
+                <h2>📝 Règles & Autres</h2>
+                <ul class="rules-list">
+                    <li>Pas d'abus avec les majuscules</li>
+                    <li>Évitez au plus possible les sujets sensibles</li>
+                    <li><strong>Spoil ou backseat interdit</strong></li>
+                    <li>Respectez les viewers ou le streamer</li>
+                    <li>Pas de spam</li>
+                    <li>Ne propagez pas une mauvaise ambiance</li>
+                    <li><strong>Propos racistes, homophobe, sexiste, ... interdits</strong></li>
+                    <li>Toute pub même "dissimulée" est interdite</li>
+                    <li><strong>Au bout de 3 avertissements, le ban est définitif</strong></li>
+                </ul>
             </div>
 
         </div>
     </main>
-
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
-
+    
     <script>
-        // Récupération dynamique des liens depuis Firebase (synchronisés par le Bot)
         document.addEventListener("DOMContentLoaded", () => {
-            checkAuth(); // Vérifie la connexion
-
+            checkAuth(); // Vérif connexion
+            
+            // Récupération des liens dynamiques (Discord/Youtube) depuis Firebase
+            // Comme ça si vous les changez sur le Bot, ça change ici aussi !
             const db = firebase.database();
             db.ref('viewer_data/public_info').once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
-                    // Mise à jour des liens si disponibles
-                    if(data.discord_link) document.getElementById('link-discord').href = data.discord_link;
-                    if(data.youtube_link) document.getElementById('link-youtube').href = data.youtube_link;
-                    
-                    // Si vous ajoutez un champ 'planning' ou 'rules' dans le bot, vous pourrez les mettre à jour ici aussi :
-                    if(data.planning) document.getElementById('planning-content').innerHTML = data.planning.replace(/\n/g, '<br>');
+                    if(data.discord_link) document.getElementById('info-discord').href = data.discord_link;
+                    if(data.youtube_link) document.getElementById('info-youtube').href = data.youtube_link;
                 }
             });
         });
