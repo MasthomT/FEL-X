@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Félix et moi - Portail Viewer</title>
+    <title>Félix et moi - FEL-X</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        /* Réplication des variables et styles globaux de profile.html */
+        /* MÊME CSS QUE PROFILE.HTML POUR LA COHÉRENCE */
         :root {
             --color-background: #18181b;
             --color-surface: #2a2a2d;
@@ -19,7 +19,6 @@
             --color-text-secondary: #b9bbbe;
             --color-accent: #00f5c3;
             --color-danger: #ff6b6b;
-            --color-live: #e91e63;
             --transition-speed: 0.3s;
         }
 
@@ -28,205 +27,226 @@
         body { 
             background: var(--color-background); 
             color: var(--color-text-primary); 
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Inter", sans-serif;
             font-weight: 300; 
-            margin: 0;
-            display: flex;
-            height: 100%; 
-            overflow-x: hidden;
+            margin: 0; display: flex; height: 100vh; overflow-x: hidden;
         }
         
-        main {
-            flex-grow: 1;
-            overflow-y: auto;
-            height: auto;
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease-out;
-        }
+        /* Sidebar */
+        .sidebar { width: 250px; background-color: var(--color-sidebar); flex-shrink: 0; height: 100vh; display: flex; flex-direction: column; padding: 1rem 0; border-right: 1px solid var(--color-border); position: sticky; top: 0; }
+        .sidebar-header { padding: 0 1.5rem 1rem; border-bottom: 1px solid var(--color-border); }
+        .logo-link { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-link img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .logo-link span { font-size: 1.5rem; font-weight: 600; color: var(--color-accent); }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .nav-link { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: var(--color-text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-speed); border-left: 4px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: var(--color-surface); color: white; border-left-color: var(--color-accent); }
+        .nav-link svg { width: 22px; height: 22px; fill: currentColor; }
         
-        /* Styles Sidebar (adaptés pour le portail viewer) */
-        .sidebar {
-            width: 250px;
-            background-color: var(--color-sidebar);
-            flex-shrink: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0;
-            border-right: 1px solid var(--color-border);
-            position: sticky; 
-            top: 0;
-        }
-        .sidebar-header { padding: 0 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--color-border); }
-        .sidebar-header .logo-link { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
-        .sidebar-header .logo-link img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .sidebar-header .logo-link span { font-size: 1.5rem; font-weight: 600; color: var(--color-accent); }
-        .sidebar nav { display: flex; flex-direction: column; }
-        .sidebar a.nav-link {
-            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
-            color: var(--color-text-secondary); text-decoration: none; font-weight: 500;
-            transition: all var(--transition-speed) ease; border-left: 4px solid transparent;
-        }
-        .sidebar a.nav-link:hover, .sidebar a.nav-link.active {
-            background: var(--color-surface); color: white; border-left-color: var(--color-accent);
-        }
-        .sidebar a.nav-link svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
         .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--color-border); }
-        #logout-sidebar {
-            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
-            color: var(--color-danger); text-decoration: none; font-weight: 500;
-        }
+        #logout-sidebar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: var(--color-danger); text-decoration: none; font-weight: 500; cursor: pointer; }
         #logout-sidebar:hover { background: var(--color-surface); color: white; }
-        #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+        #logout-sidebar svg { width: 22px; height: 22px; fill: currentColor; }
+
+        /* Main Content */
+        main { flex-grow: 1; padding: 2rem; overflow-y: auto; }
         
-        /* Styles spécifiques à cette page */
-        .ia-card { 
-            max-width: 700px; 
-            margin: 0 auto; 
-            background: var(--color-surface); 
-            border: 1px solid var(--color-border);
-            border-radius: 8px; 
-            padding: 2rem; 
-            animation: fadeIn 0.5s ease-out;
-        }
-        .ia-card h2 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; color: white;}
-        .ia-card p.description { color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 300;}
-
-        .flash { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 500; color: var(--color-text-primary); border: 1px solid transparent; }
-        .flash.success { background-color: #28a745; border-color: #238b3a; }
-        .flash.error { background-color: var(--color-danger); border-color: #b02a37; }
-
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
-        label { font-weight: 500; font-size: 1rem; color: var(--color-text-primary); }
+        .content-card { max-width: 800px; margin: 0 auto; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 1rem; font-weight: 600; color: white; }
+        p.description { color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 300; line-height: 1.5; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--color-accent); }
         input[type="text"], textarea { 
-            width: 100%; padding: 10px 12px; border-radius: 6px; 
+            width: 100%; padding: 12px; border-radius: 6px; 
             border: 1px solid var(--color-border); background-color: var(--color-background); 
-            color: var(--color-text-primary); font-size: 1rem; resize: vertical; 
-            transition: border-color 0.2s ease;
+            color: white; font-size: 1rem; font-family: inherit; transition: 0.3s;
         }
-        input[type="text"]:focus, textarea:focus { border-color: var(--color-accent); outline: none; }
-        textarea { min-height: 100px; }
+        input:focus, textarea:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 2px rgba(0, 245, 195, 0.1); }
+        textarea { min-height: 100px; resize: vertical; }
         
         .btn-primary { 
             background-color: var(--color-accent); color: var(--color-background); border: none; 
-            padding: 12px 25px; font-weight: 600; font-size: 1rem; border-radius: 6px; 
-            cursor: pointer; transition: background-color 0.2s ease, transform 0.1s;
-            display: block; margin-top: 1rem;
+            padding: 12px 30px; font-weight: 600; font-size: 1rem; border-radius: 6px; 
+            cursor: pointer; transition: transform 0.1s, background-color 0.2s; display: inline-block;
         }
-        .btn-primary:hover { background-color: #00e0b0; transform: translateY(-1px); }
+        .btn-primary:hover { background-color: #00dbaf; transform: translateY(-2px); }
+        
+        .status-msg { margin-top: 1rem; font-weight: 500; display: none; padding: 1rem; border-radius: 6px; }
+        .success { background: rgba(0, 245, 195, 0.1); color: var(--color-accent); border: 1px solid var(--color-accent); }
+        .error { background: rgba(255, 107, 107, 0.1); color: var(--color-danger); border: 1px solid var(--color-danger); }
 
-        /* Media Queries pour le Responsive (copié de profile.html) */
+        /* Loader */
+        .loader { border: 3px solid var(--color-surface); border-top: 3px solid var(--color-accent); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin-left: 10px; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow-y: auto; }
-            .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 0.5rem 1rem; border-right: none; border-bottom: 1px solid var(--color-border); position: static; }
-            .sidebar-header { padding: 0; border: none; }
-            .sidebar nav { flex-direction: row; }
-            .sidebar a.nav-link { padding: 0.75rem; border-left: none; border-bottom: 4px solid transparent; }
-            .sidebar a.nav-link:hover, .sidebar a.nav-link.active { background: none; border-left-color: transparent; border-bottom-color: var(--color-accent); color: white; }
-            .sidebar a.nav-link span { display: none; }
-            .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
-            #logout-sidebar { padding: 0.75rem; }
-            #logout-sidebar span { display: none; }
-            main { height: auto; overflow-y: visible; padding: 1rem; min-height: 0; }
+            body { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--color-border); }
+            main { padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <a href="/index.html" class="logo-link">
+                <img src="/logo-felix.png" alt="Logo FEL-X">
+                <span>FEL-X</span>
+            </a>
+        </div>
+        
         <nav>
-            <a href="/profile.html" class="nav-link active" id="nav-profile">
+            <a href="/profile.html" class="nav-link">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
                 <span>Mon Profil</span>
             </a>
             
-            <a href="/infos.html" class="nav-link" id="nav-info">
-                <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
-                <span>Infos</span>
-            </a>
-
-            <a href="/leaderboard.html" class="nav-link" id="nav-leaderboard">
-                <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
-                <span>Classement</span>
-            </a>
-            
-            <a href="/clips.html" class="nav-link" id="nav-clips">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm4-4H7V9h8v2zm0-4H7V5h8v2z"></path></svg>
-                <span>Galerie de Clips</span>
-            </a>
-            
-            <a href="/commands.html" class="nav-link" id="nav-commands">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 17h8v2H8zm0-4h8v2H8zm0-4h8v2H8z"></path></svg>
-                <span>Commandes du Bot</span>
-            </a>
-            <a href="/stats.html" class="nav-link" id="nav-stats">
-                <svg viewBox="0 0 24 24"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"></path></svg>
-                <span>Statistiques</span>
-            </a>
-        </nav>
-
-            <a href="{{ url_for('felix_et_moi') }}" class="nav-link active" id="nav-felix-moi">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 12c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 4c-1.48 0-2.73-.83-3.38-2h6.76c-.65 1.17-1.9 2-3.38 2z"/></svg>
+            <a href="/felix.html" class="nav-link active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
                 <span>Félix et moi</span>
             </a>
 
+            <a href="/infos.html" class="nav-link">
+                <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                <span>Infos</span>
+            </a>
+            </nav>
+
         <div class="sidebar-footer">
-            <a id="logout-sidebar" href="#">
+            <div id="logout-sidebar">
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path></svg>
                 <span>Se déconnecter</span>
-            </a>
+            </div>
         </div>
     </nav>
 
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
-        {% endwith %}
-        
-        <div class="ia-card">
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 600;">👋 Félix et moi</h1>
-            
+        <div class="content-card">
+            <h1>🤖 Félix et moi</h1>
             <p class="description">
-                C'est ici que vous renseignez les informations personnelles qui aideront **Félix IA** à mieux vous connaître et à personnaliser ses réponses sur Discord et Twitch. Plus vous donnez de détails, plus l'IA sera pertinente !
+                Aidez <strong>Félix IA</strong> à mieux vous connaître ! Remplissez ces informations pour qu'il puisse personnaliser ses réponses quand il vous parle sur le chat.
             </p>
             
-            <div style="border-top: 1px solid var(--color-border); margin: 2rem 0;"></div>
+            <div style="border-top: 1px solid var(--color-border); margin: 1.5rem 0;"></div>
 
-            <form method="post">
+            <form id="felixForm">
                 <div class="form-group">
-                    <label for="favorite_game">Quel est votre jeu ou franchise préférée ?</label>
-                    <input type="text" id="favorite_game" name="favorite_game" value="{{ context.favorite_game or '' }}" placeholder="Ex: Elden Ring ou la série Fallout">
+                    <label for="favorite_game">Quel est votre jeu du moment ou favori ?</label>
+                    <input type="text" id="favorite_game" placeholder="Ex: Elden Ring, Valorant, Minecraft...">
                 </div>
 
                 <div class="form-group">
-                    <label for="favorite_food">Quel est votre plat ou boisson préféré(e) ?</label>
-                    <input type="text" id="favorite_food" name="favorite_food" value="{{ context.favorite_food or '' }}" placeholder="Ex: Un bon burger ou un café glacé">
+                    <label for="favorite_food">Votre plat ou boisson signature ?</label>
+                    <input type="text" id="favorite_food" placeholder="Ex: Pizza ananas, Café noir...">
                 </div>
 
                 <div class="form-group">
-                    <label for="anything_else">Autre chose que Félix devrait savoir sur vous ? (Passe-temps, surnom spécial, etc.)</label>
-                    <textarea id="anything_else" name="anything_else" placeholder="Ex: Mon surnom sur Discord est 'LeCodeur' et je fais du ski le weekend.">{{ context.anything_else or '' }}</textarea>
+                    <label for="anything_else">Autre chose à savoir sur vous ?</label>
+                    <textarea id="anything_else" placeholder="Ex: Je suis étudiant en art, j'aime le ski, mon surnom est..."></textarea>
                 </div>
                 
-                <button class="btn-primary" type="submit">Sauvegarder mon Contexte pour Félix</button>
+                <button type="submit" class="btn-primary" id="saveBtn">
+                    Sauvegarder
+                    <div class="loader" id="loader"></div>
+                </button>
             </form>
+
+            <div id="statusMsg" class="status-msg"></div>
         </div>
     </main>
 
     <script>
-        // Vous devez copier la fonction de déconnexion de 'app.js' ici ou la charger
-        const logoutBtn = document.getElementById("logout-sidebar");
-        if(logoutBtn) {
-            logoutBtn.onclick = function(e) {
-                e.preventDefault();
-                // Flask gère la déconnexion via la route /viewer/logout
-                window.location.href = logoutBtn.href; 
+        // --- CONFIGURATION À MODIFIER ---
+        // Remplacez par l'URL publique de votre Raspberry Pi (ex: via ngrok ou IP publique)
+        // ATTENTION : Sans HTTPS, les navigateurs peuvent bloquer la requête
+        const API_BASE_URL = "https://URL_DE_VOTRE_RASPBERRY_PI_ICI"; 
+
+        // Gestion de la déconnexion
+        document.getElementById("logout-sidebar").onclick = function() {
+            localStorage.removeItem("twitch_token");
+            window.location.href = "/index.html";
+        };
+
+        // Chargement des données au démarrage
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem("twitch_token");
+            if (!token) {
+                window.location.href = "/index.html";
+                return;
+            }
+
+            // Récupérer les données depuis le Pi
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/viewer/context`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('favorite_game').value = data.favorite_game || "";
+                    document.getElementById('favorite_food').value = data.favorite_food || "";
+                    document.getElementById('anything_else').value = data.anything_else || "";
+                } else {
+                    console.error("Erreur chargement données:", response.status);
+                }
+            } catch (error) {
+                console.error("Impossible de contacter le Raspberry Pi:", error);
+                showStatus("Impossible de contacter le serveur de Félix.", "error");
+            }
+        });
+
+        // Sauvegarde des données
+        document.getElementById('felixForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("twitch_token");
+            const btn = document.getElementById('saveBtn');
+            const loader = document.getElementById('loader');
+            
+            btn.disabled = true;
+            loader.style.display = "inline-block";
+
+            const payload = {
+                favorite_game: document.getElementById('favorite_game').value,
+                favorite_food: document.getElementById('favorite_food').value,
+                anything_else: document.getElementById('anything_else').value
             };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/viewer/context`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showStatus("Informations sauvegardées avec succès !", "success");
+                } else {
+                    showStatus("Erreur lors de la sauvegarde.", "error");
+                }
+            } catch (error) {
+                showStatus("Erreur de connexion au serveur.", "error");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                loader.style.display = "none";
+            }
+        });
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMsg');
+            el.textContent = msg;
+            el.className = `status-msg ${type}`;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
         }
     </script>
 </body>
