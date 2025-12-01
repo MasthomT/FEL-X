@@ -5,108 +5,31 @@
     <title>Mon Profil - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- EN-TÊTE PROFIL --- */
-        .profile-header {
-            display: flex; align-items: center; gap: 25px;
-            background: var(--surface); border: 1px solid var(--border);
-            padding: 2rem; border-radius: 16px; margin-bottom: 2rem;
-            position: relative; overflow: hidden;
-        }
-        /* Petit effet de fond subtil */
-        .profile-header::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
-            background: var(--accent);
-        }
+        /* Styles spécifiques Profil */
+        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 2rem; background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); }
+        .avatar-large { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; }
         
-        .avatar-container { position: relative; }
-        .avatar-large { 
-            width: 110px; height: 110px; border-radius: 50%; 
-            border: 4px solid var(--accent); object-fit: cover; 
-            box-shadow: 0 0 20px rgba(0, 245, 195, 0.2);
-        }
-        .level-badge {
-            position: absolute; bottom: 0; right: 0;
-            background: var(--accent); color: #000;
-            font-weight: bold; font-size: 0.9rem;
-            padding: 4px 8px; border-radius: 12px;
-            border: 2px solid var(--surface);
-        }
+        .xp-container { grid-column: 1 / -1; margin-bottom: 1rem; }
+        .xp-bar-bg { width: 100%; height: 12px; background: #111; border-radius: 6px; overflow: hidden; margin-top: 10px; }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease-out; }
+        .xp-text { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-top: 5px; }
 
-        .user-info h1 { margin: 0; font-size: 2.2rem; border: none; padding: 0; }
-        .user-rank { color: var(--text-dim); font-size: 1rem; margin-top: 5px; }
+        .ai-card { border-left: 4px solid var(--accent); grid-column: 1 / -1; }
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
+        .ai-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.9rem; }
+        .ai-label { color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* BADGES (Sub, Follow, etc.) */
-        .badges-list { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .badge { 
-            padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; 
-            display: flex; align-items: center; gap: 6px;
-        }
-        .badge-sub { background: rgba(233, 30, 99, 0.15); color: var(--live); border: 1px solid var(--live); }
-        .badge-follow { background: rgba(67, 181, 129, 0.15); color: #43b581; border: 1px solid #43b581; }
-        .badge-creator { background: rgba(255, 215, 0, 0.15); color: #FFD700; border: 1px solid #FFD700; }
-
-        /* --- GRILLE PRINCIPALE --- */
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* BARRE D'XP */
-        .xp-card { grid-column: 1 / -1; }
-        .xp-bar-container { 
-            height: 16px; background: #111; border-radius: 8px; 
-            margin: 15px 0 8px 0; overflow: hidden; position: relative; 
-        }
-        .xp-bar-fill { 
-            height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); 
-            width: 0%; transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1); 
-        }
-        .xp-details { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-dim); }
-
-        /* CARTE "FÉLIX SAIT" */
-        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .ai-item { 
-            background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; 
-            border: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem;
-        }
-        .ai-label { 
-            display: block; font-size: 0.75rem; color: var(--accent); 
-            text-transform: uppercase; font-weight: bold; margin-bottom: 4px; 
-        }
-
-        /* HISTORIQUE (Le retour !) */
-        .history-list { 
-            list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; 
-            margin-top: 15px;
-        }
-        .history-item { 
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        .history-item:last-child { border-bottom: none; }
-        .history-reason { font-weight: 500; }
-        .history-gain { color: var(--accent); font-weight: bold; }
-        .history-date { font-size: 0.8rem; color: var(--text-dim); }
-
-        /* LOADER */
-        #loading-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg); z-index: 9999; display: flex; 
-            justify-content: center; align-items: center; flex-direction: column;
-        }
-
-        @media (max-width: 768px) {
-            .profile-header { flex-direction: column; text-align: center; }
-            .level-badge { right: 50%; transform: translateX(50%); bottom: -10px; }
-        }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        
+        /* Style pour les statuts (Oui/Non) */
+        .status-yes { color: #43b581; font-weight: bold; }
+        .status-no { color: #f04747; font-weight: bold; }
     </style>
 </head>
 <body>
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
         <a href="profile.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
-        <a href="infos.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
         <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
         <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
         <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
@@ -118,28 +41,21 @@
     <main>
         <div id="loading-overlay">
             <h2>Connexion...</h2>
-            <p style="color:var(--text-dim)">Récupération de votre profil</p>
+            <p style="color:var(--text-dim)">Chargement du profil</p>
         </div>
 
         <div class="profile-header">
-            <div class="avatar-container">
-                <img id="avatar" class="avatar-large" src="">
-                <div id="level-badge-float" class="level-badge">Niv. 1</div>
-            </div>
-            <div class="user-info" style="flex-grow:1;">
-                <h1 id="username">...</h1>
-                <div id="rank" class="user-rank">Rang #--</div>
-                <div class="badges-list" id="badges-container"></div>
+            <img id="avatar" class="avatar-large" src="">
+            <div style="flex-grow:1;">
+                <h1 id="username" style="margin:0; border:none;">...</h1>
+                <div id="rank" style="color:var(--text-dim); font-size:0.9rem;">Rang #--</div>
             </div>
         </div>
 
-        <div class="profile-grid">
-            
-            <div class="card xp-card">
+        <div class="grid">
+            <div class="card xp-container">
                 <h2>Progression</h2>
-                <div class="xp-bar-container">
-                    <div class="xp-bar-fill" id="xp-fill"></div>
-                </div>
+                <div class="xp-bar-bg"><div class="xp-fill" id="xp-fill"></div></div>
                 <div class="xp-text">
                     <span id="current-xp">0 XP</span>
                     <span id="next-level-xp">Objectif: 100 XP</span>
@@ -147,32 +63,36 @@
             </div>
 
             <div class="card">
-                <h2>⭐ XP Total</h2>
-                <div class="stat-value" id="stat-xp">0</div>
+                <h2>⭐ Niveau</h2>
+                <div class="stat-value" id="stat-level">1</div>
             </div>
             
             <div class="card">
-                <h2>💬 Messages</h2>
-                <div class="stat-value" id="stat-messages">0</div>
+                <h2>✨ XP Total</h2>
+                <div class="stat-value" id="stat-xp">0</div>
             </div>
 
-            <div class="card" style="grid-row: span 2;">
-                <h2>📜 Historique d'XP Récent</h2>
-                <ul class="history-list" id="xp-history-list">
-                    <li style="color:var(--text-dim); padding:10px 0;">Aucune activité récente.</li>
-                </ul>
+            <div class="card">
+                <h2>🟣 Abonnement</h2>
+                <div class="stat-value" id="stat-sub">...</div>
+                <small id="stat-sub-detail" style="color:var(--text-dim)"></small>
+            </div>
+
+            <div class="card">
+                <h2>💚 Follower</h2>
+                <div class="stat-value" id="stat-follow">...</div>
+                <small id="stat-follow-date" style="color:var(--text-dim)"></small>
             </div>
 
             <div class="card ai-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2>🧠 Carte d'Identité IA</h2>
-                    <a href="felix.html" style="color:var(--accent); font-size:0.9rem;">Modifier</a>
+                    <h2>🧠 Ce que Félix sait de vous</h2>
+                    <a href="felix.html" style="color:var(--accent); font-size:0.9rem; text-decoration:none;">Modifier</a>
                 </div>
                 <div class="ai-grid" id="ai-context-grid">
                     <div class="ai-item">Aucune info renseignée.</div>
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -181,7 +101,7 @@
     <script src="app.js"></script>
 
     <script>
-        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
         const BROADCASTER_NAME = "masthom_";
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -189,7 +109,7 @@
             if (!token) return;
 
             try {
-                // --- 1. IDENTITÉ TWITCH ---
+                // 1. APPEL TWITCH (Identité)
                 const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
                 const [userResp, channelResp] = await Promise.all([
                     fetch('https://api.twitch.tv/helix/users', { headers }),
@@ -203,16 +123,15 @@
                 const user = userData.data[0];
                 const broadcasterId = channelData.data[0].id;
 
-                // Affichage immédiat
+                // Affichage Base
                 document.getElementById("username").textContent = user.display_name;
                 document.getElementById("avatar").src = user.profile_image_url;
                 document.getElementById("loading-overlay").style.display = "none";
 
-                // --- 2. FIREBASE (XP, History, Rank, IA) ---
+                // 2. APPEL FIREBASE (XP & Niveau)
                 const db = firebase.database();
-                const userKey = user.login.toLowerCase(); // La clé pour l'XP est le pseudo minuscule
+                const userKey = user.login.toLowerCase();
 
-                // A. XP et Rang
                 db.ref('viewer_data/xp').once('value').then(snapshot => {
                     const allXpData = snapshot.val() || {};
                     const myData = allXpData[userKey] || {};
@@ -220,17 +139,17 @@
                     const xp = myData.xp || 0;
                     const level = calculateLevel(xp);
                     
-                    // Stats
-                    document.getElementById("level-badge-float").textContent = "Niv. " + level;
+                    // Remplissage des cartes
+                    document.getElementById("stat-level").textContent = level;
                     document.getElementById("stat-xp").textContent = xp.toLocaleString();
-                    document.getElementById("stat-messages").textContent = (myData.MessageCount || 0).toLocaleString();
+                    // Note: "stat-messages" a été retiré du HTML, donc on ne met plus à jour ici
 
-                    // Rang
+                    // Calcul Rang
                     const sortedUsers = Object.entries(allXpData)
                         .map(([k, v]) => ({ key: k, xp: v.xp || 0 }))
                         .sort((a, b) => b.xp - a.xp);
                     const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
-                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank} du classement` : "Non classé";
+                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
 
                     // Barre XP
                     const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
@@ -240,77 +159,75 @@
                     const percent = Math.min(100, Math.max(0, (xpProgress / xpNeeded) * 100));
 
                     document.getElementById("xp-fill").style.width = percent + "%";
-                    document.getElementById("current-xp").textContent = `${xpProgress.toLocaleString()} XP`;
-                    document.getElementById("next-level-xp").textContent = `/ ${xpNeeded.toLocaleString()}`;
+                    document.getElementById("current-xp").textContent = `${xp.toLocaleString()} XP`;
+                    document.getElementById("next-level-xp").textContent = `Objectif: ${nextLevelXp.toLocaleString()}`;
                 });
 
-                // B. Historique (La nouveauté !)
-                // Attention : L'historique est stocké sous 'viewer_data/history/pseudo'
-                db.ref('viewer_data/history/' + userKey).limitToFirst(10).once('value').then(snapshot => {
-                    const historyData = snapshot.val();
-                    const listEl = document.getElementById("xp-history-list");
-                    
-                    if (historyData) {
-                        listEl.innerHTML = ""; // On vide "Aucune activité"
-                        // Firebase retourne parfois un objet avec des clés ID, ou un tableau
-                        const historyArray = Array.isArray(historyData) ? historyData : Object.values(historyData);
-                        
-                        // On inverse pour avoir les plus récents en haut (si pas déjà fait)
-                        historyArray.forEach(item => {
-                            if(item) {
-                                const dateStr = formatDate(item.timestamp); // Fonction de app.js
-                                const li = document.createElement("li");
-                                li.className = "history-item";
-                                li.innerHTML = `
-                                    <div>
-                                        <div class="history-reason">${item.reason || "Gain d'XP"}</div>
-                                        <div class="history-date">${dateStr}</div>
-                                    </div>
-                                    <div class="history-gain">+${item.amount} XP</div>
-                                `;
-                                listEl.appendChild(li);
-                            }
-                        });
-                    }
-                });
-
-                // C. IA Context (Par ID Twitch cette fois)
+                // AI Context
                 db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
                     const ctx = snapshot.val();
                     if (ctx) {
                         const grid = document.getElementById("ai-context-grid");
                         grid.innerHTML = "";
                         const labels = { nickname:"Surnom", vibe:"Vibe", favorite_game:"Jeu Fav.", hobby:"Passion" };
-                        let hasData = false;
                         Object.entries(labels).forEach(([k, label]) => {
                             if (ctx[k]) {
-                                hasData = true;
                                 grid.innerHTML += `<div class="ai-item"><span class="ai-label">${label}</span>${ctx[k]}</div>`;
                             }
                         });
-                        if(!hasData) grid.innerHTML = `<div class="ai-item">Aucune info renseignée.</div>`;
                     }
                 });
 
-                // --- 3. TWITCH (Badges Follow/Sub) ---
-                const badgesDiv = document.getElementById("badges-container");
+                // 3. TWITCH STATUTS (Abo & Follow)
                 
-                // Follow
+                // --- Follow ---
                 fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
                     .then(r => r.json())
                     .then(d => {
+                        const elStatus = document.getElementById("stat-follow");
+                        const elDate = document.getElementById("stat-follow-date");
+                        
                         if (d.data && d.data.length > 0) {
                             const date = new Date(d.data[0].followed_at).toLocaleDateString();
-                            badgesDiv.innerHTML += `<div class="badge badge-follow"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Suit depuis le ${date}</div>`;
+                            elStatus.textContent = "Oui";
+                            elStatus.className = "stat-value status-yes";
+                            elDate.textContent = `Depuis le ${date}`;
+                        } else {
+                            elStatus.textContent = "Non";
+                            elStatus.className = "stat-value status-no";
+                            elDate.textContent = "Pas encore follower";
                         }
                     });
 
-                // Sub
+                // --- Sub ---
+                const subStatus = document.getElementById("stat-sub");
+                const subDetail = document.getElementById("stat-sub-detail");
+
                 if (user.id !== broadcasterId) {
                     fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
-                        .then(r => { if (r.status === 200) badgesDiv.innerHTML += `<div class="badge badge-sub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Abonné</div>`; });
+                        .then(r => { 
+                            if (r.status === 200) return r.json();
+                            throw new Error("Non abonné");
+                        })
+                        .then(data => {
+                            const info = data.data[0];
+                            let tierName = "Niveau 1";
+                            if (info.tier === "2000") tierName = "Niveau 2";
+                            if (info.tier === "3000") tierName = "Niveau 3";
+                            
+                            subStatus.textContent = "Oui";
+                            subStatus.className = "stat-value status-yes";
+                            subDetail.textContent = `${tierName} ${info.is_gift ? "(Offert 🎁)" : ""}`;
+                        })
+                        .catch(() => {
+                            subStatus.textContent = "Non";
+                            subStatus.className = "stat-value status-no";
+                            subDetail.textContent = "Aucun abonnement actif";
+                        });
                 } else {
-                    badgesDiv.innerHTML += `<div class="badge badge-creator">👑 Créateur</div>`;
+                    subStatus.textContent = "Créateur";
+                    subStatus.className = "stat-value status-yes";
+                    subDetail.textContent = "👑 Chef de la chaîne";
                 }
 
             } catch (e) {
