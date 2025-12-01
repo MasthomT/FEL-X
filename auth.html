@@ -1,40 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Authentification...</title>
-    <style>
-        body { 
-            display: grid; 
-            place-items: center; 
-            min-height: 100vh; 
-            background: #18181b; 
-            color: white; 
-            font-family: sans-serif; 
-            margin: 0;
-        }
-    </style>
-</head>
+<html>
+<head><title>Auth...</title></head>
 <body>
-    <p>Authentification en cours, veuillez patienter...</p>
-
-    <script>
-        try {
-            const hash = window.location.hash.substring(1); 
-            const params = new URLSearchParams(hash);
-            const accessToken = params.get("access_token");
-
-            if (accessToken) {
-                localStorage.setItem("twitch_token", accessToken);
-                window.location.replace("/profile.html");
-            } else {
-                console.error("Authentification échouée, pas de token trouvé.");
-                window.location.replace("/index.html?error=auth_failed");
-            }
-        } catch (error) {
-            console.error("Erreur lors du parsing de l'URL:", error);
-            window.location.replace("/index.html?error=script_error");
-        }
-    </script>
+<script>
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get("access_token");
+    if(token) {
+        localStorage.setItem("twitch_token", token);
+        window.location.replace("/profile.html");
+    } else {
+        window.location.replace("/index.html");
+    }
+</script>
 </body>
 </html>
