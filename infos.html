@@ -16,12 +16,8 @@
 
         /* --- 1. PLANNING (STYLE CALENDRIER) --- */
         .planning-section h2 {
-            text-align: center;
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            text-align: center; font-size: 2rem; color: white;
+            margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 2px;
         }
         
         .calendar-grid {
@@ -33,12 +29,9 @@
         .day-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem 1rem;
-            text-align: center;
+            border-radius: 16px; padding: 1.5rem 1rem; text-align: center;
             transition: transform 0.3s, border-color 0.3s, background 0.3s;
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
         
         .day-card:hover {
@@ -48,44 +41,19 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Effet de barre colorée en haut de chaque carte */
         .day-card::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
             background: var(--accent); opacity: 0.5; transition: 0.3s;
         }
         .day-card:hover::before { opacity: 1; height: 8px; }
 
-        .day-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--text-dim);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .day-time {
-            font-size: 2rem;
-            font-weight: 800;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        
-        .day-event {
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-top: 5px;
-            font-weight: 600;
-        }
+        .day-name { font-size: 1.1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; }
+        .day-time { font-size: 2rem; font-weight: 800; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .day-event { font-size: 0.85rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
 
-        .planning-note {
-            text-align: center;
-            margin-top: 2rem;
-            color: var(--text-dim);
-            font-style: italic;
-            opacity: 0.8;
-        }
+        .planning-note { text-align: center; margin-top: 2rem; color: var(--text-dim); font-style: italic; opacity: 0.8; }
 
-        /* --- 2. RÉSEAUX & SETUP (Grille secondaire) --- */
+        /* --- 2. RÉSEAUX & SETUP --- */
         .secondary-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -95,61 +63,56 @@
         .info-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 12px; padding: 2rem;
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .info-card h3 { color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .info-card h3 { color: var(--accent); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; font-size: 1.4rem; }
 
         .social-btn {
-            display: flex; align-items: center; gap: 15px; padding: 12px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 15px; padding: 15px; margin-bottom: 15px;
             border-radius: 8px; text-decoration: none; font-weight: bold; color: white;
             transition: 0.2s; background: rgba(255,255,255,0.05);
         }
-        .social-btn:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        .social-btn:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .discord { border-left: 4px solid #5865F2; }
+        .discord:hover { background: rgba(88, 101, 242, 0.2); }
         .youtube { border-left: 4px solid #FF0000; }
+        .youtube:hover { background: rgba(255, 0, 0, 0.2); }
 
         ul.setup-list { list-style: none; padding: 0; }
-        ul.setup-list li { margin-bottom: 8px; color: var(--text-dim); }
-        ul.setup-list strong { color: white; margin-right: 5px; }
+        ul.setup-list li { margin-bottom: 12px; color: var(--text-dim); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+        ul.setup-list strong { color: white; margin-right: 10px; }
 
-        /* --- 3. RÈGLES (Discrètes) --- */
-        .rules-section {
-            margin-top: 2rem;
-            text-align: center;
-            border-top: 1px solid var(--border);
-            padding-top: 2rem;
-        }
-        .rules-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 1rem;
-            cursor: pointer;
-        }
-        .rules-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            opacity: 0.6; /* Rend le texte moins agressif */
-            transition: opacity 0.3s;
-        }
-        .rules-cloud:hover { opacity: 1; } /* Devient lisible au survol */
+        /* --- 3. RÈGLES (Liste Simple) --- */
+        .full-width { grid-column: 1 / -1; }
         
-        .rule-tag {
-            font-size: 0.85rem;
-            background: rgba(0,0,0,0.3);
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-dim);
+        ul.simple-rules {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 2 colonnes sur grand écran */
+            gap: 1rem;
         }
-        .rule-tag.important { border-color: var(--danger); color: var(--danger); }
+        
+        ul.simple-rules li {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            line-height: 1.5;
+            transition: background 0.2s;
+        }
+        ul.simple-rules li:hover { background: rgba(255,255,255,0.05); }
+        
+        .rule-emoji { font-size: 1.5rem; min-width: 30px; }
 
-        @media (max-width: 768px) { 
+        @media (max-width: 900px) { 
             .calendar-grid { grid-template-columns: 1fr 1fr; } 
             .secondary-grid { grid-template-columns: 1fr; }
+            ul.simple-rules { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -213,34 +176,44 @@
             <div class="secondary-grid">
                 
                 <div class="info-card">
-                    <h3>🌐 Réseaux</h3>
+                    <h3>🌐 Rejoins la commu</h3>
                     <div class="social-links">
                         <a id="link-discord" href="#" target="_blank" class="social-btn discord">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.077.077 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z"/></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z"/></svg>
                             Rejoindre le Discord
                         </a>
                         <a id="link-youtube" href="#" target="_blank" class="social-btn youtube">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                             Chaîne YouTube
                         </a>
                     </div>
                 </div>
+
+                <div class="info-card">
+                    <h3>🖥️ Setup</h3>
+                    <ul class="setup-list">
+                        <li><strong>PC :</strong> Bientôt...</li>
+                        <li><strong>Micro :</strong> Shure SM7B</li>
+                        <li><strong>Caméra :</strong> Sony A6000</li>
+                        <li><strong>Console :</strong> PS5 & Switch</li>
+                    </ul>
+                </div>
             </div>
 
-            <section class="rules-section">
-                <div class="rules-title">Règles de la communauté</div>
-                <div class="rules-cloud">
-                    <span class="rule-tag">Pas d'abus de majuscules</span>
-                    <span class="rule-tag">Pas de sujets sensibles</span>
-                    <span class="rule-tag">Respectez les viewers & le streamer</span>
-                    <span class="rule-tag">Pas de spam</span>
-                    <span class="rule-tag">Bonne ambiance</span>
-                    <span class="rule-tag important">Spoil / Backseat INTERDIT</span>
-                    <span class="rule-tag important">Racisme / Homophobie = BAN</span>
-                    <span class="rule-tag important">Pas de pub</span>
-                    <span class="rule-tag important">3 Avertissements = BAN Définitif</span>
-                </div>
-            </section>
+            <div class="info-card full-width">
+                <h3>📝 Règles & Comportement</h3>
+                <ul class="simple-rules">
+                    <li><span class="rule-emoji">🛑</span> Pas d'abus avec les majuscules.</li>
+                    <li><span class="rule-emoji">🕊️</span> Évitez au plus possible les sujets sensibles.</li>
+                    <li><span class="rule-emoji">🤐</span> <strong>Spoil ou Backseat INTERDIT</strong> (sauf si demandé).</li>
+                    <li><span class="rule-emoji">🤝</span> Respectez les viewers et le streamer.</li>
+                    <li><span class="rule-emoji">🚫</span> Pas de spam.</li>
+                    <li><span class="rule-emoji">😊</span> Ne propagez pas une mauvaise ambiance.</li>
+                    <li><span class="rule-emoji">⛔</span> Propos racistes, homophobes, sexistes = <strong>BAN</strong>.</li>
+                    <li><span class="rule-emoji">📢</span> Toute pub même "dissimulée" est interdite.</li>
+                    <li><span class="rule-emoji">⚠️</span> <strong>Au bout de 3 avertissements, le ban est définitif.</strong></li>
+                </ul>
+            </div>
 
         </div>
     </main>
@@ -253,7 +226,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             checkAuth(); 
             
-            // Récupération des liens depuis Firebase pour qu'ils restent à jour
             const db = firebase.database();
             db.ref('viewer_data/public_info').once('value').then(snapshot => {
                 const data = snapshot.val();
