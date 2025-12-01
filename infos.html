@@ -5,82 +5,65 @@
     <title>Infos - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- MISE EN PAGE --- */
+        /* --- Styles Spécifiques Infos --- */
         .info-grid {
             display: grid;
-            grid-template-columns: 1fr 350px; /* Planning large, Réseaux fixes */
-            gap: 1.5rem;
-        }
-        
-        .info-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .info-card h2 {
-            display: flex; align-items: center; gap: 10px;
-            color: var(--accent); font-size: 1.4rem; margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
         }
 
-        /* --- PLANNING --- */
-        .schedule-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text-main);
+        /* Planning */
+        .schedule-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .schedule-item { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .schedule-highlight {
-            color: var(--accent);
-            font-weight: bold;
-        }
+        .schedule-item:last-child { border-bottom: none; }
+        .day { font-weight: bold; color: var(--accent); font-size: 1.1rem; }
+        .time { background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; }
 
-        /* --- RÉSEAUX (Style Boutons) --- */
+        /* Réseaux */
+        .social-links { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; }
         .social-btn {
-            display: flex; align-items: center; gap: 15px;
-            padding: 15px; margin-bottom: 15px;
-            border-radius: 8px; text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 15px; padding: 15px 20px;
+            border-radius: 12px; text-decoration: none; font-weight: bold; color: white;
             transition: transform 0.2s, box-shadow 0.2s;
-            color: white;
         }
         .social-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .social-icon { width: 24px; height: 24px; fill: currentColor; }
+        .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
         
-        .btn-discord { background: #5865F2; }
-        .btn-discord:hover { background: #4752c4; }
-        
-        .btn-youtube { background: #FF0000; }
-        .btn-youtube:hover { background: #cc0000; }
+        .discord { background: #5865F2; }
+        .youtube { background: #FF0000; }
+        .twitch { background: #9146FF; }
 
-        /* --- RÈGLES (Liste propre) --- */
-        .rules-container { grid-column: 1 / -1; } /* Prend toute la largeur */
-        
-        ul.rules-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-        ul.rules-list li {
-            background: rgba(255,255,255,0.03);
-            padding: 12px 15px;
-            border-radius: 6px;
-            border-left: 3px solid var(--danger);
-            font-size: 0.95rem;
-            line-height: 1.4;
+        /* Règles */
+        .rules-card { grid-column: 1 / -1; } /* Prend toute la largeur */
+        .rules-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem; margin-top: 10px;
         }
-        ul.rules-list li strong { color: var(--danger); }
+        .rule-item {
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px;
+            border-left: 4px solid var(--danger); line-height: 1.5;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .rule-icon { font-size: 1.2rem; }
 
-        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+        /* Responsive */
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
         <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
-        <a href="infos.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
         <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
         <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
         <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
         <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
+        
+        <a href="infos.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
+        
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
@@ -90,69 +73,75 @@
 
         <div class="info-grid">
             
-            <div class="info-card">
-                <h2>📅 Planning</h2>
-                <p class="schedule-text">
-                    Je stream les <span class="schedule-highlight">mardi et jeudi à 18h00</span>,<br>
-                    les <span class="schedule-highlight">vendredi et samedi à 20h00</span><br>
-                    et les <span class="schedule-highlight">samedi et dimanche matin à 10h</span>.
-                </p>
-                <p style="margin-top:20px; font-style:italic; color:var(--text-dim);">
-                    ⚠️ Mais il y a souvent des petits live "sauvage", activez la cloche !
+            <div class="card">
+                <h2>📅 Planning Hebdo</h2>
+                <div class="schedule-list">
+                    <div class="schedule-item">
+                        <span class="day">Mardi & Jeudi</span>
+                        <span class="time">18h00</span>
+                    </div>
+                    <div class="schedule-item">
+                        <span class="day">Vendredi & Samedi</span>
+                        <span class="time">20h00</span>
+                    </div>
+                    <div class="schedule-item">
+                        <span class="day">Samedi & Dimanche</span>
+                        <span class="time">10h00 (Matin)</span>
+                    </div>
+                </div>
+                <p style="margin-top:20px; color:var(--text-dim); font-style:italic; font-size:0.9rem; border-top:1px solid var(--border); padding-top:10px;">
+                    ⚠️ Il y a souvent des petits lives "sauvages" ! Activez la cloche pour ne rien rater.
                 </p>
             </div>
 
-            <div class="info-card">
-                <h2>🌐 Réseaux</h2>
-                <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
-                    
-                    <a id="info-discord" href="#" target="_blank" class="social-btn btn-discord">
-                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z"/></svg>
+            <div class="card">
+                <h2>🌐 Rejoins la commu</h2>
+                <div class="social-links">
+                    <a href="#" id="link-discord" target="_blank" class="social-btn discord">
+                        <svg viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z"/></svg>
                         Rejoindre le Discord
                     </a>
-                    
-                    <a id="info-youtube" href="#" target="_blank" class="social-btn btn-youtube">
-                        <svg class="social-icon" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    <a href="#" id="link-youtube" target="_blank" class="social-btn youtube">
+                        <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                         Chaîne YouTube
                     </a>
-
                 </div>
             </div>
 
-            <div class="info-card rules-container">
-                <h2>📝 Règles & Autres</h2>
-                <ul class="rules-list">
-                    <li>Pas d'abus avec les majuscules</li>
-                    <li>Évitez au plus possible les sujets sensibles</li>
-                    <li><strong>Spoil ou backseat interdit</strong></li>
-                    <li>Respectez les viewers ou le streamer</li>
-                    <li>Pas de spam</li>
-                    <li>Ne propagez pas une mauvaise ambiance</li>
-                    <li><strong>Propos racistes, homophobe, sexiste, ... interdits</strong></li>
-                    <li>Toute pub même "dissimulée" est interdite</li>
-                    <li><strong>Au bout de 3 avertissements, le ban est définitif</strong></li>
-                </ul>
+            <div class="card rules-card">
+                <h2>📝 Règles & Comportement</h2>
+                <p style="margin-bottom:15px;">Pour que le stream reste agréable pour tout le monde, merci de respecter ces règles simples :</p>
+                
+                <div class="rules-grid">
+                    <div class="rule-item"><span class="rule-icon">🤬</span> Pas d'insultes, racisme, homophobie ou sexisme.</div>
+                    <div class="rule-item"><span class="rule-icon">📢</span> Pas de publicité (même dissimulée).</div>
+                    <div class="rule-item"><span class="rule-icon">🤐</span> Pas de Backseat ou de Spoil (sauf si demandé).</div>
+                    <div class="rule-item"><span class="rule-icon">😤</span> Respectez les autres viewers et le streamer.</div>
+                    <div class="rule-item"><span class="rule-icon">🛡️</span> Écoutez les modérateurs.</div>
+                    <div class="rule-item"><span class="rule-icon">⚠️</span> 3 Avertissements = <strong>BAN DÉFINITIF</strong>.</div>
+                    <div class="rule-item"><span class="rule-icon">🛑</span> Pas de spam ou de majuscules abusives.</div>
+                    <div class="rule-item"><span class="rule-icon">🕊️</span> Évitez les sujets sensibles (Politique/Religion).</div>
+                </div>
             </div>
 
         </div>
     </main>
-    
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            checkAuth(); // Vérif connexion
+            checkAuth(); // Vérifie la connexion
             
-            // Récupération des liens dynamiques (Discord/Youtube) depuis Firebase
-            // Comme ça si vous les changez sur le Bot, ça change ici aussi !
+            // Récupération dynamique des liens
             const db = firebase.database();
             db.ref('viewer_data/public_info').once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
-                    if(data.discord_link) document.getElementById('info-discord').href = data.discord_link;
-                    if(data.youtube_link) document.getElementById('info-youtube').href = data.youtube_link;
+                    if(data.discord_link) document.getElementById('link-discord').href = data.discord_link;
+                    if(data.youtube_link) document.getElementById('link-youtube').href = data.youtube_link;
                 }
             });
         });
