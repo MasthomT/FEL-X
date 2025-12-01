@@ -175,97 +175,150 @@
         </div>
     </main>
 
-    <script>
-        // --- CONFIGURATION À MODIFIER ---
-        // Remplacez par l'URL publique de votre Raspberry Pi (ex: via ngrok ou IP publique)
-        // ATTENTION : Sans HTTPS, les navigateurs peuvent bloquer la requête
-        const API_BASE_URL = "https://0a7970a08257.ngrok-free.app"; 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-        // Gestion de la déconnexion
-        document.getElementById("logout-sidebar").onclick = function() {
+<script>
+    // --- 1. CONFIGURATION FIREBASE ---
+    // (Copiée de votre fichier app.js existant)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
+        authDomain: "fel-x-503f8.firebaseapp.com",
+        databaseURL: "https://fel-x-503f8-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "fel-x-503f8",
+        storageBucket: "fel-x-503f8.firebasestorage.app",
+        messagingSenderId: "922613900734",
+        appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
+    };
+
+    // Initialisation de Firebase si ce n'est pas déjà fait
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // --- 2. GESTION DE LA SESSION UTILISATEUR ---
+    
+    // Vérification de la présence du token Twitch
+    const token = localStorage.getItem("twitch_token");
+    if (!token) {
+        window.location.href = "/index.html"; // Redirection si non connecté
+    }
+
+    // Gestion du bouton de déconnexion
+    const logoutBtn = document.getElementById("logout-sidebar");
+    if(logoutBtn) {
+        logoutBtn.onclick = function(e) {
+            e.preventDefault();
             localStorage.removeItem("twitch_token");
             window.location.href = "/index.html";
         };
+    }
 
-        // Chargement des données au démarrage
-        document.addEventListener('DOMContentLoaded', async () => {
-            const token = localStorage.getItem("twitch_token");
-            if (!token) {
-                window.location.href = "/index.html";
-                return;
-            }
-
-            // Récupérer les données depuis le Pi
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/viewer/context`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('favorite_game').value = data.favorite_game || "";
-                    document.getElementById('favorite_food').value = data.favorite_food || "";
-                    document.getElementById('anything_else').value = data.anything_else || "";
-                } else {
-                    console.error("Erreur chargement données:", response.status);
+    // Fonction pour récupérer l'ID utilisateur Twitch via l'API
+    // Cela permet d'identifier l'utilisateur de manière unique dans Firebase
+    async function getUserId() {
+        try {
+            const response = await fetch('https://api.twitch.tv/helix/users', {
+                headers: { 
+                    'Authorization': `Bearer ${token}`, 
+                    'Client-Id': 'kgyfzs0k3wk8enx7p3pd6299ro4izv' 
                 }
-            } catch (error) {
-                console.error("Impossible de contacter le Raspberry Pi:", error);
-                showStatus("Impossible de contacter le serveur de Félix.", "error");
+            });
+            const data = await response.json();
+            if (data.data && data.data.length > 0) {
+                return data.data[0].id;
             }
-        });
-
-        // Sauvegarde des données
-        document.getElementById('felixForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem("twitch_token");
-            const btn = document.getElementById('saveBtn');
-            const loader = document.getElementById('loader');
-            
-            btn.disabled = true;
-            loader.style.display = "inline-block";
-
-            const payload = {
-                favorite_game: document.getElementById('favorite_game').value,
-                favorite_food: document.getElementById('favorite_food').value,
-                anything_else: document.getElementById('anything_else').value
-            };
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/viewer/context`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    showStatus("Informations sauvegardées avec succès !", "success");
-                } else {
-                    showStatus("Erreur lors de la sauvegarde.", "error");
-                }
-            } catch (error) {
-                showStatus("Erreur de connexion au serveur.", "error");
-                console.error(error);
-            } finally {
-                btn.disabled = false;
-                loader.style.display = "none";
-            }
-        });
-
-        function showStatus(msg, type) {
-            const el = document.getElementById('statusMsg');
-            el.textContent = msg;
-            el.className = `status-msg ${type}`;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 5000);
+            return null;
+        } catch (e) { 
+            console.error("Erreur lors de la récupération de l'ID Twitch:", e);
+            return null; 
         }
-    </script>
+    }
+
+    // --- 3. CHARGEMENT ET SAUVEGARDE DES DONNÉES ---
+
+    // Au chargement de la page
+    document.addEventListener('DOMContentLoaded', async () => {
+        const userId = await getUserId();
+        
+        if (!userId) {
+            showStatus("Erreur : Impossible de récupérer votre identifiant Twitch.", "error");
+            return;
+        }
+
+        // A. LECTURE DES DONNÉES (Depuis Firebase)
+        // On va chercher les infos dans le dossier 'viewer_data/ai_context/[ID_UTILISATEUR]'
+        db.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Si des données existent, on remplit les champs du formulaire
+                if(document.getElementById('favorite_game')) 
+                    document.getElementById('favorite_game').value = data.favorite_game || "";
+                
+                if(document.getElementById('favorite_food')) 
+                    document.getElementById('favorite_food').value = data.favorite_food || "";
+                
+                if(document.getElementById('anything_else')) 
+                    document.getElementById('anything_else').value = data.anything_else || "";
+            }
+        }).catch((error) => {
+            console.error("Erreur de lecture Firebase:", error);
+        });
+
+        // B. SAUVEGARDE DES DONNÉES (Vers Firebase)
+        const form = document.getElementById('felixForm');
+        if(form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Empêche le rechargement de la page
+                
+                const btn = document.getElementById('saveBtn');
+                const loader = document.getElementById('loader');
+                
+                // Désactive le bouton et affiche le chargement
+                if(btn) btn.disabled = true;
+                if(loader) loader.style.display = "inline-block";
+
+                // Prépare les données à envoyer
+                const payload = {
+                    favorite_game: document.getElementById('favorite_game').value,
+                    favorite_food: document.getElementById('favorite_food').value,
+                    anything_else: document.getElementById('anything_else').value,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP // Ajoute la date serveur
+                };
+
+                try {
+                    // Écriture dans Firebase
+                    await db.ref('viewer_data/ai_context/' + userId).set(payload);
+                    showStatus("✅ Informations sauvegardées ! Félix les récupérera bientôt.", "success");
+                } catch (error) {
+                    console.error("Erreur d'écriture Firebase:", error);
+                    showStatus("❌ Erreur : Permission refusée ou problème de connexion.", "error");
+                } finally {
+                    // Réactive le bouton
+                    if(btn) btn.disabled = false;
+                    if(loader) loader.style.display = "none";
+                }
+            });
+        }
+    });
+
+    // Fonction utilitaire pour afficher les messages de statut
+    function showStatus(msg, type) {
+        const el = document.getElementById('statusMsg');
+        if(el) {
+            el.textContent = msg;
+            el.className = `status-msg ${type}`; // Applique la classe CSS correspondante
+            el.style.display = 'block';
+            
+            // Cache le message après 5 secondes
+            setTimeout(() => { 
+                el.style.display = 'none'; 
+            }, 5000);
+        } else {
+            alert(msg); // Fallback si l'élément n'existe pas
+        }
+    }
+</script>
 </body>
 </html>
