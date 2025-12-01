@@ -1,10 +1,4 @@
-if(document.getElementById("logout-sidebar")) {
-    document.getElementById("logout-sidebar").onclick = function() {
-        localStorage.removeItem("twitch_token");
-        window.location.replace("/index.html");
-    };
-}
-
+// Liste des commandes (Vous pouvez en ajouter ici)
 const ALL_COMMANDS = [
     { 
         trigger: "!bug", 
@@ -14,210 +8,115 @@ const ALL_COMMANDS = [
     },
     { 
         trigger: "!clip", 
-        description: "Créer un clip du stream en cours. (Aliases : !clip)", 
+        description: "Créer un clip du stream en cours.", 
         category: "info", 
         access: "Viewer" 
     },
     { 
-        trigger: "!commandes ou !cmde", 
-        description: "Affiche le lien vers cette page de commandes. (Aliases : !commandes, !cmde)", 
+        trigger: "!commandes", 
+        description: "Affiche le lien vers cette page.", 
         category: "info", 
         access: "Viewer" 
     },
     { 
-        trigger: "!discord ou !dc", 
-        description: "Affiche le lien pour rejoindre le serveur Discord de la communauté. (Aliases : !discord, !dc)", 
+        trigger: "!discord", 
+        description: "Rejoindre le serveur Discord de la communauté.", 
         category: "info", 
         access: "Viewer" 
     },
     { 
-        trigger: "!tips ou !don", 
-        description: "Affiche le lien pour faire un tip/don au Streamer. (Aliases : !tips, !don)", 
+        trigger: "!tips", 
+        description: "Lien pour faire un don/tip au Streamer.", 
         category: "info", 
         access: "Viewer" 
     },
     { 
-        trigger: "!followinfo", 
-        description: "Affiche depuis combien de temps vous suivez la chaîne. (Aliases : !followinfo)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!infogame ou !gameinfo", 
-        description: "Affiche les informations sur le jeu en cours. (Aliases : !infogame, !gameinfo)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!giveaway ou !giveaways ou !roue", 
-        description: "Informations sur le giveaway ou la roue de la fortune en cours. (Aliases : !giveaway, !giveaways, !roue)", 
-        category: "fun", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!myinfo ou !ifc", 
-        description: "Affiche vos informations (XP, Niveau). (Aliases : !myinfo, !ifc)", 
+        trigger: "!level", 
+        description: "Connaître votre niveau actuel et l'XP manquant.", 
         category: "xp", 
         access: "Viewer" 
     },
     { 
-        trigger: "!lvl ou !level ou !niv", 
-        description: "Affiche votre niveau actuel sur la chaîne. (Aliases : !lvl, !level, !niv)", 
+        trigger: "!classement", 
+        description: "Affiche le lien vers le classement XP.", 
         category: "xp", 
         access: "Viewer" 
     },
     { 
-        trigger: "!onlyfan ou !onlyfans ou !of", 
-        description: "Informations sur l'Onlyfans (si applicable). (Aliases : !onlyfan, !onlyfans, !of)", 
-        category: "fun", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!planning", 
-        description: "Affiche le lien vers le planning des streams. (Aliases : !planning)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!rs ou !réseauxsociaux", 
-        description: "Affiche les liens vers les réseaux sociaux du Streamer. (Aliases : !rs, !réseauxsociaux)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!team", 
-        description: "Informations sur l'équipe du Streamer. (Aliases : !team)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!tiktok", 
-        description: "Affiche le lien du compte TikTok du Streamer. (Aliases : !tiktok)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!top3", 
-        description: "Affiche les 3 viewers ayant le plus d'XP ou de watchtime. (Aliases : !top3)", 
+        trigger: "!top", 
+        description: "Affiche le top 3 des viewers dans le chat.", 
         category: "xp", 
         access: "Viewer" 
     },
     { 
-        trigger: "!watchtime", 
-        description: "Affiche votre temps de visionnage total sur la chaîne. (Aliases : !watchtime)", 
-        category: "xp", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!youtube ou !yt", 
-        description: "Affiche le lien de la chaîne YouTube du Streamer. (Aliases : !youtube, !yt)", 
-        category: "info", 
-        access: "Viewer" 
-    },
-    
-    { trigger: "!anniversaire", description: "Déclenche le son 'anniversaire'. (Aliases : !anniversaire)", category: "fun", access: "Viewer" },
-    { trigger: "!crétin", description: "Déclenche le son 'crétin'. (Aliases : !crétin)", category: "fun", access: "Viewer" },
-    { trigger: "!deshonneur", description: "Déclenche le son 'déshonneur'. (Aliases : !deshonneur)", category: "fun", access: "Viewer" },
-    { trigger: "!dodo", description: "Déclenche le son 'dodo'. (Aliases : !dodo)", category: "fun", access: "Viewer" },
-    { trigger: "!faim", description: "Déclenche le son 'faim'. (Aliases : !faim)", category: "fun", access: "Viewer" },
-    { trigger: "!felix", description: "Déclenche le son 'felix'. (Aliases : !felix, !félix)", category: "fun", access: "Viewer" },
-    { trigger: "!first", description: "Déclenche le son 'first'. (Aliases : !first)", category: "fun", access: "Viewer" },
-    { trigger: "!fouet", description: "Déclenche le son 'fouet'. (Aliases : !fouet)", category: "fun", access: "Viewer" },
-    { trigger: "!honte", description: "Déclenche le son 'honte'. (Aliases : !honte)", category: "fun", access: "Viewer" },
-    { trigger: "!lurk", description: "Déclenche le son 'lurk' et annonce que vous restez en fond. (Aliases : !lurk)", category: "fun", access: "Viewer" },
-    { trigger: "!magnifique ou !wouha", description: "Déclenche le son 'magnifique'. (Aliases : !magnifique, !wouha)", category: "fun", access: "Viewer" },
-    { trigger: "!ohé ou !ohe", description: "Déclenche le son 'ohé'. (Aliases : !ohé, !ohe)", category: "fun", access: "Viewer" },
-    { trigger: "!purge", description: "Déclenche le son 'purge'. (Aliases : !purge)", category: "fun", access: "Viewer" },
-    { trigger: "!salope ou !salop", description: "Déclenche le son 'salope'. (Aliases : !salope, !salop)", category: "fun", access: "Viewer" },
-    { trigger: "!seul", description: "Déclenche le son 'seul'. (Aliases : !seul)", category: "fun", access: "Viewer" },
-    { trigger: "!tagueule", description: "Déclenche le son 'ta gueule'. (Aliases : !tagueule)", category: "fun", access: "Viewer" },
-    { 
-        trigger: "!dance ou !danse", 
-        description: "Affiche une emote de danse dans le chat. (Aliases : !dance, !danse)", 
+        trigger: "!chapeau", 
+        description: "Commande Fun (Testez pour voir !).", 
         category: "fun", 
         access: "Viewer" 
     },
     { 
-        trigger: "!hype", 
-        description: "Affiche une emote 'hype'. (Aliases : !hype)", 
+        trigger: "!gg", 
+        description: "Félicitations générale.", 
         category: "fun", 
         access: "Viewer" 
-    },
-    { 
-        trigger: "!love", 
-        description: "Affiche une emote d'amour. (Aliases : !love)", 
-        category: "fun", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!raid", 
-        description: "Affiche une emote de raid. (Aliases : !raid)", 
-        category: "fun", 
-        access: "Viewer" 
-    },
-    { 
-        trigger: "!sub", 
-        description: "Affiche une emote de sub. (Aliases : !sub)", 
-        category: "fun", 
-        access: "Viewer" 
-    },
+    }
 ];
 
-const commandsListEl = document.getElementById("commands-list");
-const searchInput = document.getElementById("command-search");
-const filterSelect = document.getElementById("command-filter");
-const noResultsEl = document.getElementById("no-results");
+document.addEventListener("DOMContentLoaded", () => {
+    checkAuth(); // Vérifie la connexion via app.js
 
+    const listEl = document.getElementById("cmd-list");
+    const searchInput = document.getElementById("cmd-search");
+    const filterSelect = document.getElementById("cmd-filter");
+    const noResultsEl = document.getElementById("no-results");
 
-function renderCommands(commands) {
-    commandsListEl.innerHTML = "";
-    
-    if (commands.length === 0) {
-        noResultsEl.style.display = 'block';
-        return;
+    function renderCommands(commands) {
+        listEl.innerHTML = "";
+        
+        if (commands.length === 0) {
+            noResultsEl.style.display = 'block';
+            return;
+        }
+        
+        noResultsEl.style.display = 'none';
+
+        commands.forEach(cmd => {
+            const row = document.createElement("tr");
+            
+            // Badge catégorie
+            let badgeClass = "badge-info";
+            if (cmd.category === "xp") badgeClass = "badge-xp";
+            if (cmd.category === "fun") badgeClass = "badge-fun";
+
+            row.innerHTML = `
+                <td><span class="command-trigger">${cmd.trigger}</span></td>
+                <td style="color: var(--text-dim);">${cmd.description}</td>
+                <td><span class="badge ${badgeClass}">${cmd.category.toUpperCase()}</span></td>
+                <td>${cmd.access}</td>
+            `;
+            listEl.appendChild(row);
+        });
     }
-    
-    noResultsEl.style.display = 'none';
 
-    commands.forEach(cmd => {
-        const row = commandsListEl.insertRow();
+    function filterCommands() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const category = filterSelect.value;
         
-        const triggerCell = row.insertCell();
-        triggerCell.innerHTML = `<span class="command-trigger">${cmd.trigger}</span>`;
+        const filtered = ALL_COMMANDS.filter(cmd => {
+            const matchesSearch = cmd.trigger.toLowerCase().includes(searchTerm) || 
+                                  cmd.description.toLowerCase().includes(searchTerm);
+            const matchesCategory = category === 'all' || cmd.category === category;
+            
+            return matchesSearch && matchesCategory;
+        });
         
-        const descCell = row.insertCell();
-        descCell.textContent = cmd.description;
-        
-        const categoryCell = row.insertCell();
-        categoryCell.textContent = cmd.category.charAt(0).toUpperCase() + cmd.category.slice(1);
-        
-        const accessCell = row.insertCell();
-        accessCell.innerHTML = `<span class="command-level">${cmd.access}</span>`; 
-    });
-}
-
-function applyFiltersAndSearch() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filterCategory = filterSelect.value;
-    
-    let filteredCommands = ALL_COMMANDS;
-
-    if (filterCategory !== 'all') {
-        filteredCommands = filteredCommands.filter(cmd => 
-            cmd.category === filterCategory
-        );
+        renderCommands(filtered);
     }
-    
-    if (searchTerm) {
-        filteredCommands = filteredCommands.filter(cmd => 
-            cmd.trigger.toLowerCase().includes(searchTerm) || 
-            cmd.description.toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    renderCommands(filteredCommands);
-}
 
-renderCommands(ALL_COMMANDS);
-searchInput.addEventListener('input', applyFiltersAndSearch);
-filterSelect.addEventListener('change', applyFiltersAndSearch);
+    // Écouteurs d'événements
+    searchInput.addEventListener("input", filterCommands);
+    filterSelect.addEventListener("change", filterCommands);
+
+    // Affichage initial
+    renderCommands(ALL_COMMANDS);
+});

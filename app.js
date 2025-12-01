@@ -1,4 +1,5 @@
-// --- CONFIGURATION FIREBASE ---
+
+// CONFIGURATION A REMPLIR AVEC VOS INFOS FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -9,36 +10,52 @@ const firebaseConfig = {
     appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
 };
 
-// Initialisation unique
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+// Initialisation Firebase
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+const db = firebase.database();
 
-// --- GESTION UTILISATEUR ---
-function checkAuth() {
+// Configuration Twitch
+const TWITCH_CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+const STREAMER_NAME = "masthom_";
+
+// Gestion Auth
+function getAuthHeaders() {
     const token = localStorage.getItem("twitch_token");
-    if (!token && window.location.pathname !== "/index.html" && window.location.pathname !== "/auth.html") {
-        window.location.replace("/index.html");
-    }
-    return token;
+    if (!token) return null;
+    return {
+        'Authorization': `Bearer ${token}`,
+        'Client-Id': TWITCH_CLIENT_ID
+    };
 }
 
 function logout() {
     localStorage.removeItem("twitch_token");
-    window.location.replace("/index.html");
+    window.location.href = "/index.html";
 }
 
-// Gestionnaire du bouton déconnexion (s'il existe sur la page)
+// Vérification de connexion globale
+function checkAuth() {
+    if (!localStorage.getItem("twitch_token") && window.location.pathname !== "/index.html" && window.location.pathname !== "/") {
+        window.location.href = "/index.html";
+    }
+}
+
+// Fonction utilitaire pour formater les dates
+function formatDate(isoString) {
+    if (!isoString) return "N/A";
+    return new Date(isoString).toLocaleDateString('fr-FR', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+}
+
+// Exécution au chargement
 document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logout-sidebar");
-    if (logoutBtn) logoutBtn.addEventListener("click", logout);
-    
-    const logoutLink = document.getElementById("logout-btn");
-    if (logoutLink) logoutLink.addEventListener("click", logout);
+    checkAuth();
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        logout();
+    });
 });
-
-// Calcul de niveau global
-function calculateLevel(xp) {
-    if (xp < 0) return 1;
-    return Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
-}

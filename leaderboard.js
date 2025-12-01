@@ -1,99 +1,62 @@
-// CONFIGURATION ET AUTH (IDENTIQUE AUX AUTRES)
-if(document.getElementById("logout-sidebar")) {
-    document.getElementById("logout-sidebar").onclick = function() {
-        localStorage.removeItem("twitch_token");
-        window.location.replace("/index.html");
-    };
-}
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
-    authDomain: "fel-x-503f8.firebaseapp.com",
-    databaseURL: "https://fel-x-503f8-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "fel-x-503f8",
-    storageBucket: "fel-x-503f8.firebasestorage.app",
-    messagingSenderId: "922613900734",
-    appId: "1:922613900734:web:4d192151bebd5e7ac885ef"
-};
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
-
-function calculateLevel(xp) {
-    if (xp < 0) return 1;
-    const level = Math.floor(Math.pow(Math.max(0, xp + 1e-9) / 100, 1 / 2.2)) + 1;
-    return Math.max(1, level);
-}
-
-// CHARGEMENT DU CLASSEMENT
 document.addEventListener("DOMContentLoaded", async () => {
-    const loadingEl = document.getElementById("leaderboard-loading");
-    const listEl = document.getElementById("leaderboard-list");
-    const token = localStorage.getItem("twitch_token");
+    checkAuth(); // Vérifie si connecté
 
-    if (!token) {
-        window.location.replace("/index.html");
-        return;
-    }
+    const loadingEl = document.getElementById("loading");
+    const containerEl = document.getElementById("leaderboard-container");
+    const listEl = document.getElementById("leaderboard-list");
+    
+    // Référence Firebase (db est initialisé dans app.js)
+    const dbRef = firebase.database().ref('viewer_data/xp');
 
     try {
-        // 1. Récupérer les données XP depuis Firebase
-        // ATTENTION : On suppose que vos données sont dans 'viewer_data/xp'
-        const snapshot = await db.ref('viewer_data/xp').once('value');
+        const snapshot = await dbRef.once('value');
         const xpData = snapshot.val();
 
         if (!xpData) {
-            loadingEl.textContent = "Aucune donnée d'XP trouvée pour le moment.";
+            loadingEl.textContent = "Aucune donnée disponible.";
             return;
         }
 
-        // 2. Convertir en tableau pour trier
-        // Format attendu: { "pseudo_lower": { "xp": 1000, "username": "Pseudo" } }
-        let usersArray = [];
-        
-        for (const [key, val] of Object.entries(xpData)) {
-            // Sécurité : on vérifie que l'objet a bien de l'XP
+        // Transformation des données en tableau pour le tri
+        let users = [];
+        Object.entries(xpData).forEach(([key, val]) => {
             if (val && typeof val.xp === 'number') {
-                usersArray.push({
-                    username: val.username || key, // Fallback sur la clé si pas de username
+                users.push({
+                    username: val.username || key, // Utilise le pseudo stocké ou la clé
                     xp: val.xp,
-                    level: val.level || calculateLevel(val.xp)
+                    level: calculateLevel(val.xp) // Fonction globale dans app.js
                 });
             }
-        }
+        });
 
-        // 3. Trier par XP décroissant
-        usersArray.sort((a, b) => b.xp - a.xp);
+        // Tri par XP décroissant (du plus grand au plus petit)
+        users.sort((a, b) => b.xp - a.xp);
 
-        // 4. Afficher le Top 50
+        // Affichage du Top 50
         listEl.innerHTML = "";
-        const topUsers = usersArray.slice(0, 50);
+        users.slice(0, 50).forEach((user, index) => {
+            const rank = index + 1;
+            let rankClass = "";
+            if (rank === 1) rankClass = "rank-1";
+            if (rank === 2) rankClass = "rank-2";
+            if (rank === 3) rankClass = "rank-3";
 
-        topUsers.forEach((user, index) => {
-            const li = document.createElement("li");
-            li.className = "leaderboard-item";
-            
-            // On crée le HTML de la ligne
-            li.innerHTML = `
-                <span class="rank">#${index + 1}</span>
-                <div class="user-info">
-                    <span class="name">${user.username}</span>
-                    <span class="level">Niveau ${user.level}</span>
-                </div>
-                <div class="xp-info">
-                    ${user.xp.toLocaleString()} <span>XP</span>
-                </div>
+            const row = `
+                <tr>
+                    <td class="${rankClass}">#${rank}</td>
+                    <td style="font-weight:500;">${user.username}</td>
+                    <td><span style="background:var(--accent); color:black; padding:2px 8px; border-radius:10px; font-size:0.8em; font-weight:bold;">Niv. ${user.level}</span></td>
+                    <td>${user.xp.toLocaleString()} XP</td>
+                </tr>
             `;
-            listEl.appendChild(li);
+            listEl.insertAdjacentHTML('beforeend', row);
         });
 
         loadingEl.style.display = "none";
-        listEl.style.display = "flex";
+        containerEl.style.display = "block";
 
-    } catch (error) {
-        console.error("Erreur Leaderboard:", error);
-        loadingEl.textContent = "Erreur de chargement. Vérifiez la console (F12).";
+    } catch (e) {
+        console.error("Erreur leaderboard:", e);
+        loadingEl.textContent = "Erreur lors du chargement.";
     }
 });

@@ -2,35 +2,37 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - FEL-X</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; background: #18181b; color: white; font-family: 'Inter', sans-serif; display: grid; place-items: center; height: 100vh; }
-        .card { background: #2a2a2d; padding: 3rem; border-radius: 16px; border: 1px solid #36363a; text-align: center; max-width: 400px; width: 90%; }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #00f5c3; }
-        p { color: #b9bbbe; margin-bottom: 2rem; }
-        .btn-twitch { background: #9146FF; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; display: inline-block; transition: 0.2s; }
-        .btn-twitch:hover { background: #772ce8; transform: translateY(-2px); }
-    </style>
+    <title>Infos - FEL-X</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="card">
-        <h1>FEL-X</h1>
-        <p>Connecte-toi pour accéder à ton profil viewer et configurer Félix.</p>
-        <a id="login-link" href="#" class="btn-twitch">Se connecter avec Twitch</a>
-    </div>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
+        <a href="infos.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
+    </nav>
 
-    <script>
-        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
-        const REDIRECT_URI = "https://fel-x.vercel.app/auth.html"; // Vérifiez cette URL !
-        
-        if(localStorage.getItem("twitch_token")) {
-            window.location.replace("/profile.html");
-        }
-
-        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
-        document.getElementById("login-link").href = authUrl;
-    </script>
+    <main>
+        <h1>ℹ️ Informations de la Chaîne</h1>
+        <div class="grid">
+            <div class="card">
+                <h2>Planning</h2>
+                <p>Retrouvez-moi en live tous les soirs à partir de 21h !</p>
+            </div>
+            <div class="card">
+                <h2>Setup</h2>
+                <ul>
+                    <li>PC : ...</li>
+                    <li>Micro : ...</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h2>Réseaux</h2>
+                <a href="#" style="color:var(--accent);">Twitter</a> <br>
+                <a href="#" style="color:var(--twitch);">Twitch</a>
+            </div>
+        </div>
+    </main>
+    
+    <script src="app.js"></script>
 </body>
 </html>

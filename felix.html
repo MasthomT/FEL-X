@@ -4,68 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Félix et moi - FEL-X</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
-        :root { --bg: #18181b; --surface: #2a2a2d; --sidebar: #2c2f33; --accent: #00f5c3; --text: #f0f0f0; --dim: #b9bbbe; --border: #36363a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 1rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar-title { padding: 0 1.5rem 1rem; font-weight: bold; font-size: 1.5rem; color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-        .nav-link { padding: 0.8rem 1.5rem; color: var(--dim); text-decoration: none; display: block; font-weight: 500; transition: 0.2s; }
-        .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
-        .nav-link.active { color: white; border-left: 3px solid var(--accent); background: var(--surface); }
-        
-        main { flex-grow: 1; padding: 2rem; overflow-y: auto; }
-        .container { max-width: 800px; margin: 0 auto; padding-bottom: 3rem; }
-        
+        /* Styles spécifiques au formulaire */
         .section-title { color: var(--accent); font-size: 1.1rem; margin: 2rem 0 1rem 0; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        .card { background: var(--surface); border-radius: 8px; padding: 2rem; border: 1px solid var(--border); }
-        
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--dim); font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 6px; font-size: 1rem; font-family: inherit; }
-        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); 
+            color: white; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: 0.2s;
+        }
+        input:focus, textarea:focus { border-color: var(--accent); outline: none; background: #202024; }
         .form-full { grid-column: 1 / -1; }
         
-        .btn { background: var(--accent); color: #000; border: none; padding: 14px 24px; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 2rem; font-size: 1.1rem; }
-        .btn:hover { background: #00dbaf; }
-        .status-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; text-align: center; }
-        .success { background: rgba(0, 245, 195, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; }
-            .sidebar { width: 100%; height: auto; }
-            .form-grid { grid-template-columns: 1fr; }
+        .btn-save { 
+            background: var(--accent); color: #18181b; border: none; padding: 14px 24px; 
+            font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 2rem; font-size: 1.1rem; 
+            transition: 0.2s;
         }
+        .btn-save:hover { background: white; transform: translateY(-2px); }
+        
+        .status-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; text-align: center; }
+        .status-success { background: rgba(0, 245, 195, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <nav class="sidebar">
-        <div class="sidebar-title">FEL-X</div>
-        <a href="/profile.html" class="nav-link">Mon Profil</a>
-        <a href="/felix.html" class="nav-link active">Félix et moi</a>
-        <a href="/infos.html" class="nav-link">Infos</a>
-        <a href="/leaderboard.html" class="nav-link">Classement</a>
-        <a href="/clips.html" class="nav-link">Clips</a>
-        <a href="/commands.html" class="nav-link">Commandes</a>
-        <a href="/stats.html" class="nav-link">Stats Globales</a>
-        <a href="#" id="logout-btn" class="nav-link" style="color: #ff6b6b; margin-top: auto;">Déconnexion</a>
+        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
+        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
+        <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
+        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
+        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
+        <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Statistiques</a>
+        
+        <a href="felix.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
+        
+        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
     <main>
-        <div class="container">
-            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: white;">🧠 Félix et moi</h1>
-            <p style="color: var(--dim);">Aide l'IA à te connaître ! (Tout est optionnel)</p>
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h1>🧠 Félix et moi</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Remplis cette fiche pour que l'IA Félix te connaisse mieux et te parle de façon personnalisée ! (Tout est optionnel)</p>
 
-            <form id="felixForm">
+            <div id="loading">Chargement de tes infos...</div>
+
+            <form id="felixForm" style="display:none;">
+                
                 <div class="section-title">1. Identité</div>
                 <div class="card">
                     <div class="form-grid">
-                        <div class="form-group"><label>Surnom</label><input type="text" id="nickname" placeholder="Ex: Chef"></div>
+                        <div class="form-group"><label>Surnom</label><input type="text" id="nickname" placeholder="Comment veux-tu qu'il t'appelle ?"></div>
                         <div class="form-group"><label>Anniversaire 🎂</label><input type="date" id="birthday"></div>
                         <div class="form-group"><label>Pronoms</label><select id="pronouns"><option value="">Peu importe</option><option value="il">Il / Lui</option><option value="elle">Elle</option><option value="iel">Iel</option></select></div>
-                        <div class="form-group"><label>Ta Vibe</label><input type="text" id="vibe" placeholder="Ex: Chill, Troll..."></div>
+                        <div class="form-group"><label>Ta Vibe</label><input type="text" id="vibe" placeholder="Ex: Chill, Troll, Compétitif..."></div>
                     </div>
                 </div>
 
@@ -74,7 +68,7 @@
                     <div class="form-grid">
                         <div class="form-group"><label>Jeu Favori ❤️</label><input type="text" id="favorite_game"></div>
                         <div class="form-group"><label>Genre Détesté ❌</label><input type="text" id="hated_genre"></div>
-                        <div class="form-group form-full"><label>Passion hors jeux ?</label><input type="text" id="hobby"></div>
+                        <div class="form-group form-full"><label>Passion hors jeux ?</label><input type="text" id="hobby" placeholder="Sport, Cuisine, Musique..."></div>
                     </div>
                 </div>
 
@@ -90,27 +84,30 @@
                 <div class="card">
                     <div class="form-group">
                         <label>Raconte ce que tu veux à Félix (Bio, Anecdote...)</label>
-                        <textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec..."></textarea>
+                        <textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec, j'ai un chat qui s'appelle Pompom..."></textarea>
                     </div>
                 </div>
 
-                <button type="submit" id="saveBtn" class="btn">Sauvegarder</button>
-                <div id="statusMsg" class="status-msg"></div>
+                <button type="submit" id="saveBtn" class="btn-save">Sauvegarder</button>
+                <div id="statusMsg" class="status-msg status-success">✅ Profil sauvegardé avec succès !</div>
             </form>
         </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="/app.js"></script> <script>
-        // Logique spécifique à cette page
+    <script src="app.js"></script>
+
+    <script>
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
         const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
-        
+
         async function getUserId(token) {
             try {
                 const r = await fetch('https://api.twitch.tv/helix/users', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': 'kgyfzs0k3wk8enx7p3pd6299ro4izv' }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL }
                 });
+                if (!r.ok) throw new Error("Token invalide");
                 const d = await r.json();
                 return d.data[0].id;
             } catch { return null; }
@@ -124,34 +121,48 @@
             const userId = await getUserId(token);
             
             if (userId) {
-                // Lecture
+                // LECTURE
                 db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
                     const data = snapshot.val() || {};
                     fields.forEach(f => {
                         if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
                     });
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('felixForm').style.display = 'block';
                 });
 
-                // Ecriture
+                // ÉCRITURE
                 document.getElementById('felixForm').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    document.getElementById('saveBtn').textContent = "Sauvegarde...";
+                    const btn = document.getElementById('saveBtn');
+                    const originalText = btn.textContent;
+                    
+                    btn.textContent = "Sauvegarde en cours...";
+                    btn.disabled = true;
                     
                     const payload = { updated_at: new Date().toISOString() };
                     fields.forEach(f => {
                         const el = document.getElementById(f);
-                        if(el) payload[f] = el.value;
+                        if(el) payload[f] = el.value.trim();
                     });
 
-                    await db.ref('viewer_data/ai_context/' + userId).set(payload);
-                    
-                    document.getElementById('saveBtn').textContent = "Sauvegarder";
-                    const msg = document.getElementById('statusMsg');
-                    msg.textContent = "✅ Profil sauvegardé !";
-                    msg.classList.add('success');
-                    msg.style.display = 'block';
-                    setTimeout(() => msg.style.display = 'none', 5000);
+                    try {
+                        await db.ref('viewer_data/ai_context/' + userId).set(payload);
+                        
+                        const msg = document.getElementById('statusMsg');
+                        msg.style.display = 'block';
+                        setTimeout(() => msg.style.display = 'none', 4000);
+                    } catch (error) {
+                        alert("Erreur lors de la sauvegarde.");
+                        console.error(error);
+                    } finally {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }
                 });
+            } else {
+                // Erreur Token
+                logout();
             }
         });
     </script>

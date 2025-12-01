@@ -3,281 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FEL-X : Portail Viewer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+    <title>Connexion - FEL-X</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        :root {
-            --color-background: #18181b;
-            --color-surface: #2a2a2d;
-            --color-border: #36363a;
-            --color-text-primary: #f0f0f0;
-            --color-text-secondary: #b9bbbe;
-            --color-accent: #00f5c3;
-            --color-danger: #ff6b6b;
-            --transition-speed: 0.3s;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background: var(--color-background); 
-            color: var(--color-text-primary); 
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 300; 
-            margin: 0;
-            padding: 2rem;
-            display: grid;
-            place-items: center;
-            min-height: 90vh;
-        }
-        
-        main {
-            max-width: 1200px;
-            width: 100%;
-            text-align: center;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #logo-container { margin-bottom: 2rem; }
-        #logo-container h1 {
-            font-size: 4rem;
-            color: var(--color-accent);
-            margin: 0;
-            font-weight: 600; 
-        }
-        #logo-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--color-accent);
-            margin: 1rem auto;
-            display: block;
-        }
-        #welcome-message {
-            font-size: 1.5rem;
-            color: var(--color-text-secondary);
-            font-weight: 300;
-        }
-        
-        #logged-out-view, #logged-in-view {
-            margin-top: 3rem;
-        }
-        
-        .btn-primary { 
-            background: var(--color-accent); 
-            color: #18181b; 
-            padding: 1rem 2rem; 
-            border-radius: 8px; 
-            text-decoration: none; 
-            font-weight: 500;
-            font-size: 1.2rem;
-            transition: all var(--transition-speed) ease;
-            display: inline-block;
-            border: none;
-        }
-        .btn-primary:hover { 
-            background: white;
-            color: #18181b;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 245, 195, 0.2);
-        }
-
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .nav-card {
-            display: block;
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--color-text-primary);
-            transition: all var(--transition-speed) ease;
-        }
-        .nav-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--color-accent);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
-        .nav-card h2 {
-            margin: 0 0 0.5rem 0;
-            color: var(--color-accent);
-            font-weight: 500;
-        }
-        .nav-card p {
-            margin: 0;
-            color: var(--color-text-secondary);
-            line-height: 1.4;
-            font-weight: 300;
-        }
-        
-        #logout { 
-            color: var(--color-danger); 
-            cursor: pointer; 
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 3rem;
-            font-size: 1.1rem;
-            transition: color var(--transition-speed) ease;
-            font-weight: 500;
-        }
-        #logout:hover { color: white; }
-        
-        @media (max-width: 768px) {
-            body { padding: 1rem; }
-            #logo-container h1 { font-size: 3rem; }
-            .nav-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        body { justify-content: center; align-items: center; text-align: center; }
+        .login-box { background: var(--surface); padding: 3rem; border-radius: 16px; border: 1px solid var(--border); max-width: 400px; width: 90%; }
+        .btn-twitch { background: var(--twitch); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 20px; transition: 0.2s; }
+        .btn-twitch:hover { background: #772ce8; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-    <main>
-        <div id="logo-container">
-            <h1>FEL-X</h1>
-            <img src="/logo-felix.png" alt="Logo FEL-X" id="logo-image">
-            <p id="welcome-message">Votre portail communautaire</p>
-        </div>
+    <div class="login-box">
+        <img src="logo-felix.png" alt="Logo" style="width: 80px; margin-bottom: 20px;">
+        <h1>Bienvenue sur FEL-X</h1>
+        <p style="color: var(--text-dim);">Connecte-toi pour accéder à ton XP, tes stats et au classement de la communauté.</p>
+        <a id="login-link" href="#" class="btn-twitch">Connexion avec Twitch</a>
+    </div>
 
-        <div id="logged-out-view" style="display:none;">
-            <p>Connectez-vous avec Twitch pour accéder à votre profil et votre XP.</p>
-            <a id="login-link" class="btn-primary" href="#">Se connecter avec Twitch</a>
-        </div>
-
-        <div id="logged-in-view" style="display:none;">
-            <div class="nav-grid">
-                <a href="/profile.html" class="nav-card">
-                    <h2>Mon Profil</h2>
-                    <p>Voir mon niveau, mon XP, mon historique et mon statut de follow.</p>
-                </a>
-                <a href="/infos.html" class="nav-card">
-                    <h2>Infos</h2>
-                    <p>Retrouves toutes les infos de la chaîne</p>
-                </a>
-                <a href="/leaderboard.html" class="nav-card">
-                    <h2>Classement</h2>
-                    <p>Voir le top 50 des viewers de la chaîne et leur classement par XP.</p>
-                </a>
-                <a href="/clips.html" class="nav-card">
-                    <h2>Galerie de Clips</h2>
-                    <p>Voir les meilleurs clips récents de la chaîne.</p>
-                </a>
-                <a href="/commands.html" class="nav-card">
-                    <h2>Commandes du Bot</h2>
-                    <p>Retrouves toutes les commandes du chat.</p>
-                </a>
-                <a href="/felix.html" class="nav-card">
-                    <h2>Felix et moi</h2>
-                    <p>Réponds à quelques questions pour permettre à Felix de te connaître.</p>
-                </a>
-                <a href="/stats.html" class="nav-card">
-                    <h2>Statistiques</h2>
-                    <p>Les stats de l'interface et des interactions.</p>
-                </a>
-            </div>
-            <a id="logout" href="#">Se déconnecter</a>
-        </div>
-	<div style="margin-top: 3rem; opacity: 0.3; font-size: 0.8rem;">
-            <a href="http://192.168.1.109:8080/auth/twitch" style="color: inherit; text-decoration: none; border-bottom: 1px dotted;">
-                Accès Administration
-            </a>
-        </div>
-
-    </main>
-    
-<script>
-    (async function checkLoginState() {
-        const loginLink = document.getElementById("login-link");
-        const loggedOutView = document.getElementById("logged-out-view");
-        const loggedInView = document.getElementById("logged-in-view");
-        const welcomeMessage = document.getElementById("welcome-message");
-        const logoutButton = document.getElementById("logout");
-
-        // CONFIGURATION
-        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; // Votre Client ID Vercel
+    <script>
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const REDIRECT_URI = window.location.origin + "/auth.html"; // On passe par auth.html pour être propre
+        const SCOPES = "user:read:follows user:read:subscriptions"; 
         
-        // CORRECTION MAJEURE : On reste sur la racine, on ne va pas sur auth.html
-        const REDIRECT_URI = window.location.origin + "/"; 
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+        document.getElementById("login-link").href = authUrl;
 
-        // GESTION LOGOUT
-        if (logoutButton) {
-            logoutButton.onclick = function(e) {
-                e.preventDefault();
-                localStorage.removeItem("twitch_token");
-                window.location.reload(); 
-            };
-        }
-
-        // 1. RETOUR DE TWITCH (Capture du Token dans l'URL)
-        if (window.location.hash) {
-            const params = new URLSearchParams(window.location.hash.substring(1));
-            if (params.has("access_token")) {
-                // On sauvegarde le token
-                localStorage.setItem("twitch_token", params.get("access_token"));
-                // On nettoie l'URL pour qu'elle soit propre
-                window.history.replaceState({}, document.title, "/");
-                // On recharge pour afficher la vue connecté
-                window.location.reload();
-                return;
-            }
-        }
-
-        // 2. VÉRIFICATION DU STATUT (Token en mémoire)
-        const token = localStorage.getItem("twitch_token");
-
-        if (!token) {
-            // --- NON CONNECTÉ ---
-            if (welcomeMessage) welcomeMessage.textContent = "Connectez-vous pour accéder à votre espace.";
-            
-            const SCOPES = "user:read:follows user:read:subscriptions"; 
-            const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
-            
-            if (loginLink) loginLink.href = authUrl; 
-            
-            if (loggedOutView) loggedOutView.style.display = "block";
-            if (loggedInView) loggedInView.style.display = "none";
-            
-        } else {
-            // --- CONNECTÉ ---
-            try {
-                const twitchHeaders = new Headers({
-                    'Authorization': `Bearer ${token}`,
-                    'Client-Id': CLIENT_ID
-                });
-                
-                const response = await fetch('https://api.twitch.tv/helix/users', { headers: twitchHeaders });
-
-                if (!response.ok) throw new Error("Token invalide");
-                
-                const data = await response.json();
-                const user = data.data[0];
-                
-                if (welcomeMessage) welcomeMessage.textContent = `Bonjour, ${user.display_name} !`;
-                
-                if (loggedOutView) loggedOutView.style.display = "none";
-                if (loggedInView) loggedInView.style.display = "block";
-
-            } catch (error) {
-                console.error("Erreur auth:", error);
-                localStorage.removeItem("twitch_token");
-                window.location.reload();
-            }
-        }
-    })();
-</script>
+        // Si déjà connecté, on redirige
+        if(localStorage.getItem("twitch_token")) window.location.href = "/profile.html";
+    </script>
 </body>
 </html>
