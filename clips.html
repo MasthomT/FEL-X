@@ -20,15 +20,20 @@
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
-    <main>
+<main>
         <h1>🎬 Galerie de Clips</h1>
         
-        <div id="loading" style="text-align:center; padding:2rem; font-size:1.2rem; color:var(--text-dim);">
-            Chargement des clips Twitch...
+        <div style="margin-bottom: 2rem; display:flex; gap:10px;">
+            <input type="text" id="clip-search" placeholder="Rechercher un clip par titre..." 
+                   style="width:100%; padding:12px; background:var(--surface); border:1px solid var(--border); color:white; border-radius:8px;">
+            <select id="filter-sort" style="padding:12px; background:var(--surface); border:1px solid var(--border); color:white; border-radius:8px;">
+                <option value="date">📅 Plus Récents</option>
+                <option value="views">🔥 Plus Vus</option>
+            </select>
         </div>
 
-        <div id="clips-grid" class="grid" style="display:none;">
-            </div>
+        <div id="loading" style="text-align:center; padding:2rem;">Chargement...</div>
+        <div id="clips-grid" class="grid" style="display:none;"></div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
