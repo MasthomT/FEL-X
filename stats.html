@@ -5,7 +5,7 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE FINAL (ÉPURÉ & VISUEL) --- */
+        /* --- STYLE FINAL (ADAPTÉ AU VERCEL VIEWER) --- */
         :root { 
             --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
             --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
@@ -37,11 +37,12 @@
         .stat-value { font-size: 3.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
         .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; font-weight: 600; }
 
-        /* LISTE TOP 5 */
-        .top-list { list-style: none; padding: 0; margin-top: 10px; }
-        .top-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; font-size: 1.1rem; }
-        .top-rank-1 { color: #FFD700; font-weight: bold; }
-
+        /* LISTE TOP 5 & MOYENNES */
+        .list-container { padding: 0; margin: 0; }
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border); font-size: 1rem; }
+        .list-row:last-child { border-bottom: none; }
+        .rank-1 { color: #FFD700; font-weight: bold; }
+        
         /* HALL OF FAME */
         .fame-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .fame-item {
@@ -69,15 +70,15 @@
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 </nav>
 
-<main class="content">
+    <main class="content">
         <h1>📊 Statistiques Communauté</h1>
         <div id="loading" style="text-align:center; padding:3rem;">Chargement des données...</div>
 
         <div id="stats-content" class="main-grid" style="display:none;">
             
-            <div class="left-column">
+            <div class="left-column" style="display:flex; flex-direction:column; gap:2rem;">
                 
-                <div class="card" style="margin-bottom:2rem;">
+                <div class="card">
                     <h2 class="card-title">📈 Chiffres Clés</h2>
                     <div class="major-stats-grid">
                         <div class="stat-box">
@@ -93,26 +94,26 @@
                             <span class="metric-label">Niveau Max</span>
                         </div>
                         <div class="metric-box">
-                            <span class="metric-val" id="avg-level" style="color:#00f5c3">0</span>
-                            <span class="metric-label">Niveau Moyen</span>
+                            <span class="metric-val" id="total-follows" style="color:#9146FF">0</span>
+                            <span class="metric-label">Follows Détectés</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">🔬 Moyennes & Événements</h2>
-                    <ul class="avg-stats-list">
-                        <li><span>XP Moyen par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
-                        <li style="color:var(--gold);"><span>Dons Bits Totaux</span> <span class="avg-val" id="total-bits">0</span></li>
-                        <li style="color:#00f5c3;"><span>Subs Offerts Totaux</span> <span class="avg-val" id="total-subgifts">0</span></li>
-                        <li style="color:#9146FF;"><span>Nouveaux Follows</span> <span class="avg-val" id="total-follows">0</span></li>
-                        <li style="color:var(--discord);"><span>Raids Détectés</span> <span class="avg-val" id="total-raids">0</span></li>
+                    <h2 class="card-title">🔬 Moyennes Communautaires</h2>
+                    <ul class="avg-list list-container">
+                        <li class="list-row"><span>Niveau Moyen</span> <span class="avg-val" id="avg-level">1.0</span></li>
+                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
+                        <li class="list-row"><span>Total Subs Offerts</span> <span class="avg-val" id="total-subgifts">0</span></li>
+                        <li class="list-row"><span>Dons Bits Totaux</span> <span class="avg-val" id="total-bits">0</span></li>
+                        <li class="list-row"><span>Raids Détectés</span> <span class="avg-val" id="total-raids">0</span></li>
                     </ul>
                 </div>
 
             </div>
 
-            <div class="right-column">
+            <div class="right-column" style="display:flex; flex-direction:column; gap:2rem;">
                 
                 <div class="card">
                     <h2 class="card-title">🏆 Hall of Fame</h2>
@@ -133,14 +134,12 @@
                 </div>
                 
                 <div class="card" style="flex-grow:1;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">
-                        <h2 style="margin:0; border:none; padding:0; font-size:1.1rem;">👑 Leaders Actuels</h2>
-                        <a href="leaderboard.html" style="color:var(--accent); font-size:0.8rem; text-decoration:none;">Voir tout &rarr;</a>
-                    </div>
-                    <ul class="mini-leaderboard" id="top-5-list">
+                    <h2 class="card-title">👑 Top 5 Leaders Actuels</h2>
+                    <ul class="list-container" id="top-5-list">
                         <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
                     </ul>
                 </div>
+
             </div>
 
         </div>

@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // 2. Calculs
+        // 2. Calculs Communauté
         let users = [];
         let totalXP = 0;
         let totalLevels = 0;
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Moyennes
         document.getElementById("avg-level").textContent = avgLvl;
         document.getElementById("avg-xp").textContent = avgXP.toLocaleString() + " XP";
-        
+
         // Hall of Fame
         document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "N/A";
         document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "N/A";
@@ -79,9 +79,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         topListEl.innerHTML = "";
         users.slice(0, 5).forEach((u, i) => {
             let rankClass = "";
-            if (i === 0) rankClass = "pos-1";
-            if (i === 1) rankClass = "pos-2";
-            if (i === 2) rankClass = "pos-3";
+            if (i === 0) rankClass = "rank-1";
+            if (i === 1) rankClass = "rank-2";
+            if (i === 2) rankClass = "rank-3";
 
             topListEl.innerHTML += `
                 <li class="list-row">
