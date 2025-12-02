@@ -5,45 +5,51 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* GRILLE PRINCIPALE 50/50 */
-        .main-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; 
-            max-width: 1200px; margin: 0 auto; 
+        /* --- STYLE FINAL (ÉPURÉ & VISUEL) --- */
+        :root { 
+            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
+            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
+            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+            --twitch: #9146FF; --discord: #5865F2;
         }
 
-        /* CARTES */
-        .stat-card { 
-            background: var(--surface); border: 1px solid var(--border); 
-            border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;
-        }
-        .stat-card h2 { 
-            color: white; font-size: 1.4rem; margin: 0; padding-bottom: 15px;
-            border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 1px;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
+            display: flex; min-height: 100vh; overflow-x: hidden; 
         }
 
-        /* GROS CHIFFRES */
-        .big-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .big-stat { 
-            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; text-align: center; 
-            border: 1px solid transparent; transition: 0.3s;
-        }
-        .big-stat:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-        
-        .val { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
-        .lbl { font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; font-weight: 600; }
+        /* SIDEBAR & MAIN */
+        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; }
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
+        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
 
-        /* LISTES (Top & Gagnants) */
-        .list-row { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 0; border-bottom: 1px dashed var(--border); font-size: 1.05rem;
+        /* --- GRILLE PRINCIPALE 50/50 --- */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+        .card-title { font-size: 1.3rem; font-weight: 700; color: white; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        /* STATS PRINCIPALES (4 BLOCS) */
+        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .stat-box {
+            background: rgba(255,255,255,0.05); padding: 1.8rem; border-radius: 12px; text-align: center;
         }
-        .list-row:last-child { border-bottom: none; }
-        
-        .rank-1 { color: #FFD700; font-weight: bold; }
-        .rank-2 { color: #C0C0C0; font-weight: bold; }
-        .rank-3 { color: #CD7F32; font-weight: bold; }
-        
-        .winner-name { color: var(--green); font-weight: bold; }
+        .stat-value { font-size: 3.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
+        .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; font-weight: 600; }
+
+        /* LISTE TOP 5 */
+        .top-list { list-style: none; padding: 0; margin-top: 10px; }
+        .top-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; font-size: 1.1rem; }
+        .top-rank-1 { color: #FFD700; font-weight: bold; }
+
+        /* HALL OF FAME */
+        .fame-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .fame-item {
+            background: rgba(0,0,0,0.2); border-left: 4px solid var(--border); padding: 15px; border-radius: 8px;
+            display: flex; flex-direction: column; justify-content: space-between; height: 100%;
+        }
+        .fame-title { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
+        .fame-winner { font-size: 1.2rem; font-weight: bold; color: white; margin-top: 5px; }
 
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
@@ -63,51 +69,78 @@
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 </nav>
 
-    <main>
+<main class="content">
         <h1>📊 Statistiques Communauté</h1>
         <div id="loading" style="text-align:center; padding:3rem;">Chargement des données...</div>
 
         <div id="stats-content" class="main-grid" style="display:none;">
             
-            <div class="stats-card">
-                <h2>🔥 Puissance Communauté</h2>
-                <div class="big-stat-grid">
-                    <div class="big-stat">
-                        <span class="val" id="total-members">0</span>
-                        <span class="lbl">Membres Actifs</span>
-                    </div>
-                    <div class="big-stat">
-                        <span class="val" id="total-xp" style="color:var(--gold)">0</span>
-                        <span class="lbl">XP Total Cumulé</span>
-                    </div>
-                    <div class="big-stat">
-                        <span class="val" id="max-level" style="color:#FF0000">0</span>
-                        <span class="lbl">Niveau Max Atteint</span>
-                    </div>
-                    <div class="big-stat">
-                        <span class="val" id="avg-level" style="color:#00f5c3">0</span>
-                        <span class="lbl">Niveau Moyen</span>
+            <div class="left-column">
+                
+                <div class="card" style="margin-bottom:2rem;">
+                    <h2 class="card-title">📈 Chiffres Clés</h2>
+                    <div class="major-stats-grid">
+                        <div class="stat-box">
+                            <span class="metric-val" id="total-members">0</span>
+                            <span class="metric-label">Membres Actifs</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
+                            <span class="metric-label">XP Total Cumulé</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
+                            <span class="metric-label">Niveau Max</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="avg-level" style="color:#00f5c3">0</span>
+                            <span class="metric-label">Niveau Moyen</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="card" style="flex-grow:1;">
+                    <h2 class="card-title">🔬 Moyennes & Événements</h2>
+                    <ul class="avg-stats-list">
+                        <li><span>XP Moyen par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
+                        <li style="color:var(--gold);"><span>Dons Bits Totaux</span> <span class="avg-val" id="total-bits">0</span></li>
+                        <li style="color:#00f5c3;"><span>Subs Offerts Totaux</span> <span class="avg-val" id="total-subgifts">0</span></li>
+                        <li style="color:#9146FF;"><span>Nouveaux Follows</span> <span class="avg-val" id="total-follows">0</span></li>
+                        <li style="color:var(--discord);"><span>Raids Détectés</span> <span class="avg-val" id="total-raids">0</span></li>
+                    </ul>
+                </div>
+
             </div>
 
-            <div class="stats-card">
-                <h2>🏆 Hall of Fame & Leaders</h2>
+            <div class="right-column">
                 
-                <div style="margin-bottom: 2rem;">
-                    <div class="list-row">
-                        <span>🎬 Dernier Clip Gagnant</span>
-                        <span class="winner-name" id="winner-clip">...</span>
-                    </div>
-                    <div class="list-row">
-                        <span>🎁 Dernier Giveaway</span>
-                        <span class="winner-name" id="winner-giveaway">...</span>
+                <div class="card">
+                    <h2 class="card-title">🏆 Hall of Fame</h2>
+                    <div class="fame-grid">
+                        <div class="fame-item clip" style="border-color:#9146FF;">
+                            <div class="fame-info">
+                                <h4>Clip du Mois</h4>
+                                <div class="fame-winner" id="winner-clip">...</div>
+                            </div>
+                        </div>
+                        <div class="fame-item giveaway" style="border-color:var(--gold);">
+                            <div class="fame-info">
+                                <h4>Giveaway</h4>
+                                <div class="fame-winner" id="winner-giveaway">...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <h3 style="color:var(--text-dim); font-size:0.9rem; margin-bottom:10px; text-transform:uppercase;">👑 Top 5 Actuel</h3>
-                <div id="top-5-container">
+                
+                <div class="card" style="flex-grow:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">
+                        <h2 style="margin:0; border:none; padding:0; font-size:1.1rem;">👑 Leaders Actuels</h2>
+                        <a href="leaderboard.html" style="color:var(--accent); font-size:0.8rem; text-decoration:none;">Voir tout &rarr;</a>
                     </div>
+                    <ul class="mini-leaderboard" id="top-5-list">
+                        <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
+                    </ul>
+                </div>
             </div>
 
         </div>
