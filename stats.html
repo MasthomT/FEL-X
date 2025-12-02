@@ -2,134 +2,258 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Statistiques - FEL-X</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Admin : {{ username }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- STYLE FINAL (ÉPURÉ & VISUEL) --- */
+        /* --- STYLE ADMIN (CORRIGÉ POUR LE SCROLL GLOBAL) --- */
         :root { 
             --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
             --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
-            --accent: #8b5cf6; --gold: #f59e0b;
+            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { overflow-y: auto; } /* Permet au body de défiler */
         body { 
             font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
-            display: flex; min-height: 100vh; overflow-x: hidden; 
+            display: flex; min-height: 100vh; overflow-x: hidden; /* Empêche le scroll horizontal */
         }
 
-        /* SIDEBAR & MAIN */
-        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; }
-        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
-        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
+        /* SIDEBAR ADMIN */
+        nav.sidebar { width: 250px; background-color: var(--card); display: flex; flex-direction: column; padding-top: 1rem; flex-shrink: 0; border-right: 1px solid var(--border); min-height: 100%; }
+        .sidebar-title { padding: 0 1.5rem 1rem; font-size: 1.2rem; color: white; font-weight: bold; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent; }
 
-        /* --- GRILLE PRINCIPALE 50/50 --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
-        .card-title { font-size: 1.3rem; font-weight: 700; color: white; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-
-        /* STATS PRINCIPALES (4 BLOCS) */
-        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .stat-box {
-            background: rgba(255,255,255,0.05); padding: 1.8rem; border-radius: 12px; text-align: center;
+        /* CONTENU PRINCIPAL */
+        main.content { 
+            flex-grow: 1; 
+            padding: 1rem; /* Marges réduites */
+            overflow-y: visible; 
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
         }
-        .stat-value { font-size: 3rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
-        .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; font-weight: 600; }
 
-        /* LISTE TOP 5 & MOYENNES */
-        .list-container { padding: 0; margin: 0; }
-        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border); font-size: 1rem; }
-        .list-row:last-child { border-bottom: none; }
-        .rank-1 { color: #FFD700; font-weight: bold; }
+        /* HEADER PROFIL */
+        .profile-header {
+            background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+            padding: 1rem; display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
+        .user-info h1 { color: #fff; font-size: 1.6rem; margin: 0; }
+
+        /* GRILLE ADMIN (50/50) */
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; margin-bottom: 1.5rem; }
+        .card-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        /* FORMULAIRES */
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 8px; background: #202225; border: 1px solid var(--border); color: white; border-radius: 4px; font-size: 0.9rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* HISTORIQUE */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        .history-table th { text-align: left; color: var(--text-dim); padding: 8px; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 10; }
+        .history-table td { padding: 8px; border-bottom: 1px solid var(--border); }
+        .gain-positive { color: var(--green); font-weight: 600; }
+        .gain-negative { color: var(--red); font-weight: 600; }
+
+        /* AUTRES STYLES */
+        .stat-box { flex: 1; background: var(--bg); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 1.4rem; font-weight: 800; color: white; display: block; }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600; letter-spacing: 1px; }
+
+        .danger-zone { border: 1px solid var(--red); background: rgba(240, 71, 71, 0.05); }
+
+        .btn-save { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        .btn-danger { width: 100%; padding: 8px; background: var(--red); color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+
+
+        @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
+
     <nav class="sidebar">
-        <div class="sidebar-title">FEL-X Viewer</div>
-        <a href="profile.html">👥 Profil</a>
-        <a href="infos.html">ℹ️ Infos</a>
-        <a href="leaderboard.html">🏆 Classement</a>
-        <a href="clips.html">🎬 Clips</a>
-        <a href="commands.html">📜 Commandes</a>
-        <a href="stats.html" class="active">📊 Statistiques</a>
-        <a href="felix.html">🧠 Félix et moi</a>
-        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
+        <div class="sidebar-title">MasthomBot Admin</div>
+        <a href="{{ url_for('index') }}">🏠 Accueil</a>
+        <a href="{{ url_for('liste_streamers') }}">🎥 Streamers</a>
+        <a href="{{ url_for('chaine') }}">⚙️ Ma Chaîne</a>
+        <a href="{{ url_for('stats') }}">📊 Statistiques</a>
+        <a href="{{ url_for('viewers_recherche_page') }}" class="active">👥 Viewers & XP</a>
+        <a href="{{ url_for('clip') }}">🎬 Clips</a>
+        <a href="{{ url_for('giveaway') }}">🎁 Giveaway</a>
+        <a href="{{ url_for('felix_ai') }}">🧠 Félix IA</a>
+        <a href="{{ url_for('settings') }}">🔧 Paramètres</a>
     </nav>
 
     <main class="content">
-        <h1>📊 Statistiques Communauté</h1>
-        <div id="loading" style="text-align:center; padding:3rem;">Chargement des données...</div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-        <div id="stats-content" class="main-grid" style="display:none;">
-            
-            <div class="left-column">
+        <div class="profile-header">
+            <div class="avatar-container">
+                <img src="{{ twitch_info.profile_image_url if twitch_info and twitch_info.profile_image_url else 'https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-70x70.png' }}" alt="Avatar" class="avatar">
+            </div>
+            <div class="user-info">
+                <h1>{{ username }}</h1>
+                <div class="rank">Niveau {{ xp_stats.level }} • {{ xp_stats.total_xp }} XP Total</div>
                 
-                <div class="card" style="margin-bottom:1.5rem;">
-                    <h2 class="card-title">📈 Données Générales</h2>
-                    <div class="major-stats-grid">
-                        <div class="stat-box">
-                            <span class="metric-val" id="total-members">0</span>
-                            <span class="metric-label" style="color:var(--accent);">Membres Actifs</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
-                            <span class="metric-label">XP Total Cumulé</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
-                            <span class="metric-label">Niveau Max</span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="metric-val" id="avg-level" style="color:#00f5c3">0</span>
-                            <span class="metric-label">Niveau Moyen</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">🔬 Ratios & Performances</h2>
-                    <ul class="avg-list list-container">
-                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-res" id="avg-xp">0 XP</span></li>
-                        <li class="list-row"><span>Progression Follow (Objectif 1500)</span> <span class="avg-res" id="stat-followers-progress">0%</span></li>
-                    </ul>
+                <div class="badges">
+                    {% if follow_status.is_follower %}
+                        <span class="badge" style="background:rgba(67, 181, 129, 0.15); color:var(--green);">Follower ({{ follow_status.follow_age_days|int }}j)</span>
+                    {% else %}
+                        <span class="badge" style="background:#333; color:#aaa;">Non Follower</span>
+                    {% endif %}
                 </div>
             </div>
-
-            <div class="right-column">
-                
-                <div class="card">
-                    <h2 class="card-title">🏆 Derniers Vainqueurs</h2>
-                    <div class="fame-grid">
-                        <div class="fame-item clip" style="border-left:4px solid #9146FF;">
-                            <div class="fame-info">
-                                <h4 class="fame-title">Clip du Mois</h4>
-                                <div class="fame-winner" id="winner-clip">...</div>
-                            </div>
-                        </div>
-                        <div class="fame-item giveaway" style="border-left:4px solid var(--gold);">
-                            <div class="fame-info">
-                                <h4>Giveaway</h4>
-                                <div class="fame-winner" id="winner-giveaway">...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">👑 Top 5 Leaders Actuels</h2>
-                    <ul class="list-container" id="top-5-list">
-                        <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
-                    </ul>
-                </div>
+            <div>
+                <a href="https://twitch.tv/{{ username }}" target="_blank" class="twitch-btn">
+                    Voir Chaîne
+                </a>
             </div>
         </div>
-    </main>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="app.js"></script>
-    <script src="stats.js"></script>
+        <form method="POST" action="{{ url_for('save_viewer_context_route', identifier=identifier) }}">
+            <div class="admin-grid">
+                
+                <div class="left-col">
+                    
+                    <div class="card">
+                        <div class="card-title">🧠 Carte d'Identité (Contexte IA)</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Surnom</label><input type="text" class="form-input" name="v_nickname" value="{{ vercel.nickname or '' }}" placeholder="Ex: Chef"></div>
+                            <div class="form-group"><label class="form-label">Anniversaire</label><input type="date" class="form-input" name="v_birthday" value="{{ vercel.birthday or '' }}"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Pronoms</label><select class="form-select" name="v_pronouns"><option value="" {{ 'selected' if not vercel.pronouns }}>Non spécifié</option><option value="il" {{ 'selected' if vercel.pronouns == 'il' }}>Il / Lui</option><option value="elle" {{ 'selected' if vercel.pronouns == 'elle' }}>Elle</option><option value="iel" {{ 'selected' if vercel.pronouns == 'iel' }}>Iel</option></select></div>
+                            <div class="form-group"><label class="form-label">Vibe</label><input type="text" class="form-input" name="v_vibe" value="{{ vercel.vibe or '' }}" placeholder="Ex: Chill, Troll"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Bio / Message Libre</label>
+                            <textarea class="form-textarea" name="v_free_message" rows="3" placeholder="Infos supplémentaires pour l'IA...">{{ vercel.free_message or '' }}</textarea>
+                        </div>
+
+                        <div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label">Jeu Favori</label><input type="text" class="form-input" name="v_favorite_game" value="{{ vercel.favorite_game or '' }}"></div>
+                                <div class="form-group"><label class="form-label">Genre Détesté</label><input type="text" class="form-input" name="v_hated_genre" value="{{ vercel.hated_genre or '' }}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📜 Historique d'XP Récent</div>
+                        {% if xp_history %}
+                        <div class="history-table-wrapper">
+                            <table class="history-table">
+                                <thead>
+                                    <tr><th>Date</th><th>Raison</th><th>Montant</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in xp_history[-10:]|reverse %}
+                                    <tr>
+                                        <td>{{ item.date_formatted }}</td>
+                                        <td>{{ item.reason }}</td>
+                                        <td class="{{ 'gain-positive' if item.amount > 0 else 'gain-negative' }}">
+                                            {{ '+' if item.amount > 0 }}{{ item.amount }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                            <p style="color:var(--text-dim); text-align:center; padding:20px;">Aucun historique disponible.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">➕ Faits Clés Dynamiques</div>
+                        
+                        <form method="POST" action="{{ url_for('add_viewer_context', identifier=identifier) }}" style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--border);">
+                            <input type="hidden" name="user_key" value="{{ username }}">
+                            <input type="hidden" name="identifier" value="{{ identifier }}">
+
+                            <div class="form-group"><label class="form-label">Mot-clé (déclencheur)</label><input type="text" class="form-input" name="keyword" required placeholder="Ex: plat préféré"></div>
+                            <div class="form-group"><label class="form-label">Réponse/Info</label><input type="text" class="form-input" name="info" required placeholder="Ex: J'adore les tacos"></div>
+                            <button type="submit" class="btn-save" style="width:100%; padding: 8px; margin-top: 5px;">Ajouter Mot-clé</button>
+                        </form>
+
+                        {% if viewer_data_obj.facts %}
+                            <p style="color:var(--text); font-weight:bold; margin-bottom:5px;">Faits enregistrés :</p>
+                            {% for fact in viewer_data_obj.facts %}
+                                <div class="fact-list-item">
+                                    <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><span class="fact-keyword">[{{ fact.keyword }}]</span> <span style="color:var(--text-dim);">{{ fact.response }}</span></div>
+                                    <form method="POST" action="{{ url_for('delete_viewer_context', fact_id=fact.id) }}" onsubmit="return confirm('Supprimer ce fait ?');" style="margin-left:10px;">
+                                        <input type="hidden" name="user_key" value="{{ username }}">
+                                        <input type="hidden" name="identifier" value="{{ identifier }}">
+                                        <button type="submit" class="fact-action-btn">🗑️</button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color:var(--text-dim); font-size:0.9rem;">Aucun fait dynamique enregistré.</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="right-col">
+                    
+                    <div class="card">
+                        <div class="card-title">📊 Statistiques</div>
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <span class="stat-val">{{ xp_stats.total_xp }}</span>
+                                <span class="stat-label">XP Total</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-val">{{ xp_stats.level }}</span>
+                                <span class="stat-label">Niveau</span>
+                            </div>
+                        </div>
+
+                        <div class="card" style="border:1px solid rgba(245, 158, 11, 0.3); background:rgba(245, 158, 11, 0.05);">
+                            <div class="card-title" style="color:var(--gold); border-color:rgba(245, 158, 11, 0.2);">
+                                🔒 Notes Secrètes
+                            </div>
+                            <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:10px;">Visible uniquement par vous et Félix.</p>
+                            <textarea class="form-textarea" name="general_context" rows="6" placeholder="Ex: Viewer fidèle depuis 2022...">{{ general_context }}</textarea>
+                        </div>
+                        
+                        <div style="margin-top:20px; padding-top:15px; border-top:1px solid var(--border);">
+                            <label class="form-label" style="text-align:center; margin-bottom:10px;">Ajustement Manuel</label>
+                            <div class="xp-actions">
+                                <button type="button" class="btn-xp" onclick="alert('Fonctionnalité à venir')">+100 XP</button>
+                                <button type="button" class="btn-xp" onclick="alert('Fonctionnalité à venir')">-100 XP</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-save" style="margin-top: 2rem;">ENREGISTRER LES MODIFICATIONS</button>
+
+                        <div class="card danger-zone" style="margin-top:2rem;">
+                            <div class="card-title danger-title">⚠️ Zone de Danger</div>
+                            <button type="button" class="btn-danger" onclick="if(confirm('Vraiment RESET ce viewer ?')) alert('Appel route reset...');">
+                                Réinitialiser l'XP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
 </body>
 </html>
