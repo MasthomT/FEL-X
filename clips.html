@@ -4,6 +4,75 @@
     <meta charset="UTF-8">
     <title>Clips - FEL-X</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- STYLE SPÉCIFIQUE CLIPS --- */
+        :root { 
+            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
+            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
+            --accent: #8b5cf6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
+            display: flex; min-height: 100vh; overflow-x: hidden; 
+        }
+
+        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; }
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
+        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+        /* CONTROLS (Recherche + Tri) */
+        .controls { 
+            display: flex; gap: 1rem; margin-bottom: 2rem; 
+            background: var(--card); padding: 1rem; border-radius: 12px; border: 1px solid var(--border);
+        }
+        .search-input { 
+            flex-grow: 1; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); 
+            color: white; border-radius: 8px; font-family: inherit; 
+        }
+        .filter-select { 
+            padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); 
+            color: white; border-radius: 8px; font-family: inherit; cursor: pointer; width: 200px;
+        }
+        .search-input:focus, .filter-select:focus { border-color: var(--accent); outline: none; }
+
+        /* GRILLE CLIPS */
+        .grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; 
+        }
+
+        /* CARTE CLIP */
+        .clip-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px; 
+            text-decoration: none; color: white; overflow: hidden; display: block;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .clip-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        .clip-thumbnail {
+            height: 160px; background-size: cover; background-position: center; position: relative;
+        }
+        .clip-duration {
+            position: absolute; bottom: 8px; right: 8px; 
+            background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; 
+            border-radius: 4px; font-size: 0.75rem; font-weight: bold;
+        }
+
+        .clip-info { padding: 1rem; }
+        .clip-title { 
+            font-size: 1rem; margin: 0 0 8px 0; font-weight: 600; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .clip-meta { 
+            display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); 
+        }
+        .clip-author { 
+            margin-top: 8px; font-size: 0.85rem; color: var(--accent); font-weight: 500; 
+        }
+
+        @media (max-width: 768px) { .controls { flex-direction: column; } .filter-select { width: 100%; } }
+    </style>
 </head>
 <body>
     <nav class="sidebar">
@@ -20,20 +89,24 @@
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
-<main>
+
+    <main class="content">
         <h1>🎬 Galerie de Clips</h1>
         
-        <div style="margin-bottom: 2rem; display:flex; gap:10px;">
-            <input type="text" id="clip-search" placeholder="Rechercher un clip par titre..." 
-                   style="width:100%; padding:12px; background:var(--surface); border:1px solid var(--border); color:white; border-radius:8px;">
-            <select id="filter-sort" style="padding:12px; background:var(--surface); border:1px solid var(--border); color:white; border-radius:8px;">
+        <div class="controls">
+            <input type="text" id="clip-search" class="search-input" placeholder="Rechercher un titre ou un créateur...">
+            <select id="filter-sort" class="filter-select">
                 <option value="date">📅 Plus Récents</option>
                 <option value="views">🔥 Plus Vus</option>
             </select>
         </div>
 
-        <div id="loading" style="text-align:center; padding:2rem;">Chargement...</div>
-        <div id="clips-grid" class="grid" style="display:none;"></div>
+        <div id="loading" style="text-align:center; padding:3rem; color:var(--text-dim); font-size:1.2rem;">
+            Chargement...
+        </div>
+
+        <div id="clips-grid" class="grid" style="display:none;">
+            </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
