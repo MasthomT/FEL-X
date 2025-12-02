@@ -1,4 +1,3 @@
-// Fonction pour calculer l'XP (doit être la même que dans app.js)
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
