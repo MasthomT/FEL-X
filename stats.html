@@ -5,9 +5,28 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- NOUVELLE MISE EN PAGE 50/50 --- */
+        /* --- STYLE FINAL --- */
+        :root { 
+            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
+            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
+            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+            --twitch: #9146FF; --discord: #5865F2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
+            display: flex; min-height: 100vh; overflow-x: hidden; 
+        }
+
+        /* SIDEBAR & MAIN (Structure de base conservée) */
+        nav.sidebar { width: 250px; background-color: var(--card); display: flex; flex-direction: column; padding-top: 2rem; flex-shrink: 0; border-right: 1px solid var(--border); min-height: 100%; }
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent; }
+        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+        /* --- GRILLE 50/50 --- */
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
         .card-title { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 
         /* STATS PRINCIPALES (4 BLOCS) */
@@ -32,7 +51,11 @@
         .avg-stats-list li:last-child { border-bottom: none; }
         .avg-value { color: white; font-weight: bold; }
 
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        /* FLUX ÉVÉNEMENTS & UNFOLLOWS */
+        .event-log-card { min-height: 400px; }
+        .log-list-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+        .log-list { list-style: none; padding: 0; }
+        .log-item { display: flex; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -76,7 +99,7 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-value" id="stat-total-clips">0</div>
-                            <div class="stat-label" style="color:#00f5c3;">Clips Créés</div>
+                            <div class="stat-label" style="color:#00f5c3;">Clips Totaux</div>
                         </div>
                     </div>
                 </div>
@@ -86,8 +109,8 @@
                     <ul class="avg-stats-list">
                         <li><span>Niveau Moyen</span> <span class="avg-value" id="stat-avg-level">1.0</span></li>
                         <li><span>XP Moyenne par Viewer</span> <span class="avg-value" id="stat-avg-xp">0</span></li>
-                        <li><span>Objectif Follows (1500)</span> <span class="avg-value" id="stat-followers-progress">0%</span></li>
-                        <li><span>Total Subs (Historique)</span> <span class="avg-value" id="stat-total-subs-history">0</span></li>
+                        <li style="color:var(--gold);"><span>Dons Bits Totaux</span> <span class="avg-value" id="stat-total-bits">0</span></li>
+                        <li style="color:#00f5c3;"><span>Subs Offerts Totaux</span> <span class="avg-value" id="stat-total-subgifts">0</span></li>
                     </ul>
                 </div>
 
@@ -103,25 +126,84 @@
             <div class="right-column">
                 
                 <div class="card event-log-card" style="height:100%;">
-                    <div class="card-title">🔥 Récapitulatif Clés</div>
-                    <ul class="avg-stats-list" id="event-counts-list">
-                        <li style="color:var(--gold);"><span>Dons Bits Totaux</span> <span class="avg-value" id="stat-total-bits">0</span></li>
-                        <li style="color:#00f5c3;"><span>Subs Offerts Totaux</span> <span class="avg-value" id="stat-total-subgifts">0</span></li>
-                        <li style="color:#9146FF;"><span>Nouveaux Follows</span> <span class="avg-value" id="stat-total-follows">0</span></li>
-                        <li style="color:var(--discord);"><span>Raids Détectés</span> <span class="avg-value" id="stat-total-raids">0</span></li>
-                        
-                        <li style="margin-top:20px; border-top:1px dashed var(--border); padding-top:15px; color:white;"><span>Dernier Vainqueur (Clip)</span> <span class="avg-value" id="stat-last-clip">N/A</span></li>
-                        <li style="color:white;"><span>Dernier Vainqueur (Giveaway)</span> <span class="avg-value" id="stat-last-giveaway">N/A</span></li>
-                    </ul>
+                    <div class="card-title">🔥 Flux d'Événements (Live)</div>
+                    <div class="log-list-wrapper">
+                        <ul class="log-list" id="event-list">
+                            {% for event in stream_events[:20] %}
+                            <li class="log-item">
+                                <span class="log-time">{{ event.timestamp|format_timestamp }}</span>
+                                <span class="log-text">
+                                    {% if event.type == 'follow' %}
+                                        🎉 **{{ event.user }}** a Follow
+                                    {% elif event.type == 'sub' %}
+                                        💖 **{{ event.user }}** s'est Abonné
+                                    {% elif event.type == 'resub' %}
+                                        ✨ **{{ event.user }}** a Resub
+                                    {% elif event.type == 'subgift' %}
+                                        🎁 **{{ event.user }}** a Gift Sub
+                                    {% elif event.type == 'raid' %}
+                                        🛡️ Raid de **{{ event.user }}** ({{ event.details.viewers }} V.)
+                                    {% elif event.type == 'cheer' %}
+                                        💎 **{{ event.user }}** a donné {{ event.details.bits }} Bits
+                                    {% elif event.type == 'timeout' %}
+                                        🚫 **{{ event.user }}** Timeout
+                                    {% elif event.type == 'ban' %}
+                                        ⛔ **{{ event.user }}** Banni
+                                    {% endif %}
+                                </span>
+                            </li>
+                            {% else %}
+                                <li style="padding:15px; color:var(--text-dim); text-align:center;">Aucun événement récent.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💔 Historique Unfollows</div>
+                    <div id="unfollow-log-container" class="log-list-wrapper" style="max-height: 200px;">
+                        <p style="text-align:center; padding:10px; color:var(--text-dim);">Chargement...</p>
+                    </div>
+                    <a href="{{ url_for('force_unfollow_check') }}" class="btn-action" style="width:100%; display:block; text-align:center; margin-top:15px; background:var(--red);">
+                        Forcer la vérification
+                    </a>
                 </div>
             </div>
 
         </div>
     </main>
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="app.js"></script>
-    <script src="stats.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // --- JQuery pour l'historique Unfollow (API Pi) ---
+        $(document).ready(function() {
+            function loadUnfollows() {
+                $.getJSON("{{ url_for('get_unfollow_log') }}")
+                    .done(function(data) {
+                        const list = $('#unfollow-log-container').html('<ul class="log-list"></ul>').find('ul');
+                        
+                        if (data.length === 0) {
+                            list.html('<li style="padding:15px; text-align:center;">Aucun unfollow récent.</li>');
+                            return;
+                        }
+
+                        data.slice(0, 10).forEach(function(item) { // Limité aux 10 derniers
+                            const usernameDisplay = item.username.startsWith('ID:') ? `<span style="color:var(--red);">${item.username}</span>` : `<span style="color:var(--text);">${item.username}</span>`;
+                            list.append(`
+                                <li class="log-item unfollow-item">
+                                    <span class="log-time">${item.date.split(' à ')[0]}</span>
+                                    <span class="log-text">${usernameDisplay}</span>
+                                </li>
+                            `);
+                        });
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        $('#unfollow-log-container').html('<p style="text-align:center; padding:10px; color:var(--red);">Erreur chargement logs.</p>');
+                    });
+            }
+
+            loadUnfollows();
+        });
+    </script>
 </body>
 </html>

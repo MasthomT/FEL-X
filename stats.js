@@ -1,3 +1,4 @@
+// Fonction pour calculer l'XP (doit être la même que dans app.js)
 function calculateLevel(xp) {
     if (xp < 0) return 1;
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
@@ -15,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const xpSnapshot = await db.ref('viewer_data/xp').once('value');
         const xpData = xpSnapshot.val() || {};
 
-        // Récupération des données des Événements (Pour les totaux)
+        // Récupération des données des Événements (pour les totaux)
         const eventsSnapshot = await db.ref('stream_data/total_events').once('value');
         const eventTotals = eventsSnapshot.val() || {};
 
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("stat-viewer-count").textContent = totalViewers.toLocaleString();
         document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString();
         document.getElementById("stat-max-level").textContent = maxLevel;
-        document.getElementById("stat-total-clips").textContent = (clipsHistory.count || 0).toLocaleString(); // Affichage du nombre total de clips
+        document.getElementById("stat-total-clips").textContent = (eventTotals.clips || 0).toLocaleString(); // Utilise une variable hypothétique pour les clips
 
         // Moyennes
         document.getElementById("stat-avg-level").textContent = avgLevel;
@@ -83,11 +84,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("stat-total-raids").textContent = (eventTotals.raid || 0).toLocaleString();
         
         // Derniers Gagnants (Récupération de la dernière entrée)
-        const lastClipKey = Object.keys(clipsHistory).sort().reverse()[0];
-        const lastGiveawayKey = Object.keys(giveawaysHistory).sort().reverse()[0];
+        const clipsArray = Object.values(clipsHistory).filter(c => c.winner);
+        const giveawaysArray = Object.values(giveawaysHistory).filter(g => g.winner);
+        
+        const lastClipWinner = clipsArray.length > 0 ? clipsArray[clipsArray.length - 1].winner : "N/A";
+        const lastGiveawayWinner = giveawaysArray.length > 0 ? giveawaysArray[giveawaysArray.length - 1].winner : "N/A";
 
-        document.getElementById("stat-last-clip").textContent = lastClipKey ? clipsHistory[lastClipKey].winner : "N/A";
-        document.getElementById("stat-last-giveaway").textContent = lastGiveawayKey ? giveawaysHistory[lastGiveawayKey].winner : "N/A";
+        document.getElementById("stat-last-clip").textContent = lastClipWinner;
+        document.getElementById("stat-last-giveaway").textContent = lastGiveawayWinner;
 
         // Leaderboard Top 5
         const listEl = document.getElementById("leaderboard-list");
