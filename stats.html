@@ -63,70 +63,87 @@
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 </nav>
 
-<main class="content">
-        <h1>📊 Statistiques Globales</h1>
+<main>
+        <h1>📊 Statistiques de la Communauté</h1>
+        <div id="loading" style="text-align:center; padding:2rem; color:var(--text-dim);">Chargement des données...</div>
 
-        <div id="loading" style="text-align:center; padding:2rem; font-size:1.2rem; color:var(--text-dim);">Chargement des données...</div>
-
-        <div class="main-grid" id="stats-content" style="display:none;">
+        <div class="stats-container" id="stats-content" style="display:none;">
             
-            <div class="left-column">
+            <div class="col-left" style="display:flex; flex-direction:column; gap:2rem;">
                 
-                <div class="card">
-                    <div class="card-title">📈 Chiffres Clés Communauté</div>
-                    <div class="major-stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-value" id="stat-viewer-count">0</div>
-                            <div class="stat-label" style="color:var(--accent);">Viewers Totaux (XP)</div>
+                <div class="stats-card">
+                    <h2>👥 Puissance Communauté</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <span class="metric-val accent-text" id="stat-total-members">0</span>
+                            <span class="metric-label">Membres Actifs</span>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-value" id="stat-total-xp">0</div>
-                            <div class="stat-label" style="color:var(--gold);">XP Cumulé Total</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value" id="stat-max-level">0</div>
-                            <div class="stat-label" style="color:#FF0000;">Niveau Max Atteint</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value" id="stat-total-clips">0</div>
-                            <div class="stat-label" style="color:#00f5c3;">Clips Totaux</div>
+                        <div class="metric-box">
+                            <span class="metric-val gold-text" id="stat-total-xp">0</span>
+                            <span class="metric-label">XP Total Cumulé</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">🔬 Moyennes & Récompenses</div>
-                    <ul class="avg-stats-list">
-                        <li><span>Niveau Moyen</span> <span class="avg-value" id="stat-avg-level">1.0</span></li>
-                        <li><span>XP Moyenne par Viewer</span> <span class="avg-value" id="stat-avg-xp">0</span></li>
-                        <li style="color:var(--gold);"><span>Dons Bits Totaux</span> <span class="avg-value" id="stat-total-bits">0</span></li>
-                        <li style="color:var(--discord);"><span>Raids Détectés</span> <span class="avg-value" id="stat-total-raids">0</span></li>
+                <div class="stats-card">
+                    <h2>🔬 Analyse Globale</h2>
+                    <ul class="avg-list">
+                        <li class="avg-item">
+                            <span>Niveau Moyen des Viewers</span>
+                            <span class="avg-val" id="stat-avg-level">1.0</span>
+                        </li>
+                        <li class="avg-item">
+                            <span>Moyenne d'XP par personne</span>
+                            <span class="avg-val" id="stat-avg-xp">0 XP</span>
+                        </li>
+                        <li class="avg-item">
+                            <span>Record : Niveau Max Atteint</span>
+                            <span class="avg-val red-text" id="stat-max-level">1</span>
+                        </li>
+                        <li class="avg-item">
+                            <span>Objectif Followers (1500)</span>
+                            <span class="avg-val green-text" id="stat-goal-progress">0%</span>
+                        </li>
                     </ul>
                 </div>
 
             </div>
-            
-            <div class="right-column">
-                
-                <div class="card">
-                    <div class="card-title">👑 Top 5 du Classement</div>
-                    <ul class="top-list" id="leaderboard-list">
-                        <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
-                    </ul>
+
+            <div class="col-right" style="display:flex; flex-direction:column; gap:2rem;">
+
+                <div class="stats-card">
+                    <h2>🏆 Hall of Fame (Derniers Vainqueurs)</h2>
+                    <div class="fame-grid">
+                        <div class="fame-item clip">
+                            <div class="fame-icon">🎬</div>
+                            <div class="fame-info">
+                                <h4>Clip du Mois</h4>
+                                <div class="fame-winner" id="winner-clip">...</div>
+                            </div>
+                        </div>
+                        <div class="fame-item giveaway">
+                            <div class="fame-icon">🎁</div>
+                            <div class="fame-info">
+                                <h4>Giveaway</h4>
+                                <div class="fame-winner" id="winner-giveaway">...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">🏆 Derniers Vainqueurs</div>
-                    <ul class="avg-stats-list">
-                        <li style="color:#00f5c3;"><span>Dernier Vainqueur (Clip)</span> <span class="avg-value" id="stat-last-clip">N/A</span></li>
-                        <li style="color:var(--gold);"><span>Dernier Vainqueur (Giveaway)</span> <span class="avg-value" id="stat-last-giveaway">N/A</span></li>
-                    </ul>
+                <div class="stats-card" style="flex-grow:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                        <h2 style="margin:0; border:none; padding:0;">👑 Leaders Actuels</h2>
+                        <a href="leaderboard.html" style="color:var(--accent); font-size:0.9rem; text-decoration:none;">Voir tout</a>
+                    </div>
+                    <ul class="mini-leaderboard" id="top-5-list">
+                        </ul>
                 </div>
+
             </div>
-
         </div>
     </main>
-    
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>

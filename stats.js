@@ -1,121 +1,97 @@
-// Fonction pour calculer l'XP (doit être la même que dans app.js)
-function calculateLevel(xp) {
-    if (xp < 0) return 1;
-    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth();
+    checkAuth(); // Vérif connexion (app.js)
 
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
     const db = firebase.database();
 
     try {
-        // Récupération des données XP
+        // 1. Récupération des données XP (Pour totaux et moyennes)
         const xpSnapshot = await db.ref('viewer_data/xp').once('value');
-        const xpData = xpSnapshot.val() || {};
+        const xpData = xpSnapshot.val();
 
-        // Récupération des données des Événements (pour les totaux)
-        const eventsSnapshot = await db.ref('stream_data/total_events').once('value');
-        const eventTotals = eventsSnapshot.val() || {};
-
-        // Récupération des Historiques (pour les derniers gagnants)
-        const clipsHistorySnapshot = await db.ref('viewer_data/history/clips').once('value');
-        const clipsHistory = clipsHistorySnapshot.val() || {};
-
-        const giveawaysHistorySnapshot = await db.ref('viewer_data/history/giveaways').once('value');
-        const giveawaysHistory = giveawaysHistorySnapshot.val() || {};
-
-
-        if (Object.keys(xpData).length === 0) {
-            loadingEl.textContent = "Aucune donnée de la communauté disponible.";
+        // 2. Récupération Historiques (Pour gagnants)
+        const histClipSnap = await db.ref('viewer_data/history/clips').limitToLast(1).once('value');
+        const histGiveawaySnap = await db.ref('viewer_data/history/giveaways').limitToLast(1).once('value');
+        
+        if (!xpData) {
+            loadingEl.textContent = "Aucune donnée disponible.";
             return;
         }
 
-        let totalViewers = 0;
-        let totalXP = 0;
-        let totalLevels = 0;
-        let maxLevel = 0;
-        let usersArray = [];
+        // --- CALCULS ---
+        let totalMembers = 0;
+        let sumXP = 0;
+        let sumLevels = 0;
+        let maxLvl = 0;
+        let usersList = [];
 
-        // 1. Calculs des stats XP
-        Object.entries(xpData).forEach(([key, user]) => {
-            totalViewers++;
-            const xp = user.xp || 0;
-            totalXP += xp;
+        Object.entries(xpData).forEach(([key, val]) => {
+            if (val && typeof val.xp === 'number') {
+                totalMembers++;
+                sumXP += val.xp;
+                const lvl = calculateLevel(val.xp);
+                sumLevels += lvl;
+                if (lvl > maxLvl) maxLvl = lvl;
 
-            const lvl = calculateLevel(xp);
-            totalLevels += lvl;
-            if (lvl > maxLevel) maxLevel = lvl;
-            
-            usersArray.push({
-                username: user.username || key,
-                xp: xp,
-                level: lvl
-            });
+                usersList.push({ name: val.username || key, xp: val.xp, level: lvl });
+            }
         });
-
-        // 2. Calcul des moyennes et tri
-        const avgLevel = totalViewers > 0 ? (totalLevels / totalViewers).toFixed(1) : 1;
-        const avgXP = totalViewers > 0 ? (totalXP / totalViewers).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : 0;
-        
-        usersArray.sort((a, b) => b.xp - a.xp); // Tri pour le leaderboard
-
-        // --- 3. MISE A JOUR DU HTML ---
-
-        // Stats Principales
-        document.getElementById("stat-viewer-count").textContent = totalViewers.toLocaleString();
-        document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString();
-        document.getElementById("stat-max-level").textContent = maxLevel;
-        document.getElementById("stat-total-clips").textContent = (eventTotals.clips || 0).toLocaleString(); // Utilise une variable hypothétique pour les clips
 
         // Moyennes
-        document.getElementById("stat-avg-level").textContent = avgLevel;
-        document.getElementById("stat-avg-xp").textContent = avgXP + " XP";
-        document.getElementById("stat-followers-progress").textContent = "35%"; // Laisse le % pour le moment
-
-        // Totaux Événements
-        document.getElementById("stat-total-bits").textContent = (eventTotals.bits || 0).toLocaleString();
-        document.getElementById("stat-total-subgifts").textContent = (eventTotals.subgift || 0).toLocaleString();
-        document.getElementById("stat-total-follows").textContent = (eventTotals.follow || 0).toLocaleString();
-        document.getElementById("stat-total-raids").textContent = (eventTotals.raid || 0).toLocaleString();
+        const avgLvl = totalMembers > 0 ? (sumLevels / totalMembers).toFixed(1) : 0;
+        const avgXP = totalMembers > 0 ? Math.floor(sumXP / totalMembers) : 0;
         
-        // Derniers Gagnants (Récupération de la dernière entrée)
-        const clipsArray = Object.values(clipsHistory).filter(c => c.winner);
-        const giveawaysArray = Object.values(giveawaysHistory).filter(g => g.winner);
+        // Tri pour le Top 5
+        usersList.sort((a, b) => b.xp - a.xp);
+
+        // --- AFFICHAGE ---
+
+        // 1. Chiffres Clés
+        document.getElementById("stat-total-members").textContent = totalMembers.toLocaleString();
+        document.getElementById("stat-total-xp").textContent = sumXP.toLocaleString();
         
-        const lastClipWinner = clipsArray.length > 0 ? clipsArray[clipsArray.length - 1].winner : "N/A";
-        const lastGiveawayWinner = giveawaysArray.length > 0 ? giveawaysArray[giveawaysArray.length - 1].winner : "N/A";
+        // 2. Moyennes
+        document.getElementById("stat-avg-level").textContent = avgLvl;
+        document.getElementById("stat-avg-xp").textContent = avgXP.toLocaleString() + " XP";
+        document.getElementById("stat-max-level").textContent = maxLvl;
+        
+        // (Optionnel) Objectif Follow - À connecter à l'API Twitch si voulu, sinon valeur fixe pour l'exemple
+        document.getElementById("stat-goal-progress").textContent = "35%"; 
 
-        document.getElementById("stat-last-clip").textContent = lastClipWinner;
-        document.getElementById("stat-last-giveaway").textContent = lastGiveawayWinner;
+        // 3. Derniers Vainqueurs
+        const clips = histClipSnap.val();
+        const giveaways = histGiveawaySnap.val();
+        
+        const lastClip = clips ? Object.values(clips)[0] : null;
+        const lastGiveaway = giveaways ? Object.values(giveaways)[0] : null;
 
-        // Leaderboard Top 5
-        const listEl = document.getElementById("leaderboard-list");
-        listEl.innerHTML = "";
-        usersArray.slice(0, 5).forEach((user, index) => {
-            const rank = index + 1;
+        document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "Aucun";
+        document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "Aucun";
+
+        // 4. Top 5 Liste
+        const topListEl = document.getElementById("top-5-list");
+        topListEl.innerHTML = "";
+        usersList.slice(0, 5).forEach((u, i) => {
             let rankClass = "";
-            if (rank === 1) rankClass = "top-rank-1";
-            if (rank === 2) rankClass = "top-rank-2";
-            if (rank === 3) rankClass = "top-rank-3";
+            if(i===0) rankClass = "pos-1";
+            if(i===1) rankClass = "pos-2";
+            if(i===2) rankClass = "pos-3";
             
-            listEl.insertAdjacentHTML('beforeend', `
-                <li class="top-item">
-                    <span class="${rankClass}">#${rank}</span>
-                    <span>${user.username}</span>
-                    <span style="color:var(--accent);">Niv. ${user.level}</span>
+            topListEl.innerHTML += `
+                <li class="mini-rank-item">
+                    <span class="mini-rank-pos ${rankClass}">#${i+1}</span>
+                    <span class="mini-rank-name">${u.name}</span>
+                    <span class="mini-rank-lvl">Niv. ${u.level}</span>
                 </li>
-            `);
+            `;
         });
 
-        // Affichage final
         loadingEl.style.display = "none";
         contentEl.style.display = "grid";
 
-    } catch (error) {
-        console.error("Erreur critique lors du chargement des statistiques:", error);
-        loadingEl.innerHTML = `<span style="color:var(--red);">Une erreur est survenue lors du chargement. Vérifiez les clés Firebase.</span>`;
+    } catch (e) {
+        console.error(e);
+        loadingEl.textContent = "Erreur lors du chargement.";
     }
 });
