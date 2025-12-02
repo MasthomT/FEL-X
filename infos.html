@@ -5,21 +5,56 @@
     <title>Infos - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- MISE EN PAGE --- */
+        /* --- CONFIGURATION ROBUSTE --- */
+        :root { 
+            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
+            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
+            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
+            display: flex; min-height: 100vh; overflow-x: hidden; /* Scroll global */
+        }
+
+        /* SIDEBAR FIXE */
+        nav.sidebar { 
+            width: 250px; background-color: var(--card); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; padding-top: 2rem; flex-shrink: 0; 
+            position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto;
+        }
+        .sidebar-title { padding: 0 1.5rem 1rem; font-size: 1.2rem; font-weight: 700; color: white; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent; }
+        nav.sidebar a:hover, nav.sidebar a.active { background-color: #36393f; color: #fff; border-left-color: var(--accent); }
+        nav.sidebar svg { width: 20px; height: 20px; }
+
+        /* CONTENU PRINCIPAL DÉCALÉ */
+        main.content { 
+            flex-grow: 1; 
+            margin-left: 250px; 
+            padding: 2rem; 
+            max-width: 1400px; 
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            overflow: visible;
+        }
+
+        /* --- MISE EN PAGE INFOS --- */
         .info-container {
-            max-width: 1400px; margin: 0 auto;
             display: grid; grid-template-columns: 300px 1fr;
             gap: 2rem; align-items: start;
         }
 
-        /* --- COLONNE GAUCHE (RÉSEAUX) --- */
+        /* COLONNE GAUCHE (RÉSEAUX) */
         .left-column {
             display: flex; flex-direction: column; gap: 1.5rem;
-            position: sticky; top: 20px;
+            position: sticky; top: 20px; 
         }
 
         .social-card {
-            background: var(--surface); border: 1px solid var(--border);
+            background: var(--card); border: 1px solid var(--border);
             border-radius: 16px; padding: 1.5rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
@@ -40,7 +75,7 @@
         .social-btn:hover { transform: translateX(5px); color: white; }
         .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
         
-        /* COULEURS RÉSEAUX */
+        /* COULEURS */
         .discord:hover { background: #5865F2; border-color: #5865F2; box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3); }
         .youtube:hover { background: #FF0000; border-color: #FF0000; box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
         .twitch:hover { background: #9146FF; border-color: #9146FF; box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3); }
@@ -54,9 +89,9 @@
         /* --- COLONNE DROITE (CONTENU) --- */
         .right-column { display: flex; flex-direction: column; gap: 2rem; }
 
-        /* PLANNING */
+        /* PLANNING CALENDRIER */
         .content-card {
-            background: var(--surface); border: 1px solid var(--border);
+            background: var(--card); border: 1px solid var(--border);
             border-radius: 16px; padding: 2rem;
         }
         .content-card h2 {
@@ -72,7 +107,20 @@
             border-radius: 12px; padding: 1.5rem 1rem; text-align: center;
             transition: transform 0.3s, border-color 0.3s; position: relative; overflow: hidden;
         }
-        .day-card:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(0, 245, 195, 0.05); }
+        
+        /* Animation "Prochain Live" */
+        .next-stream {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.1) !important;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+
         .day-card::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
             background: var(--accent); opacity: 0.5;
@@ -114,14 +162,16 @@
         <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
-    </nav>
+</nav>
 
-    <main>
+    <main class="content">
+        <h1>ℹ️ Informations du Stream</h1>
+
         <div class="info-container">
             
             <div class="left-column">
                 <div class="social-card">
-                    <h3>🌐 Réseaux Sociaux</h3>
+                    <h3>🌐 Rejoins la commu</h3>
                     <div class="social-links">
                         
                         <a href="https://discord.gg/mAfnMNW2" target="_blank" class="social-btn discord">
@@ -163,28 +213,23 @@
                 <div class="content-card">
                     <h2>📅 Emploi du Temps</h2>
                     <div class="calendar-grid">
-                        <div class="day-card">
-                            <div class="day-name">Mardi</div>
+                        <div class="day-card" id="day-2"> <div class="day-name">Mardi</div>
                             <div class="day-time">18h00</div>
                             <div class="day-event">Live Soirée</div>
                         </div>
-                        <div class="day-card">
-                            <div class="day-name">Jeudi</div>
+                        <div class="day-card" id="day-4"> <div class="day-name">Jeudi</div>
                             <div class="day-time">18h00</div>
                             <div class="day-event">Live Soirée</div>
                         </div>
-                        <div class="day-card">
-                            <div class="day-name">Vendredi</div>
+                        <div class="day-card" id="day-5"> <div class="day-name">Vendredi</div>
                             <div class="day-time">20h00</div>
                             <div class="day-event">Weekend !</div>
                         </div>
-                        <div class="day-card" style="border-color:var(--accent);">
-                            <div class="day-name">Samedi</div>
+                        <div class="day-card" id="day-6"> <div class="day-name">Samedi</div>
                             <div class="day-time">10h & 20h</div>
                             <div class="day-event">Double Dose</div>
                         </div>
-                        <div class="day-card">
-                            <div class="day-name">Dimanche</div>
+                        <div class="day-card" id="day-0"> <div class="day-name">Dimanche</div>
                             <div class="day-time">10h00</div>
                             <div class="day-event">Chill Matin</div>
                         </div>
@@ -219,7 +264,58 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             checkAuth(); 
-            // Pas besoin de script dynamique ici car tout est en dur
+            
+            // SCRIPT INTELLIGENT POUR LE PROCHAIN LIVE
+            const now = new Date();
+            const day = now.getDay(); // 0=Dim, 1=Lun, 2=Mar...
+            const hour = now.getHours();
+            
+            // Définition des créneaux (Jour, Heure début, Heure fin approx)
+            const streams = [
+                { d: 2, h: 18, name: "Mardi" },
+                { d: 4, h: 18, name: "Jeudi" },
+                { d: 5, h: 20, name: "Vendredi" },
+                { d: 6, h: 10, name: "Samedi" },
+                { d: 6, h: 20, name: "Samedi Soir" },
+                { d: 0, h: 10, name: "Dimanche" }
+            ];
+
+            // Trouver le prochain
+            let nextStream = null;
+            for (let s of streams) {
+                // Si c'est le même jour mais plus tard, ou un jour suivant
+                if (s.d > day || (s.d === day && s.h > hour)) {
+                    nextStream = s;
+                    break;
+                }
+            }
+            // Si aucun trouvé cette semaine (ex: on est dimanche soir), on prend le premier de la semaine pro
+            if (!nextStream) nextStream = streams[0];
+
+            // Appliquer l'effet visuel
+            if (nextStream) {
+                const card = document.getElementById(`day-${nextStream.d}`);
+                if (card) {
+                    card.classList.add("next-stream");
+                    // Petit badge "Prochain Live"
+                    const badge = document.createElement("div");
+                    badge.style.cssText = "position:absolute; top:0; right:0; background:var(--accent); color:black; font-size:0.7rem; padding:2px 6px; font-weight:bold; border-bottom-left-radius:6px;";
+                    badge.textContent = "BIENTÔT";
+                    card.appendChild(badge);
+                }
+            }
+
+            // Récupération des liens depuis Firebase
+            const db = firebase.database();
+            db.ref('viewer_data/public_info').once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    if(data.discord_link) document.getElementById('link-discord').href = data.discord_link;
+                    if(data.youtube_link) document.getElementById('link-youtube').href = data.youtube_link;
+                    if(data.tiktok_link) document.getElementById('link-tiktok').href = data.tiktok_link;
+                    if(data.instagram_link) document.getElementById('link-instagram').href = data.instagram_link;
+                }
+            });
         });
     </script>
 </body>
