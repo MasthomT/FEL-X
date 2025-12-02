@@ -5,47 +5,50 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE FINAL (ADAPTÉ AU VERCEL VIEWER) --- */
-        :root { 
-            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
-            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
-            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
-            --twitch: #9146FF; --discord: #5865F2;
+        /* --- GRID 50/50 --- */
+        .stats-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; 
+            max-width: 1200px; margin: 0 auto;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
-            display: flex; min-height: 100vh; overflow-x: hidden; 
+        /* CARTES */
+        .stat-card { 
+            background: var(--surface); border: 1px solid var(--border); 
+            border-radius: 16px; padding: 2rem; 
+        }
+        .stat-card h2 { 
+            color: white; font-size: 1.4rem; margin-bottom: 1.5rem; 
+            border-bottom: 1px solid var(--border); padding-bottom: 10px; 
         }
 
-        /* SIDEBAR & MAIN (Utilise le scroll global) */
-        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; }
-        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
-        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
-
-        /* --- NOUVELLE GRILLE 50/50 --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
-        .card-title { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-
-        /* STATS PRINCIPALES (4 BLOCS) */
-        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .stat-box {
-            background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; text-align: center;
+        /* CHIFFRES CLÉS (Grid interne) */
+        .metrics-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .metric { 
+            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; text-align: center; 
+            transition: transform 0.2s;
         }
-        .stat-value { font-size: 2.8rem; font-weight: 800; color: var(--accent); display: block; }
-        .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; letter-spacing: 1px; }
+        .metric:hover { transform: translateY(-5px); border: 1px solid var(--accent); }
+        .metric-val { font-size: 2.5rem; font-weight: 800; color: var(--accent); display: block; }
+        .metric-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; margin-top: 5px; }
 
-        /* TOP 5 & MOYENNES */
-        .top-list { list-style: none; padding: 0; margin-top: 10px; }
-        .top-item { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; font-size: 1rem; }
-        .top-rank-1 { color: #FFD700; font-weight: bold; }
-        .avg-stats-list { list-style: none; padding: 0; }
-        .avg-stats-list li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 1rem; }
-        .avg-value { color: white; font-weight: bold; }
+        /* LISTE TOP 5 */
+        .leaderboard-list { list-style: none; padding: 0; }
+        .leaderboard-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 1.1rem;
+        }
+        .rank-1 { color: #FFD700; font-weight: bold; }
+        .rank-2 { color: #C0C0C0; font-weight: bold; }
+        .rank-3 { color: #CD7F32; font-weight: bold; }
 
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        /* MOYENNES */
+        .avg-list li { 
+            display: flex; justify-content: space-between; padding: 15px 0; 
+            border-bottom: 1px dashed var(--border); font-size: 1rem; 
+        }
+        .avg-res { font-weight: bold; color: white; }
+
+        @media (max-width: 900px) { .stats-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -62,85 +65,60 @@
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 </nav>
-
 <main>
-        <h1>📊 Statistiques de la Communauté</h1>
-        <div id="loading" style="text-align:center; padding:2rem; color:var(--text-dim);">Chargement des données...</div>
+        <h1>📊 Statistiques Communauté</h1>
+        <div id="loading" style="text-align:center; padding:2rem;">Chargement...</div>
 
-        <div class="stats-container" id="stats-content" style="display:none;">
+        <div id="stats-content" class="stats-grid" style="display:none;">
             
-            <div class="col-left" style="display:flex; flex-direction:column; gap:2rem;">
+            <div class="stats-card">
+                <h2>📈 Performance Globale</h2>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val" id="total-members">0</span>
+                        <span class="metric-label">Membres Actifs</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
+                        <span class="metric-label">XP Cumulé</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
+                        <span class="metric-label">Niveau Max</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="avg-level" style="color:#00f5c3">0</span>
+                        <span class="metric-label">Niveau Moyen</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:2rem; font-size:1rem; color:var(--text-dim); text-transform:uppercase;">Moyennes</h3>
+                <ul class="avg-list">
+                    <li><span>XP Moyen par Viewer</span> <span class="avg-res" id="avg-xp">0 XP</span></li>
+                </ul>
+            </div>
+
+            <div class="stats-card">
+                <h2>🏆 Hall of Fame</h2>
                 
-                <div class="stats-card">
-                    <h2>👥 Puissance Communauté</h2>
-                    <div class="metrics-grid">
-                        <div class="metric-box">
-                            <span class="metric-val accent-text" id="stat-total-members">0</span>
-                            <span class="metric-label">Membres Actifs</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val gold-text" id="stat-total-xp">0</span>
-                            <span class="metric-label">XP Total Cumulé</span>
-                        </div>
+                <h3 style="font-size:1rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px;">👑 Top 5 Viewers</h3>
+                <ul class="mini-leaderboard" id="top-5-list">
+                    <li>Chargement...</li>
+                </ul>
+
+                <h3 style="font-size:1rem; color:var(--text-dim); text-transform:uppercase; margin-top:2rem; margin-bottom:10px;">🏅 Derniers Gagnants</h3>
+                <div class="metrics-grid" style="grid-template-columns: 1fr;">
+                    <div class="metric-box" style="padding:1rem; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; color:var(--twitch);">🎬 Clip du Mois</span>
+                        <span id="last-clip-winner" style="font-size:1.2rem; font-weight:bold;">...</span>
+                    </div>
+                    <div class="metric-box" style="padding:1rem; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; color:var(--gold);">🎁 Giveaway</span>
+                        <span id="last-giveaway-winner" style="font-size:1.2rem; font-weight:bold;">...</span>
                     </div>
                 </div>
-
-                <div class="stats-card">
-                    <h2>🔬 Analyse Globale</h2>
-                    <ul class="avg-list">
-                        <li class="avg-item">
-                            <span>Niveau Moyen des Viewers</span>
-                            <span class="avg-val" id="stat-avg-level">1.0</span>
-                        </li>
-                        <li class="avg-item">
-                            <span>Moyenne d'XP par personne</span>
-                            <span class="avg-val" id="stat-avg-xp">0 XP</span>
-                        </li>
-                        <li class="avg-item">
-                            <span>Record : Niveau Max Atteint</span>
-                            <span class="avg-val red-text" id="stat-max-level">1</span>
-                        </li>
-                        <li class="avg-item">
-                            <span>Objectif Followers (1500)</span>
-                            <span class="avg-val green-text" id="stat-goal-progress">0%</span>
-                        </li>
-                    </ul>
-                </div>
-
             </div>
 
-            <div class="col-right" style="display:flex; flex-direction:column; gap:2rem;">
-
-                <div class="stats-card">
-                    <h2>🏆 Hall of Fame (Derniers Vainqueurs)</h2>
-                    <div class="fame-grid">
-                        <div class="fame-item clip">
-                            <div class="fame-icon">🎬</div>
-                            <div class="fame-info">
-                                <h4>Clip du Mois</h4>
-                                <div class="fame-winner" id="winner-clip">...</div>
-                            </div>
-                        </div>
-                        <div class="fame-item giveaway">
-                            <div class="fame-icon">🎁</div>
-                            <div class="fame-info">
-                                <h4>Giveaway</h4>
-                                <div class="fame-winner" id="winner-giveaway">...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stats-card" style="flex-grow:1;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:10px;">
-                        <h2 style="margin:0; border:none; padding:0;">👑 Leaders Actuels</h2>
-                        <a href="leaderboard.html" style="color:var(--accent); font-size:0.9rem; text-decoration:none;">Voir tout</a>
-                    </div>
-                    <ul class="mini-leaderboard" id="top-5-list">
-                        </ul>
-                </div>
-
-            </div>
         </div>
     </main>
 
