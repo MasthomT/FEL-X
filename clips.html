@@ -23,27 +23,6 @@
             overflow-x: hidden; 
         }
 
-        /* SIDEBAR FIXE À GAUCHE */
-        nav.sidebar { 
-            position: fixed; /* Elle reste accrochée à l'écran */
-            top: 0;
-            left: 0;
-            width: 250px; 
-            height: 100vh; /* Prend toute la hauteur */
-            background-color: var(--card); 
-            border-right: 1px solid var(--border); 
-            display: flex; 
-            flex-direction: column; 
-            padding-top: 2rem; 
-            z-index: 100;
-            overflow-y: auto; /* Scroll interne si le menu est trop petit */
-        }
-        
-        .sidebar-title { padding: 0 1.5rem 1rem; font-size: 1.2rem; font-weight: 700; color: white; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent; }
-        nav.sidebar a:hover, nav.sidebar a.active { background-color: #36393f; color: #fff; border-left-color: var(--accent); }
-        nav.sidebar svg { width: 20px; height: 20px; }
-
         /* CONTENU PRINCIPAL DÉCALÉ */
         main.content { 
             margin-left: 250px; /* On laisse la place pour la sidebar */
