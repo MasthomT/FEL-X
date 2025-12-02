@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 totalLevels += lvl;
                 if (lvl > maxLvl) maxLvl = lvl;
                 
-                users.push({ name: val.username || key, xp: xp, level: lvl });
+                users.push({ name: val.username || key, xp: val.xp, level: lvl });
             }
         });
 
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const GOAL = 1500;
         const percent = Math.min(100, Math.floor((currentFollowers / GOAL) * 100));
         document.getElementById("stat-followers-progress").textContent = percent + "%"; 
-        
+
         // Hall of Fame
         document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "N/A";
         document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "N/A";
@@ -87,9 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             topContainer.innerHTML += `
                 <li class="list-row">
-                    <span class="mini-rank-pos ${rankClass}">#${i + 1}</span>
-                    <span class="mini-rank-name">${u.name}</span>
-                    <span class="mini-rank-lvl">Niv. ${u.level}</span>
+                    <span class="${rankClass}" style="width:10%;">#${i + 1}</span>
+                    <span style="width:50%;">${u.name}</span>
+                    <span style="color:var(--accent);">Niv. ${u.level}</span>
                 </li>
             `;
         });
