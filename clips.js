@@ -1,80 +1,111 @@
-const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-const BROADCASTER_ID = "439356462"; 
-let allClipsData = []; // Stockage local pour la recherche
+// Fonction pour calculer l'XP (doit être la même que dans app.js)
+function calculateLevel(xp) {
+    if (xp < 0) return 1;
+    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
+}
 
-const loadingEl = document.getElementById("loading");
-const gridEl = document.getElementById("clips-grid");
-const searchInput = document.getElementById("clip-search");
-const sortSelect = document.getElementById("filter-sort");
+const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+const BROADCASTER_NAME = "masthom_";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = checkAuth();
     if(!token) return;
 
+    const loadingEl = document.getElementById("loading");
+    const contentEl = document.getElementById("stats-content");
+    const db = firebase.database();
+
     try {
-        // On récupère 50 clips (plus de choix pour la recherche)
-        const response = await fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=50`, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
+        // 1. DONNÉES FIREBASE (XP Communauté)
+        const xpSnapshot = await db.ref('viewer_data/xp').once('value');
+        const xpData = xpSnapshot.val() || {};
+
+        if (Object.keys(xpData).length === 0) {
+            loadingEl.textContent = "Aucune donnée disponible.";
+            return;
+        }
+
+        // Calculs
+        let users = [];
+        let totalXP = 0;
+        let totalLevels = 0;
+        let maxLvl = 0;
+
+        Object.entries(xpData).forEach(([key, val]) => {
+            if (val && typeof val.xp === 'number') {
+                totalXP += val.xp;
+                const lvl = calculateLevel(val.xp);
+                totalLevels += lvl;
+                if (lvl > maxLvl) maxLvl = lvl;
+                
+                users.push({ name: val.username || key, xp: val.xp, level: lvl });
+            }
         });
 
-        if (!response.ok) throw new Error("Erreur API Twitch");
-        const data = await response.json();
-        
-        // STOCKAGE ET TRI PAR DÉFAUT (DATE)
-        allClipsData = data.data;
-        sortClips('date'); // Fonction de tri définie plus bas
-        
-        renderClips(allClipsData); // Affichage initial
+        const totalMembers = users.length;
+        const avgLvl = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
 
-        // ÉCOUTEURS
-        searchInput.addEventListener('input', (e) => filterClips(e.target.value));
-        sortSelect.addEventListener('change', (e) => sortClips(e.target.value));
+        // Affichage Gauche
+        document.getElementById("total-members").textContent = totalMembers.toLocaleString();
+        document.getElementById("total-xp").textContent = totalXP.toLocaleString();
+        document.getElementById("max-level").textContent = maxLvl;
+        document.getElementById("avg-level").textContent = avgLvl;
+
+        // Affichage Droite (Top 5)
+        users.sort((a, b) => b.xp - a.xp);
+        const topContainer = document.getElementById("top-5-list");
+        topContainer.innerHTML = "";
+
+        users.slice(0, 5).forEach((u, i) => {
+            let rankBadge = `<span class="rank-badge" style="color:#777; border-color:#777;">${i+1}</span>`;
+            if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
+            if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
+            if (i === 2) rankBadge = `<span class="rank-badge rank-3">3</span>`;
+
+            topContainer.innerHTML += `
+                <li class="top-item">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        ${rankBadge}
+                        <span style="font-weight:600;">${u.name}</span>
+                    </div>
+                    <span style="color:var(--accent); font-weight:bold;">Niv. ${u.level}</span>
+                </li>
+            `;
+        });
+
+        // 2. DONNÉES TWITCH (Followers en temps réel)
+        const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
+        
+        // On récupère l'ID du streamer
+        const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
+        const userData = await userResp.json();
+        
+        if (userData.data && userData.data.length > 0) {
+            const broadcasterId = userData.data[0].id;
+            
+            // On récupère le nombre de followers
+            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}`, { headers });
+            const followData = await followResp.json();
+            
+            const currentFollows = followData.total;
+            const GOAL = 1500;
+            const percent = Math.min(100, Math.floor((currentFollows / GOAL) * 100));
+
+            document.getElementById("current-follows").textContent = currentFollows;
+            document.getElementById("goal-fill").style.width = percent + "%";
+            document.getElementById("goal-text").textContent = percent + "%";
+        }
 
         loadingEl.style.display = "none";
-        gridEl.style.display = "grid";
+        contentEl.style.display = "grid";
 
     } catch (error) {
         console.error(error);
-        loadingEl.textContent = "Erreur de chargement des clips.";
+        // Si erreur token, on déconnecte proprement
+        if (error.message && error.message.includes("401")) {
+             localStorage.removeItem("twitch_token");
+             window.location.href = "/";
+        }
+        loadingEl.innerHTML = `<span style="color:var(--red);">Erreur de chargement.</span>`;
     }
 });
-
-function sortClips(criteria) {
-    if (criteria === 'date') {
-        // Du plus récent au plus vieux
-        allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (criteria === 'views') {
-        // Du plus vu au moins vu
-        allClipsData.sort((a, b) => b.view_count - a.view_count);
-    }
-    renderClips(allClipsData); // On ré-affiche après tri
-}
-
-function filterClips(query) {
-    const lowerQ = query.toLowerCase();
-    const filtered = allClipsData.filter(clip => clip.title.toLowerCase().includes(lowerQ));
-    renderClips(filtered);
-}
-
-function renderClips(clips) {
-    gridEl.innerHTML = "";
-    if (clips.length === 0) {
-        gridEl.innerHTML = "<p>Aucun clip trouvé.</p>";
-        return;
-    }
-    clips.forEach(clip => {
-        const date = new Date(clip.created_at).toLocaleDateString('fr-FR');
-        gridEl.innerHTML += `
-            <a href="${clip.url}" target="_blank" class="card" style="text-decoration:none; color:white; padding:0; overflow:hidden; transition:0.3s;">
-                <div style="height:180px; background:url('${clip.thumbnail_url}') center/cover;"></div>
-                <div style="padding:1rem;">
-                    <h3 style="font-size:1rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${clip.title}</h3>
-                    <small style="color:var(--text-dim); display:flex; justify-content:space-between;">
-                        <span>👁️ ${clip.view_count}</span>
-                        <span>📅 ${date}</span>
-                    </small>
-                </div>
-            </a>
-        `;
-    });
-}
