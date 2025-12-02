@@ -73,8 +73,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Moyennes
         document.getElementById("stat-avg-level").textContent = avgLevel;
         document.getElementById("stat-avg-xp").textContent = avgXP + " XP";
-        
-        // Progression Follow (exemple)
         document.getElementById("stat-followers-progress").textContent = "35%"; // Laisse le % pour le moment
 
         // Totaux Événements
