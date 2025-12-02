@@ -19,39 +19,30 @@
             display: flex; min-height: 100vh; overflow-x: hidden; 
         }
 
-        /* SIDEBAR & MAIN */
-        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; }
+        /* SIDEBAR & MAIN (Structure de base conservée) */
+        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; padding-top: 1rem;}
         nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
-        main.content { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
+        main.content { flex-grow: 1; padding: 1.5rem; /* Marges réduites ici */ overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
 
         /* --- GRILLE PRINCIPALE 50/50 --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
-        .card-title { font-size: 1.3rem; font-weight: 700; color: white; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; /* Espacement réduit */ margin-top: 1rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; /* Padding interne réduit */ }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
         /* STATS PRINCIPALES (4 BLOCS) */
-        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; /* Espacement très réduit */ }
         .stat-box {
-            background: rgba(255,255,255,0.05); padding: 1.8rem; border-radius: 12px; text-align: center;
+            background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 10px; text-align: center;
         }
-        .stat-value { font-size: 3.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
-        .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; font-weight: 600; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; letter-spacing: 1px; font-weight: 600; }
 
         /* LISTE TOP 5 & MOYENNES */
         .list-container { padding: 0; margin: 0; }
-        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border); font-size: 1rem; }
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
         .list-row:last-child { border-bottom: none; }
         .rank-1 { color: #FFD700; font-weight: bold; }
         
-        /* HALL OF FAME */
-        .fame-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .fame-item {
-            background: rgba(0,0,0,0.2); border-left: 4px solid var(--border); padding: 15px; border-radius: 8px;
-            display: flex; flex-direction: column; justify-content: space-between; height: 100%;
-        }
-        .fame-title { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
-        .fame-winner { font-size: 1.2rem; font-weight: bold; color: white; margin-top: 5px; }
-
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -74,9 +65,9 @@
 
         <div id="stats-content" class="main-grid" style="display:none;">
             
-            <div class="left-column" style="display:flex; flex-direction:column; gap:2rem;">
+            <div class="left-column" style="display:flex; flex-direction:column; gap:1.5rem;">
                 
-                <div class="card" style="margin-bottom:1.5rem;">
+                <div class="card">
                     <h2 class="card-title">📈 Données Générales</h2>
                     <div class="major-stats-grid">
                         <div class="stat-box">
@@ -103,12 +94,12 @@
                     <ul class="avg-list list-container">
                         <li class="list-row"><span>Niveau Moyen</span> <span class="avg-val" id="avg-level">1.0</span></li>
                         <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
-                        <li class="list-row"><span>Objectif Follows (1500)</span> <span class="avg-val" id="stat-followers-progress">0%</span></li>
+                        <li class="list-row"><span>Progression Follow (1500)</span> <span class="avg-val" id="stat-followers-progress">0%</span></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="right-column" style="display:flex; flex-direction:column; gap:2rem;">
+            <div class="right-column" style="display:flex; flex-direction:column; gap:1.5rem;">
                 
                 <div class="card">
                     <h2 class="card-title">🏆 Derniers Vainqueurs</h2>
@@ -144,4 +135,4 @@
     <script src="app.js"></script>
     <script src="stats.js"></script>
 </body>
-</html> 
+</html>

@@ -1,104 +1,138 @@
-// Fonction pour calculer l'XP (doit être la même que dans app.js)
-function calculateLevel(xp) {
-    if (xp < 0) return 1;
-    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth();
-
-    const loadingEl = document.getElementById("loading");
-    const contentEl = document.getElementById("stats-content");
-    const db = firebase.database();
-
-    try {
-        // 1. Récupération des données XP et Historique (Seul ce qui est nécessaire)
-        const [xpSnap, clipsSnap, giveSnap] = await Promise.all([
-            db.ref('viewer_data/xp').once('value'),
-            db.ref('stream_data/clips_history').limitToLast(1).once('value'),
-            db.ref('stream_data/giveaways_history').limitToLast(1).once('value')
-        ]);
-
-        const xpData = xpSnap.val() || {};
-        
-        // Note: Les totaux d'événements (Bits/Subs/Raids) sont supprimés de l'affichage
-
-        const lastClip = clipsSnap.val() ? Object.values(clipsSnap.val())[0] : null;
-        const lastGiveaway = giveSnap.val() ? Object.values(giveSnap.val())[0] : null;
-
-        if (Object.keys(xpData).length === 0) {
-            loadingEl.textContent = "Aucune donnée disponible.";
-            return;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques - FEL-X</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- STYLE FINAL (ADAPTÉ AU VERCEL VIEWER) --- */
+        :root { 
+            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
+            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
+            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+            --twitch: #9146FF; --discord: #5865F2;
         }
 
-        // 2. Calculs Communauté
-        let users = [];
-        let totalXP = 0;
-        let totalLevels = 0;
-        let maxLvl = 0;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
+            display: flex; min-height: 100vh; overflow-x: hidden; 
+        }
 
-        Object.entries(xpData).forEach(([key, val]) => {
-            if (val && typeof val.xp === 'number') {
-                totalXP += val.xp;
-                const lvl = calculateLevel(val.xp);
-                totalLevels += lvl;
-                if (lvl > maxLvl) maxLvl = lvl;
+        /* SIDEBAR & MAIN (Structure de base conservée) */
+        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; padding-top: 1rem;}
+        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
+        main.content { flex-grow: 1; padding: 1.5rem; /* Marges réduites ici */ overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+        /* --- GRILLE PRINCIPALE 50/50 --- */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; /* Espacement réduit */ margin-top: 1rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; /* Padding interne réduit */ }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+        /* STATS PRINCIPALES (4 BLOCS) */
+        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; /* Espacement très réduit */ }
+        .stat-box {
+            background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 10px; text-align: center;
+        }
+        .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; letter-spacing: 1px; font-weight: 600; }
+
+        /* LISTE TOP 5 & MOYENNES */
+        .list-container { padding: 0; margin: 0; }
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+        .list-row:last-child { border-bottom: none; }
+        .rank-1 { color: #FFD700; font-weight: bold; }
+        
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-title">FEL-X Viewer</div>
+        <a href="profile.html">👥 Profil</a>
+        <a href="infos.html">ℹ️ Infos</a>
+        <a href="leaderboard.html">🏆 Classement</a>
+        <a href="clips.html">🎬 Clips</a>
+        <a href="commands.html">📜 Commandes</a>
+        <a href="stats.html" class="active">📊 Statistiques</a>
+        <a href="felix.html">🧠 Félix et moi</a>
+        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
+    </nav>
+
+    <main class="content">
+        <h1>📊 Statistiques Communauté</h1>
+        <div id="loading" style="text-align:center; padding:3rem;">Chargement des données...</div>
+
+        <div id="stats-content" class="main-grid" style="display:none;">
+            
+            <div class="left-column" style="display:flex; flex-direction:column; gap:1.5rem;">
                 
-                users.push({ name: val.username || key, xp: val.xp, level: lvl });
-            }
-        });
+                <div class="card">
+                    <h2 class="card-title">📈 Données Générales</h2>
+                    <div class="major-stats-grid">
+                        <div class="stat-box">
+                            <span class="metric-val" id="total-members">0</span>
+                            <span class="metric-label" style="color:var(--accent);">Membres Actifs</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
+                            <span class="metric-label">XP Total Cumulé</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
+                            <span class="metric-label">Niveau Max</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-val" id="total-follows" style="color:#9146FF">0</span>
+                            <span class="metric-label">Follows Détectés</span>
+                        </div>
+                    </div>
+                </div>
 
-        const totalMembers = users.length;
-        const avgLvl = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
-        const avgXP = totalMembers > 0 ? Math.floor(totalXP / totalMembers) : 0;
-        
-        users.sort((a, b) => b.xp - a.xp); // Tri pour le Top 5
+                <div class="card" style="flex-grow:1;">
+                    <h2 class="card-title">🔬 Ratios Communautaires</h2>
+                    <ul class="avg-list list-container">
+                        <li class="list-row"><span>Niveau Moyen</span> <span class="avg-val" id="avg-level">1.0</span></li>
+                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
+                        <li class="list-row"><span>Progression Follow (1500)</span> <span class="avg-val" id="stat-followers-progress">0%</span></li>
+                    </ul>
+                </div>
+            </div>
 
-        // --- 3. AFFICHAGE ---
+            <div class="right-column" style="display:flex; flex-direction:column; gap:1.5rem;">
+                
+                <div class="card">
+                    <h2 class="card-title">🏆 Derniers Vainqueurs</h2>
+                    <div class="fame-grid">
+                        <div class="fame-item clip" style="border-left:4px solid #9146FF;">
+                            <div class="fame-info">
+                                <h4>Clip du Mois</h4>
+                                <div class="fame-winner" id="winner-clip">...</div>
+                            </div>
+                        </div>
+                        <div class="fame-item giveaway" style="border-left:4px solid var(--gold);">
+                            <div class="fame-info">
+                                <h4>Giveaway</h4>
+                                <div class="fame-winner" id="winner-giveaway">...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="flex-grow:1;">
+                    <h2 class="card-title">👑 Top 5 Leaders Actuels</h2>
+                    <ul class="list-container" id="top-5-list">
+                        <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
+                    </ul>
+                </div>
+            </div>
 
-        // Chiffres Clés
-        document.getElementById("total-members").textContent = totalMembers.toLocaleString();
-        document.getElementById("total-xp").textContent = totalXP.toLocaleString();
-        document.getElementById("max-level").textContent = maxLvl;
-        document.getElementById("avg-level").textContent = avgLvl;
-        
-        // Moyennes
-        document.getElementById("avg-xp").textContent = avgXP.toLocaleString() + " XP";
-        
-        // Objectif Follow (Exemple)
-        const currentFollowers = 520; // Remplacer par une lecture de l'API Twitch si possible
-        const GOAL = 1500;
-        const percent = Math.min(100, Math.floor((currentFollowers / GOAL) * 100));
-        document.getElementById("stat-followers-progress").textContent = percent + "%"; 
+        </div>
+    </main>
 
-        // Hall of Fame
-        document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "N/A";
-        document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "N/A";
-
-        // Top 5
-        const topContainer = document.getElementById("top-5-list");
-        topContainer.innerHTML = "";
-
-        users.slice(0, 5).forEach((u, i) => {
-            let rankClass = "";
-            if (i === 0) rankClass = "rank-1";
-            if (i === 1) rankClass = "rank-2";
-            if (i === 2) rankClass = "rank-3";
-
-            topContainer.innerHTML += `
-                <li class="list-row">
-                    <span class="${rankClass}" style="width:10%;">#${i + 1}</span>
-                    <span style="width:50%;">${u.name}</span>
-                    <span style="color:var(--accent);">Niv. ${u.level}</span>
-                </li>
-            `;
-        });
-
-        loadingEl.style.display = "none";
-        contentEl.style.display = "grid";
-
-    } catch (error) {
-        console.error("Erreur critique lors du chargement des statistiques:", error);
-        loadingEl.innerHTML = `<span style="color:var(--red);">Erreur lors du chargement. Veuillez vérifier votre connexion Firebase.</span>`;
-    }
-});
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="app.js"></script>
+    <script src="stats.js"></script>
+</body>
+</html>
