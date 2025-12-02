@@ -1,30 +1,31 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth(); // Vérif connexion (app.js)
+    checkAuth();
 
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
     const db = firebase.database();
 
     try {
-        // 1. Récupération des données XP (Pour totaux et moyennes)
+        // 1. Récupérer XP (Pour le Top 5 et les totaux communautaires)
         const xpSnapshot = await db.ref('viewer_data/xp').once('value');
-        const xpData = xpSnapshot.val();
+        const xpData = xpSnapshot.val() || {};
 
-        // 2. Récupération Historiques (Pour gagnants)
-        const histClipSnap = await db.ref('viewer_data/history/clips').limitToLast(1).once('value');
-        const histGiveawaySnap = await db.ref('viewer_data/history/giveaways').limitToLast(1).once('value');
-        
-        if (!xpData) {
+        // 2. Récupérer Historiques (Pour les gagnants)
+        // Note : On lit le tableau entier pour prendre le dernier
+        const clipsSnap = await db.ref('stream_data/clips_history').once('value');
+        const giveSnap = await db.ref('stream_data/giveaways_history').once('value');
+
+        if (Object.keys(xpData).length === 0) {
             loadingEl.textContent = "Aucune donnée disponible.";
             return;
         }
 
-        // --- CALCULS ---
+        // --- CALCULS COMMUNAUTÉ ---
         let totalMembers = 0;
         let sumXP = 0;
         let sumLevels = 0;
         let maxLvl = 0;
-        let usersList = [];
+        let users = [];
 
         Object.entries(xpData).forEach(([key, val]) => {
             if (val && typeof val.xp === 'number') {
@@ -33,65 +34,58 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const lvl = calculateLevel(val.xp);
                 sumLevels += lvl;
                 if (lvl > maxLvl) maxLvl = lvl;
-
-                usersList.push({ name: val.username || key, xp: val.xp, level: lvl });
+                
+                users.push({ name: val.username || key, xp: val.xp, level: lvl });
             }
         });
 
-        // Moyennes
         const avgLvl = totalMembers > 0 ? (sumLevels / totalMembers).toFixed(1) : 0;
-        const avgXP = totalMembers > 0 ? Math.floor(sumXP / totalMembers) : 0;
-        
-        // Tri pour le Top 5
-        usersList.sort((a, b) => b.xp - a.xp);
 
-        // --- AFFICHAGE ---
+        // --- AFFICHAGE GAUCHE ---
+        document.getElementById("total-members").textContent = totalMembers.toLocaleString();
+        document.getElementById("total-xp").textContent = sumXP.toLocaleString();
+        document.getElementById("max-level").textContent = maxLvl;
+        document.getElementById("avg-level").textContent = avgLvl;
 
-        // 1. Chiffres Clés
-        document.getElementById("stat-total-members").textContent = totalMembers.toLocaleString();
-        document.getElementById("stat-total-xp").textContent = sumXP.toLocaleString();
-        
-        // 2. Moyennes
-        document.getElementById("stat-avg-level").textContent = avgLvl;
-        document.getElementById("stat-avg-xp").textContent = avgXP.toLocaleString() + " XP";
-        document.getElementById("stat-max-level").textContent = maxLvl;
-        
-        // (Optionnel) Objectif Follow - À connecter à l'API Twitch si voulu, sinon valeur fixe pour l'exemple
-        document.getElementById("stat-goal-progress").textContent = "35%"; 
+        // --- AFFICHAGE DROITE (GAGNANTS) ---
+        const clips = clipsSnap.val() || [];
+        const giveaways = giveSnap.val() || [];
 
-        // 3. Derniers Vainqueurs
-        const clips = histClipSnap.val();
-        const giveaways = histGiveawaySnap.val();
-        
-        const lastClip = clips ? Object.values(clips)[0] : null;
-        const lastGiveaway = giveaways ? Object.values(giveaways)[0] : null;
+        // On prend le premier élément (car main.py insert(0, ...))
+        const lastClip = clips.length > 0 ? clips[0] : null;
+        const lastGiveaway = giveaways.length > 0 ? giveaways[0] : null;
 
         document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "Aucun";
         document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "Aucun";
 
-        // 4. Top 5 Liste
-        const topListEl = document.getElementById("top-5-list");
-        topListEl.innerHTML = "";
-        usersList.slice(0, 5).forEach((u, i) => {
-            let rankClass = "";
-            if(i===0) rankClass = "pos-1";
-            if(i===1) rankClass = "pos-2";
-            if(i===2) rankClass = "pos-3";
-            
-            topListEl.innerHTML += `
-                <li class="mini-rank-item">
-                    <span class="mini-rank-pos ${rankClass}">#${i+1}</span>
-                    <span class="mini-rank-name">${u.name}</span>
-                    <span class="mini-rank-lvl">Niv. ${u.level}</span>
-                </li>
+        // --- AFFICHAGE TOP 5 ---
+        users.sort((a, b) => b.xp - a.xp);
+        const topContainer = document.getElementById("top-5-container");
+        topContainer.innerHTML = "";
+
+        users.slice(0, 5).forEach((u, i) => {
+            let colorClass = "";
+            if(i===0) colorClass = "rank-1";
+            if(i===1) colorClass = "rank-2";
+            if(i===2) colorClass = "rank-3";
+
+            const row = document.createElement("div");
+            row.className = "list-row";
+            row.innerHTML = `
+                <div>
+                    <span class="${colorClass}" style="margin-right:10px;">#${i+1}</span>
+                    <span>${u.name}</span>
+                </div>
+                <span style="color:var(--accent); font-size:0.9rem;">Niv. ${u.level}</span>
             `;
+            topContainer.appendChild(row);
         });
 
         loadingEl.style.display = "none";
         contentEl.style.display = "grid";
 
-    } catch (e) {
-        console.error(e);
-        loadingEl.textContent = "Erreur lors du chargement.";
+    } catch (error) {
+        console.error(error);
+        loadingEl.innerHTML = `<span style="color:var(--red);">Erreur de chargement (Vérifiez la console).</span>`;
     }
 });
