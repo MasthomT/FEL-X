@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const db = firebase.database();
 
     try {
-        // 1. Récupération des données (XP + Historique)
-        // On ne lit plus stream_data/total_events car l'utilisateur a demandé de retirer ces stats.
+        // 1. Récupération des données XP et Historique (Seul ce qui est nécessaire)
         const [xpSnap, clipsSnap, giveSnap] = await Promise.all([
             db.ref('viewer_data/xp').once('value'),
             db.ref('stream_data/clips_history').limitToLast(1).once('value'),
@@ -21,6 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         ]);
 
         const xpData = xpSnap.val() || {};
+        
+        // Note: Les totaux d'événements (Bits/Subs/Raids) sont supprimés de l'affichage
+
         const lastClip = clipsSnap.val() ? Object.values(clipsSnap.val())[0] : null;
         const lastGiveaway = giveSnap.val() ? Object.values(giveSnap.val())[0] : null;
 
@@ -29,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // 2. Calculs Communauté (Basé uniquement sur XP Data)
+        // 2. Calculs Communauté
         let users = [];
         let totalXP = 0;
         let totalLevels = 0;
@@ -37,9 +39,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         Object.entries(xpData).forEach(([key, val]) => {
             if (val && typeof val.xp === 'number') {
-                const xp = val.xp;
-                const lvl = calculateLevel(xp);
-                totalXP += xp;
+                totalXP += val.xp;
+                const lvl = calculateLevel(val.xp);
                 totalLevels += lvl;
                 if (lvl > maxLvl) maxLvl = lvl;
                 
@@ -48,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         const totalMembers = users.length;
-        const avgLevel = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
+        const avgLvl = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
         const avgXP = totalMembers > 0 ? Math.floor(totalXP / totalMembers) : 0;
         
         users.sort((a, b) => b.xp - a.xp); // Tri pour le Top 5
@@ -64,9 +65,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Moyennes
         document.getElementById("avg-xp").textContent = avgXP.toLocaleString() + " XP";
         
-        // Progression Follow (exemple)
-        document.getElementById("stat-followers-progress").textContent = "35%"; // Laisse le % pour le moment
-
+        // Objectif Follow (Exemple)
+        const currentFollowers = 520; // Remplacer par une lecture de l'API Twitch si possible
+        const GOAL = 1500;
+        const percent = Math.min(100, Math.floor((currentFollowers / GOAL) * 100));
+        document.getElementById("stat-followers-progress").textContent = percent + "%"; 
+        
         // Hall of Fame
         document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "N/A";
         document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "N/A";
@@ -74,6 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Top 5
         const topContainer = document.getElementById("top-5-list");
         topContainer.innerHTML = "";
+
         users.slice(0, 5).forEach((u, i) => {
             let rankClass = "";
             if (i === 0) rankClass = "rank-1";
@@ -82,9 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             topContainer.innerHTML += `
                 <li class="list-row">
-                    <span class="${rankClass}" style="width:10%;">#${i + 1}</span>
-                    <span style="width:50%;">${u.name}</span>
-                    <span style="color:var(--accent);">Niv. ${u.level}</span>
+                    <span class="mini-rank-pos ${rankClass}">#${i + 1}</span>
+                    <span class="mini-rank-name">${u.name}</span>
+                    <span class="mini-rank-lvl">Niv. ${u.level}</span>
                 </li>
             `;
         });
