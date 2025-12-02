@@ -5,125 +5,126 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE FINAL (ADAPTÉ AU VERCEL VIEWER) --- */
-        :root { 
-            --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
-            --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
-            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
-            --twitch: #9146FF; --discord: #5865F2;
+        /* --- MISE EN PAGE --- */
+        .main-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; 
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); 
-            display: flex; min-height: 100vh; overflow-x: hidden; 
-        }
-
-        /* SIDEBAR & MAIN (Structure de base conservée) */
-        nav.sidebar { width: 250px; background-color: var(--card); border-right: 1px solid var(--border); min-height: 100%; padding-top: 1rem;}
-        nav.sidebar a { color: var(--text); padding: 0.8rem 1.5rem; }
-        main.content { flex-grow: 1; padding: 1.5rem; /* Marges réduites ici */ overflow-y: auto; max-width: 1200px; width: 100%; margin: 0 auto; }
-
-        /* --- GRILLE PRINCIPALE 50/50 --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; /* Espacement réduit */ margin-top: 1rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; /* Padding interne réduit */ }
-        .card-title { font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-
-        /* STATS PRINCIPALES (4 BLOCS) */
-        .major-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; /* Espacement très réduit */ }
-        .stat-box {
-            background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 10px; text-align: center;
-        }
-        .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
-        .stat-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; letter-spacing: 1px; font-weight: 600; }
-
-        /* LISTE TOP 5 & MOYENNES */
-        .list-container { padding: 0; margin: 0; }
-        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
-        .list-row:last-child { border-bottom: none; }
-        .rank-1 { color: #FFD700; font-weight: bold; }
         
+        .stat-card { 
+            background: var(--surface); border: 1px solid var(--border); 
+            border-radius: 16px; padding: 2rem; display: flex; flex-direction: column;
+            height: 100%;
+        }
+        
+        .card-header {
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;
+        }
+        .card-title { font-size: 1.3rem; font-weight: 700; color: white; margin: 0; }
+        .card-icon { color: var(--accent); }
+
+        /* GRID INTERNE POUR LES CHIFFRES */
+        .metrics-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-grow: 1;
+        }
+        .metric-box {
+            background: rgba(255,255,255,0.03); border: 1px solid transparent;
+            padding: 20px; border-radius: 12px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center;
+            transition: 0.3s;
+        }
+        .metric-box:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        
+        .metric-val { font-size: 2.5rem; font-weight: 800; color: white; line-height: 1.1; }
+        .metric-sub { font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; font-weight: 600; }
+
+        /* LISTE TOP 5 */
+        .top-list { list-style: none; padding: 0; margin: 0; }
+        .top-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 1.1rem;
+        }
+        .top-item:last-child { border-bottom: none; }
+        
+        .rank-badge { 
+            width: 30px; height: 30px; border-radius: 50%; background: var(--bg); 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid var(--border);
+        }
+        .rank-1 { color: #FFD700; border-color: #FFD700; }
+        .rank-2 { color: #C0C0C0; border-color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; border-color: #CD7F32; }
+
+        /* BARRE PROGRESSION FOLLOWERS */
+        .goal-card { grid-column: 1 / -1; margin-top: 0; }
+        .goal-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .progress-bg { height: 20px; background: #111; border-radius: 10px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1.5s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; line-height: 20px; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 2px black; }
+
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <nav class="sidebar">
-        <div class="sidebar-title">FEL-X Viewer</div>
-        <a href="profile.html">👥 Profil</a>
-        <a href="infos.html">ℹ️ Infos</a>
-        <a href="leaderboard.html">🏆 Classement</a>
-        <a href="clips.html">🎬 Clips</a>
-        <a href="commands.html">📜 Commandes</a>
-        <a href="stats.html" class="active">📊 Statistiques</a>
-        <a href="felix.html">🧠 Félix et moi</a>
+        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
+        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
+        <a href="infos.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
+        <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
+        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
+        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
+        <a href="stats.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
+        <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
     <main class="content">
-        <h1>📊 Statistiques Communauté</h1>
-        <div id="loading" style="text-align:center; padding:3rem;">Chargement des données...</div>
+        <h1>📊 Statistiques de la Chaîne</h1>
+        <div id="loading" style="text-align:center; padding:3rem;">Chargement...</div>
 
         <div id="stats-content" class="main-grid" style="display:none;">
             
-            <div class="left-column" style="display:flex; flex-direction:column; gap:1.5rem;">
-                
-                <div class="card">
-                    <h2 class="card-title">📈 Données Générales</h2>
-                    <div class="major-stats-grid">
-                        <div class="stat-box">
-                            <span class="metric-val" id="total-members">0</span>
-                            <span class="metric-label" style="color:var(--accent);">Membres Actifs</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
-                            <span class="metric-label">XP Total Cumulé</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
-                            <span class="metric-label">Niveau Max</span>
-                        </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="total-follows" style="color:#9146FF">0</span>
-                            <span class="metric-label">Follows Détectés</span>
-                        </div>
-                    </div>
+            <div class="stat-card">
+                <div class="card-header">
+                    <svg class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <h2 class="card-title">Communauté FEL-X</h2>
                 </div>
-
-                <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">🔬 Ratios Communautaires</h2>
-                    <ul class="avg-list list-container">
-                        <li class="list-row"><span>Niveau Moyen</span> <span class="avg-val" id="avg-level">1.0</span></li>
-                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
-                        <li class="list-row"><span>Progression Follow (1500)</span> <span class="avg-val" id="stat-followers-progress">0%</span></li>
-                    </ul>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val accent-text" id="total-members">0</span>
+                        <span class="metric-sub">Membres Classés</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val gold-text" id="total-xp">0</span>
+                        <span class="metric-sub">XP Global Généré</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val red-text" id="max-level">0</span>
+                        <span class="metric-sub">Niveau Record</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val green-text" id="avg-level">0</span>
+                        <span class="metric-sub">Niveau Moyen</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="right-column" style="display:flex; flex-direction:column; gap:1.5rem;">
-                
-                <div class="card">
-                    <h2 class="card-title">🏆 Derniers Vainqueurs</h2>
-                    <div class="fame-grid">
-                        <div class="fame-item clip" style="border-left:4px solid #9146FF;">
-                            <div class="fame-info">
-                                <h4>Clip du Mois</h4>
-                                <div class="fame-winner" id="winner-clip">...</div>
-                            </div>
-                        </div>
-                        <div class="fame-item giveaway" style="border-left:4px solid var(--gold);">
-                            <div class="fame-info">
-                                <h4>Giveaway</h4>
-                                <div class="fame-winner" id="winner-giveaway">...</div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="stat-card">
+                <div class="card-header">
+                    <svg class="card-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <h2 class="card-title">L'Élite (Top 5)</h2>
                 </div>
-                
-                <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">👑 Top 5 Leaders Actuels</h2>
-                    <ul class="list-container" id="top-5-list">
-                        <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
+                <ul class="top-list" id="top-5-list">
                     </ul>
+            </div>
+
+            <div class="stat-card goal-card">
+                <div class="goal-header">
+                    <span style="font-weight:bold; color:white;">🎯 Objectif Followers</span>
+                    <span style="color:var(--text-dim);"><span id="current-follows">0</span> / 1500</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill" id="goal-fill"></div>
+                    <div class="progress-text" id="goal-text">0%</div>
                 </div>
             </div>
 
