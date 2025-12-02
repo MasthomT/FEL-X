@@ -13,15 +13,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // 1. Récupération des données (XP + Historique)
-        const [xpSnap, eventsSnap, clipsSnap, giveSnap] = await Promise.all([
+        // On ne lit plus stream_data/total_events car l'utilisateur a demandé de retirer ces stats.
+        const [xpSnap, clipsSnap, giveSnap] = await Promise.all([
             db.ref('viewer_data/xp').once('value'),
-            db.ref('stream_data/global_stats').once('value'),
             db.ref('stream_data/clips_history').limitToLast(1).once('value'),
             db.ref('stream_data/giveaways_history').limitToLast(1).once('value')
         ]);
 
         const xpData = xpSnap.val() || {};
-        const eventTotals = eventsSnap.val() || {};
         const lastClip = clipsSnap.val() ? Object.values(clipsSnap.val())[0] : null;
         const lastGiveaway = giveSnap.val() ? Object.values(giveSnap.val())[0] : null;
 
@@ -30,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // 2. Calculs Communauté
+        // 2. Calculs Communauté (Basé uniquement sur XP Data)
         let users = [];
         let totalXP = 0;
         let totalLevels = 0;
@@ -38,17 +37,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         Object.entries(xpData).forEach(([key, val]) => {
             if (val && typeof val.xp === 'number') {
-                totalXP += val.xp;
-                const lvl = calculateLevel(val.xp);
+                const xp = val.xp;
+                const lvl = calculateLevel(xp);
+                totalXP += xp;
                 totalLevels += lvl;
                 if (lvl > maxLvl) maxLvl = lvl;
                 
-                users.push({ name: val.username || key, xp: val.xp, level: lvl });
+                users.push({ name: val.username || key, xp: xp, level: lvl });
             }
         });
 
         const totalMembers = users.length;
-        const avgLvl = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
+        const avgLevel = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
         const avgXP = totalMembers > 0 ? Math.floor(totalXP / totalMembers) : 0;
         
         users.sort((a, b) => b.xp - a.xp); // Tri pour le Top 5
@@ -59,35 +59,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("total-members").textContent = totalMembers.toLocaleString();
         document.getElementById("total-xp").textContent = totalXP.toLocaleString();
         document.getElementById("max-level").textContent = maxLvl;
+        document.getElementById("avg-level").textContent = avgLvl;
         
         // Moyennes
-        document.getElementById("avg-level").textContent = avgLvl;
         document.getElementById("avg-xp").textContent = avgXP.toLocaleString() + " XP";
+        
+        // Progression Follow (exemple)
+        document.getElementById("stat-followers-progress").textContent = "35%"; // Laisse le % pour le moment
 
         // Hall of Fame
         document.getElementById("winner-clip").textContent = lastClip ? lastClip.winner : "N/A";
         document.getElementById("winner-giveaway").textContent = lastGiveaway ? lastGiveaway.winner : "N/A";
 
-        // Totaux Événements
-        document.getElementById("total-bits").textContent = (eventTotals.bits || 0).toLocaleString();
-        document.getElementById("total-subgifts").textContent = (eventTotals.subgift || 0).toLocaleString();
-        document.getElementById("total-follows").textContent = (eventTotals.follow || 0).toLocaleString();
-        document.getElementById("total-raids").textContent = (eventTotals.raid || 0).toLocaleString();
-        
         // Top 5
-        const topListEl = document.getElementById("top-5-list");
-        topListEl.innerHTML = "";
+        const topContainer = document.getElementById("top-5-list");
+        topContainer.innerHTML = "";
         users.slice(0, 5).forEach((u, i) => {
             let rankClass = "";
             if (i === 0) rankClass = "rank-1";
             if (i === 1) rankClass = "rank-2";
             if (i === 2) rankClass = "rank-3";
 
-            topListEl.innerHTML += `
+            topContainer.innerHTML += `
                 <li class="list-row">
-                    <span class="mini-rank-pos ${rankClass}">#${i + 1}</span>
-                    <span class="mini-rank-name">${u.name}</span>
-                    <span class="mini-rank-lvl">Niv. ${u.level}</span>
+                    <span class="${rankClass}" style="width:10%;">#${i + 1}</span>
+                    <span style="width:50%;">${u.name}</span>
+                    <span style="color:var(--accent);">Niv. ${u.level}</span>
                 </li>
             `;
         });

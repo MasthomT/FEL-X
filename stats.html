@@ -5,12 +5,11 @@
     <title>Statistiques - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE FINAL (ADAPTÉ AU VERCEL VIEWER) --- */
+        /* --- STYLE FINAL (ÉPURÉ & VISUEL) --- */
         :root { 
             --bg: #18181b; --card: #2c2f33; --surface-light: #3f3f46;
             --border: #3f3f46; --text: #f4f4f5; --text-dim: #a1a1aa; 
-            --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --gold: #f59e0b;
-            --twitch: #9146FF; --discord: #5865F2;
+            --accent: #8b5cf6; --gold: #f59e0b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,7 +33,7 @@
         .stat-box {
             background: rgba(255,255,255,0.05); padding: 1.8rem; border-radius: 12px; text-align: center;
         }
-        .stat-value { font-size: 3.5rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
+        .stat-value { font-size: 3rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
         .stat-label { font-size: 0.9rem; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; font-weight: 600; }
 
         /* LISTE TOP 5 & MOYENNES */
@@ -43,32 +42,21 @@
         .list-row:last-child { border-bottom: none; }
         .rank-1 { color: #FFD700; font-weight: bold; }
         
-        /* HALL OF FAME */
-        .fame-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .fame-item {
-            background: rgba(0,0,0,0.2); border-left: 4px solid var(--border); padding: 15px; border-radius: 8px;
-            display: flex; flex-direction: column; justify-content: space-between; height: 100%;
-        }
-        .fame-title { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
-        .fame-winner { font-size: 1.2rem; font-weight: bold; color: white; margin-top: 5px; }
-
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <nav class="sidebar">
-        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
-        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
-        <a href="infos.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
-        <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
-        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
-        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
-        
-        <a href="stats.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
-        
-        <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
+        <div class="sidebar-title">FEL-X Viewer</div>
+        <a href="profile.html">👥 Profil</a>
+        <a href="infos.html">ℹ️ Infos</a>
+        <a href="leaderboard.html">🏆 Classement</a>
+        <a href="clips.html">🎬 Clips</a>
+        <a href="commands.html">📜 Commandes</a>
+        <a href="stats.html" class="active">📊 Statistiques</a>
+        <a href="felix.html">🧠 Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
-</nav>
+    </nav>
 
     <main class="content">
         <h1>📊 Statistiques Communauté</h1>
@@ -76,14 +64,14 @@
 
         <div id="stats-content" class="main-grid" style="display:none;">
             
-            <div class="left-column" style="display:flex; flex-direction:column; gap:2rem;">
+            <div class="left-column">
                 
-                <div class="card">
-                    <h2 class="card-title">📈 Chiffres Clés</h2>
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <h2 class="card-title">📈 Données Générales</h2>
                     <div class="major-stats-grid">
                         <div class="stat-box">
                             <span class="metric-val" id="total-members">0</span>
-                            <span class="metric-label">Membres Actifs</span>
+                            <span class="metric-label" style="color:var(--accent);">Membres Actifs</span>
                         </div>
                         <div class="metric-box">
                             <span class="metric-val" id="total-xp" style="color:var(--gold)">0</span>
@@ -93,38 +81,34 @@
                             <span class="metric-val" id="max-level" style="color:#FF0000">0</span>
                             <span class="metric-label">Niveau Max</span>
                         </div>
-                        <div class="metric-box">
-                            <span class="metric-val" id="total-follows" style="color:#9146FF">0</span>
-                            <span class="metric-label">Follows Détectés</span>
+                        <div class="stat-box">
+                            <span class="metric-val" id="avg-level" style="color:#00f5c3">0</span>
+                            <span class="metric-label">Niveau Moyen</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="card" style="flex-grow:1;">
-                    <h2 class="card-title">🔬 Moyennes Communautaires</h2>
+                    <h2 class="card-title">🔬 Ratios & Performances</h2>
                     <ul class="avg-list list-container">
-                        <li class="list-row"><span>Niveau Moyen</span> <span class="avg-val" id="avg-level">1.0</span></li>
-                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-val" id="avg-xp">0 XP</span></li>
-                        <li class="list-row"><span>Total Subs Offerts</span> <span class="avg-val" id="total-subgifts">0</span></li>
-                        <li class="list-row"><span>Dons Bits Totaux</span> <span class="avg-val" id="total-bits">0</span></li>
-                        <li class="list-row"><span>Raids Détectés</span> <span class="avg-val" id="total-raids">0</span></li>
+                        <li class="list-row"><span>XP Moyenne par Viewer</span> <span class="avg-res" id="avg-xp">0 XP</span></li>
+                        <li class="list-row"><span>Progression Follow (Objectif 1500)</span> <span class="avg-res" id="stat-followers-progress">0%</span></li>
                     </ul>
                 </div>
-
             </div>
 
-            <div class="right-column" style="display:flex; flex-direction:column; gap:2rem;">
+            <div class="right-column">
                 
                 <div class="card">
-                    <h2 class="card-title">🏆 Hall of Fame</h2>
+                    <h2 class="card-title">🏆 Derniers Vainqueurs</h2>
                     <div class="fame-grid">
-                        <div class="fame-item clip" style="border-color:#9146FF;">
+                        <div class="fame-item clip" style="border-left:4px solid #9146FF;">
                             <div class="fame-info">
-                                <h4>Clip du Mois</h4>
+                                <h4 class="fame-title">Clip du Mois</h4>
                                 <div class="fame-winner" id="winner-clip">...</div>
                             </div>
                         </div>
-                        <div class="fame-item giveaway" style="border-color:var(--gold);">
+                        <div class="fame-item giveaway" style="border-left:4px solid var(--gold);">
                             <div class="fame-info">
                                 <h4>Giveaway</h4>
                                 <div class="fame-winner" id="winner-giveaway">...</div>
@@ -139,9 +123,7 @@
                         <li style="padding:15px; color:var(--text-dim); text-align:center;">Chargement...</li>
                     </ul>
                 </div>
-
             </div>
-
         </div>
     </main>
 
