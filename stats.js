@@ -1,53 +1,107 @@
+// Fonction pour calculer l'XP
+function calculateLevel(xp) {
+    if (xp < 0) return 1;
+    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth();
+    checkAuth(); // Vérifie que l'utilisateur est connecté
 
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
-    const dbRef = firebase.database().ref('viewer_data/xp');
+    const db = firebase.database();
 
     try {
-        const snapshot = await dbRef.once('value');
-        const data = snapshot.val();
+        // Récupération des données XP
+        const xpSnapshot = await db.ref('viewer_data/xp').once('value');
+        const xpData = xpSnapshot.val() || {};
 
-        if (!data) {
-            loadingEl.textContent = "Pas de données.";
+        // Récupération des données des Événements (pour les totaux)
+        const eventsSnapshot = await db.ref('stream_data/total_events').once('value');
+        const eventTotals = eventsSnapshot.val() || {};
+
+        // Récupération des Historiques (pour les derniers gagnants)
+        const historySnapshot = await db.ref('viewer_data/history').once('value');
+        const historyData = historySnapshot.val() || {}; // Contient XP history, clips, giveaways
+
+        if (Object.keys(xpData).length === 0) {
+            loadingEl.textContent = "Aucune donnée de la communauté disponible.";
             return;
         }
 
-        let stats = {
-            viewers: 0,
-            xp: 0,
-            messages: 0,
-            maxLvl: 0,
-            watchtime: 0
-        };
+        let totalViewers = 0;
+        let totalXP = 0;
+        let totalLevels = 0;
+        let maxLevel = 0;
+        let usersArray = [];
 
-        // On parcourt chaque utilisateur pour additionner
-        Object.values(data).forEach(user => {
-            stats.viewers++;
-            stats.xp += (user.xp || 0);
-            stats.messages += (user.MessageCount || 0);
-            stats.watchtime += (user.WatchtimeInSeconds || 0);
+        // 1. Calculs des stats XP
+        Object.entries(xpData).forEach(([key, user]) => {
+            totalViewers++;
+            const xp = user.xp || 0;
+            totalXP += xp;
+
+            const lvl = calculateLevel(xp);
+            totalLevels += lvl;
+            if (lvl > maxLevel) maxLevel = lvl;
             
-            const lvl = calculateLevel(user.xp || 0);
-            if (lvl > stats.maxLvl) stats.maxLvl = lvl;
+            usersArray.push({
+                username: user.username || key,
+                xp: xp,
+                level: lvl
+            });
         });
 
-        // Mise à jour du HTML
-        document.getElementById("total-viewers").textContent = stats.viewers.toLocaleString();
-        document.getElementById("total-xp").textContent = stats.xp.toLocaleString();
-        document.getElementById("total-messages").textContent = stats.messages.toLocaleString();
-        document.getElementById("max-level").textContent = stats.maxLvl;
+        // 2. Calcul des moyennes et tri
+        const avgLevel = totalViewers > 0 ? (totalLevels / totalViewers).toFixed(1) : 1;
+        const avgXP = totalViewers > 0 ? (totalXP / totalViewers).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : 0;
         
-        // Conversion secondes -> heures
-        const hours = Math.floor(stats.watchtime / 3600);
-        document.getElementById("total-watchtime").textContent = `${hours.toLocaleString()}h`;
+        usersArray.sort((a, b) => b.xp - a.xp); // Tri pour le leaderboard
 
+        // --- 3. MISE A JOUR DU HTML ---
+
+        // Stats Principales
+        document.getElementById("stat-viewer-count").textContent = totalViewers.toLocaleString();
+        document.getElementById("stat-total-xp").textContent = totalXP.toLocaleString();
+        document.getElementById("stat-max-level").textContent = maxLevel;
+
+        // Moyennes
+        document.getElementById("stat-avg-level").textContent = avgLevel;
+        document.getElementById("stat-avg-xp").textContent = avgXP + " XP";
+        
+        // Progression Follow (exemple)
+        document.getElementById("stat-followers-progress").textContent = "35%"; // Remplacez par le calcul réel si vous avez le total actuel
+
+        // Totaux Événements
+        document.getElementById("stat-total-bits").textContent = (eventTotals.bits || 0).toLocaleString();
+        document.getElementById("stat-total-subgifts").textContent = (eventTotals.subgift || 0).toLocaleString();
+        document.getElementById("stat-total-follows").textContent = (eventTotals.follow || 0).toLocaleString();
+        document.getElementById("stat-total-raids").textContent = (eventTotals.raid || 0).toLocaleString();
+        
+        // Leaderboard Top 5
+        const listEl = document.getElementById("leaderboard-list");
+        listEl.innerHTML = "";
+        usersArray.slice(0, 5).forEach((user, index) => {
+            const rank = index + 1;
+            let rankClass = "";
+            if (rank === 1) rankClass = "top-rank-1";
+            if (rank === 2) rankClass = "top-rank-2";
+            
+            listEl.insertAdjacentHTML('beforeend', `
+                <li class="top-item">
+                    <span class="${rankClass}">#${rank}</span>
+                    <span>${user.username}</span>
+                    <span style="color:var(--accent);">Niv. ${user.level}</span>
+                </li>
+            `);
+        });
+
+        // Affichage final
         loadingEl.style.display = "none";
         contentEl.style.display = "grid";
 
-    } catch (e) {
-        console.error("Erreur Stats:", e);
-        loadingEl.textContent = "Erreur de chargement.";
+    } catch (error) {
+        console.error("Erreur critique lors du chargement des statistiques:", error);
+        loadingEl.innerHTML = `<span style="color:var(--red);">Une erreur est survenue lors du chargement. Vérifiez les clés Firebase.</span>`;
     }
 });
