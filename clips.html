@@ -2,77 +2,69 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clips - FEL-X</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE ORIGINAL FELIX (Identique à Commands) --- */
-        :root { 
-            --bg: #18181b; --surface: #2a2a2d; --sidebar: #2c2f33; 
-            --accent: #00f5c3; --text: #f0f0f0; --dim: #b9bbbe; --border: #36363a; 
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; 
-            display: flex; min-height: 100vh; overflow-x: hidden; /* Scroll global */
-        }
-        
-        /* SIDEBAR FELIX FIXE */
-        .sidebar { 
-            width: 250px; background: var(--sidebar); border-right: 1px solid var(--border); 
-            padding: 1rem 0; display: flex; flex-direction: column; flex-shrink: 0;
-            position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto;
-        }
-        .sidebar-title { 
-            padding: 0 1.5rem 1rem; font-weight: bold; font-size: 1.5rem; 
-            color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 1rem; 
-        }
-        
-        /* MAIN CONTENT DÉCALÉ */
-        main { 
-            flex-grow: 1; 
-            margin-left: 250px; /* Laisse la place à la sidebar fixe */
-            padding: 2rem; 
-            width: calc(100% - 250px);
-            min-height: 100vh;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* --- STYLES SPÉCIFIQUES AUX CLIPS --- */
 
-        h1 { font-size: 2.5rem; margin-bottom: 1.5rem; color: white; }
-
-        /* --- DESIGN SPÉCIFIQUE CLIPS --- */
-
-        /* BARRE DE CONTRÔLE */
+        /* Barre de Contrôle (Recherche + Tri) */
         .controls { 
             display: flex; gap: 1rem; margin-bottom: 2rem; 
-            background: var(--surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);
-            align-items: center;
+            background: var(--surface); padding: 1rem; border-radius: 12px; 
+            border: 1px solid var(--border); align-items: center;
         }
-        input, select { 
-            width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); 
-            color: white; border-radius: 6px; font-size: 1rem; font-family: inherit; 
+        
+        .search-input { 
+            flex-grow: 1; padding: 12px; background: var(--bg); 
+            border: 1px solid var(--border); color: white; border-radius: 8px; 
+            font-family: inherit; font-size: 1rem;
         }
-        input:focus, select:focus { border-color: var(--accent); outline: none; }
-        .filter-select { width: 200px; cursor: pointer; }
+        
+        .filter-select { 
+            padding: 12px; background: var(--bg); border: 1px solid var(--border); 
+            color: white; border-radius: 8px; font-family: inherit; 
+            cursor: pointer; width: 200px; font-size: 1rem;
+        }
+        
+        .search-input:focus, .filter-select:focus { 
+            border-color: var(--accent); outline: none; 
+        }
 
-        /* GRILLE CLIPS */
-        .grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; 
+        /* Grille des Clips */
+        /* On utilise la classe .grid du style.css mais on peut la surcharger ici si besoin */
+        .clips-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 1.5rem;
         }
 
-        /* CARTE CLIP */
+        /* Carte Clip (Hérite de .card mais ajusté pour l'image) */
         .clip-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 8px; 
-            text-decoration: none; color: white; overflow: hidden; display: block;
-            transition: transform 0.2s, border-color 0.2s;
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            text-decoration: none; 
+            color: white; 
+            overflow: hidden; 
+            display: block;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            padding: 0; /* On enlève le padding par défaut pour que l'image colle aux bords */
         }
-        .clip-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        
+        .clip-card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--accent); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+        }
 
         .clip-thumbnail {
-            height: 180px; background-size: cover; background-position: center; position: relative;
+            height: 180px; 
+            background-size: cover; 
+            background-position: center; 
+            position: relative;
         }
+        
         .clip-duration {
             position: absolute; bottom: 8px; right: 8px; 
             background: rgba(0,0,0,0.8); color: white; padding: 3px 8px; 
@@ -80,26 +72,30 @@
         }
 
         .clip-info { padding: 1.2rem; }
+        
         .clip-title { 
-            font-size: 1.1rem; margin: 0 0 10px 0; font-weight: 600; line-height: 1.4;
+            font-size: 1.1rem; margin: 0 0 10px 0; font-weight: 700; line-height: 1.4;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            color: var(--text-main);
         }
+        
         .clip-meta { 
-            display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--dim); 
+            display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-dim); 
         }
+        
         .clip-author { 
-            margin-top: 10px; font-size: 0.9rem; color: var(--accent); font-weight: 500; 
+            margin-top: 10px; font-size: 0.9rem; color: var(--accent); font-weight: 600; 
+            display: flex; align-items: center; gap: 5px;
         }
 
         @media (max-width: 768px) { 
-            .sidebar { position: static; width: 100%; height: auto; }
-            main { margin-left: 0; width: 100%; }
-            .controls { flex-direction: column; } .filter-select { width: 100%; }
+            .controls { flex-direction: column; } 
+            .filter-select { width: 100%; } 
         }
     </style>
 </head>
 <body>
-    <nav class="sidebar">
+<nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
         
         <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
@@ -113,26 +109,23 @@
         <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 </nav>
-
 <main>
-        <div class="container">
-            <h1>🎬 Galerie de Clips</h1>
-            
-            <div class="controls">
-                <input type="text" id="clip-search" class="search-input" placeholder="Rechercher un titre ou un créateur...">
-                <select id="filter-sort" class="filter-select">
-                    <option value="date">📅 Plus Récents</option>
-                    <option value="views">🔥 Plus Vus</option>
-                </select>
-            </div>
-
-            <div id="loading" style="text-align:center; padding:4rem; color:var(--dim); font-size:1.2rem;">
-                Chargement des clips...
-            </div>
-
-            <div id="clips-grid" class="grid" style="display:none;">
-                </div>
+        <h1>🎬 Galerie de Clips</h1>
+        
+        <div class="controls">
+            <input type="text" id="clip-search" class="search-input" placeholder="Rechercher un titre ou un créateur...">
+            <select id="filter-sort" class="filter-select">
+                <option value="date">📅 Plus Récents</option>
+                <option value="views">🔥 Plus Vus</option>
+            </select>
         </div>
+
+        <div id="loading" style="text-align:center; padding:4rem; color:var(--text-dim); font-size:1.2rem;">
+            Chargement des clips...
+        </div>
+
+        <div id="clips-grid" class="clips-grid" style="display:none;">
+            </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
