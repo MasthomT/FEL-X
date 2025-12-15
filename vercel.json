@@ -1,13 +1,12 @@
 {
-  "routes": [
-    {
-      "src": "/twitch-relay",
-      "dest": "/twitch-relay.html"
-    }
-  ],
   "redirects": [
     {
-      "source": "/auth/twitch/callback",
+      "source": "/twitch-relay.html",
+      "destination": "http://192.168.1.109:8080/auth/twitch/callback?code=:code&state=:state",
+      "permanent": false
+    },
+    {
+      "source": "/twitch-relay",
       "destination": "http://192.168.1.109:8080/auth/twitch/callback?code=:code&state=:state",
       "permanent": false
     }
