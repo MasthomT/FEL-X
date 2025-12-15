@@ -1,8 +1,13 @@
 {
+  "routes": [
+    {
+      "src": "/twitch-relay",
+      "dest": "/twitch-relay.html"
+    }
+  ],
   "redirects": [
     {
-      "source": "/api/auth/relay",
-      // On capture le code et l'état de Twitch
+      "source": "/auth/twitch/callback",
       "destination": "http://192.168.1.109:8080/auth/twitch/callback?code=:code&state=:state",
       "permanent": false
     }
