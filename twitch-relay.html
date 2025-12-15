@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Twitch Redirect</title>
+    <title>Redirection Twitch</title>
+    <meta http-equiv="refresh" content="3;url=/"> 
     <script>
-        // Récupère l'URL complète
+        // Récupère les paramètres Twitch : code et state
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state') || 'admin_mode';
 
+        // VOTRE ADRESSE LOCALE : DOIT ÊTRE HTTP !
+        const LOCAL_IP = "192.168.1.109";
+        const LOCAL_PORT = "8080";
+
         if (code) {
-            // L'URL LOCALE VERS VOTRE FLASK
-            const localUrl = `http://192.168.1.109:8080/auth/twitch/callback?code=${code}&state=${state}`;
+            // Construit l'URL finale avec les paramètres reçus
+            const localUrl = `http://${LOCAL_IP}:${LOCAL_PORT}/auth/twitch/callback?code=${code}&state=${state}`;
+            
+            // Effectue la redirection vers l'IP locale (HTTP)
             window.location.replace(localUrl);
         } else {
             console.error("Code d'autorisation manquant.");
-            document.getElementById('status').innerText = "Erreur: Code d'autorisation Twitch non reçu.";
+            document.body.innerHTML = "<h1>Erreur: Code d'autorisation Twitch non reçu.</h1><p>Veuillez relancer l'authentification depuis la page d'administration.</p>";
         }
     </script>
 </head>
 <body>
-    <p>Redirection sécurisée en cours vers votre serveur local...</p>
-    <p id="status"></p>
+    <p>Transfert sécurisé en cours vers votre serveur local...</p>
 </body>
 </html>
