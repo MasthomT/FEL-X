@@ -134,46 +134,42 @@
                     document.getElementById('felixForm').style.display = 'block';
                 });
 
-                document.getElementById('felixForm').addEventListener('submit', async (e) => {
+document.getElementById('felixForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('saveBtn');
-    btn.textContent = "Sauvegarde SQL...";
+    const originalText = btn.textContent;
+    
+    btn.textContent = "Sauvegarde en cours...";
     btn.disabled = true;
 
-    // Remplace par l'URL de TON serveur (ex: http://ton-ip:5000)
-    const SERVER_URL = "https://TON-DOMAINE-OU-IP.com"; 
-
-    const payload = {
-        twitch_id: userId,
-        username: userName, // Assure-toi d'avoir récupéré le nom via le token
-        context: document.getElementById('context').value,
-        vibe: document.getElementById('vibe').value,
-        bio: document.getElementById('bio').value
-    };
+    // On prépare l'objet avec toutes les valeurs du formulaire
+    const payload = { updated_at: new Date().toISOString() };
+    fields.forEach(f => {
+        const el = document.getElementById(f);
+        if(el) payload[f] = el.value.trim();
+    });
 
     try {
-        // 1. On sauvegarde toujours sur Firebase (par sécurité/sauvegarde)
+        // 1. Sauvegarde sur Firebase (Historique)
         await db.ref('viewer_data/ai_context/' + userId).set(payload);
 
-        // 2. On envoie DIRECTEMENT au serveur de Félix pour le SQL
-        const response = await fetch(`${SERVER_URL}/api/update_context`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        // 2. Sauvegarde SQL instantanée pour Félix
+        // On récupère le pseudo stocké lors de la connexion dans app.js
+        const userName = localStorage.getItem("twitch_display_name") || "inconnu";
+        
+        // On utilise la fonction saveToSQL que tu as ajoutée dans app.js
+        await saveToSQL(userId, userName, payload);
 
-        if (response.ok) {
-            const msg = document.getElementById('statusMsg');
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 4000);
-        } else {
-            throw new Error("Erreur serveur SQL");
-        }
+        // Affichage du message de succès
+        const msg = document.getElementById('statusMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 4000);
+        
     } catch (error) {
-        alert("Erreur lors de la sauvegarde SQL.");
+        alert("Erreur lors de la sauvegarde (Firebase ou SQL).");
         console.error(error);
     } finally {
-        btn.textContent = "Enregistrer mes infos";
+        btn.textContent = originalText;
         btn.disabled = false;
     }
 });

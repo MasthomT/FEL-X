@@ -48,3 +48,22 @@ function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
 }
+
+const SERVER_URL = "http://192.168.1.109:8080"; 
+
+async function saveToSQL(userId, userName, payload) {
+    try {
+        await fetch(`${SERVER_URL}/api/update_context`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                twitch_id: userId,
+                username: userName,
+                ...payload
+            })
+        });
+        console.log("Synchronisation SQL réussie");
+    } catch (e) {
+        console.error("Échec de la synchro SQL:", e);
+    }
+}
