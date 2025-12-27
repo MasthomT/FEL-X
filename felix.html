@@ -124,15 +124,31 @@
             const userId = await getUserId(token);
             
             if (userId) {
-                // LECTURE
-                db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
-                        const data = snapshot.val() || {};
-                        fields.forEach(f => {
-                        if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
-                        });
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('felixForm').style.display = 'block';
-                    });
+                fetch('/api/get_context?user_id=' + userId) 
+    .then(response => {
+        if (!response.ok) throw new Error("Pas de données trouvées");
+        return response.json();
+    })
+    .then(data => {
+        // Remplissage du formulaire avec les données SQL
+        fields.forEach(f => {
+            if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
+        });
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('felixForm').style.display = 'block';
+    })
+    .catch(err => {
+        console.log("Rien en SQL, tentative Firebase en secours...");
+        // Fallback : Si rien en SQL, on essaie quand même Firebase (optionnel)
+        db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
+            const data = snapshot.val() || {};
+            fields.forEach(f => {
+                if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('felixForm').style.display = 'block';
+        });
+    });
 
 document.getElementById('felixForm').addEventListener('submit', async (e) => {
     e.preventDefault();
