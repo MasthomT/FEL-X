@@ -126,13 +126,13 @@
             if (userId) {
                 // LECTURE
                 db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
-                    const data = snapshot.val() || {};
-                    fields.forEach(f => {
+                        const data = snapshot.val() || {};
+                        fields.forEach(f => {
                         if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
+                        });
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('felixForm').style.display = 'block';
                     });
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('felixForm').style.display = 'block';
-                });
 
 document.getElementById('felixForm').addEventListener('submit', async (e) => {
     e.preventDefault();
