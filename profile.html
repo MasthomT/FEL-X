@@ -191,28 +191,44 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
 
-    <script>
+<script>
         const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
         const BROADCASTER_NAME = "masthom_";
 
+        // Fonction utilitaire pour formater la date de l'historique
+        function formatDate(timestamp) {
+            if (!timestamp) return "Date inconnue";
+            const d = new Date(timestamp);
+            return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
-            const token = checkAuth();
+            const token = checkAuth(); // Fonction de app.js
             if (!token) return;
 
             try {
                 const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
+                
+                // 1. RÉCUPÉRATION INFOS TWITCH (Utilisateur connecté)
                 const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
                 const userData = await userResp.json();
+                if (!userData.data || userData.data.length === 0) throw new Error("Token invalide");
+                
                 const user = userData.data[0];
                 const userKey = user.login.toLowerCase();
 
+                // 2. RÉCUPÉRATION ID DU DIFFUSEUR (Pour Follow/Sub)
+                const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
+                const channelData = await channelResp.json();
+                const broadcasterId = channelData.data[0].id;
+
+                // Mise à jour de l'en-tête (Avatar et Nom)
                 document.getElementById("username").textContent = user.display_name;
                 document.getElementById("avatar").src = user.profile_image_url;
-                document.getElementById("loading-overlay").style.display = "none";
 
                 const db = firebase.database();
 
-                // --- LOGIQUE XP & WATCHTIME (Correction du chemin xp_data) ---
+                // 3. LOGIQUE XP & WATCHTIME (Écoute en temps réel sur xp_data)
                 db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
                     const data = snapshot.val();
                     let xp = 0;
@@ -223,15 +239,16 @@
                             xp = data.xp || 0;
                             wt_seconds = data.watchtime_seconds || 0;
                         } else {
-                            xp = data || 0;
+                            xp = data || 0; // Compatibilité ancien format
                         }
                     }
 
                     const level = calculateLevel(xp);
+                    
+                    // Mise à jour des chiffres dans tes stat-box
                     document.getElementById("stat-level").textContent = level;
                     document.getElementById("stat-xp").textContent = xp.toLocaleString();
                     
-                    // Affichage Watchtime
                     const wtEl = document.getElementById("stat-watchtime");
                     if (wtEl) {
                         const h = Math.floor(wt_seconds / 3600);
@@ -239,80 +256,34 @@
                         wtEl.textContent = `${h}h ${m}m`;
                     }
 
-                    // Barre de progression
+                    // --- BARRE DE PROGRESSION (Calculs mathématiques identiques au bot) ---
                     const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
                     const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
                     const percent = Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100));
+                    
                     document.getElementById("xp-fill").style.width = percent + "%";
                     document.getElementById("current-xp").textContent = xp.toLocaleString();
                     document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
+
+                    // Fin du chargement initial une fois les données reçues
+                    document.getElementById("loading-overlay").style.display = "none";
                 });
 
-                // --- LOGIQUE RANG (Correction du chemin xp_data) ---
+                // 4. CALCUL DU RANG GLOBAL (Scan de xp_data)
                 db.ref('viewer_data/xp_data').once('value').then(snap => {
                     const allData = snap.val() || {};
                     const sorted = Object.entries(allData)
-                        .map(([k, v]) => ({ key: k, xp: (typeof v === 'object' ? v.xp : v) || 0 }))
+                        .map(([k, v]) => ({ 
+                            key: k, 
+                            xp: (v && typeof v === 'object' ? v.xp : v) || 0 
+                        }))
                         .sort((a, b) => b.xp - a.xp);
+                    
                     const myRank = sorted.findIndex(u => u.key === userKey) + 1;
                     document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
                 });
 
-                // --- LE RESTE DE TON CODE (Twitch Follow/Sub, Historique, IA) ---
-                // Garde tes appels fetch et db.ref('viewer_data/history/') tels qu'ils sont déjà dans ton fichier.
-
-            } catch (e) { console.error(e); }
-        });
-                    // Progress Bar
-                    const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-                    const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
-                    const percent = Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100));
-    
-                    document.getElementById("xp-fill").style.width = percent + "%";
-                    document.getElementById("current-xp").textContent = xp.toLocaleString();
-                    document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
-                });
-                
-                db.ref('viewer_data/xp').once('value').then(snapshot => {
-    const allXpData = snapshot.val() || {};
-    const myData = allXpData[userKey] || {};
-    
-    // Extraction sécurisée
-    let xp = (myData && typeof myData === 'object') ? (myData.xp || 0) : (myData || 0);
-    let wt_seconds = (myData && typeof myData === 'object') ? (myData.watchtime_seconds || 0) : 0;
-    
-    const level = calculateLevel(xp);
-    
-    // UI Update
-    document.getElementById("stat-level").textContent = level;
-    document.getElementById("stat-xp").textContent = xp.toLocaleString();
-    
-    // Affichage Watchtime (à ajouter dans ton HTML si pas déjà fait)
-    const wtEl = document.getElementById("stat-watchtime");
-    if(wtEl) {
-        const h = Math.floor(wt_seconds / 3600);
-        const m = Math.floor((wt_seconds % 3600) / 60);
-        wtEl.textContent = `${h}h ${m}m`;
-    }
-
-    // Rank & Progress (conserver ton code actuel mais utiliser la variable xp extraite)
-    const sortedUsers = Object.entries(allXpData)
-        .map(([k, v]) => ({ key: k, xp: (v && typeof v === 'object') ? (v.xp || 0) : (v || 0) }))
-        .sort((a, b) => b.xp - a.xp);
-    
-    const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
-    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "-";
-
-                    // Progress
-                    const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-                    const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
-                    const percent = Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100));
-                    document.getElementById("xp-fill").style.width = percent + "%";
-                    document.getElementById("current-xp").textContent = xp.toLocaleString();
-                    document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
-                });
-
-                // HISTORIQUE (Chargé depuis /history/pseudo)
+                // 5. HISTORIQUE DES GAINS D'XP
                 db.ref('viewer_data/history/' + userKey).limitToLast(20).once('value').then(snapshot => {
                     const historyData = snapshot.val();
                     const listEl = document.getElementById("xp-history-list");
@@ -320,7 +291,7 @@
                     if (historyData) {
                         listEl.innerHTML = "";
                         const historyArray = Array.isArray(historyData) ? historyData : Object.values(historyData);
-                        // Inverser pour avoir le plus récent en haut
+                        // On inverse pour avoir le plus récent en haut
                         historyArray.reverse().forEach(item => {
                             if(item) {
                                 const dateStr = formatDate(item.timestamp);
@@ -331,8 +302,7 @@
                                             <div class="history-date">${dateStr}</div>
                                         </div>
                                         <div class="history-val">+${item.amount} XP</div>
-                                    </li>
-                                `;
+                                    </li>`;
                             }
                         });
                     } else {
@@ -340,11 +310,10 @@
                     }
                 });
 
-                // IA CARD (Félix) - Remplissage intelligent
+                // 6. CARTE D'IDENTITÉ FÉLIX (IA Context)
                 db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
                     const ctx = snapshot.val();
                     const grid = document.getElementById("ai-id-content");
-                    
                     if (ctx) {
                         grid.innerHTML = "";
                         const fields = [
@@ -353,7 +322,6 @@
                             { key: "pronouns", label: "Pronoms" },
                             { key: "vibe", label: "Vibe" },
                             { key: "favorite_game", label: "Jeu Fav." },
-                            { key: "hated_genre", label: "Genre ❌" },
                             { key: "hobby", label: "Passion" },
                             { key: "favorite_food", label: "Snack" },
                             { key: "favorite_drink", label: "Boisson" }
@@ -367,89 +335,82 @@
                                     <div class="id-field">
                                         <span class="id-label">${f.label}</span>
                                         <span class="id-value">${ctx[f.key]}</span>
-                                    </div>
-                                `;
+                                    </div>`;
                             }
                         });
                         
-                        if(!hasData) grid.innerHTML = `<div style="color:var(--text-dim); font-style:italic;">Aucune info.</div>`;
+                        if(!hasData) {
+                            grid.innerHTML = `<div style="color:var(--text-dim); font-style:italic;">Aucune information enregistrée.</div>`;
+                        }
 
-                        // Bio à part
                         if(ctx.free_message) {
                             document.getElementById("ai-bio-container").style.display = "block";
                             document.getElementById("ai-bio-text").textContent = ctx.free_message;
                         }
                     } else {
-                         grid.innerHTML = `<div style="color:var(--text-dim);">Aucune info.</div>`;
+                        grid.innerHTML = `<div style="color:var(--text-dim);">Félix ne vous connaît pas encore assez.</div>`;
                     }
                 });
 
-                // STATUTS TWITCH
+                // 7. STATUTS TWITCH (Follow & Sub)
                 const badgesDiv = document.getElementById("badges-container");
                 
-                // Follow
+                // Vérification du Follow
                 fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
-                    .then(r => r.json())
-                    .then(d => {
+                    .then(r => r.json()).then(d => {
                         const elStatus = document.getElementById("stat-follow");
                         const elDate = document.getElementById("stat-follow-date");
                         if (d.data && d.data.length > 0) {
-                            const date = new Date(d.data[0].followed_at).toLocaleDateString();
+                            const date = new Date(d.data[0].followed_at).toLocaleDateString('fr-FR');
                             badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
                             elStatus.textContent = "Oui";
-                            elStatus.className = "stat-num status-yes";
+                            elStatus.style.color = "#43b581";
                             elDate.textContent = `Depuis le ${date}`;
                         } else {
                             elStatus.textContent = "Non";
-                            elStatus.className = "stat-num status-no";
-                            elDate.textContent = "Pas encore";
+                            elStatus.style.color = "#ff4757";
+                            elDate.textContent = "Pas encore follow";
                         }
                     }).catch(() => {});
 
-                // Sub
+                // Vérification du Sub
                 if (user.id !== broadcasterId) {
                     fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
-                        .then(async r => { 
-                            if (r.status === 200) return r.json();
-                            if (r.status === 404) throw new Error("NON");
-                            throw new Error("ERR");
-                        })
+                        .then(r => r.status === 200 ? r.json() : null)
                         .then(data => {
-                            const info = data.data[0];
-                            let tier = info.tier === "1000" ? "Tier 1" : (info.tier === "2000" ? "Tier 2" : "Tier 3");
-                            if(info.is_gift) tier += " (Cadeau)";
-                            badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-                            document.getElementById("stat-sub").textContent = "Oui";
-                            document.getElementById("stat-sub").className = "stat-num status-yes";
-                            document.getElementById("stat-sub-detail").textContent = tier;
-                        })
-                        .catch(() => {
+                            const elSub = document.getElementById("stat-sub");
+                            const elSubDetail = document.getElementById("stat-sub-detail");
+                            if (data && data.data && data.data.length > 0) {
+                                const info = data.data[0];
+                                let tier = info.tier === "1000" ? "Tier 1" : (info.tier === "2000" ? "Tier 2" : "Tier 3");
+                                if(info.is_gift) tier += " (Cadeau)";
+                                
+                                badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
+                                elSub.textContent = "Oui";
+                                elSub.style.color = "#e91e63";
+                                elSubDetail.textContent = tier;
+                            } else {
+                                elSub.textContent = "Non";
+                                elSubDetail.textContent = "-";
+                            }
+                        }).catch(() => {
                             document.getElementById("stat-sub").textContent = "Non";
-                            document.getElementById("stat-sub").className = "stat-num status-no";
-                            document.getElementById("stat-sub-detail").textContent = "-";
                         });
                 } else {
+                    // Si c'est le streamer (toi)
                     badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
                     document.getElementById("stat-sub").textContent = "Créateur";
                     document.getElementById("stat-sub-detail").textContent = "👑";
                 }
 
-            } catch (e) {
-                if (e.message.includes("Token")) logout();
+            } catch (error) {
+                console.error("Erreur Profil:", error);
+                if (error.message && error.message.includes("Token")) {
+                    logout(); // Redirection si session expirée
+                } else {
+                    document.getElementById("loading-overlay").innerHTML = "<h2>Erreur de chargement</h2><p>Vérifiez votre connexion.</p>";
+                }
             }
-            const xpVal = snapshot.val();
-if (xpVal) {
-    const level = calculateLevel(xpVal.xp || 0);
-    document.getElementById("stat-level").textContent = level;
-    document.getElementById("stat-xp").textContent = (xpVal.xp || 0).toLocaleString();
-    
-    // Ajout du Watchtime (conversion secondes -> H/M)
-    const totalSeconds = xpVal.watchtime_seconds || 0;
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
-}
-
         });
     </script>
 </body>
