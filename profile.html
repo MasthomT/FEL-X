@@ -138,6 +138,10 @@
                     <div class="stat-num" id="stat-level">1</div>
                 </div>
                 <div class="stat-box">
+                    <div class="stat-label">Temps de Visionnage</div>
+                    <div id="stat-watchtime" class="stat-num">-</div>
+                </div>
+                <div class="stat-box">
                     <div class="stat-title">XP Total</div>
                     <div class="stat-num" id="stat-xp">0</div>
                 </div>
@@ -216,6 +220,55 @@
                 const userKey = user.login.toLowerCase();
 
                 // XP & HISTORIQUE
+                db.ref('viewer_data/xp').once('value').then(snapshot => {
+                    const allXpData = snapshot.val() || {};
+                    const myData = allXpData[userKey] || {};
+    
+                    // On extrait l'XP qu'il soit dans un objet ou direct
+                    let xp = 0;
+                    let wt_seconds = 0;
+                    if (typeof myData === 'object' && myData !== null) {
+                        xp = myData.xp || 0;
+                        wt_seconds = myData.watchtime_seconds || 0;
+                    } else {
+                        xp = myData || 0; // Ancien format (nombre seul)
+                    }
+
+                    const level = calculateLevel(xp);
+    
+                    // Mise à jour des éléments
+                    document.getElementById("stat-level").textContent = level;
+                    document.getElementById("stat-xp").textContent = xp.toLocaleString();
+    
+                    // Ajout de l'affichage Watchtime si l'élément existe
+                    const wtEl = document.getElementById("stat-watchtime");
+                    if (wtEl) {
+                        const h = Math.floor(wt_seconds / 3600);
+                        const m = Math.floor((wt_seconds % 3600) / 60);
+                        wtEl.textContent = `${h}h ${m}m`;
+                    }
+    
+                    // Rank
+                    const sortedUsers = Object.entries(allXpData)
+                        .map(([k, v]) => ({ 
+                            key: k, 
+                            xp: (typeof v === 'object') ? (v.xp || 0) : (v || 0) 
+                        }))
+                        .sort((a, b) => b.xp - a.xp);
+        
+                    const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
+                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "-";
+
+                    // Progress Bar
+                    const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+                    const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
+                    const percent = Math.min(100, Math.max(0, ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100));
+    
+                    document.getElementById("xp-fill").style.width = percent + "%";
+                    document.getElementById("current-xp").textContent = xp.toLocaleString();
+                    document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
+                });
+                
                 db.ref('viewer_data/xp').once('value').then(snapshot => {
                     const allXpData = snapshot.val() || {};
                     const myData = allXpData[userKey] || {};
@@ -364,6 +417,19 @@
             } catch (e) {
                 if (e.message.includes("Token")) logout();
             }
+            const xpVal = snapshot.val();
+if (xpVal) {
+    const level = calculateLevel(xpVal.xp || 0);
+    document.getElementById("stat-level").textContent = level;
+    document.getElementById("stat-xp").textContent = (xpVal.xp || 0).toLocaleString();
+    
+    // Ajout du Watchtime (conversion secondes -> H/M)
+    const totalSeconds = xpVal.watchtime_seconds || 0;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
+}
+
         });
     </script>
 </body>

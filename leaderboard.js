@@ -23,13 +23,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         let usersArray = [];
         for (const [key, val] of Object.entries(xpData)) {
-            if (val && typeof val.xp === 'number') {
-                usersArray.push({
-                    username: val.username || key,
-                    key: key, // Pseudo Twitch minuscule (clé firebase)
-                    xp: val.xp,
-                    level: calculateLevel(val.xp)
-                });
+            // Extraction intelligente de l'XP
+            let xpValue = 0;
+            let usernameValue = key;
+            
+            if (typeof val === 'object' && val !== null) {
+                xpValue = val.xp || 0;
+                usernameValue = val.username || key;
+            } else if (typeof val === 'number') {
+                xpValue = val;
+            }
+
+            usersArray.push({
+                username: usernameValue,
+                key: key,
+                xp: xpValue,
+                level: calculateLevel(xpValue)
+            });
             }
         }
 
