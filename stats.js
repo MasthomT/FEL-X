@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // 1. DONNÉES FIREBASE (XP Communauté)
-        const xpSnapshot = await db.ref('viewer_data/xp').once('value');
+        const xpSnapshot = await db.ref('viewer_data/xp_data').once('value');
         const xpData = xpSnapshot.val() || {};
 
         if (Object.keys(xpData).length === 0) {
