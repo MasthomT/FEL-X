@@ -270,18 +270,34 @@
                 });
                 
                 db.ref('viewer_data/xp').once('value').then(snapshot => {
-                    const allXpData = snapshot.val() || {};
-                    const myData = allXpData[userKey] || {};
-                    const xp = myData.xp || 0;
-                    const level = calculateLevel(xp);
-                    
-                    document.getElementById("stat-level").textContent = level;
-                    document.getElementById("stat-xp").textContent = xp.toLocaleString();
-                    
-                    // Rank
-                    const sortedUsers = Object.entries(allXpData).map(([k, v]) => ({ key: k, xp: v.xp || 0 })).sort((a, b) => b.xp - a.xp);
-                    const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
-                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "-";
+    const allXpData = snapshot.val() || {};
+    const myData = allXpData[userKey] || {};
+    
+    // Extraction sécurisée
+    let xp = (myData && typeof myData === 'object') ? (myData.xp || 0) : (myData || 0);
+    let wt_seconds = (myData && typeof myData === 'object') ? (myData.watchtime_seconds || 0) : 0;
+    
+    const level = calculateLevel(xp);
+    
+    // UI Update
+    document.getElementById("stat-level").textContent = level;
+    document.getElementById("stat-xp").textContent = xp.toLocaleString();
+    
+    // Affichage Watchtime (à ajouter dans ton HTML si pas déjà fait)
+    const wtEl = document.getElementById("stat-watchtime");
+    if(wtEl) {
+        const h = Math.floor(wt_seconds / 3600);
+        const m = Math.floor((wt_seconds % 3600) / 60);
+        wtEl.textContent = `${h}h ${m}m`;
+    }
+
+    // Rank & Progress (conserver ton code actuel mais utiliser la variable xp extraite)
+    const sortedUsers = Object.entries(allXpData)
+        .map(([k, v]) => ({ key: k, xp: (v && typeof v === 'object') ? (v.xp || 0) : (v || 0) }))
+        .sort((a, b) => b.xp - a.xp);
+    
+    const myRank = sortedUsers.findIndex(u => u.key === userKey) + 1;
+    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "-";
 
                     // Progress
                     const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
