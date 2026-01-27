@@ -14,7 +14,7 @@
         if (code) {
             // 2. CORRECTION IMPORTANTE : On enlève le "/callback"
             // On renvoie vers l'IP de votre bot sur la route standard
-            window.location.href = `http://192.168.1.109:8080/auth/twitch?code=${code}&state=${state}`;
+            window.location.href = `http://192.168.1.109:8080/auth/vercel_callback?code=${code}&state=${state}`;
         } else {
             document.body.innerHTML = "Erreur : Aucun code reçu de Twitch.";
         }
