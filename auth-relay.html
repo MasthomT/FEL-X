@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head><title>Redirection MasthomBot</title></head>
+<head><title>Connexion MasthomBot</title></head>
 <body>
-    <p>Connexion réussie ! Redirection vers votre Raspberry Pi...</p>
+    <h3 style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+        Connexion autorisée !<br>Retour vers votre Raspberry Pi...
+    </h3>
     <script>
-        // On récupère le code envoyé par Twitch
+        // 1. On récupère les clés données par Twitch
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const state = params.get('state');
 
         if (code) {
-            // On renvoie le code vers l'IP locale de ton bot
-            // Le navigateur accepte de passer de HTTPS vers HTTP ici
+            // 2. CORRECTION IMPORTANTE : On enlève le "/callback"
+            // On renvoie vers l'IP de votre bot sur la route standard
             window.location.href = `http://192.168.1.109:8080/auth/twitch?code=${code}&state=${state}`;
         } else {
-            document.body.innerHTML = "Erreur : Aucun code reçu.";
+            document.body.innerHTML = "Erreur : Aucun code reçu de Twitch.";
         }
     </script>
 </body>
