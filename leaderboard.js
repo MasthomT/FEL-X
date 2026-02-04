@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 "Accept": "application/json"
             }
         });
+
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
         const rawData = await response.json(); 
