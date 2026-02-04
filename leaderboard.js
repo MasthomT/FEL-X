@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
+        // Utilisation de rawData UNE SEULE FOIS
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
             method: 'GET',
             headers: {
@@ -20,11 +21,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
-        const rawData = await response.json();
-        
-        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
-        const rawData = await response.json();
+        const rawData = await response.json(); // <-- Vérifie qu'il n'y a pas d'autre "const rawData" au-dessus ou en dessous
+        
         if (!rawData || rawData.length === 0) {
             loadingEl.textContent = "Aucune donnée SQL trouvée.";
             return;
