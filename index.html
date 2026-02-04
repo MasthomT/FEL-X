@@ -97,9 +97,13 @@
                 statusMsg.textContent = "Connectez-vous pour accéder à votre espace.";
                 loginArea.style.display = "block";
                 
-                const SCOPES = "user:read:follows user:read:subscriptions";
-                const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
-                loginLink.href = authUrl;
+                // MODIFIE CETTE LIGNE PRÉCISÉMENT
+const REDIRECT_URI = window.location.origin + "/auth-relay.html"; 
+
+// Le reste du code qui construit l'URL
+const SCOPES = "user:read:follows user:read:subscriptions";
+const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+loginLink.href = authUrl;
             
             } else {
                 // Connecté -> On teste le token
