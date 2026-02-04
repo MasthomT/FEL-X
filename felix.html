@@ -145,31 +145,44 @@ fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-        const token = checkAuth(); 
-        if(!token) return;
+    const token = checkAuth(); 
+    if(!token) return;
 
-        const db = firebase.database();
-        const userId = await getUserId(token);
-        
-        if (userId) {
-            // CHARGEMENT DES INFOS
-            fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
-                headers: { "ngrok-skip-browser-warning": "true" }
-            }) 
-            .then(response => response.json())
-            .then(data => {
-                fields.forEach(f => {
-                    if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
-                });
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('felixForm').style.display = 'block';
-            })
-            .catch(err => {
-                console.log("Rien en SQL, affichage formulaire vide");
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('felixForm').style.display = 'block';
+    const userId = await getUserId(token);
+    const loadingEl = document.getElementById('loading');
+    const formEl = document.getElementById('felixForm');
+
+    if (userId) {
+        try {
+            // On interroge ton Raspberry Pi via ngrok
+            const response = await fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
+                headers: { 
+                    "ngrok-skip-browser-warning": "true",
+                    "Accept": "application/json"
+                }
             });
+
+            if (!response.ok) throw new Error("Erreur serveur");
+            const data = await response.json();
+
+            // On injecte les valeurs de la base SQL dans les inputs
+            fields.forEach(f => {
+                const input = document.getElementById(f);
+                if (input && data[f]) {
+                    input.value = data[f]; // ICI : "Bouboune", "Valorant", etc.
+                }
+            });
+
+            // Une fois fini, on permute l'affichage
+            loadingEl.style.display = 'none';
+            formEl.style.display = 'block';
+
+        } catch (err) {
+            console.error("Erreur de synchro :", err);
+            loadingEl.innerHTML = `<div style="color:red;">Erreur de liaison avec le Pi (masthombot)</div>`;
         }
+    }
+});
 
         // SAUVEGARDE DES INFOS
         document.getElementById('felixForm').addEventListener('submit', async (e) => {
