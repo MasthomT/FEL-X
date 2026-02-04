@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Connexion FEL-X</title>
+    <meta charset="UTF-8">
+    <title>FEL-X Auth</title>
     <style>
-        body { background: #18181b; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { background: #18181b; color: #00f5c3; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     </style>
 </head>
 <body>
     <div style="text-align: center;">
-        <h3>Connexion réussie !</h3>
-        <p>Préparation de votre profil...</p>
+        <h2 id="status">Connexion réussie !</h2>
+        <p>Redirection vers votre profil en cours...</p>
     </div>
 
     <script>
-        // 1. On récupère les données après le '#' (fragment) et non le '?'
+        // On récupère TOUT ce qui est après le #
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
-        
-        // Avec response_type=token, Twitch envoie 'access_token'
         const token = params.get('access_token');
 
         if (token) {
-            // 2. On stocke le token pour que profile.html puisse l'utiliser
+            // 1. On stocke le token immédiatement
             localStorage.setItem("twitch_token", token);
             
-            // 3. ON REDIRIGE VERS LE PROFIL SUR VERCEL
-            // On n'envoie PAS vers l'IP locale (192.168...), sinon les viewers seront bloqués
-            window.location.href = "/profile.html"; 
+            // 2. On FORCE la redirection vers profile.html
+            console.log("Token trouvé, redirection...");
+            window.location.replace("/profile.html"); 
         } else {
-            // Si on arrive ici sans token, on affiche l'erreur et on repart à l'index
-            console.error("Token non trouvé dans l'URL");
+            // Si pas de token, on affiche l'erreur et on repart à l'accueil
+            document.getElementById('status').innerText = "Erreur de Token";
+            console.error("L'URL ne contient pas de access_token");
             setTimeout(() => { window.location.href = "/index.html"; }, 2000);
         }
     </script>
