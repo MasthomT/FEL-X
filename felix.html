@@ -101,50 +101,29 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
 
-    <script>
-
-    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-    const fields = [
+<script>
+const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+// IDs correspondant exactement aux colonnes de /home/masthom/database.db
+const fields = [
     'nickname', 'birthday', 'pronouns', 'vibe', 
     'favorite_game', 'hated_genre', 'hobby', 
     'favorite_food', 'favorite_drink', 'free_message'
 ];
 
-// Chargement des données
-fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
-    headers: { "ngrok-skip-browser-warning": "true" }
-})
-.then(response => response.json())
-.then(data => {
-    // On remplit chaque champ si la donnée existe
-    fields.forEach(f => {
-        const element = document.getElementById(f);
-        if (element && data[f]) {
-            element.value = data[f];
-        }
-    });
-    
-    // On cache le chargement et on montre le formulaire
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('felixForm').style.display = 'block';
-})
-.catch(err => {
-    console.error("Erreur de récupération :", err);
-    document.getElementById('loading').textContent = "Erreur de liaison avec le Raspberry Pi";
-});
-
-    async function getUserId(token) {
-        try {
-            const r = await fetch('https://api.twitch.tv/helix/users', {
-                headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL }
-            });
-            if (!r.ok) throw new Error("Token invalide");
-            const d = await r.json();
-            return d.data[0].id;
-        } catch { return null; }
+async function getUserId(token) {
+    try {
+        const r = await fetch('https://api.twitch.tv/helix/users', {
+            headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL }
+        });
+        const d = await r.json();
+        return d.data && d.data.length > 0 ? d.data[0].id : null;
+    } catch (e) { 
+        console.error("Erreur Twitch ID:", e);
+        return null; 
     }
+}
 
-    document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const token = checkAuth(); 
     if(!token) return;
 
@@ -154,7 +133,7 @@ fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
 
     if (userId) {
         try {
-            // On interroge ton Raspberry Pi via ngrok
+            // Lecture des données depuis le Raspberry Pi via ngrok
             const response = await fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
                 headers: { 
                     "ngrok-skip-browser-warning": "true",
@@ -162,54 +141,41 @@ fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
                 }
             });
 
-            if (!response.ok) throw new Error("Erreur serveur");
-            const data = await response.json();
-
-            // On injecte les valeurs de la base SQL dans les inputs
-            fields.forEach(f => {
-                const input = document.getElementById(f);
-                if (input && data[f]) {
-                    input.value = data[f]; // ICI : "Bouboune", "Valorant", etc.
-                }
-            });
-
-            // Une fois fini, on permute l'affichage
-            loadingEl.style.display = 'none';
-            formEl.style.display = 'block';
-
+            if (response.ok) {
+                const data = await response.json();
+                // On injecte les valeurs (ex: Bouboune, Valorant) dans le formulaire
+                fields.forEach(f => {
+                    const input = document.getElementById(f);
+                    if (input && data[f]) {
+                        input.value = data[f];
+                    }
+                });
+            }
         } catch (err) {
-            console.error("Erreur de synchro :", err);
-            loadingEl.innerHTML = `<div style="color:red;">Erreur de liaison avec le Pi (masthombot)</div>`;
+            console.error("Erreur de récupération SQL:", err);
+        } finally {
+            // Quoi qu'il arrive, on libère l'affichage
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (formEl) formEl.style.display = 'block';
         }
-    }
-});
 
-        // SAUVEGARDE DES INFOS
-        document.getElementById('felixForm').addEventListener('submit', async (e) => {
+        // Gestion de la sauvegarde (POST)
+        formEl.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
+            const originalText = btn.textContent;
             btn.textContent = "Synchro Raspberry...";
             btn.disabled = true;
 
-            const payload = {
-                twitch_id: userId,
-                nickname: document.getElementById('nickname').value,
-                birthday: document.getElementById('birthday').value,
-                pronouns: document.getElementById('pronouns').value,
-                vibe: document.getElementById('vibe').value,
-                favorite_game: document.getElementById('favorite_game').value,
-                hated_genre: document.getElementById('hated_genre').value,
-                free_message: document.getElementById('free_message').value
-            };
-
-            fetch(`${SERVER_URL}/api/update_context`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                body: JSON.stringify(payload)
+            // Construction du JSON avec les noms de colonnes SQL valides
+            const payload = { twitch_id: userId };
+            fields.forEach(f => {
+                const el = document.getElementById(f);
+                if (el) payload[f] = el.value;
             });
 
             try {
-                const response = await fetch(`${SERVER_URL}/api/update_context`, {
+                const res = await fetch(`${SERVER_URL}/api/update_context`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -217,19 +183,20 @@ fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
                     },
                     body: JSON.stringify(payload)
                 });
-
-                if (response.ok) {
-                    document.getElementById('statusMsg').style.display = 'block';
-                    setTimeout(() => document.getElementById('statusMsg').style.display = 'none', 4000);
+                if (res.ok) {
+                    alert("Profil synchronisé avec succès !");
+                } else {
+                    alert("Erreur lors de la sauvegarde.");
                 }
             } catch (err) {
-                alert("Erreur de liaison avec le Pi.");
+                alert("Impossible de joindre le Raspberry Pi.");
             } finally {
-                btn.textContent = "Sauvegarder";
+                btn.textContent = originalText;
                 btn.disabled = false;
             }
         });
-    }); // <-- Cette fermeture manquait
+    }
+});
 </script>
 </body>
 </html>
