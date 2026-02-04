@@ -30,41 +30,40 @@
 
         <section id="profile-view" style="display: none;">
             <div class="profile-header card">
-                <img id="user-avatar" class="avatar-large" src="" alt="">
+                <div class="avatar-container">
+                    <img id="user-avatar" class="avatar-large" src="" alt="Avatar">
+                </div>
                 <div class="header-info">
                     <h1 id="user-name">Chargement...</h1>
-                    <div id="user-badges" class="badges-list"></div>
+                    <div id="user-badges" class="badges-row">
+                        </div>
                 </div>
-                <div class="level-badge">
-                    <span class="lvl-label">NIVEAU</span>
-                    <span id="user-level" class="lvl-number">1</span>
+                <div class="level-box">
+                    <span class="lvl-tag">NIVEAU</span>
+                    <span id="user-level" class="lvl-val">1</span>
                 </div>
             </div>
 
             <div class="profile-grid">
                 <div class="card xp-card">
-                    <h3>Progression XP</h3>
-                    <div class="xp-bar-container">
-                        <div id="xp-fill" class="xp-fill"></div>
+                    <div class="card-title-row">
+                        <h3>Progression XP</h3>
+                        <span id="xp-text" class="xp-count">0 / 0 XP</span>
                     </div>
-                    <div class="xp-stats">
-                        <span id="current-xp">0 XP</span>
-                        <span id="next-level-xp">100 XP</span>
+                    <div class="xp-track">
+                        <div id="xp-fill" class="xp-bar"></div>
                     </div>
+                    <p class="xp-info">Gagne de l'XP en étant actif sur le chat !</p>
                 </div>
 
-                <div class="card stats-mini-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Follower</span>
-                        <span id="stat-follow" class="stat-value">-</span>
+                <div class="stats-mini-container">
+                    <div class="card mini-stat">
+                        <span class="mini-label">Messages</span>
+                        <span id="stat-messages" class="mini-val">-</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Abonnement</span>
-                        <span id="stat-sub" class="stat-value">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Watchtime</span>
-                        <span id="stat-watch" class="stat-value">0h</span>
+                    <div class="card mini-stat">
+                        <span class="mini-label">Watchtime</span>
+                        <span id="stat-watchtime" class="mini-val">0h</span>
                     </div>
                 </div>
             </div>
@@ -75,45 +74,55 @@
     <script src="app.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const token = checkAuth();
+            const token = checkAuth(); // Fonction dans app.js
             if (!token) return;
 
             try {
-                // 1. Récupération infos Twitch
-                const twitchResp = await fetch('https://api.twitch.tv/helix/users', {
+                // 1. Récupération Profil Twitch
+                const twResp = await fetch('https://api.twitch.tv/helix/users', {
                     headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
                 });
-                const twitchData = await twitchResp.json();
-                const user = twitchData.data[0];
+                const twData = await twResp.json();
+                const user = twData.data[0];
 
                 document.getElementById("user-name").textContent = user.display_name;
                 document.getElementById("user-avatar").src = user.profile_image_url;
 
-                // 2. Récupération XP depuis ton API (via config.js)
+                // 2. Récupération Stats depuis ton Raspberry (via Ngrok dans config.js)
                 const sqlResp = await fetch(`${CONFIG.SERVER_URL}/api/user_stats/${user.id}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 
                 if (sqlResp.ok) {
                     const data = await sqlResp.json();
-                    const level = calculateLevel(data.xp);
-                    const watchH = Math.floor(data.watchtime_seconds / 3600);
+                    
+                    // Calcul Niveau & XP
+                    const level = calculateLevel(data.xp); // Fonction dans app.js
+                    const currentLevelXP = Math.pow((level - 1), 2.2) * 100;
+                    const nextLevelXP = Math.pow(level, 2.2) * 100;
+                    const progress = ((data.xp - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
 
                     document.getElementById("user-level").textContent = level;
-                    document.getElementById("current-xp").textContent = `${data.xp.toLocaleString()} XP`;
-                    document.getElementById("stat-watch").textContent = `${watchH}h`;
-                    
-                    // Calcul de la barre d'XP (simplifié)
-                    const progress = (data.xp % 100); 
-                    document.getElementById("xp-fill").style.width = `${progress}%`;
+                    document.getElementById("xp-text").textContent = `${Math.floor(data.xp)} / ${Math.floor(nextLevelXP)} XP`;
+                    document.getElementById("xp-fill").style.width = `${Math.min(100, progress)}%`;
+
+                    // Stats
+                    document.getElementById("stat-messages").textContent = data.message_count || 0;
+                    const h = Math.floor((data.watchtime_seconds || 0) / 3600);
+                    document.getElementById("stat-watchtime").textContent = `${h}h`;
+
+                    // Badges
+                    const badges = document.getElementById("user-badges");
+                    if (data.is_mod) badges.innerHTML += `<span class="badge b-mod">🛡️ Modérateur</span>`;
+                    if (data.is_vip) badges.innerHTML += `<span class="badge b-vip">💎 VIP</span>`;
                 }
 
                 document.getElementById("loading-overlay").style.display = "none";
                 document.getElementById("profile-view").style.display = "block";
 
             } catch (err) {
-                console.error(err);
-                document.getElementById("loading-overlay").textContent = "Erreur de liaison avec le Raspberry.";
+                console.error("Erreur de chargement:", err);
+                document.getElementById("loading-overlay").innerHTML = "<p>Erreur de liaison avec le serveur.</p>";
             }
         });
     </script>

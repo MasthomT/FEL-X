@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEL-X : Portail Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg: #18181b; --surface: #2a2a2d; --border: #36363a; --text: #f0f0f0; --accent: #00f5c3; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: grid; place-items: center; min-height: 90vh; margin: 0; }
+        
+        #logo-container { text-align: center; margin-bottom: 2rem; }
+        h1 { font-size: 4rem; color: var(--accent); margin: 0; }
+        img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); margin: 1rem auto; display: block; }
+        
+        .btn-primary { 
+            background: var(--accent); color: #18181b; padding: 1rem 2rem; border-radius: 8px; 
+            text-decoration: none; font-weight: 600; font-size: 1.2rem; display: inline-block; transition: 0.3s;
+        }
+        .btn-primary:hover { background: white; transform: translateY(-3px); }
+
+        /* Boite d'erreur */
+        #error-box {
+            background: #3a2a2a; border: 1px solid #ff4444; color: #ffadad;
+            padding: 20px; border-radius: 8px; margin-top: 20px; max-width: 600px;
+            display: none; text-align: left; font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div id="logo-container">
+            <h1>FEL-X</h1>
+            <img src="/logo-felix.png" alt="Logo">
+            <p id="status-msg" style="font-size: 1.2rem; color: #b9bbbe;">Chargement...</p>
+        </div>
+
+        <div id="login-area" style="display:none; text-align: center;">
+            <a id="login-link" class="btn-primary" href="#">Se connecter avec Twitch</a>
+        </div>
+
+        <div id="error-box">
+            <strong>⚠️ ERREUR DÉTECTÉE :</strong><br>
+            <span id="error-detail">Aucune erreur pour l'instant.</span><br><br>
+            <button onclick="resetApp()" style="padding:5px 10px; cursor:pointer;">Réinitialiser et Réessayer</button>
+        </div>
+    </main>
+    
+    <script>
+        // --- CONFIGURATION (Vérifiez bien cet ID !) ---
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
+        const REDIRECT_URI = window.location.origin + "/"; 
+
+        // --- LOGIQUE ---
+        (async function init() {
+            const errorBox = document.getElementById("error-box");
+            const errorDetail = document.getElementById("error-detail");
+            const loginArea = document.getElementById("login-area");
+            const statusMsg = document.getElementById("status-msg");
+            const loginLink = document.getElementById("login-link");
+
+            function showError(msg, technicalDetails) {
+                loginArea.style.display = "none";
+                statusMsg.textContent = "Oups ! Une erreur est survenue.";
+                errorBox.style.display = "block";
+                errorDetail.innerHTML = `
+                    ${msg}<br><br>
+                    <strong>Détails techniques :</strong><br>
+                    Client ID utilisé : ${CLIENT_ID}<br>
+                    Redirect URI : ${REDIRECT_URI}<br>
+                    Erreur : ${technicalDetails}
+                `;
+            }
+
+            // 1. Retour de Twitch (Capture du Token)
+            if (window.location.hash.includes("access_token")) {
+                statusMsg.textContent = "Validation du token...";
+                const params = new URLSearchParams(window.location.hash.substring(1));
+                const token = params.get("access_token");
+
+                if (token) {
+                    localStorage.setItem("twitch_token", token);
+                    window.history.replaceState({}, document.title, "/");
+                } else {
+                    showError("Token introuvable dans l'URL.", "Le hash URL ne contient pas access_token.");
+                    return;
+                }
+            }
+
+            // 2. Vérification du Token
+            const token = localStorage.getItem("twitch_token");
+
+            if (!token) {
+                // Pas connecté -> On affiche le bouton
+                statusMsg.textContent = "Connectez-vous pour accéder à votre espace.";
+                loginArea.style.display = "block";
+                
+                // MODIFIE CETTE LIGNE PRÉCISÉMENT
+const REDIRECT_URI = window.location.origin + "/auth-relay.html"; 
+
+// Le reste du code qui construit l'URL
+const SCOPES = "user:read:follows user:read:subscriptions";
+const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+loginLink.href = authUrl;
+            
+            } else {
+                // Connecté -> On teste le token
+                statusMsg.textContent = "Vérification de votre identité...";
+                
+                try {
+                    const resp = await fetch('https://api.twitch.tv/helix/users', {
+                        headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
+                    });
+
+                    if (!resp.ok) {
+                        // C'est ICI que ça plante souvent
+                        const errText = await resp.text(); // On lit le message d'erreur de Twitch
+                        throw new Error(`Twitch a refusé la connexion (Code ${resp.status}) : ${errText}`);
+                    }
+                    
+                    // Si tout est bon
+                    statusMsg.textContent = "Connexion réussie ! Redirection...";
+                    window.location.href = window.location.origin + "/profile.html";
+
+                } catch (e) {
+                    console.error(e);
+                    showError("La connexion à Twitch a échoué.", e.message);
+                    // On ne recharge PAS la page automatiquement pour vous laisser lire l'erreur !
+                }
+            }
+        })();
+
+        window.resetApp = function() {
+            localStorage.removeItem("twitch_token");
+            window.location.href = "/";
+        };
+    </script>
+</body>
+</html>
