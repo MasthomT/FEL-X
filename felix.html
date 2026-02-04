@@ -162,6 +162,12 @@
                 free_message: document.getElementById('free_message').value
             };
 
+            fetch(`${SERVER_URL}/api/update_context`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                body: JSON.stringify(payload)
+            });
+
             try {
                 const response = await fetch(`${SERVER_URL}/api/update_context`, {
                     method: 'POST',
