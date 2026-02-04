@@ -30,5 +30,23 @@
         
         document.getElementById("login-btn").href = authUrl;
     </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const loginBtn = document.getElementById("login-btn");
+        
+        // On construit l'URL de redirection dynamiquement vers la racine de Vercel
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const REDIRECT_URI = "https://fel-x.vercel.app/auth-relay"; // DOIT ÊTRE IDENTIQUE À LA CONSOLE TWITCH
+        const SCOPES = "user:read:email";
+        
+        const authUrl = `https://id.twitch.tv/oauth2/authorize` +
+                        `?client_id=${CLIENT_ID}` +
+                        `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+                        `&response_type=token` +
+                        `&scope=${encodeURIComponent(SCOPES)}`;
+        
+        loginBtn.href = authUrl;
+    });
+</script>
 </body>
 </html>
