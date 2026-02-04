@@ -152,49 +152,88 @@
         });
     });
 
-document.getElementById('felixForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('saveBtn');
-    btn.textContent = "Synchro Raspberry...";
-    btn.disabled = true;
+<script>
+    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+    const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
 
-    const userId = await getUserId(checkAuth()); 
-    
-    // On crée un objet JSON propre
-    const payload = {
-        twitch_id: userId,
-        nickname: document.getElementById('nickname').value,
-        birthday: document.getElementById('birthday').value,
-        pronouns: document.getElementById('pronouns').value,
-        vibe: document.getElementById('vibe').value,
-        favorite_game: document.getElementById('favorite_game').value,
-        hated_genre: document.getElementById('hated_genre').value,
-        free_message: document.getElementById('free_message').value
-    };
-
-    try {
-        // On tape sur le tunnel ngrok avec le header de contournement
-        const response = await fetch(`${SERVER_URL}/api/update_context`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-            document.getElementById('statusMsg').style.display = 'block';
-            setTimeout(() => document.getElementById('statusMsg').style.display = 'none', 4000);
-        } else {
-            throw new Error("Erreur synchro");
-        }
-    } catch (err) {
-        alert("Le Raspberry Pi n'a pas répondu. Vérifie que le service ngrok est actif.");
-    } finally {
-        btn.textContent = "Sauvegarder";
-        btn.disabled = false;
+    async function getUserId(token) {
+        try {
+            const r = await fetch('https://api.twitch.tv/helix/users', {
+                headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL }
+            });
+            if (!r.ok) throw new Error("Token invalide");
+            const d = await r.json();
+            return d.data[0].id;
+        } catch { return null; }
     }
-});</script>
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = checkAuth(); 
+        if(!token) return;
+
+        const db = firebase.database();
+        const userId = await getUserId(token);
+        
+        if (userId) {
+            // CHARGEMENT DES INFOS
+            fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
+                headers: { "ngrok-skip-browser-warning": "true" }
+            }) 
+            .then(response => response.json())
+            .then(data => {
+                fields.forEach(f => {
+                    if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
+                });
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('felixForm').style.display = 'block';
+            })
+            .catch(err => {
+                console.log("Rien en SQL, affichage formulaire vide");
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('felixForm').style.display = 'block';
+            });
+        }
+
+        // SAUVEGARDE DES INFOS
+        document.getElementById('felixForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            btn.textContent = "Synchro Raspberry...";
+            btn.disabled = true;
+
+            const payload = {
+                twitch_id: userId,
+                nickname: document.getElementById('nickname').value,
+                birthday: document.getElementById('birthday').value,
+                pronouns: document.getElementById('pronouns').value,
+                vibe: document.getElementById('vibe').value,
+                favorite_game: document.getElementById('favorite_game').value,
+                hated_genre: document.getElementById('hated_genre').value,
+                free_message: document.getElementById('free_message').value
+            };
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/update_context`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('statusMsg').style.display = 'block';
+                    setTimeout(() => document.getElementById('statusMsg').style.display = 'none', 4000);
+                }
+            } catch (err) {
+                alert("Erreur de liaison avec le Pi.");
+            } finally {
+                btn.textContent = "Sauvegarder";
+                btn.disabled = false;
+            }
+        });
+    }); // <-- Cette fermeture manquait
+</script>
 </body>
 </html>
