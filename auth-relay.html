@@ -19,9 +19,9 @@
         if (token) {
             localStorage.setItem("twitch_token", token);
             // On force le chemin absolu vers profile.html (AVEC LE E)
-            window.location.href = "profile";
+            window.location.replace(window.location.origin + "/profile.html"); 
         } else {
-            window.location.replace(window.location.origin + "/profile");
+            window.location.replace(window.location.origin + "/index.html");
         }
     </script>
 </body>
