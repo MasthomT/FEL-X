@@ -104,7 +104,34 @@
     <script>
 
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-    const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
+    const fields = [
+    'nickname', 'birthday', 'pronouns', 'vibe', 
+    'favorite_game', 'hated_genre', 'hobby', 
+    'favorite_food', 'favorite_drink', 'free_message'
+];
+
+// Chargement des données
+fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
+    headers: { "ngrok-skip-browser-warning": "true" }
+})
+.then(response => response.json())
+.then(data => {
+    // On remplit chaque champ si la donnée existe
+    fields.forEach(f => {
+        const element = document.getElementById(f);
+        if (element && data[f]) {
+            element.value = data[f];
+        }
+    });
+    
+    // On cache le chargement et on montre le formulaire
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('felixForm').style.display = 'block';
+})
+.catch(err => {
+    console.error("Erreur de récupération :", err);
+    document.getElementById('loading').textContent = "Erreur de liaison avec le Raspberry Pi";
+});
 
     async function getUserId(token) {
         try {
