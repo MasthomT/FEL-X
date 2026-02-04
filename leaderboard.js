@@ -13,12 +13,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingEl.textContent = "Récupération des données SQL...";
 
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
-            method: 'GET',
-            headers: {
-                "ngrok-skip-browser-warning": "true",
-                "Accept": "application/json"
-            }
-        });
+    method: 'GET',
+    headers: {
+        "ngrok-skip-browser-warning": "true",
+        "Accept": "application/json"
+    }
+});
 
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
