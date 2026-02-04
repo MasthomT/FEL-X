@@ -11,16 +11,17 @@
     </div>
 
     <script>
+        // On récupère le token derrière le #
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const token = params.get('access_token');
 
         if (token) {
             localStorage.setItem("twitch_token", token);
-            // On utilise le chemin relatif direct
-            window.location.replace("profile.html"); 
+            // On force le chemin absolu vers profile.html (AVEC LE E)
+            window.location.replace(window.location.origin + "/profile.html"); 
         } else {
-            window.location.replace("index.html");
+            window.location.replace(window.location.origin + "/index.html");
         }
     </script>
 </body>

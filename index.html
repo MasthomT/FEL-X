@@ -118,7 +118,7 @@
                     
                     // Si tout est bon
                     statusMsg.textContent = "Connexion réussie ! Redirection...";
-                    window.location.href = "/profile.html";
+                    window.location.href = window.location.origin + "/profile.html";
 
                 } catch (e) {
                     console.error(e);
