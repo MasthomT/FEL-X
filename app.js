@@ -55,7 +55,10 @@ async function saveToSQL(userId, userName, payload) {
     try {
         await fetch(`${SERVER_URL}/api/update_context`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true' // <--- INDISPENSABLE
+            },
             body: JSON.stringify({
                 twitch_id: userId,
                 username: userName,
