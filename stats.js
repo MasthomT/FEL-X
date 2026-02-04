@@ -11,8 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
-            headers: {
-                "ngrok-skip-browser-warning": "true"
+            method: 'GET',
             }
         });
         
