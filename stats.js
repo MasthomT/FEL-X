@@ -33,23 +33,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Top 5
         const topContainer = document.getElementById("top-5-list");
-        topContainer.innerHTML = "";
-        if (data.top5) {
-            data.top5.forEach((u, i) => {
-                let rankBadge = `<span class="rank-badge">${i+1}</span>`;
-                if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
-                if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
-                if (i === 2) rankBadge = `<span class="rank-badge rank-3">3</span>`;
+topContainer.innerHTML = "";
 
-                topContainer.innerHTML += `
-                    <li class="top-item">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            ${rankBadge} <span style="font-weight:600;">${u.name}</span>
-                        </div>
-                        <span style="color:var(--accent); font-weight:bold;">Niv. ${calculateLevel(u.xp)}</span>
-                    </li>`;
-            });
-        }
+if (data.top5) {
+    data.top5.forEach((u, i) => {
+        // On crée les badges de rang (Or, Argent, Bronze)
+        let rankBadge = `<span class="rank-badge">${i+1}</span>`;
+        if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
+        if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
+        if (i === 2) rankBadge = `<span class="rank-badge rank-3">3</span>`;
+
+        // IMPORTANT : Utilise u.name ici
+        topContainer.innerHTML += `
+            <li class="top-item">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    ${rankBadge} <span style="font-weight:600;">${u.name}</span>
+                </div>
+                <span style="color:var(--accent); font-weight:bold;">Niv. ${calculateLevel(u.xp)}</span>
+            </li>`;
+    });
+}
 
         // Twitch API
         const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
