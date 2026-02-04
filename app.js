@@ -1,5 +1,3 @@
-
-// CONFIGURATION A REMPLIR AVEC VOS INFOS FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyAK0b_n1yTPKGKIZ4TuUmpBNPb3aoVvCI8",
     authDomain: "fel-x-503f8.firebaseapp.com",
@@ -19,14 +17,10 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     }
 }
 
-// --- 2. FONCTIONS GLOBALES ---
-
-// Vérification Auth Twitch
 function checkAuth() {
     const token = localStorage.getItem("twitch_token");
     const path = window.location.pathname;
     
-    // Si pas de token et pas sur une page publique, on redirige
     if (!token && path !== "/index.html" && path !== "/" && path !== "/auth.html") {
         window.location.href = "/index.html";
         return null;
@@ -34,7 +28,6 @@ function checkAuth() {
     return token;
 }
 
-// Déconnexion
 if (document.getElementById("logout-btn")) {
     document.getElementById("logout-btn").onclick = function(e) {
         e.preventDefault();
@@ -43,7 +36,6 @@ if (document.getElementById("logout-btn")) {
     };
 }
 
-// Calcul niveau (Formule synchronisée avec main.py)
 function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
@@ -57,7 +49,7 @@ async function saveToSQL(userId, userName, payload) {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true' // <--- INDISPENSABLE
+                'ngrok-skip-browser-warning': 'true'
             },
             body: JSON.stringify({
                 twitch_id: userId,

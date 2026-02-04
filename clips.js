@@ -1,6 +1,6 @@
 const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 const BROADCASTER_ID = "439356462"; 
-let allClipsData = []; // Stockage local
+let allClipsData = [];
 
 const loadingEl = document.getElementById("loading");
 const gridEl = document.getElementById("clips-grid");
@@ -8,19 +8,17 @@ const searchInput = document.getElementById("clip-search");
 const filterSortSelect = document.getElementById("filter-sort");
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const token = checkAuth(); // Vérif connexion (app.js)
+    const token = checkAuth();
     if(!token) return;
 
     try {
         loadingEl.textContent = "Récupération des clips...";
         
-        // --- CHARGEMENT AVEC PAGINATION (BOUCLE) ---
         let cursor = "";
         let keepFetching = true;
-        const MAX_CLIPS = 500; // On récupère jusqu'à 500 clips pour avoir de l'historique
+        const MAX_CLIPS = 500;
 
         while (keepFetching && allClipsData.length < MAX_CLIPS) {
-            // On construit l'URL
             let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=100`;
             if (cursor) url += `&after=${cursor}`;
 
@@ -35,19 +33,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             const data = await response.json();
 
-            // Si on a des clips, on les ajoute
             if (data.data && data.data.length > 0) {
                 allClipsData.push(...data.data);
                 loadingEl.textContent = `Chargement... (${allClipsData.length} clips récupérés)`;
                 
-                // Gestion du curseur pour la page suivante
                 if (data.pagination && data.pagination.cursor) {
                     cursor = data.pagination.cursor;
                 } else {
-                    keepFetching = false; // Plus de page suivante
+                    keepFetching = false;
                 }
             } else {
-                keepFetching = false; // Liste vide
+                keepFetching = false;
             }
         }
 
@@ -56,20 +52,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // --- TRI INITIAL (PAR DATE : PLUS RÉCENT EN PREMIER) ---
         sortClips('date'); 
 
-        // --- AFFICHAGE ---
         loadingEl.style.display = "none";
         gridEl.style.display = "grid";
 
-        // --- ÉCOUTEURS ---
         if(searchInput) searchInput.addEventListener('input', (e) => filterClips(e.target.value));
         if(filterSortSelect) filterSortSelect.addEventListener('change', (e) => sortClips(e.target.value));
 
     } catch (error) {
         console.error("Erreur Clips:", error);
-        // Affichage de l'erreur réelle à l'écran pour comprendre
         loadingEl.innerHTML = `
             <div style="color:#ff6b6b; border:1px solid #ff6b6b; padding:20px; border-radius:8px; display:inline-block;">
                 <strong>Oups ! Impossible de charger les clips.</strong><br>
@@ -87,10 +79,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function sortClips(criteria) {
     if (criteria === 'date') {
-        // Du plus récent au plus vieux
         allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     } else if (criteria === 'views') {
-        // Du plus vu au moins vu
         allClipsData.sort((a, b) => b.view_count - a.view_count);
     }
     renderClips(allClipsData);
@@ -117,7 +107,7 @@ function renderClips(clips) {
         const views = clip.view_count.toLocaleString();
 
         const card = document.createElement("a");
-        card.className = "clip-card"; // On utilise la classe CSS
+        card.className = "clip-card";
         card.href = clip.url;
         card.target = "_blank";
 

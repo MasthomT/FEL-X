@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth(); // Vérifie la connexion
+    checkAuth();
     const db = firebase.database();
     const listEl = document.getElementById("cmd-list");
     
-    // --- VÉRIFICATION ADMIN ---
     const token = localStorage.getItem("twitch_token");
     const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     let isAdmin = false;
@@ -14,13 +13,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const d = await r.json();
             if (d.data && d.data[0].login.toLowerCase() === "masthom_") {
                 isAdmin = true;
-                document.getElementById("admin-panel").style.display = "flex"; // Affiche les boutons Admin
-                document.getElementById("th-actions").style.display = "table-cell"; // Affiche la colonne Actions
+                document.getElementById("admin-panel").style.display = "flex"; 
+                document.getElementById("th-actions").style.display = "table-cell"; 
             }
         } catch(e) { console.log("Mode Viewer"); }
     }
 
-    // --- LECTURE DES COMMANDES (FIREBASE) ---
     let allCommands = [];
 
     db.ref('viewer_data/commands').on('value', (snapshot) => {
@@ -34,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 allCommands.push(cmd);
             });
             
-            // Tri par Catégorie puis par Nom
             allCommands.sort((a, b) => a.category.localeCompare(b.category) || a.trigger.localeCompare(b.trigger));
             renderCommands(allCommands);
         } else {
@@ -42,14 +39,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // --- AFFICHAGE ---
     function renderCommands(cmds) {
         listEl.innerHTML = "";
         cmds.forEach(cmd => {
             const tr = document.createElement("tr");
             
-            // Gestion des couleurs de badges selon VOS catégories
-            let badgeColor = "background:rgba(128,128,128,0.2); color:#ccc;"; // Défaut
+            let badgeColor = "background:rgba(128,128,128,0.2); color:#ccc;";
             const cat = cmd.category;
 
             if(cat === "Modération") badgeColor = "background:rgba(240, 71, 71, 0.2); color:#f04747;"; 
@@ -62,7 +57,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             if(cat === "Sons") badgeColor = "background:rgba(155, 89, 182, 0.2); color:#9b59b6;";
             if(cat === "Game Bomb") badgeColor = "background:rgba(46, 204, 113, 0.2); color:#2ecc71;";
 
-            // Boutons d'action (Edit/Delete)
             let actionsHTML = "";
             if (isAdmin) {
                 actionsHTML = `
@@ -83,7 +77,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // --- FILTRES ---
     function filterCommands() {
         const searchTerm = document.getElementById("cmd-search").value.toLowerCase();
         const category = document.getElementById("cmd-filter").value;
@@ -99,9 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("cmd-search").addEventListener("input", filterCommands);
     document.getElementById("cmd-filter").addEventListener("change", filterCommands);
 
-    // --- GESTION ADMIN (Ajout / Modif / Init) ---
 
-    // Bouton "Ajouter"
     document.getElementById("btn-add-cmd").onclick = () => {
         document.getElementById("cmd-form").reset();
         document.getElementById("cmd-id").value = "";
@@ -109,7 +100,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("cmd-modal").style.display = "flex";
     };
 
-    // Soumission formulaire
     document.getElementById("cmd-form").onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById("cmd-id").value;
@@ -125,7 +115,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeModal();
     };
 
-    // Fonctions Globales (pour le HTML)
     window.editCmd = (id) => {
         const cmd = allCommands.find(c => c.id === id);
         if(cmd) {
@@ -147,14 +136,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.closeModal = () => { document.getElementById("cmd-modal").style.display = "none"; };
 
-    // --- INITIALISATION : VOTRE LISTE EXACTE ---
     document.getElementById("btn-init-db").onclick = async () => {
         if(confirm("⚠️ ATTENTION : Cela va effacer toutes les commandes actuelles et remettre votre liste officielle propre. Continuer ?")) {
             
-            // 1. Vider la table
             await db.ref('viewer_data/commands').remove();
             
-            // 2. La Liste EXACTE demandée
             const officialList = [
                 // Modération
                 { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "Modération", access: "Modérateur" },
@@ -249,7 +235,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 { trigger: "!pass {pseudo}", description: "Passer la bombe.", category: "Game Bomb", access: "Viewer" }
             ];
 
-            // Injection en base
             officialList.forEach(c => db.ref('viewer_data/commands').push(c));
             alert("✅ Liste restaurée avec succès !");
         }

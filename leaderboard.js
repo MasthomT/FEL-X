@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
-        // Utilisation de rawData UNE SEULE FOIS
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
             method: 'GET',
             headers: {
@@ -22,14 +21,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
-        const rawData = await response.json(); // <-- Vérifie qu'il n'y a pas d'autre "const rawData" au-dessus ou en dessous
+        const rawData = await response.json(); 
         
         if (!rawData || rawData.length === 0) {
             loadingEl.textContent = "Aucune donnée SQL trouvée.";
             return;
         }
 
-        // Traitement des données et calcul des niveaux
         const usersArray = rawData.map(u => ({
             username: u.username,
             key: u.username.toLowerCase(),
@@ -41,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const top3 = usersArray.slice(0, 3);
         const rest = usersArray.slice(3, 50);
 
-        // Récupération des avatars Twitch
         let twitchUsers = [];
         if (token && top3.length > 0) {
             try {
@@ -54,7 +51,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             } catch (e) { console.error("Erreur Twitch:", e); }
         }
 
-        // Affichage Podium
         let top3HTML = "";
         top3.forEach((user, index) => {
             const rank = index + 1;
@@ -75,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         podiumEl.innerHTML = top3HTML;
 
-        // Affichage Liste
         listEl.innerHTML = "";
         rest.forEach((user, index) => {
             const rank = index + 4;
