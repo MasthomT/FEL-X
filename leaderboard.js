@@ -22,29 +22,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         let usersArray = [];
         for (const [key, val] of Object.entries(xpData)) {
-            let xpValue = 0;
-            let usernameValue = key;
-            let wt_seconds = 0;
-            
-            // Gestion format Objet (nouveau) et Nombre (ancien)
-            if (val && typeof val === 'object') {
-                xpValue = val.xp || 0;
-                usernameValue = val.username || key;
-                wt_seconds = val.watchtime_seconds || 0;
-            } else if (typeof val === 'number') {
-                xpValue = val;
-            }
+    let xpValue = 0;
+    let usernameValue = key;
+    let wt_seconds = 0;
+    
+    // On s'assure de lire l'objet tel qu'il est stocké par le bot
+    if (val && typeof val === 'object') {
+        // Priorité aux données chiffrées réelles
+        xpValue = parseInt(val.xp) || 0; 
+        usernameValue = val.username || key;
+        wt_seconds = parseInt(val.watchtime_seconds) || 0;
+    } else if (typeof val === 'number') {
+        xpValue = val;
+    }
 
-            if (xpValue > 0) {
-                usersArray.push({
-                    username: usernameValue,
-                    key: key, 
-                    xp: xpValue,
-                    watchtime_seconds: wt_seconds,
-                    level: calculateLevel(xpValue)
-                });
-            }
-        }
+    if (xpValue > 0) {
+        usersArray.push({
+            username: usernameValue,
+            key: key, 
+            xp: xpValue,
+            watchtime_seconds: wt_seconds,
+            level: calculateLevel(xpValue) // Utilise ta formule synchronisée
+        });
+    }
+}
 
         usersArray.sort((a, b) => b.xp - a.xp);
 
@@ -112,5 +113,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;
+    // Formule : Racine de (XP/100) avec puissance 2.2
     return Math.floor(Math.pow(xp / 100, 1 / 2.2)) + 1;
 }

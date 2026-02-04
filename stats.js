@@ -1,7 +1,8 @@
 // Fonction pour calculer l'XP (doit être la même que dans app.js)
 function calculateLevel(xp) {
-    if (xp < 0) return 1;
-    return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
+    if (!xp || xp < 0) return 1;
+    // Formule exacte du bot : (XP/100)^(1/2.2) + 1
+    return Math.floor(Math.pow(xp / 100, 1 / 2.2)) + 1;
 }
 
 const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
@@ -32,15 +33,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         let maxLvl = 0;
 
         Object.entries(xpData).forEach(([key, val]) => {
-            if (val && typeof val.xp === 'number') {
-                totalXP += val.xp;
-                const lvl = calculateLevel(val.xp);
-                totalLevels += lvl;
-                if (lvl > maxLvl) maxLvl = lvl;
-                
-                users.push({ name: val.username || key, xp: val.xp, level: lvl });
-            }
-        });
+    let xpValue = 0;
+    let usernameValue = key;
+
+    // On gère les deux formats : Objet {xp: ..., username: ...} ou juste un nombre
+    if (val && typeof val === 'object') {
+        xpValue = parseInt(val.xp) || 0; // On force la conversion en nombre
+        usernameValue = val.username || key;
+    } else if (typeof val === 'number') {
+        xpValue = val;
+    }
+
+    if (xpValue > 0) {
+        const lvl = calculateLevel(xpValue);
+        totalXP += xpValue;
+        totalLevels += lvl;
+        if (lvl > maxLvl) maxLvl = lvl;
+        
+        users.push({ name: usernameValue, xp: xpValue, level: lvl });
+    }
+});
 
         const totalMembers = users.length;
         const avgLvl = totalMembers > 0 ? (totalLevels / totalMembers).toFixed(1) : 0;
