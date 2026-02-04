@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>FEL-X Auth</title>
-    <style>
-        body { background: #18181b; color: #00f5c3; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    </style>
 </head>
-<body>
+<body style="background: #18181b; color: #00f5c3; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
     <div style="text-align: center;">
-        <h2 id="status">Connexion réussie !</h2>
-        <p>Redirection vers votre profil en cours...</p>
+        <h2>Connexion réussie !</h2>
+        <p>Redirection vers votre profil...</p>
     </div>
 
     <script>
-        // On récupère TOUT ce qui est après le #
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const token = params.get('access_token');
 
         if (token) {
-            // 1. On stocke le token immédiatement
             localStorage.setItem("twitch_token", token);
-            
-            // 2. On FORCE la redirection vers profile.html
-            console.log("Token trouvé, redirection...");
-            window.location.replace("/profile.html"); 
+            // On utilise le chemin relatif direct
+            window.location.replace("profile.html"); 
         } else {
-            // Si pas de token, on affiche l'erreur et on repart à l'accueil
-            document.getElementById('status').innerText = "Erreur de Token";
-            console.error("L'URL ne contient pas de access_token");
-            setTimeout(() => { window.location.href = "/index.html"; }, 2000);
+            window.location.replace("index.html");
         }
     </script>
 </body>
