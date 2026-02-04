@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", async () => {
    try {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
-        const response = await fetch(`${SERVER_URL}/api/global_stats`, {
+        const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
     method: 'GET',
     headers: {
-        "ngrok-skip-browser-warning": "true", // Force ngrok à répondre en JSON et non en HTML
+        "ngrok-skip-browser-warning": "true",
         "Accept": "application/json"
     }
 });
