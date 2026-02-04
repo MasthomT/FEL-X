@@ -5,23 +5,29 @@
     <title>Connexion | FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { display: flex; align-items: center; justify-content: center; height: 100vh; background: #050505; color: white; font-family: 'Inter', sans-serif; }
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; background: #050505; color: white; font-family: 'Inter', sans-serif; margin: 0; }
         .login-card { text-align: center; padding: 3rem; background: #0f0f11; border: 1px solid #1f1f23; border-radius: 12px; border-top: 4px solid #00f5c3; }
-        .btn-twitch { display: inline-block; background: #9146FF; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+        .btn-twitch { display: inline-block; background: #9146FF; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+        .btn-twitch:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <img src="logo-felix.png" alt="FEL-X" style="width: 80px; border-radius: 50%; margin-bottom: 1rem;">
-        <h1>FEL-X</h1>
-        <p style="color: #8b8b92;">Accède à ton univers de stream.</p>
-        <a href="#" id="login-btn" class="btn-twitch">Se connecter avec Twitch</a>
+        <img src="logo-felix.png" alt="FEL-X" style="width: 80px; border-radius: 50%; margin-bottom: 1rem; border: 2px solid #00f5c3;">
+        <h1>PORTAIL FEL-X</h1>
+        <p style="color: #8b8b92;">Identifie-toi pour voir tes stats.</p>
+        <a href="#" id="login-btn" class="btn-twitch">SE CONNECTER AVEC TWITCH</a>
     </div>
 
     <script src="config.js"></script>
     <script>
-        const REDIRECT_URI = window.location.origin + "/auth-relay"; // Pas de .html si tu as le vercel.json
-        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
+        // On génère l'URL de connexion dynamiquement
+        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const REDIRECT_URI = window.location.origin + "/auth-relay"; 
+        const SCOPES = "user:read:email";
+        
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
+        
         document.getElementById("login-btn").href = authUrl;
     </script>
 </body>
