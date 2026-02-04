@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
             method: 'GET',
             headers: {
-                "ngrok-skip-browser-warning": "true"
+                "ngrok-skip-browser-warning": "true",
+                "Accept": "application/json"
             }
         });
-        
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
         const rawData = await response.json(); // <-- Vérifie qu'il n'y a pas d'autre "const rawData" au-dessus ou en dessous
