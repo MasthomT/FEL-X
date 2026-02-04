@@ -4,32 +4,33 @@
     <title>Connexion FEL-X</title>
     <style>
         body { background: #18181b; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .loader { text-align: center; }
     </style>
 </head>
 <body>
-    <div class="loader">
+    <div style="text-align: center;">
         <h3>Connexion réussie !</h3>
-        <p>Préparation de votre profil FEL-X...</p>
+        <p>Préparation de votre profil...</p>
     </div>
 
     <script>
-        // 1. On récupère le token dans le fragment (#access_token=...)
-        // Twitch envoie le token après le # et non après le ?
+        // 1. On récupère les données après le '#' (fragment) et non le '?'
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
+        
+        // Avec response_type=token, Twitch envoie 'access_token'
         const token = params.get('access_token');
 
         if (token) {
-            // 2. On enregistre le token dans le navigateur du viewer
+            // 2. On stocke le token pour que profile.html puisse l'utiliser
             localStorage.setItem("twitch_token", token);
             
-            // 3. REDIRECTION VERS LE PROFIL SUR VERCEL
-            // On oublie l'IP 192.168... car les viewers n'y ont pas accès.
+            // 3. ON REDIRIGE VERS LE PROFIL SUR VERCEL
+            // On n'envoie PAS vers l'IP locale (192.168...), sinon les viewers seront bloqués
             window.location.href = "/profile.html"; 
         } else {
-            document.body.innerHTML = "<h3>Erreur d'authentification</h3><p>Aucun token reçu. Redirection...</p>";
-            setTimeout(() => { window.location.href = "/index.html"; }, 3000);
+            // Si on arrive ici sans token, on affiche l'erreur et on repart à l'index
+            console.error("Token non trouvé dans l'URL");
+            setTimeout(() => { window.location.href = "/index.html"; }, 2000);
         }
     </script>
 </body>
