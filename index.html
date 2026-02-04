@@ -2,130 +2,27 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion | FEL-X</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Styles spécifiques à la page de login pour le centrage */
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: radial-gradient(circle at center, #1e1e21 0%, #121214 100%);
-        }
-        
-        .login-card {
-            text-align: center;
-            padding: 3rem;
-            max-width: 400px;
-            width: 90%;
-            border-top: 4px solid var(--accent);
-        }
-
-        .login-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid var(--accent);
-            margin-bottom: 1.5rem;
-            box-shadow: 0 0 25px rgba(0, 245, 195, 0.2);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -1px;
-        }
-
-        .subtitle {
-            color: var(--text-dim);
-            margin-bottom: 2.5rem;
-            font-size: 0.95rem;
-        }
-
-        .btn-twitch {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: #9146FF; /* Couleur officielle Twitch */
-            color: white;
-            text-decoration: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            transition: transform 0.2s, filter 0.2s;
-            width: 100%;
-        }
-
-        .btn-twitch:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-
-        .btn-twitch svg {
-            width: 20px;
-            fill: white;
-        }
-
-        #status-msg {
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-            color: var(--accent);
-        }
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; background: #050505; color: white; font-family: 'Inter', sans-serif; }
+        .login-card { text-align: center; padding: 3rem; background: #0f0f11; border: 1px solid #1f1f23; border-radius: 12px; border-top: 4px solid #00f5c3; }
+        .btn-twitch { display: inline-block; background: #9146FF; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-
-    <div class="card login-card">
-        <img src="logo-felix.png" alt="FEL-X" class="login-logo">
+    <div class="login-card">
+        <img src="logo-felix.png" alt="FEL-X" style="width: 80px; border-radius: 50%; margin-bottom: 1rem;">
         <h1>FEL-X</h1>
-        <p class="subtitle">Connecte-toi pour accéder à ton profil et à tes statistiques de stream.</p>
-
-        <a href="#" id="login-btn" class="btn-twitch">
-            <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.571zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-            Se connecter avec Twitch
-        </a>
-
-        <div id="status-msg">En attente de connexion...</div>
+        <p style="color: #8b8b92;">Accède à ton univers de stream.</p>
+        <a href="#" id="login-btn" class="btn-twitch">Se connecter avec Twitch</a>
     </div>
 
     <script src="config.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const loginBtn = document.getElementById("login-btn");
-            const statusMsg = document.getElementById("status-msg");
-
-            // 1. On prépare l'URL de connexion Twitch
-            const SCOPES = "user:read:email"; 
-            const REDIRECT_URI = window.location.origin + "/auth-relay.html";
-            const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
-            
-            loginBtn.href = authUrl;
-
-            // 2. Vérification si déjà connecté
-            const token = localStorage.getItem("twitch_token");
-            if (token) {
-                statusMsg.textContent = "Vérification de la session...";
-                try {
-                    const resp = await fetch('https://api.twitch.tv/helix/users', {
-                        headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
-                    });
-                    if (resp.ok) {
-                        statusMsg.textContent = "Session active, redirection...";
-                        window.location.href = "profile.html";
-                    } else {
-                        localStorage.removeItem("twitch_token");
-                        statusMsg.textContent = "Session expirée, merci de vous reconnecter.";
-                    }
-                } catch (e) {
-                    statusMsg.textContent = "Erreur de connexion aux services Twitch.";
-                }
-            }
-        });
+        const REDIRECT_URI = window.location.origin + "/auth-relay"; // Pas de .html si tu as le vercel.json
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
+        document.getElementById("login-btn").href = authUrl;
     </script>
 </body>
 </html>
