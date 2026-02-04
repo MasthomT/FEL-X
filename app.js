@@ -49,7 +49,7 @@ function calculateLevel(xp) {
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
 }
 
-const SERVER_URL = " https://b510-2a0d-3341-cdc3-310-c008-5e45-a87c-8d0e.ngrok-free.app"; 
+const SERVER_URL = "https://prime-nearby-tick.ngrok-free.app";
 
 async function saveToSQL(userId, userName, payload) {
     try {
