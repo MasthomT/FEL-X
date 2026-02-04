@@ -102,57 +102,7 @@
     <script src="app.js"></script>
 
     <script>
-        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-        const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
 
-        async function getUserId(token) {
-            try {
-                const r = await fetch('https://api.twitch.tv/helix/users', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL }
-                });
-                if (!r.ok) throw new Error("Token invalide");
-                const d = await r.json();
-                return d.data[0].id;
-            } catch { return null; }
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const token = checkAuth(); // Vient de app.js
-            if(!token) return;
-
-            const db = firebase.database();
-            const userId = await getUserId(token);
-            
-            if (userId) {
-                fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
-    headers: { "ngrok-skip-browser-warning": "true" }
-})
-    .then(response => {
-        if (!response.ok) throw new Error("Pas de données trouvées");
-        return response.json();
-    })
-    .then(data => {
-        // Remplissage du formulaire avec les données SQL
-        fields.forEach(f => {
-            if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
-        });
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('felixForm').style.display = 'block';
-    })
-    .catch(err => {
-        console.log("Rien en SQL, tentative Firebase en secours...");
-        // Fallback : Si rien en SQL, on essaie quand même Firebase (optionnel)
-        db.ref('viewer_data/ai_context/' + userId).once('value').then(snapshot => {
-            const data = snapshot.val() || {};
-            fields.forEach(f => {
-                if(document.getElementById(f)) document.getElementById(f).value = data[f] || "";
-            });
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('felixForm').style.display = 'block';
-        });
-    });
-
-<script>
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const fields = ['nickname', 'birthday', 'pronouns', 'vibe', 'favorite_game', 'hated_genre', 'hobby', 'favorite_food', 'favorite_drink', 'free_message'];
 
