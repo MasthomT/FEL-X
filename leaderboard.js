@@ -1,71 +1,70 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth(); 
+    checkAuth(); // Vérification de la session (via app.js)
 
     const loadingEl = document.getElementById("loading");
     const containerEl = document.getElementById("leaderboard-container");
     const listEl = document.getElementById("leaderboard-list");
     const podiumEl = document.getElementById("podium-container");
-    const db = firebase.database();
     
     const token = localStorage.getItem("twitch_token");
     const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 
     try {
-        const response = await fetch(`${SERVER_URL}/api/leaderboard`);
-        const usersArray = await response.json();
+        loadingEl.textContent = "Récupération des données SQL...";
 
-        if (!xpData) {
-            loadingEl.textContent = "Aucune donnée d'XP trouvée dans xp_data.";
+        // 1. Appel à l'API du Raspberry Pi via l'URL Ngrok fixe
+        // SERVER_URL doit être défini dans app.js
+        const response = await fetch(`${SERVER_URL}/api/leaderboard`);
+        
+        if (!response.ok) {
+            throw new Error(`Le serveur Pi ne répond pas (Code: ${response.status})`);
+        }
+
+        // 2. Récupération des données JSON
+        const rawData = await response.json();
+
+        if (!rawData || rawData.length === 0) {
+            loadingEl.textContent = "Aucune donnée trouvée en base SQL.";
             return;
         }
 
-        let usersArray = [];
-        for (const [key, val] of Object.entries(xpData)) {
-    let xpValue = 0;
-    let usernameValue = key;
-    let wt_seconds = 0;
-    
-    // On s'assure de lire l'objet tel qu'il est stocké par le bot
-    if (val && typeof val === 'object') {
-        // Priorité aux données chiffrées réelles
-        xpValue = parseInt(val.xp) || 0; 
-        usernameValue = val.username || key;
-        wt_seconds = parseInt(val.watchtime_seconds) || 0;
-    } else if (typeof val === 'number') {
-        xpValue = val;
-    }
+        // 3. Traitement et calcul des niveaux
+        const usersArray = rawData.map(u => ({
+            username: u.username,
+            key: u.username.toLowerCase(),
+            xp: parseInt(u.xp) || 0,
+            watchtime_seconds: parseInt(u.watchtime_seconds) || 0,
+            level: calculateLevel(parseInt(u.xp) || 0)
+        }));
 
-    if (xpValue > 0) {
-        usersArray.push({
-            username: usernameValue,
-            key: key, 
-            xp: xpValue,
-            watchtime_seconds: wt_seconds,
-            level: calculateLevel(xpValue) // Utilise ta formule synchronisée
-        });
-    }
-}
-
+        // 4. Tri par XP (sécurité)
         usersArray.sort((a, b) => b.xp - a.xp);
 
-        // --- PODIUM (TOP 3) ---
+        // 5. Séparation Podium (Top 3) et Reste (4-50)
         const top3 = usersArray.slice(0, 3);
         const rest = usersArray.slice(3, 50);
 
+        // --- PARTIE AFFICHAGE PODIUM (AVATARS TWITCH) ---
         let top3HTML = "";
         let twitchUsers = [];
+        
+        // Récupération des avatars sur l'API Twitch
         if (token && top3.length > 0) {
-            const logins = top3.map(u => `login=${u.key}`).join('&');
-            const resp = await fetch(`https://api.twitch.tv/helix/users?${logins}`, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
-            });
-            const data = await resp.json();
-            twitchUsers = data.data || [];
+            try {
+                const logins = top3.map(u => `login=${u.key}`).join('&');
+                const resp = await fetch(`https://api.twitch.tv/helix/users?${logins}`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
+                });
+                const data = await resp.json();
+                twitchUsers = data.data || [];
+            } catch (e) {
+                console.error("Erreur avatars Twitch:", e);
+            }
         }
 
         top3.forEach((user, index) => {
             const rank = index + 1;
-            const tUser = twitchUsers.find(u => u.login.toLowerCase() === user.key.toLowerCase());
+            const tUser = twitchUsers.find(u => u.login.toLowerCase() === user.key);
             const avatar = tUser ? tUser.profile_image_url : "logo-felix.png";
             const h = Math.floor(user.watchtime_seconds / 3600);
             const m = Math.floor((user.watchtime_seconds % 3600) / 60);
@@ -83,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (podiumEl) podiumEl.innerHTML = top3HTML;
 
-        // --- TABLEAU (SUITE) ---
+        // --- PARTIE AFFICHAGE TABLEAU (RANG 4+) ---
         listEl.innerHTML = "";
         rest.forEach((user, index) => {
             const rank = index + 4;
@@ -101,17 +100,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             listEl.appendChild(tr);
         });
 
+        // Affichage final
         loadingEl.style.display = "none";
         if (containerEl) containerEl.style.display = "block";
 
     } catch (error) {
         console.error("Erreur Leaderboard:", error);
-        loadingEl.textContent = "Erreur de chargement.";
+        loadingEl.innerHTML = `
+            <div style="color:var(--danger); border:1px solid; padding:15px; border-radius:8px;">
+                <strong>Erreur de connexion SQL</strong><br>
+                Vérifie que Ngrok est lancé sur le Pi et que l'URL est correcte.<br>
+                <small>${error.message}</small>
+            </div>`;
     }
 });
 
+// Formule de niveau synchronisée
 function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;
-    // Formule : Racine de (XP/100) avec puissance 2.2
     return Math.floor(Math.pow(xp / 100, 1 / 2.2)) + 1;
 }
