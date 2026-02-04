@@ -11,12 +11,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
-            method: 'GET',
-            headers: {
-                "ngrok-skip-browser-warning": "true",
-                "Accept": "application/json"
-            }
-        });
+    method: 'GET',
+    headers: {
+        "ngrok-skip-browser-warning": "true", // Force ngrok à répondre en JSON et non en HTML
+        "Accept": "application/json"
+    }
+});
         
         if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
         const data = await response.json();
