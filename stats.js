@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
-            headers: { "ngrok-skip-browser-warning": "true" }
+            headers: {
+                "ngrok-skip-browser-warning": "true"
+            }
         });
         
         if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
