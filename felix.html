@@ -153,47 +153,39 @@
 document.getElementById('felixForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('saveBtn');
-    const originalText = btn.textContent;
-    
-    btn.textContent = "Sauvegarde en cours...";
+    btn.textContent = "Synchro Raspberry...";
     btn.disabled = true;
 
-    // On prépare l'objet avec toutes les valeurs du formulaire
-    const payload = { updated_at: new Date().toISOString() };
-    fields.forEach(f => {
-        const el = document.getElementById(f);
-        if(el) payload[f] = el.value.trim();
-    });
+    // On prépare l'envoi vers ton IP locale
+    const formData = new FormData();
+    // Ces noms doivent correspondre EXACTEMENT aux request.form.get du Flask
+    formData.append('v_nickname', document.getElementById('nickname').value);
+    formData.append('v_birthday', document.getElementById('birthday').value);
+    formData.append('v_pronouns', document.getElementById('pronouns').value);
+    formData.append('v_vibe', document.getElementById('vibe').value);
+    formData.append('v_free_message', document.getElementById('free_message').value);
+    formData.append('v_favorite_game', document.getElementById('favorite_game').value);
+    formData.append('v_hated_genre', document.getElementById('hated_genre').value);
 
     try {
-        // 1. Sauvegarde sur Firebase (Historique)
-        await db.ref('viewer_data/ai_context/' + userId).set(payload);
+        const response = await fetch(`http://192.168.1.109:8080/viewer/${userId}/save_context`, {
+            method: 'POST',
+            body: formData
+        });
 
-        // 2. Sauvegarde SQL instantanée pour Félix
-        // On récupère le pseudo stocké lors de la connexion dans app.js
-        const userName = localStorage.getItem("twitch_display_name") || "inconnu";
-        
-        // On utilise la fonction saveToSQL que tu as ajoutée dans app.js
-        await saveToSQL(userId, userName, payload);
-
-        // Affichage du message de succès
-        const msg = document.getElementById('statusMsg');
-        msg.style.display = 'block';
-        setTimeout(() => msg.style.display = 'none', 4000);
-        
-    } catch (error) {
-        alert("Erreur lors de la sauvegarde (Firebase ou SQL).");
-        console.error(error);
+        if (response.ok) {
+            document.getElementById('statusMsg').style.display = 'block';
+            setTimeout(() => document.getElementById('statusMsg').style.display = 'none', 4000);
+        } else {
+            throw new Error("Erreur synchro");
+        }
+    } catch (err) {
+        alert("Le Raspberry Pi n'a pas répondu. Vérifie la connexion.");
     } finally {
-        btn.textContent = originalText;
+        btn.textContent = "Sauvegarder";
         btn.disabled = false;
     }
 });
-            } else {
-                // Erreur Token
-                logout();
-            }
-        });
-    </script>
+</script>
 </body>
 </html>
