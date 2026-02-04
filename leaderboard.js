@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuth(); // Vérification de la session (via app.js)
+    checkAuth(); 
 
     const loadingEl = document.getElementById("loading");
     const containerEl = document.getElementById("leaderboard-container");
@@ -12,43 +12,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
-        // 1. Appel à l'API du Raspberry Pi via l'URL Ngrok fixe
-        // SERVER_URL doit être défini dans app.js
-        const response = await fetch(`${SERVER_URL}/api/leaderboard`);
+        // Appel au Pi avec le header pour zapper l'avertissement Ngrok
+        const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
+            headers: { "ngrok-skip-browser-warning": "true" }
+        });
         
-        if (!response.ok) {
-            throw new Error(`Le serveur Pi ne répond pas (Code: ${response.status})`);
-        }
+        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
-        // 2. Récupération des données JSON
         const rawData = await response.json();
-
         if (!rawData || rawData.length === 0) {
-            loadingEl.textContent = "Aucune donnée trouvée en base SQL.";
+            loadingEl.textContent = "Aucune donnée SQL trouvée.";
             return;
         }
 
-        // 3. Traitement et calcul des niveaux
+        // Traitement des données et calcul des niveaux
         const usersArray = rawData.map(u => ({
             username: u.username,
             key: u.username.toLowerCase(),
             xp: parseInt(u.xp) || 0,
             watchtime_seconds: parseInt(u.watchtime_seconds) || 0,
             level: calculateLevel(parseInt(u.xp) || 0)
-        }));
+        })).sort((a, b) => b.xp - a.xp);
 
-        // 4. Tri par XP (sécurité)
-        usersArray.sort((a, b) => b.xp - a.xp);
-
-        // 5. Séparation Podium (Top 3) et Reste (4-50)
         const top3 = usersArray.slice(0, 3);
         const rest = usersArray.slice(3, 50);
 
-        // --- PARTIE AFFICHAGE PODIUM (AVATARS TWITCH) ---
-        let top3HTML = "";
+        // Récupération des avatars Twitch
         let twitchUsers = [];
-        
-        // Récupération des avatars sur l'API Twitch
         if (token && top3.length > 0) {
             try {
                 const logins = top3.map(u => `login=${u.key}`).join('&');
@@ -57,11 +47,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
                 const data = await resp.json();
                 twitchUsers = data.data || [];
-            } catch (e) {
-                console.error("Erreur avatars Twitch:", e);
-            }
+            } catch (e) { console.error("Erreur Twitch:", e); }
         }
 
+        // Affichage Podium
+        let top3HTML = "";
         top3.forEach((user, index) => {
             const rank = index + 1;
             const tUser = twitchUsers.find(u => u.login.toLowerCase() === user.key);
@@ -79,10 +69,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <div style="font-size:0.7rem; color:var(--text-dim); margin-top:2px;">🕒 ${h}h ${m}m</div>
                 </div>`;
         });
+        podiumEl.innerHTML = top3HTML;
 
-        if (podiumEl) podiumEl.innerHTML = top3HTML;
-
-        // --- PARTIE AFFICHAGE TABLEAU (RANG 4+) ---
+        // Affichage Liste
         listEl.innerHTML = "";
         rest.forEach((user, index) => {
             const rank = index + 4;
@@ -100,22 +89,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             listEl.appendChild(tr);
         });
 
-        // Affichage final
         loadingEl.style.display = "none";
-        if (containerEl) containerEl.style.display = "block";
+        containerEl.style.display = "block";
 
     } catch (error) {
-        console.error("Erreur Leaderboard:", error);
-        loadingEl.innerHTML = `
-            <div style="color:var(--danger); border:1px solid; padding:15px; border-radius:8px;">
-                <strong>Erreur de connexion SQL</strong><br>
-                Vérifie que Ngrok est lancé sur le Pi et que l'URL est correcte.<br>
-                <small>${error.message}</small>
-            </div>`;
+        console.error(error);
+        loadingEl.innerHTML = `<div style="color:var(--danger);">Erreur: ${error.message}</div>`;
     }
 });
 
-// Formule de niveau synchronisée
 function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;
     return Math.floor(Math.pow(xp / 100, 1 / 2.2)) + 1;
