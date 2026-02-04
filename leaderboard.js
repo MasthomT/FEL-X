@@ -11,9 +11,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 
     try {
-        // --- CORRECTION DU CHEMIN ICI : xp_data au lieu de xp ---
-        const snapshot = await db.ref('viewer_data/xp_data').once('value');
-        const xpData = snapshot.val();
+        const response = await fetch(`${SERVER_URL}/api/leaderboard`);
+        const usersArray = await response.json();
 
         if (!xpData) {
             loadingEl.textContent = "Aucune donnée d'XP trouvée dans xp_data.";

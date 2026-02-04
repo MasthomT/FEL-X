@@ -49,7 +49,7 @@ function calculateLevel(xp) {
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
 }
 
-const SERVER_URL = "http://192.168.1.109:8080"; 
+const SERVER_URL = "https://1b10e1515a46.ngrok-free.app"; 
 
 async function saveToSQL(userId, userName, payload) {
     try {

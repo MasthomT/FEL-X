@@ -17,9 +17,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const db = firebase.database();
 
     try {
-        // 1. DONNÉES FIREBASE (XP Communauté)
-        const xpSnapshot = await db.ref('viewer_data/xp_data').once('value');
-        const xpData = xpSnapshot.val() || {};
+        const response = await fetch(`${SERVER_URL}/api/global_stats`);
+        const data = await response.json();
+    
+        document.getElementById("total-members").textContent = data.totalMembers.toLocaleString();
+        document.getElementById("total-xp").textContent = data.totalXP.toLocaleString();
 
         if (Object.keys(xpData).length === 0) {
             loadingEl.textContent = "Aucune donnée disponible.";
