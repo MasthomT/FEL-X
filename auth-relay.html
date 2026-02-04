@@ -1,22 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head><title>Connexion MasthomBot</title></head>
+<head>
+    <title>Connexion FEL-X</title>
+    <style>
+        body { background: #18181b; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .loader { text-align: center; }
+    </style>
+</head>
 <body>
-    <h3 style="font-family: sans-serif; text-align: center; margin-top: 50px;">
-        Connexion autorisée !<br>Retour vers votre Raspberry Pi...
-    </h3>
-    <script>
-        // 1. On récupère les clés données par Twitch
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const state = params.get('state');
+    <div class="loader">
+        <h3>Connexion réussie !</h3>
+        <p>Préparation de votre profil FEL-X...</p>
+    </div>
 
-        if (code) {
-            // 2. CORRECTION IMPORTANTE : On enlève le "/callback"
-            // On renvoie vers l'IP de votre bot sur la route standard
-            window.location.href = `http://192.168.1.109:8080/auth/vercel_callback?code=${code}&state=${state}`;
+    <script>
+        // 1. On récupère le token dans le fragment (#access_token=...)
+        // Twitch envoie le token après le # et non après le ?
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const token = params.get('access_token');
+
+        if (token) {
+            // 2. On enregistre le token dans le navigateur du viewer
+            localStorage.setItem("twitch_token", token);
+            
+            // 3. REDIRECTION VERS LE PROFIL SUR VERCEL
+            // On oublie l'IP 192.168... car les viewers n'y ont pas accès.
+            window.location.href = "/profile.html"; 
         } else {
-            document.body.innerHTML = "Erreur : Aucun code reçu de Twitch.";
+            document.body.innerHTML = "<h3>Erreur d'authentification</h3><p>Aucun token reçu. Redirection...</p>";
+            setTimeout(() => { window.location.href = "/index.html"; }, 3000);
         }
     </script>
 </body>
