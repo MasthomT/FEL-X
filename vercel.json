@@ -2,6 +2,14 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/auth-relay", "destination": "/auth-relay.html" },
+    { "source": "/infos", "destination": "/infos.html" },
+    { "source": "/leaderboard", "destination": "/leaderboard.html" },
+    { "source": "/clips", "destination": "/clips.html" },
+    { "source": "/commands", "destination": "/commands.html" },
+    { "source": "/stats", "destination": "/stats.html" },
+    { "source": "/felix", "destination": "/felix.html" }
   ]
 }
