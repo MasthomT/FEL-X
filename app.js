@@ -65,7 +65,7 @@ async function saveToSQL(userId, userName, payload) {
                 ...payload
             })
         });
-        console.log("Synchronisation SQL réussie");
+        console.log("Synchronisation SQL réussie !");
     } catch (e) {
         console.error("Échec de la synchro SQL:", e);
     }
