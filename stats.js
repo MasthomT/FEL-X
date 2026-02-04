@@ -7,13 +7,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const BROADCASTER_NAME = "masthom_";
 
-    try {
+   try {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
             method: 'GET',
+            headers: {
+                "ngrok-skip-browser-warning": "true"
             }
-        });
+        }); // <-- Fermeture propre ici : accolade puis parenthèse
         
         if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
         const data = await response.json();

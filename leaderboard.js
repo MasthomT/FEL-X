@@ -12,11 +12,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
-        // Appel au Pi avec le header pour zapper l'avertissement Ngrok
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
-            method: 'GET', // Précise la méthode
-    }
-});
+            method: 'GET',
+            headers: {
+                "ngrok-skip-browser-warning": "true"
+            }
+        });
+        
+        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+        const rawData = await response.json();
         
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
