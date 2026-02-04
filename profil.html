@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil | FEL-X</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo">
+            <img src="logo-felix.png" alt="FEL-X">
+            <span>FEL-X</span>
+        </a>
+        <div class="nav-menu">
+            <a href="profile.html" class="nav-link active">Profil</a>
+            <a href="infos.html" class="nav-link">Infos</a>
+            <a href="leaderboard.html" class="nav-link">Classement</a>
+            <a href="clips.html" class="nav-link">Clips</a>
+            <a href="commands.html" class="nav-link">Commandes</a>
+            <a href="stats.html" class="nav-link">Stats</a>
+            <a href="felix.html" class="nav-link">Félix et moi</a>
+        </div>
+        <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
+    </nav>
+
+    <main class="content">
+        <div id="loading-overlay">Chargement de ton univers...</div>
+
+        <section id="profile-view" style="display: none;">
+            <div class="profile-header card">
+                <img id="user-avatar" class="avatar-large" src="" alt="">
+                <div class="header-info">
+                    <h1 id="user-name">Chargement...</h1>
+                    <div id="user-badges" class="badges-list"></div>
+                </div>
+                <div class="level-badge">
+                    <span class="lvl-label">NIVEAU</span>
+                    <span id="user-level" class="lvl-number">1</span>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <div class="card xp-card">
+                    <h3>Progression XP</h3>
+                    <div class="xp-bar-container">
+                        <div id="xp-fill" class="xp-fill"></div>
+                    </div>
+                    <div class="xp-stats">
+                        <span id="current-xp">0 XP</span>
+                        <span id="next-level-xp">100 XP</span>
+                    </div>
+                </div>
+
+                <div class="card stats-mini-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Follower</span>
+                        <span id="stat-follow" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Abonnement</span>
+                        <span id="stat-sub" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Watchtime</span>
+                        <span id="stat-watch" class="stat-value">0h</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                // 1. Récupération infos Twitch
+                const twitchResp = await fetch('https://api.twitch.tv/helix/users', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
+                });
+                const twitchData = await twitchResp.json();
+                const user = twitchData.data[0];
+
+                document.getElementById("user-name").textContent = user.display_name;
+                document.getElementById("user-avatar").src = user.profile_image_url;
+
+                // 2. Récupération XP depuis ton API (via config.js)
+                const sqlResp = await fetch(`${CONFIG.SERVER_URL}/api/user_stats/${user.id}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                
+                if (sqlResp.ok) {
+                    const data = await sqlResp.json();
+                    const level = calculateLevel(data.xp);
+                    const watchH = Math.floor(data.watchtime_seconds / 3600);
+
+                    document.getElementById("user-level").textContent = level;
+                    document.getElementById("current-xp").textContent = `${data.xp.toLocaleString()} XP`;
+                    document.getElementById("stat-watch").textContent = `${watchH}h`;
+                    
+                    // Calcul de la barre d'XP (simplifié)
+                    const progress = (data.xp % 100); 
+                    document.getElementById("xp-fill").style.width = `${progress}%`;
+                }
+
+                document.getElementById("loading-overlay").style.display = "none";
+                document.getElementById("profile-view").style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById("loading-overlay").textContent = "Erreur de liaison avec le Raspberry.";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,315 +2,117 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Infos - FEL-X</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infos | FEL-X</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* --- Styles Spécifiques à la Mise en Page Infos --- */
-        
-        /* Retrait des définitions CSS de base qui sont déjà dans style.css */
-        
-        main.content { 
-            flex-grow: 1; 
-            padding: 2rem; 
-            max-width: 1400px; 
-            width: 100%; /* La largeur sera gérée par le flexbox + le padding de main */
-            min-height: 100vh;
-            overflow: visible;
-        }
-
-        /* --- MISE EN PAGE INFOS --- */
-        .info-container {
-            display: grid; grid-template-columns: 300px 1fr;
-            gap: 2rem; align-items: start;
-        }
-
-        /* COLONNE GAUCHE (RÉSEAUX) */
-        .left-column {
-            display: flex; flex-direction: column; gap: 1.5rem;
-            position: sticky; top: 20px; 
-        }
-
-        .social-card {
-            background: var(--surface); /* Utilisation de la variable globale */
-            border: 1px solid var(--border); /* Utilisation de la variable globale */
-            border-radius: 16px; padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .social-card h3 { 
-            color: white; margin-bottom: 1.5rem; 
-            text-transform: uppercase; font-size: 1.1rem; letter-spacing: 1px;
-            border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block;
-        }
-
-        .social-links { display: flex; flex-direction: column; gap: 12px; }
-
-        .social-btn {
-            display: flex; align-items: center; gap: 15px; padding: 15px;
-            border-radius: 12px; text-decoration: none; font-weight: bold; color: white;
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            background: rgba(255,255,255,0.03); border: 1px solid transparent;
-        }
-        .social-btn:hover { transform: translateX(5px); color: white; }
-        .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
-        
-        /* COULEURS */
-        .discord:hover { background: #5865F2; border-color: #5865F2; box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3); }
-        .youtube:hover { background: #FF0000; border-color: #FF0000; box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
-        .twitch:hover { background: var(--twitch); border-color: var(--twitch); box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3); }
-        .tips:hover { background: var(--accent); border-color: var(--accent); color: #18181b; box-shadow: 0 5px 15px rgba(0, 245, 195, 0.3); }
-        .tiktok:hover { background: #000000; border-color: #fe2c55; box-shadow: 0 5px 15px rgba(254, 44, 85, 0.3); }
-        .instagram:hover { 
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
-            border-color: #bc1888; box-shadow: 0 5px 15px rgba(188, 24, 136, 0.3);
-        }
-
-        /* --- COLONNE DROITE (CONTENU) --- */
-        .right-column { display: flex; flex-direction: column; gap: 2rem; }
-
-        /* PLANNING CALENDRIER */
-        .content-card {
-            background: var(--surface); /* Utilisation de la variable globale */
-            border: 1px solid var(--border); /* Utilisation de la variable globale */
-            border-radius: 16px; padding: 2rem;
-        }
-        .content-card h2 {
-            font-size: 1.8rem; color: white; margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .calendar-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;
-        }
-        .day-card {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            border-radius: 12px; padding: 1.5rem 1rem; text-align: center;
-            transition: transform 0.3s, border-color 0.3s; position: relative; overflow: hidden;
-        }
-        
-        /* Animation "Prochain Live" */
-        .next-stream {
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 15px rgba(0, 245, 195, 0.3); /* Utilisation de la couleur accent */
-            background: rgba(0, 245, 195, 0.1) !important; /* Utilisation de la couleur accent */
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0.4); } /* Utilisation de la couleur accent */
-            70% { box-shadow: 0 0 0 10px rgba(0, 245, 195, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0); }
-        }
-
-        .day-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--accent); opacity: 0.5;
-        }
-        .day-name { font-size: 1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-        .day-time { font-size: 1.8rem; font-weight: 800; color: white; }
-        .day-event { font-size: 0.8rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
-
-        /* RÈGLES */
-        ul.simple-rules {
-            list-style: none; padding: 0;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem;
-        }
-        ul.simple-rules li {
-            background: rgba(0,0,0,0.2); padding: 12px 15px; border-radius: 8px;
-            font-size: 0.95rem; display: flex; align-items: center; gap: 12px;
-            border-left: 3px solid var(--border); transition: 0.2s;
-        }
-        ul.simple-rules li:hover { background: rgba(255,255,255,0.03); border-left-color: var(--accent); }
-        .emoji { font-size: 1.2rem; }
-
-        @media (max-width: 900px) { 
-            .info-container { grid-template-columns: 1fr; } 
-            .left-column { position: static; }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="sidebar">
-        <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
-        
-        <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Profil</a>
-        <a href="infos.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Infos</a>
-        
-        <a href="leaderboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/></svg> Classement</a>
-        
-        <a href="clips.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg> Clips</a>
-        <a href="commands.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg> Commandes</a>
-        <a href="stats.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/></svg> Stats</a>
-        <a href="felix.html" class="nav-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> Félix et moi</a>
+        <a href="profile.html" class="logo">
+            <img src="logo-felix.png" alt="FEL-X">
+            <span>FEL-X</span>
+        </a>
+        <div class="nav-menu">
+            <a href="profile.html" class="nav-link">Profil</a>
+            <a href="infos.html" class="nav-link active">Infos</a>
+            <a href="leaderboard.html" class="nav-link">Classement</a>
+            <a href="clips.html" class="nav-link">Clips</a>
+            <a href="commands.html" class="nav-link">Commandes</a>
+            <a href="stats.html" class="nav-link">Stats</a>
+            <a href="felix.html" class="nav-link">Félix et moi</a>
+        </div>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
-</nav>
+    </nav>
 
     <main class="content">
-        <h1>ℹ️ Informations du Stream</h1>
+        <header class="section-header">
+            <h1>Informations & Réseaux</h1>
+            <p class="subtitle">Retrouve tout l'univers FEL-X ici.</p>
+        </header>
 
-        <div class="info-container">
-            
-            <div class="left-column">
-                <div class="social-card">
-                    <h3>🌐 Rejoins la commu</h3>
+        <div class="info-grid">
+            <div class="social-section">
+                <div class="card">
+                    <h3>Mes Réseaux</h3>
                     <div class="social-links">
-                        
-                        <a id="link-discord" href="https://discord.gg/mAfnMNW2" target="_blank" class="social-btn discord">
-                            <svg viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 00.0177-.1021c3.9195 1.7931 8.1801 1.7931 12.0614 0a.0739.0739 0 00.0172.1023c.1204.1006.246.1998.371.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z"/></svg>
-                            Rejoindre le Discord
+                        <a href="#" id="link-discord" target="_blank" class="social-item discord">
+                            <span>Discord</span>
                         </a>
-
-                        <a id="link-youtube" href="https://www.youtube.com/@masthomt" target="_blank" class="social-btn youtube">
-                            <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                            Chaîne YouTube
+                        <a href="#" id="link-youtube" target="_blank" class="social-item youtube">
+                            <span>YouTube</span>
                         </a>
-
-                        <a href="https://twitch.tv/masthom_" target="_blank" class="social-btn twitch">
-                            <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-                            Chaîne Twitch
+                        <a href="#" id="link-tiktok" target="_blank" class="social-item tiktok">
+                            <span>TikTok</span>
                         </a>
-
-                        <a id="link-tiktok" href="https://www.tiktok.com/@masthomt_" target="_blank" class="social-btn tiktok">
-                            <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
-                            TikTok
+                        <a href="#" id="link-instagram" target="_blank" class="social-item instagram">
+                            <span>Instagram</span>
                         </a>
-
-                        <a id="link-instagram" href="https://www.instagram.com/masthomt_/" target="_blank" class="social-btn instagram">
-                            <svg viewBox="0 0 24 24"><path d="M12 2.16c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
-                            Instagram
-                        </a>
-
-                        <a href="https://streamelements.com/masthom_-b0766/tip" target="_blank" class="social-btn tips">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05 1.18 1.91 2.53 1.91 1.29 0 2.13-.81 2.13-1.88 0-1.34-.87-1.67-2.79-2.18-2.08-.55-3.1-1.49-3.1-3.2 0-1.68 1.28-2.78 2.92-3.12V4h2.67v1.93c1.38.35 2.48 1.31 2.63 2.95h-1.96c-.11-.9-1.11-1.54-2.23-1.54-1.18 0-2.05.72-2.05 1.69 0 1.1.86 1.45 2.82 1.96 2.06.54 3.15 1.5 3.15 3.38 0 1.69-1.29 2.88-3.28 3.21z"/></svg>
-                            Faire un Don
-                        </a>
-
                     </div>
                 </div>
             </div>
 
-            <div class="right-column">
-                
-                <div class="content-card">
-                    <h2>📅 Emploi du Temps</h2>
-                    <div class="calendar-grid">
-                        <div class="day-card" id="day-2"> <div class="day-name">Mardi</div>
-                            <div class="day-time">18h00</div>
-                            <div class="day-event">Live Soirée</div>
-                        </div>
-                        <div class="day-card" id="day-4"> <div class="day-name">Jeudi</div>
-                            <div class="day-time">18h00</div>
-                            <div class="day-event">Live Soirée</div>
-                        </div>
-                        <div class="day-card" id="day-5"> <div class="day-name">Vendredi</div>
-                            <div class="day-time">20h00</div>
-                            <div class="day-event">Weekend !</div>
-                        </div>
-                        <div class="day-card" id="day-6a">
-                            <div class="day-name">Samedi (Matin)</div>
-                            <div class="day-time">10h00</div>
-                            <div class="day-event">Double Dose - Partie 1</div>
-                        </div>
-                        <div class="day-card" id="day-6b">
-                            <div class="day-name">Samedi (Soir)</div>
-                            <div class="day-time">20h00</div>
-                            <div class="day-event">Double Dose - Partie 2</div>
-                        </div>
-                        <div class="day-card" id="day-0"> <div class="day-name">Dimanche</div>
-                            <div class="day-time">10h00</div>
-                            <div class="day-event">Chill Matin</div>
-                        </div>
-                    </div>
-                    <p style="margin-top:20px; color:var(--text-dim); font-style:italic; font-size:0.9rem; text-align:center;">
-                        🔔 Activez la cloche ! Des lives "sauvages" peuvent apparaître à tout moment.
-                    </p>
+            <div class="planning-section">
+                <div class="card" id="schedule-container">
+                    <h3>Planning des Streams</h3>
+                    <div id="loading-schedule" class="loader">Synchronisation avec Twitch...</div>
+                    <div id="schedule-list" class="schedule-grid"></div>
                 </div>
-
-                <div class="content-card">
-                    <h2>📝 Règles de la Communauté</h2>
-                    <ul class="simple-rules">
-                        <li><span class="emoji">🛑</span> Pas d'abus avec les majuscules</li>
-                        <li><span class="emoji">🕊️</span> Évitez au plus possible les sujets sensibles</li>
-                        <li><span class="emoji">🤐</span> <strong>Spoil ou Backseat INTERDIT</strong> (sauf si demandé)</li>
-                        <li><span class="emoji">🤝</span> Respectez les viewers ou le streamer</li>
-                        <li><span class="emoji">🚫</span> Pas de spam / Ne propagez pas une mauvaise ambiance</li>
-                        <li><span class="emoji">⛔</span> Propos racistes, homophobes, sexistes = <strong>BAN</strong></li>
-                        <li><span class="emoji">📢</span> Toute pub même "dissimulée" est interdite</li>
-                        <li><span class="emoji">⚠️</span> <strong>Au bout de 3 avertissements, le ban est définitif</strong></li>
-                    </ul>
-                </div>
-
             </div>
         </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="config.js"></script>
     <script src="app.js"></script>
-
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            checkAuth(); 
-            
-            // SCRIPT INTELLIGENT POUR LE PROCHAIN LIVE
-            const now = new Date();
-            const day = now.getDay(); // 0=Dim, 1=Lun, 2=Mar...
-            const hour = now.getHours();
-            
-            // Définition des créneaux (Jour, Heure début, Heure fin approx, ID HTML)
-            const streams = [
-                { d: 2, h: 18, name: "Mardi", id: "day-2" },
-                { d: 4, h: 18, name: "Jeudi", id: "day-4" },
-                { d: 5, h: 20, name: "Vendredi", id: "day-5" },
-                { d: 6, h: 10, name: "Samedi", id: "day-6a" }, // Matin (ID unique)
-                { d: 6, h: 20, name: "Samedi Soir", id: "day-6b" }, // Soir (ID unique)
-                { d: 0, h: 10, name: "Dimanche", id: "day-0" }
-            ];
-
-            // Trouver le prochain
-            let nextStream = null;
-            for (let s of streams) {
-                // Si c'est le même jour mais plus tard, ou un jour suivant
-                if (s.d > day || (s.d === day && s.h > hour)) {
-                    nextStream = s;
-                    break;
-                }
-            }
-            // Si aucun trouvé cette semaine, on prend le premier de la semaine pro
-            if (!nextStream) nextStream = streams[0];
-
-            // Appliquer l'effet visuel
-            if (nextStream) {
-                const card = document.getElementById(nextStream.id); // Utilise le nouvel ID
-                if (card) {
-                    card.classList.add("next-stream");
-                    // Petit badge "Prochain Live"
-                    const badge = document.createElement("div");
-                    badge.style.cssText = "position:absolute; top:0; right:0; background:var(--accent); color:black; font-size:0.7rem; padding:2px 6px; font-weight:bold; border-bottom-left-radius:6px;";
-                    badge.textContent = "BIENTÔT";
-                    card.appendChild(badge);
-                }
-            }
-
-            // Récupération des liens depuis Firebase
+        document.addEventListener("DOMContentLoaded", async () => {
+            checkAuth();
             const db = firebase.database();
+
+            // 1. Chargement des liens Firebase (Config centralisée)
             db.ref('viewer_data/public_info').once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
-                    // Les éléments <a> ont maintenant des IDs pour la mise à jour
-                    const links = {
-                        'link-discord': data.discord_link,
-                        'link-youtube': data.youtube_link,
-                        'link-tiktok': data.tiktok_link,
-                        'link-instagram': data.instagram_link
-                    };
-                    
-                    for (const id in links) {
-                        const el = document.getElementById(id);
-                        if (el && links[id]) {
-                            el.href = links[id];
-                        }
-                    }
+                    if(data.discord_link) document.getElementById('link-discord').href = data.discord_link;
+                    if(data.youtube_link) document.getElementById('link-youtube').href = data.youtube_link;
+                    if(data.tiktok_link) document.getElementById('link-tiktok').href = data.tiktok_link;
+                    if(data.instagram_link) document.getElementById('link-instagram').href = data.instagram_link;
                 }
             });
+
+            // 2. Chargement du planning via Twitch API
+            const token = localStorage.getItem("twitch_token");
+            try {
+                const resp = await fetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${CONFIG.BROADCASTER_ID}`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
+                });
+                const schedule = await resp.json();
+                const listEl = document.getElementById('schedule-list');
+                document.getElementById('loading-schedule').style.display = 'none';
+
+                if (schedule.data && schedule.data.segments) {
+                    schedule.data.segments.slice(0, 4).forEach(seg => {
+                        const date = new Date(seg.start_time).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+                        const time = new Date(seg.start_time).toLocaleTimeString('fr-FR', { hour: '2-numeric', minute: '2-numeric' });
+                        
+                        const item = document.createElement('div');
+                        item.className = 'schedule-card';
+                        item.innerHTML = `
+                            <div class="seg-date">${date}</div>
+                            <div class="seg-title">${seg.title}</div>
+                            <div class="seg-time">${time}</div>
+                        `;
+                        listEl.appendChild(item);
+                    });
+                } else {
+                    listEl.innerHTML = "<p class='text-dim'>Aucun stream de prévu pour le moment.</p>";
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loading-schedule').textContent = "Impossible de charger le planning.";
+            }
         });
     </script>
 </body>
