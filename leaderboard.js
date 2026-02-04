@@ -14,10 +14,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Appel au Pi avec le header pour zapper l'avertissement Ngrok
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
-            headers: {
-                "ngrok-skip-browser-warning": "true"
-            }
-        });
+    method: 'GET', // Précise la méthode
+    headers: {
+        "ngrok-skip-browser-warning": "true",
+        "Accept": "application/json"
+    }
+});
         
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
