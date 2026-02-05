@@ -103,7 +103,6 @@
 
 <script>
 const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-// IDs correspondant exactement aux colonnes de /home/masthom/database.db
 const fields = [
     'nickname', 'birthday', 'pronouns', 'vibe', 
     'favorite_game', 'hated_genre', 'hobby', 
@@ -124,6 +123,10 @@ async function getUserId(token) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // On s'assure que Firebase est bien initialisé
+    // 'db' doit être défini via firebase.database()
+    const database = firebase.database(); 
+
     const token = checkAuth(); 
     if(!token) return;
 
@@ -132,76 +135,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formEl = document.getElementById('felixForm');
 
     if (userId) {
-        try {
-            // Lecture des données depuis le Raspberry Pi via ngrok
-            const response = await fetch(`${SERVER_URL}/api/get_context?user_id=${userId}`, {
-                headers: { 
-                    "ngrok-skip-browser-warning": "true",
-                    "Accept": "application/json"
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                // On injecte les valeurs (ex: Bouboune, Valorant) dans le formulaire
+        // 1. CHARGEMENT INITIAL (Depuis Firebase pour être sûr d'avoir le dernier surnom)
+        database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
                 fields.forEach(f => {
                     const input = document.getElementById(f);
-                    if (input && data[f]) {
-                        input.value = data[f];
-                    }
+                    if (input && data[f]) input.value = data[f];
                 });
             }
-        } catch (err) {
-            console.error("Erreur de récupération SQL:", err);
-        } finally {
-            // Quoi qu'il arrive, on libère l'affichage
+        }).finally(() => {
             if (loadingEl) loadingEl.style.display = 'none';
             if (formEl) formEl.style.display = 'block';
-        }
-
-        // Gestion de la sauvegarde (POST)
-formEl.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('saveBtn');
-    btn.textContent = "Mise à jour en cours...";
-    btn.disabled = true;
-
-    const payload = { twitch_id: userId };
-    fields.forEach(f => {
-        const el = document.getElementById(f);
-        if (el) payload[f] = el.value;
-    });
-
-    try {
-        // --- ÉTAPE 1 : ON MET À JOUR L'ACCUEIL (FIREBASE) ---
-        // C'est ce qui répare l'affichage "IDENTITÉ VIEWER" immédiatement
-        await db.ref('viewer_data/ai_context/' + userId).set({
-            ...payload,
-            last_updated: new Date().toISOString()
         });
-        console.log("✅ Accueil mis à jour sur Firebase");
 
-        // --- ÉTAPE 2 : ON TENTE LE RASPBERRY (POUR FÉLIX) ---
-        try {
-            await fetch(`${SERVER_URL}/api/update_context`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                body: JSON.stringify(payload)
+        // 2. GESTION DE LA SAUVEGARDE
+        formEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.textContent;
+            btn.textContent = "Mise à jour Profil...";
+            btn.disabled = true;
+
+            const payload = { twitch_id: userId };
+            fields.forEach(f => {
+                const el = document.getElementById(f);
+                if (el) payload[f] = el.value;
             });
-            alert("✨ Tout est à jour ! (Accueil + Félix)");
-        } catch (raspberryErr) {
-            // Si le Raspberry échoue, on prévient mais l'accueil est quand même sauvé !
-            alert("✅ Accueil mis à jour ! (Note : Félix l'IA se synchronisera plus tard)");
-        }
 
-    } catch (err) {
-        console.error(err);
-        alert("❌ Erreur Firebase : Vérifie ta connexion.");
-    } finally {
-        btn.textContent = "Mettre à jour mon profil";
-        btn.disabled = false;
-    }
-});
+            try {
+                // --- ÉTAPE A : MISE À JOUR DE L'ACCUEIL (FIREBASE) ---
+                // C'est cette partie qui fait passer "Bouboune" à "Boubou" sur profile.html
+                await database.ref('viewer_data/ai_context/' + userId).update({
+                    nickname: payload.nickname,
+                    vibe: payload.vibe,
+                    favorite_game: payload.favorite_game,
+                    hobby: payload.hobby,
+                    pronouns: payload.pronouns,
+                    free_message: payload.free_message,
+                    last_updated: new Date().toISOString()
+                });
+                console.log("✅ Accueil mis à jour sur Firebase");
+
+                // --- ÉTAPE B : MISE À JOUR DU BOT (RASPBERRY) ---
+                try {
+                    const res = await fetch(`${SERVER_URL}/api/update_context`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        alert("✨ Succès ! Ton profil et Félix sont à jour.");
+                    } else {
+                        alert("✅ Profil mis à jour sur l'accueil ! (Félix se synchronisera plus tard)");
+                    }
+                } catch (err) {
+                    // Si Ngrok/Raspberry échoue, l'accueil est quand même sauvé
+                    alert("✅ Profil mis à jour sur l'accueil ! (Le bot est actuellement hors-ligne)");
+                }
+
+            } catch (err) {
+                console.error("Erreur Firebase:", err);
+                alert("❌ Erreur de connexion Firebase. Vérifie ta connexion internet.");
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
     }
 });
 </script>
