@@ -161,40 +161,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Gestion de la sauvegarde (POST)
         formEl.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            const originalText = btn.textContent;
-            btn.textContent = "Synchro Raspberry...";
-            btn.disabled = true;
+    e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    btn.textContent = "Synchronisation totale...";
+    btn.disabled = true;
 
-            // Construction du JSON avec les noms de colonnes SQL valides
-            const payload = { twitch_id: userId };
-            fields.forEach(f => {
-                const el = document.getElementById(f);
-                if (el) payload[f] = el.value;
-            });
+    const payload = { twitch_id: userId };
+    fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) payload[f] = el.value;
+    });
 
-            try {
-                const res = await fetch(`${SERVER_URL}/api/update_context`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    alert("Profil synchronisé avec succès !");
-                } else {
-                    alert("Erreur lors de la sauvegarde.");
-                }
-            } catch (err) {
-                alert("Impossible de joindre le Raspberry Pi.");
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
+    try {
+        // 1. ENVOI AU RASPBERRY (Pour l'IA Félix)
+        const resRaspberry = await fetch(`${SERVER_URL}/api/update_context`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+            body: JSON.stringify(payload)
         });
+
+        // 2. ENVOI À FIREBASE (Pour la page d'accueil / IDENTITÉ VIEWER)
+        // On utilise l'objet 'db' déjà présent dans ton script
+        await db.ref('viewer_data/ai_context/' + userId).update({
+            nickname: payload.nickname,
+            vibe: payload.vibe,
+            favorite_game: payload.favorite_game,
+            hobby: payload.hobby,
+            pronouns: payload.pronouns,
+            free_message: payload.free_message,
+            last_updated: new Date().toISOString()
+        });
+
+        if (resRaspberry.ok) {
+            alert("✅ Succès ! Félix et ton profil sont à jour.");
+        } else {
+            alert("⚠️ Sauvegardé sur le profil, mais erreur côté Raspberry.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ Erreur de connexion lors de la synchronisation.");
+    } finally {
+        btn.textContent = "Mettre à jour mon profil";
+        btn.disabled = false;
+    }
+});
     }
 });
 </script>
