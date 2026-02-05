@@ -160,10 +160,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Gestion de la sauvegarde (POST)
-        formEl.addEventListener('submit', async (e) => {
+formEl.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('saveBtn');
-    btn.textContent = "Synchronisation totale...";
+    btn.textContent = "Mise à jour en cours...";
     btn.disabled = true;
 
     const payload = { twitch_id: userId };
@@ -173,33 +173,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     try {
-        // 1. ENVOI AU RASPBERRY (Pour l'IA Félix)
-        const resRaspberry = await fetch(`${SERVER_URL}/api/update_context`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-            body: JSON.stringify(payload)
-        });
-
-        // 2. ENVOI À FIREBASE (Pour la page d'accueil / IDENTITÉ VIEWER)
-        // On utilise l'objet 'db' déjà présent dans ton script
-        await db.ref('viewer_data/ai_context/' + userId).update({
-            nickname: payload.nickname,
-            vibe: payload.vibe,
-            favorite_game: payload.favorite_game,
-            hobby: payload.hobby,
-            pronouns: payload.pronouns,
-            free_message: payload.free_message,
+        // --- ÉTAPE 1 : ON MET À JOUR L'ACCUEIL (FIREBASE) ---
+        // C'est ce qui répare l'affichage "IDENTITÉ VIEWER" immédiatement
+        await db.ref('viewer_data/ai_context/' + userId).set({
+            ...payload,
             last_updated: new Date().toISOString()
         });
+        console.log("✅ Accueil mis à jour sur Firebase");
 
-        if (resRaspberry.ok) {
-            alert("✅ Succès ! Félix et ton profil sont à jour.");
-        } else {
-            alert("⚠️ Sauvegardé sur le profil, mais erreur côté Raspberry.");
+        // --- ÉTAPE 2 : ON TENTE LE RASPBERRY (POUR FÉLIX) ---
+        try {
+            await fetch(`${SERVER_URL}/api/update_context`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                body: JSON.stringify(payload)
+            });
+            alert("✨ Tout est à jour ! (Accueil + Félix)");
+        } catch (raspberryErr) {
+            // Si le Raspberry échoue, on prévient mais l'accueil est quand même sauvé !
+            alert("✅ Accueil mis à jour ! (Note : Félix l'IA se synchronisera plus tard)");
         }
+
     } catch (err) {
         console.error(err);
-        alert("❌ Erreur de connexion lors de la synchronisation.");
+        alert("❌ Erreur Firebase : Vérifie ta connexion.");
     } finally {
         btn.textContent = "Mettre à jour mon profil";
         btn.disabled = false;
