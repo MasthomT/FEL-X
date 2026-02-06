@@ -228,7 +228,6 @@
     <script src="app.js"></script>
 
 <script>
-<script>
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
     const BROADCASTER_NAME = "masthom_";
 
@@ -239,7 +238,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-        const token = checkAuth();
+        const token = checkAuth(); // Fonction de app.js
         if (!token) return;
 
         try {
@@ -256,18 +255,21 @@
             // SAUVEGARDE DU PSEUDO POUR LE SONDAGE
             localStorage.setItem('twitch_username', userKey); 
 
-            // 2. RÉCUPÉRATION ID DU DIFFUSEUR
+            // 2. MISE À JOUR INTERFACE
+            document.getElementById("username").textContent = user.display_name;
+            document.getElementById("avatar").src = user.profile_image_url;
+
+            // Chargement du sondage maintenant que le pseudo est stocké
+            loadPoll();
+
+            // 3. RÉCUPÉRATION ID DU DIFFUSEUR
             const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
             const channelData = await channelResp.json();
             const broadcasterId = channelData.data[0].id;
 
-            // Mise à jour interface
-            document.getElementById("username").textContent = user.display_name;
-            document.getElementById("avatar").src = user.profile_image_url;
-
             const db = firebase.database();
 
-            // 3. LOGIQUE XP & WATCHTIME
+            // 4. LOGIQUE XP & WATCHTIME (Firebase)
             db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
                 const data = snapshot.val();
                 let xp = 0, wt_seconds = 0;
@@ -293,160 +295,66 @@
                 document.getElementById("loading-overlay").style.display = "none";
             });
 
-            // Lancement du sondage APRES avoir récupéré le pseudo
-            loadPoll();
+            // 5. CALCUL DU RANG GLOBAL
+            db.ref('viewer_data/xp_data').once('value').then(snap => {
+                const allData = snap.val() || {};
+                const sorted = Object.entries(allData)
+                    .map(([k, v]) => ({ key: k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
+                    .sort((a, b) => b.xp - a.xp);
+                const myRank = sorted.findIndex(u => u.key === userKey) + 1;
+                document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
+            });
 
-                // 4. CALCUL DU RANG GLOBAL (Scan de xp_data)
-                db.ref('viewer_data/xp_data').once('value').then(snap => {
-                    const allData = snap.val() || {};
-                    const sorted = Object.entries(allData)
-                        .map(([k, v]) => ({ 
-                            key: k, 
-                            xp: (v && typeof v === 'object' ? v.xp : v) || 0 
-                        }))
-                        .sort((a, b) => b.xp - a.xp);
-                    
-                    const myRank = sorted.findIndex(u => u.key === userKey) + 1;
-                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
-                });
-
-                // 5. HISTORIQUE DES GAINS D'XP
-                db.ref('viewer_data/history/' + userKey).limitToLast(20).once('value').then(snapshot => {
-                    const historyData = snapshot.val();
-                    const listEl = document.getElementById("xp-history-list");
-                    
-                    if (historyData) {
-                        listEl.innerHTML = "";
-                        const historyArray = Array.isArray(historyData) ? historyData : Object.values(historyData);
-                        // On inverse pour avoir le plus récent en haut
-                        historyArray.reverse().forEach(item => {
-                            if(item) {
-                                const dateStr = formatDate(item.timestamp);
-                                listEl.innerHTML += `
-                                    <li class="history-item">
-                                        <div>
-                                            <div class="history-reason">${item.reason || "Gain d'XP"}</div>
-                                            <div class="history-date">${dateStr}</div>
-                                        </div>
-                                        <div class="history-val">+${item.amount} XP</div>
-                                    </li>`;
-                            }
-                        });
-                    } else {
-                        listEl.innerHTML = `<li style="padding:10px; color:var(--text-dim);">Aucun historique récent.</li>`;
-                    }
-                });
-
-                // 6. CARTE D'IDENTITÉ FÉLIX (IA Context)
-                db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
-                    const ctx = snapshot.val();
-                    const grid = document.getElementById("ai-id-content");
-                    if (ctx) {
-                        grid.innerHTML = "";
-                        const fields = [
-                            { key: "nickname", label: "Surnom" },
-                            { key: "birthday", label: "Anniv" },
-                            { key: "pronouns", label: "Pronoms" },
-                            { key: "vibe", label: "Vibe" },
-                            { key: "favorite_game", label: "Jeu Fav." },
-                            { key: "hobby", label: "Passion" },
-                            { key: "favorite_food", label: "Snack" },
-                            { key: "favorite_drink", label: "Boisson" }
-                        ];
-                        
-                        let hasData = false;
-                        fields.forEach(f => {
-                            if(ctx[f.key]) {
-                                hasData = true;
-                                grid.innerHTML += `
-                                    <div class="id-field">
-                                        <span class="id-label">${f.label}</span>
-                                        <span class="id-value">${ctx[f.key]}</span>
-                                    </div>`;
-                            }
-                        });
-                        
-                        if(!hasData) {
-                            grid.innerHTML = `<div style="color:var(--text-dim); font-style:italic;">Aucune information enregistrée.</div>`;
+            // 6. HISTORIQUE DES GAINS D'XP
+            db.ref('viewer_data/history/' + userKey).limitToLast(20).once('value').then(snapshot => {
+                const historyData = snapshot.val();
+                const listEl = document.getElementById("xp-history-list");
+                if (historyData) {
+                    listEl.innerHTML = "";
+                    const historyArray = Array.isArray(historyData) ? historyData : Object.values(historyData);
+                    historyArray.reverse().forEach(item => {
+                        if(item) {
+                            listEl.innerHTML += `
+                                <li class="history-item">
+                                    <div>
+                                        <div class="history-reason">${item.reason || "Gain d'XP"}</div>
+                                        <div class="history-date">${formatDate(item.timestamp)}</div>
+                                    </div>
+                                    <div class="history-val">+${item.amount} XP</div>
+                                </li>`;
                         }
-
-                        if(ctx.free_message) {
-                            document.getElementById("ai-bio-container").style.display = "block";
-                            document.getElementById("ai-bio-text").textContent = ctx.free_message;
-                        }
-                    } else {
-                        grid.innerHTML = `<div style="color:var(--text-dim);">Félix ne vous connaît pas encore assez.</div>`;
-                    }
-                });
-
-                // 7. STATUTS TWITCH (Follow & Sub)
-                const badgesDiv = document.getElementById("badges-container");
-                
-                // Vérification du Follow
-                fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
-                    .then(r => r.json()).then(d => {
-                        const elStatus = document.getElementById("stat-follow");
-                        const elDate = document.getElementById("stat-follow-date");
-                        if (d.data && d.data.length > 0) {
-                            const date = new Date(d.data[0].followed_at).toLocaleDateString('fr-FR');
-                            badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
-                            elStatus.textContent = "Oui";
-                            elStatus.style.color = "#43b581";
-                            elDate.textContent = `Depuis le ${date}`;
-                        } else {
-                            elStatus.textContent = "Non";
-                            elStatus.style.color = "#ff4757";
-                            elDate.textContent = "Pas encore follow";
-                        }
-                    }).catch(() => {});
-
-                // Vérification du Sub
-                if (user.id !== broadcasterId) {
-                    fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
-                        .then(r => r.status === 200 ? r.json() : null)
-                        .then(data => {
-                            const elSub = document.getElementById("stat-sub");
-                            const elSubDetail = document.getElementById("stat-sub-detail");
-                            if (data && data.data && data.data.length > 0) {
-                                const info = data.data[0];
-                                let tier = info.tier === "1000" ? "Tier 1" : (info.tier === "2000" ? "Tier 2" : "Tier 3");
-                                if(info.is_gift) tier += " (Cadeau)";
-                                
-                                badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-                                elSub.textContent = "Oui";
-                                elSub.style.color = "#e91e63";
-                                elSubDetail.textContent = tier;
-                            } else {
-                                elSub.textContent = "Non";
-                                elSubDetail.textContent = "-";
-                            }
-                        }).catch(() => {
-                            document.getElementById("stat-sub").textContent = "Non";
-                        });
+                    });
                 } else {
-                    // Si c'est le streamer (toi)
-                    badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
-                    document.getElementById("stat-sub").textContent = "Créateur";
-                    document.getElementById("stat-sub-detail").textContent = "👑";
+                    listEl.innerHTML = `<li style="padding:10px; color:var(--text-dim);">Aucun historique récent.</li>`;
                 }
+            });
 
-            } catch (error) {
-                console.error("Erreur Profil:", error);
-                if (error.message && error.message.includes("Token")) {
-                    logout(); // Redirection si session expirée
-                } else {
-                    document.getElementById("loading-overlay").innerHTML = "<h2>Erreur de chargement</h2><p>Vérifiez votre connexion.</p>";
+            // 7. CARTE D'IDENTITÉ IA
+            db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
+                const ctx = snapshot.val();
+                const grid = document.getElementById("ai-id-content");
+                if (ctx) {
+                    grid.innerHTML = "";
+                    const fields = [
+                        { key: "nickname", label: "Surnom" },
+                        { key: "vibe", label: "Vibe" },
+                        { key: "favorite_game", label: "Jeu Fav." }
+                    ];
+                    fields.forEach(f => {
+                        if(ctx[f.key]) {
+                            grid.innerHTML += `<div class="id-field"><span class="id-label">${f.label}</span><span class="id-value">${ctx[f.key]}</span></div>`;
+                        }
+                    });
                 }
-            }
-        });
+            });
 
-} catch (error) {
+        } catch (error) {
             console.error("Erreur Profil:", error);
-            logout();
+            if (error.message.includes("Token")) logout();
         }
     });
 
-    // --- FONCTIONS SONDAGE UNIQUE ---
+    // --- LOGIQUE SONDAGE ---
 
     async function loadPoll() {
         const username = localStorage.getItem('twitch_username') || "none";
@@ -467,7 +375,6 @@
                     const isMyVote = poll.user_vote === option;
                     
                     const container = document.createElement('div');
-                    container.className = "poll-option-container"; // Utilise une classe ou du style inline
                     container.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
                     
                     container.innerHTML = `
@@ -483,13 +390,6 @@
                     container.onclick = () => castVote(poll.id, option);
                     optionsDiv.appendChild(container);
                 });
-
-                if(poll.user_vote) {
-                    const info = document.createElement('p');
-                    info.style = "font-size: 0.75rem; color: var(--text-dim); margin-top: 10px; text-align: center;";
-                    info.textContent = "Clique sur une autre option pour modifier ton choix.";
-                    optionsDiv.appendChild(info);
-                }
             }
         } catch(e) { console.log("Erreur chargement sondage"); }
     }
@@ -510,6 +410,6 @@
             loadPoll(); 
         }
     }
-    </script>
+</script>
 </body>
 </html>
