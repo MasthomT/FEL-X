@@ -194,31 +194,25 @@
                 <a href="felix.html" class="id-edit">Modifier mes infos</a>
             </div>
             <div class="id-grid" id="ai-id-content">
-                <div class="id-field"><span class="id-label">Surnom</span><span class="id-value">...</span></div>
-                <div class="id-field"><span class="id-label">Vibe</span><span class="id-value">...</span></div>
-                <div class="id-field"><span class="id-label">Jeu Favori</span><span class="id-value">...</span></div>
-            </div>
-            <div class="id-bio" id="ai-bio-container" style="display:none;">
-                <div class="id-label" style="margin-bottom:5px;">BIO</div>
-                <div class="id-value" id="ai-bio-text"></div>
-            </div>
+                </div>
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+        
+        <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
             <div class="history-header">📜 Historique d'XP</div>
-            <ul class="history-list" id="xp-history-list">
-                <li style="padding:10px; color:var(--text-dim);">Chargement...</li>
-            </ul>
+            <ul class="history-list" id="xp-history-list" style="margin:0; padding:0;">
+                </ul>
         </div>
 
-        <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
-            <h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage du moment</h3>
-            <p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white;"></p>
-            <div id="poll-options" style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+            <h3 style="color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">📊 Sondage</h3>
+            <p id="poll-question" style="margin-bottom: 1rem; font-weight: bold; color: white; font-size: 0.9rem;"></p>
+            <div id="poll-options" style="display: flex; flex-direction: column; gap: 8px;">
                 </div>
         </div>
+
     </div>
 </div>
 </main>
