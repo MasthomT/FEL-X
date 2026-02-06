@@ -244,7 +244,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-        const token = checkAuth(); // Fonction de app.js
+        const token = checkAuth();
         if (!token) return;
 
         try {
@@ -275,7 +275,7 @@
 
             const db = firebase.database();
 
-            // 4. LOGIQUE XP & WATCHTIME (Firebase)
+            // 4. LOGIQUE XP & WATCHTIME
             db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
                 const data = snapshot.val();
                 let xp = 0, wt_seconds = 0;
@@ -298,6 +298,8 @@
                 document.getElementById("xp-fill").style.width = percent + "%";
                 document.getElementById("current-xp").textContent = xp.toLocaleString();
                 document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
+                
+                // --- ON CACHE L'OVERLAY ICI ---
                 document.getElementById("loading-overlay").style.display = "none";
             });
 
@@ -330,90 +332,57 @@
                                 </li>`;
                         }
                     });
-                } else {
-                    listEl.innerHTML = `<li style="padding:10px; color:var(--text-dim);">Aucun historique récent.</li>`;
                 }
             });
 
             // 7. CARTE D'IDENTITÉ IA
             db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
-    const ctx = snapshot.val();
-    const grid = document.getElementById("ai-id-content");
-    
-    if (ctx) {
-        grid.innerHTML = ""; // On vide le message "En train d'apprendre..."
-        
-        // Liste complète de TOUS les champs possibles (doit correspondre à felix.html)
-        const fields = [
-            { key: "nickname", label: "Surnom" },
-            { key: "birthday", label: "Anniv" },
-            { key: "pronouns", label: "Pronoms" },
-            { key: "vibe", label: "Vibe" },
-            { key: "favorite_game", label: "Jeu Fav." },
-            { key: "hobby", label: "Passion" },
-            { key: "favorite_food", label: "Snack" },
-            { key: "favorite_drink", label: "Boisson" }
-        ];
-        
-        let hasVisibleData = false;
-        
-        fields.forEach(f => {
-            // On vérifie si la donnée existe ET n'est pas vide
-            if (ctx[f.key] && ctx[f.key].trim() !== "") {
-                hasVisibleData = true;
-                grid.innerHTML += `
-                    <div class="id-field">
-                        <span class="id-label">${f.label}</span>
-                        <span class="id-value">${ctx[f.key]}</span>
-                    </div>`;
-            }
-        });
+                const ctx = snapshot.val();
+                const grid = document.getElementById("ai-id-content");
+                if (ctx) {
+                    grid.innerHTML = "";
+                    const fields = [
+                        { key: "nickname", label: "Surnom" },
+                        { key: "birthday", label: "Anniv" },
+                        { key: "pronouns", label: "Pronoms" },
+                        { key: "vibe", label: "Vibe" },
+                        { key: "favorite_game", label: "Jeu Fav." },
+                        { key: "hobby", label: "Passion" },
+                        { key: "favorite_food", label: "Snack" },
+                        { key: "favorite_drink", label: "Boisson" }
+                    ];
+                    fields.forEach(f => {
+                        if (ctx[f.key] && ctx[f.key].trim() !== "") {
+                            grid.innerHTML += `<div class="id-field"><span class="id-label">${f.label}</span><span class="id-value">${ctx[f.key]}</span></div>`;
+                        }
+                    });
+                }
+            });
 
-        // Gestion du message de bio (free_message) s'il existe
-        const bioContainer = document.getElementById("ai-bio-container");
-        const bioText = document.getElementById("ai-bio-text");
-        if (ctx.free_message && ctx.free_message.trim() !== "") {
-            if (bioContainer && bioText) {
-                bioContainer.style.display = "block";
-                bioText.textContent = ctx.free_message;
-            }
+        } catch (error) {
+            console.error("Erreur Profil:", error);
+            document.getElementById("loading-overlay").style.display = "none";
         }
+    });
 
-        // Si aucun des champs n'est rempli malgré la présence d'un objet
-        if (!hasVisibleData) {
-            grid.innerHTML = `<div style="color:var(--text-dim); font-style:italic; grid-column: 1/-1; text-align:center; padding:20px;">Félix n'a pas encore d'informations précises sur vous.</div>`;
-        }
-    } else {
-        // Si aucune donnée du tout dans Firebase
-        grid.innerHTML = `<div style="color:var(--text-dim); font-style:italic; grid-column: 1/-1; text-align:center; padding:20px;">Félix est en train d'apprendre à vous connaître...</div>`;
-    }
-}).catch(err => {
-    console.error("Erreur chargement IA Context:", err);
-});
-
-    // --- LOGIQUE SONDAGE ---
+    // --- FONCTIONS SONDAGE ---
 
     async function loadPoll() {
         const username = localStorage.getItem('twitch_username') || "none";
         const pi_url = "http://192.168.1.109:8080";
-        
         try {
             const res = await fetch(`${pi_url}/api/poll?user=${username}`);
             const poll = await res.json();
-            
             if (poll) {
                 document.getElementById('poll-container').style.display = 'block';
                 document.getElementById('poll-question').textContent = poll.question;
                 const optionsDiv = document.getElementById('poll-options');
                 optionsDiv.innerHTML = "";
-                
                 poll.options.forEach(option => {
-                    const percent = poll.stats[option] || 0;
+                    const percent = poll.stats ? (poll.stats[option] || 0) : 0;
                     const isMyVote = poll.user_vote === option;
-                    
                     const container = document.createElement('div');
                     container.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
-                    
                     container.innerHTML = `
                         <div style="background: rgba(255,255,255,0.05); height: 40px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
                             <div style="background: var(--accent); opacity: 0.3; height: 100%; width: ${poll.user_vote ? percent : 0}%; transition: width 0.5s ease;"></div>
@@ -421,31 +390,24 @@
                                 <span>${isMyVote ? '✅ ' : ''}${option}</span>
                                 ${poll.user_vote ? `<span>${percent}%</span>` : ''}
                             </div>
-                        </div>
-                    `;
-                    
+                        </div>`;
                     container.onclick = () => castVote(poll.id, option);
                     optionsDiv.appendChild(container);
                 });
             }
-        } catch(e) { console.log("Erreur chargement sondage"); }
+        } catch(e) { console.log("Sondage indisponible"); }
     }
 
     async function castVote(pollId, option) {
         const username = localStorage.getItem('twitch_username');
-        if (!username || username === "none") return alert("Pseudo non chargé, réessaye.");
-
+        if (!username || username === "none") return;
         const pi_url = "http://192.168.1.109:8080";
-
-        const res = await fetch(`${pi_url}/api/poll/vote`, {
+        await fetch(`${pi_url}/api/poll/vote`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ poll_id: pollId, option: option, user: username })
         });
-
-        if (res.ok) {
-            loadPoll(); 
-        }
+        loadPoll();
     }
 </script>
 </body>
