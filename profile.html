@@ -450,49 +450,78 @@
         });
 
 async function loadPoll() {
-    try {
-        // REMPLACEZ 'IP_DE_TON_PI' par la vraie IP (ex: 192.168.1.XX)
-        // Le port doit être celui de votre bot (ex: 5000)
-        const pi_url = "http://192.168.1.109:8080"; 
+    const username = localStorage.getItem('twitch_username') || "none";
+    const pi_url = "http://192.168.1.109:8080";
+    
+    const res = await fetch(`${pi_url}/api/poll?user=${username}`);
+    const poll = await res.json();
+    
+    if (poll) {
+        document.getElementById('poll-container').style.display = 'block';
+        document.getElementById('poll-question').textContent = poll.question;
+        const optionsDiv = document.getElementById('poll-options');
+        optionsDiv.innerHTML = "";
         
-        const res = await fetch(`${pi_url}/api/poll`); 
-        const poll = await res.json();
-        
-        if (poll) {
-            document.getElementById('poll-container').style.display = 'block';
-            document.getElementById('poll-question').textContent = poll.question;
-            const optionsDiv = document.getElementById('poll-options');
-            optionsDiv.innerHTML = "";
+        poll.options.forEach(option => {
+            const percent = poll.stats[option] || 0;
+            const isMyVote = poll.user_vote === option;
             
-            poll.options.forEach(option => {
-                const btn = document.createElement('button');
-                btn.className = 'poll-btn';
-                btn.textContent = option;
-                // On passe l'ID du sondage pour l'historique
-                btn.onclick = () => castVote(poll.id, option); 
-                optionsDiv.appendChild(btn);
-            });
+            // Création de la ligne de résultat/bouton
+            const container = document.createElement('div');
+            container.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
+            
+            container.innerHTML = `
+                <div style="background: rgba(255,255,255,0.05); height: 40px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
+                    <div style="background: var(--accent); opacity: 0.3; height: 100%; width: ${poll.user_vote ? percent : 0}%; transition: width 0.5s ease;"></div>
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 500;">
+                        <span>${isMyVote ? '✅ ' : ''}${option}</span>
+                        ${poll.user_vote ? `<span>${percent}%</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            container.onclick = () => castVote(poll.id, option);
+            optionsDiv.appendChild(container);
+        });
+
+        if(poll.user_vote) {
+            const info = document.createElement('p');
+            info.style = "font-size: 0.75rem; color: var(--text-dim); margin-top: 10px; text-align: center;";
+            info.textContent = "Tu as déjà voté. Clique sur une autre option pour modifier ton choix.";
+            optionsDiv.appendChild(info);
         }
-    } catch (e) {
-        console.log("Sondage indisponible ou Raspberry hors ligne");
     }
 }
 
 async function castVote(pollId, option) {
+    const username = localStorage.getItem('twitch_username') || "none";
     const pi_url = "http://192.168.1.109:8080";
-    const username = localStorage.getItem('twitch_username');
 
     await fetch(`${pi_url}/api/poll/vote`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-            poll_id: pollId,
-            option: option, 
-            user: username 
-        })
+        body: JSON.stringify({ poll_id: pollId, option: option, user: username })
     });
-    document.getElementById('poll-container').innerHTML = "<h3 style='color:var(--accent)'>✅ Vote enregistré !</h3>";
+
+    loadPoll(); // Recharge l'affichage pour montrer les nouveaux pourcentages
 }
+
+async function castVote(pollId, option) {
+    const username = localStorage.getItem('twitch_username');
+    const pi_url = "http://192.168.1.109:8080";
+
+    const res = await fetch(`${pi_url}/api/poll/vote`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ poll_id: pollId, option: option, user: username })
+    });
+
+    if (res.ok) {
+        loadPoll(); // On recharge pour afficher le "✅" sur le nouveau choix
+    }
+}
+
+
 
 // Appelle loadPoll() dans ton DOMContentLoaded existant
 loadPoll();
