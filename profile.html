@@ -115,11 +115,23 @@
 
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* Responsive */
-        @media (max-width: 900px) {
-    .profile-main-content {
-        grid-template-columns: 1fr;
+        @media (max-width: 1200px) {
+    /* Sur tablette, on garde l'identité en haut et on met l'historique/sondage sur une ligne en dessous */
+    .profile-main-row {
+        grid-template-columns: 1fr !important;
     }
+}
+
+@media (max-width: 800px) {
+    /* Sur mobile, tout le monde prend 100% de largeur et s'empile verticalement */
+    .profile-main-row div[style*="display: grid"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .stats-mini-grid {
+        grid-template-columns: repeat(2, 1fr); /* Les stats passent de 4 à 2 colonnes */
+    }
+}
     </style>
 </head>
 <body>
@@ -187,33 +199,33 @@
 
 <div class="profile-main-row" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%; align-items: start;">
     
-    <div class="id-card-section" style="margin-bottom: 0; width: 100%;">
-        <div class="id-card" style="height: 100%; min-height: 300px;">
-            <div class="id-card-header">
-                <span class="id-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> IDENTITÉ VIEWER</span>
-                <a href="felix.html" class="id-edit">Modifier</a>
+    <div class="id-card-section" style="grid-column: 1 / -1; width: 100%; margin-bottom: 2rem;">
+    <div class="id-card" style="min-height: 180px; display: flex; flex-direction: column;">
+        <div class="id-card-header">
+            <span class="id-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> IDENTITÉ VIEWER</span>
+            <a href="felix.html" class="id-edit">Modifier</a>
+        </div>
+        <div class="id-grid" id="ai-id-content" style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+            <p style="color: var(--text-dim); font-style: italic;">Félix est en train d'apprendre à vous connaître...</p>
+        </div>
+    </div>
+</div>
+
+<div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%;">
+    
+    <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; height: 100%;">
+        <div class="history-header">📜 Historique XP</div>
+        <ul class="history-list" id="xp-history-list">
+            </ul>
+    </div>
+
+    <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; height: 100%;">
+        <h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage</h3>
+        <p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white;"></p>
+        <div id="poll-options" style="display: flex; flex-direction: column; gap: 10px;">
             </div>
-            <div class="id-grid" id="ai-id-content">
-                </div>
-        </div>
     </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
-        
-        <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
-            <div class="history-header">📜 Historique XP</div>
-            <ul class="history-list" id="xp-history-list" style="margin:0; padding:0; font-size: 0.85rem;">
-                </ul>
-        </div>
-
-        <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
-            <h3 style="color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">📊 Sondage</h3>
-            <p id="poll-question" style="margin-bottom: 1rem; font-weight: bold; color: white; font-size: 0.9rem;"></p>
-            <div id="poll-options" style="display: flex; flex-direction: column; gap: 8px;">
-                </div>
-        </div>
-
-    </div>
+</div>
 </div>
 </main>
 
