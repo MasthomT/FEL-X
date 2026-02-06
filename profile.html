@@ -358,6 +358,56 @@
                     });
                 }
             });
+            // 8. STATUTS TWITCH (Follow & Sub)
+            const badgesDiv = document.getElementById("badges-container");
+            
+            // Vérification du Follow
+            fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
+                .then(r => r.json()).then(d => {
+                    const elStatus = document.getElementById("stat-follow");
+                    const elDate = document.getElementById("stat-follow-date");
+                    if (d.data && d.data.length > 0) {
+                        const date = new Date(d.data[0].followed_at).toLocaleDateString('fr-FR');
+                        badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
+                        elStatus.textContent = "Oui";
+                        elStatus.style.color = "#43b581";
+                        elDate.textContent = `Depuis le ${date}`;
+                    } else {
+                        elStatus.textContent = "Non";
+                        elStatus.style.color = "#ff4757";
+                        elDate.textContent = "Pas encore follow";
+                    }
+                }).catch(() => {});
+
+            // Vérification du Sub
+            if (user.id !== broadcasterId) {
+                fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
+                    .then(r => r.status === 200 ? r.json() : null)
+                    .then(data => {
+                        const elSub = document.getElementById("stat-sub");
+                        const elSubDetail = document.getElementById("stat-sub-detail");
+                        if (data && data.data && data.data.length > 0) {
+                            const info = data.data[0];
+                            let tier = info.tier === "1000" ? "Tier 1" : (info.tier === "2000" ? "Tier 2" : "Tier 3");
+                            if(info.is_gift) tier += " (Cadeau)";
+                            
+                            badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
+                            elSub.textContent = "Oui";
+                            elSub.style.color = "#e91e63";
+                            elSubDetail.textContent = tier;
+                        } else {
+                            elSub.textContent = "Non";
+                            elSubDetail.textContent = "-";
+                        }
+                    }).catch(() => {
+                        document.getElementById("stat-sub").textContent = "Non";
+                    });
+            } else {
+                // Si c'est le streamer (toi)
+                badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
+                document.getElementById("stat-sub").textContent = "Créateur";
+                document.getElementById("stat-sub-detail").textContent = "👑";
+            }
 
         } catch (error) {
             console.error("Erreur Profil:", error);
