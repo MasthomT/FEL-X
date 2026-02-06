@@ -167,42 +167,42 @@
                 </div>
             </div>
 
-            <div class="profile-main-row" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
-            
-            <div class="id-card-section" style="margin-bottom: 0;">
-                <div class="id-card">
-                    <div class="id-card-header">
-                        <span class="id-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> IDENTITÉ VIEWER</span>
-                        <a href="felix.html" class="id-edit">Modifier mes infos</a>
-                    </div>
-                    
-                    <div class="id-grid" id="ai-id-content">
-                        <div class="id-field"><span class="id-label">Surnom</span><span class="id-value">...</span></div>
-                        <div class="id-field"><span class="id-label">Vibe</span><span class="id-value">...</span></div>
-                        <div class="id-field"><span class="id-label">Jeu Favori</span><span class="id-value">...</span></div>
-                    </div>
-                    
-                    <div class="id-bio" id="ai-bio-container" style="display:none;">
-                        <div class="id-label" style="margin-bottom:5px;">BIO</div>
-                        <div class="id-value" id="ai-bio-text"></div>
-                    </div>
+<div class="profile-main-row" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+    
+    <div class="id-card-section" style="margin-bottom: 0;">
+        <div class="id-card">
+            <div class="id-card-header">
+                <span class="id-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> IDENTITÉ VIEWER</span>
+                <a href="felix.html" class="id-edit">Modifier mes infos</a>
+            </div>
+            <div class="id-grid" id="ai-id-content">
+                <div class="id-field"><span class="id-label">Surnom</span><span class="id-value">...</span></div>
+                <div class="id-field"><span class="id-label">Vibe</span><span class="id-value">...</span></div>
+                <div class="id-field"><span class="id-label">Jeu Favori</span><span class="id-value">...</span></div>
+            </div>
+            <div class="id-bio" id="ai-bio-container" style="display:none;">
+                <div class="id-label" style="margin-bottom:5px;">BIO</div>
+                <div class="id-value" id="ai-bio-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
+            <div class="history-header">📜 Historique d'XP</div>
+            <ul class="history-list" id="xp-history-list">
+                <li style="padding:10px; color:var(--text-dim);">Chargement...</li>
+            </ul>
+        </div>
+
+        <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage du moment</h3>
+            <p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white;"></p>
+            <div id="poll-options" style="display: flex; flex-direction: column; gap: 10px;">
                 </div>
-            </div>
-
-            <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
-                <div class="history-header">📜 Historique d'XP</div>
-                <ul class="history-list" id="xp-history-list" style="max-height: none; overflow: visible;">
-                    <li style="padding:10px; color:var(--text-dim);">Chargement...</li>
-                </ul>
-            </div>
-            <div class="card poll-card" id="poll-container" style="display:none;">
-    <h3>📊 Sondage du moment</h3>
-    <p id="poll-question" style="margin-bottom: 1rem; font-weight: bold;"></p>
-    <div id="poll-options" style="display: flex; flex-direction: column; gap: 10px;">
         </div>
-        </div>
-
-        </div>
+    </div>
+</div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
