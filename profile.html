@@ -43,6 +43,24 @@
         .xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease; }
         .xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
 
+        /* Bouton sondage */
+        .poll-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+            font-weight: 500;
+}
+        .poll-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateX(5px);
+}
+
         /* Stats Grid (4 blocs) */
         .stats-mini-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;
@@ -203,7 +221,7 @@
         </div>
     </div>
 </div>
-    </main>
+</main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -430,18 +448,22 @@
                 }
             }
         });
+
 async function loadPoll() {
-    const res = await fetch('/api/poll');
+    // Note: Assure-toi que cette URL pointe bien vers l'IP de ton Raspberry si tu es sur Vercel
+    // Exemple: fetch('http://192.168.1.109:8080/api/poll')
+    const res = await fetch('/api/poll'); 
     const poll = await res.json();
     
     if (poll) {
         document.getElementById('poll-container').style.display = 'block';
         document.getElementById('poll-question').textContent = poll.question;
         const optionsDiv = document.getElementById('poll-options');
+        optionsDiv.innerHTML = ""; // On vide au cas où
         
         poll.options.forEach(option => {
             const btn = document.createElement('button');
-            btn.className = 'btn-secondary'; // Utilise tes classes existantes
+            btn.className = 'poll-btn'; // Classe CSS ajoutée plus haut
             btn.textContent = option;
             btn.onclick = () => castVote(option);
             optionsDiv.appendChild(btn);
