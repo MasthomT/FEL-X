@@ -430,6 +430,37 @@
                 }
             }
         });
+async function loadPoll() {
+    const res = await fetch('/api/poll');
+    const poll = await res.json();
+    
+    if (poll) {
+        document.getElementById('poll-container').style.display = 'block';
+        document.getElementById('poll-question').textContent = poll.question;
+        const optionsDiv = document.getElementById('poll-options');
+        
+        poll.options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary'; // Utilise tes classes existantes
+            btn.textContent = option;
+            btn.onclick = () => castVote(option);
+            optionsDiv.appendChild(btn);
+        });
+    }
+}
+
+async function castVote(option) {
+    await fetch('/api/poll/vote', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ option: option, user: localStorage.getItem('twitch_username') })
+    });
+    alert("Merci pour ton vote !");
+    document.getElementById('poll-container').innerHTML = "<h3>✅ Vote enregistré !</h3>";
+}
+
+// Appelle loadPoll() dans ton DOMContentLoaded existant
+loadPoll();
     </script>
 </body>
 </html>
