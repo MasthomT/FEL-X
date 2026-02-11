@@ -12,11 +12,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
-        const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
+    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+
+    const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
     method: 'GET',
     headers: {
         "ngrok-skip-browser-warning": "true",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "Authorization": `Basic ${auth}` // <--- ENVOIE LE MOT DE PASSE ICI
     }
 });
 
