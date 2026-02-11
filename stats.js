@@ -4,34 +4,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
-    const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-    const BROADCASTER_NAME = "masthom_";
+    
+    // --- FIX : RÉCUPÉRATION DE L'URL ET AUTH ---
+    const SERVER_URL = CONFIG.SERVER_URL;
+    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
 
     try {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
-        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
-
-        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
-
-try {
-    // 2. Appel avec l'adresse du CONFIG et le mot de passe
-    const response = await fetch(`${CONFIG.SERVER_URL}/api/global_stats`, {
-        method: 'GET',
-        headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Accept": "application/json",
-            "Authorization": `Basic ${auth}` // <--- LA CLÉ EST ICI
-        }
-    });
-    
-    if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
-    const data = await response.json();
+        const response = await fetch(`${SERVER_URL}/api/global_stats`, {
+            method: 'GET',
+            headers: {
+                "ngrok-skip-browser-warning": "true",
+                "Accept": "application/json",
+                "Authorization": `Basic ${auth}`
+            }
+        });
         
         if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
         const data = await response.json();
 
-        // 2. Remplissage des blocs numériques
+        // Remplissage des blocs numériques
         document.getElementById("total-members").textContent = (data.totalMembers || 0).toLocaleString();
         document.getElementById("total-xp").textContent = (data.totalXP || 0).toLocaleString();
         document.getElementById("max-level").textContent = data.maxLevel || 1;
@@ -41,20 +34,14 @@ try {
             document.getElementById("avg-level").textContent = calculateLevel(avgXP);
         }
 
-        // 3. Remplissage de l'Élite (Top 5)
+        // Élite Top 5
         const topContainer = document.getElementById("top-5-list");
         if (topContainer && data.top5) {
             topContainer.innerHTML = ""; 
-            
             data.top5.forEach((u, i) => {
                 const li = document.createElement("li");
                 li.className = "top-item";
-                
                 let rankBadge = `<span class="rank-badge">${i+1}</span>`;
-                if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
-                if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
-                if (i === 2) rankBadge = `<span class="rank-badge rank-3">3</span>`;
-
                 li.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px;">
                         ${rankBadge} <span style="font-weight:600; color:white;">${u.name}</span>
@@ -65,9 +52,9 @@ try {
             });
         }
 
-        // 4. Twitch API (Followers)
-        const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
-        const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
+        // Twitch API
+        const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID };
+        const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${CONFIG.BROADCASTER_NAME}`, { headers });
         const userData = await userResp.json();
         
         if (userData.data && userData.data.length > 0) {
@@ -76,15 +63,13 @@ try {
             const followData = await followResp.json();
             
             const currentFollows = followData.total;
-            const GOAL = 1500;
-            const percent = Math.min(100, Math.floor((currentFollows / GOAL) * 100));
+            const percent = Math.min(100, Math.floor((currentFollows / 1500) * 100));
 
             document.getElementById("current-follows").textContent = currentFollows.toLocaleString();
             document.getElementById("goal-fill").style.width = percent + "%";
             document.getElementById("goal-text").textContent = percent + "%";
         }
 
-        // 5. Affichage final
         loadingEl.style.display = "none";
         contentEl.style.display = "grid";
 
@@ -92,7 +77,7 @@ try {
         console.error("ERREUR STATS:", error);
         loadingEl.innerHTML = `<div style="color:var(--danger);">Erreur: ${error.message}</div>`;
     }
-}); // <-- C'est cette parenthèse qui manquait !
+});
 
 function calculateLevel(xp) {
     if (!xp || xp < 0) return 1;

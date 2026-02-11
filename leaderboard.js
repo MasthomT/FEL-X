@@ -7,21 +7,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     const podiumEl = document.getElementById("podium-container");
     
     const token = localStorage.getItem("twitch_token");
-    const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+    const CLIENT_ID = CONFIG.CLIENT_ID; // Utilise le CONFIG
+
+    // --- FIX : DÉFINITION DE L'URL ---
+    const SERVER_URL = CONFIG.SERVER_URL;
+    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
 
     try {
         loadingEl.textContent = "Récupération des données SQL...";
 
-    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
-
-    const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
-    method: 'GET',
-    headers: {
-        "ngrok-skip-browser-warning": "true",
-        "Accept": "application/json",
-        "Authorization": `Basic ${auth}` // <--- ENVOIE LE MOT DE PASSE ICI
-    }
-});
+        const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
+            method: 'GET',
+            headers: {
+                "ngrok-skip-browser-warning": "true",
+                "Accept": "application/json",
+                "Authorization": `Basic ${auth}`
+            }
+        });
 
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
