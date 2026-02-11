@@ -41,8 +41,6 @@ function calculateLevel(xp) {
     return Math.floor(Math.pow(Math.max(0, xp) / 100, 1 / 2.2)) + 1;
 }
 
-const SERVER_URL = "https://prime-nearby-tick.ngrok-free.app";
-
 async function saveToSQL(userId, userName, payload) {
     try {
         await fetch(`${SERVER_URL}/api/update_context`, {

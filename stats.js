@@ -12,13 +12,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
 
-        const response = await fetch(`${SERVER_URL}/api/global_stats`, {
-            method: 'GET',
-            headers: {
-                "ngrok-skip-browser-warning": "true",
-                "Accept": "application/json"
-            }
-        });
+        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+
+try {
+    // 2. Appel avec l'adresse du CONFIG et le mot de passe
+    const response = await fetch(`${CONFIG.SERVER_URL}/api/global_stats`, {
+        method: 'GET',
+        headers: {
+            "ngrok-skip-browser-warning": "true",
+            "Accept": "application/json",
+            "Authorization": `Basic ${auth}` // <--- LA CLÉ EST ICI
+        }
+    });
+    
+    if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
+    const data = await response.json();
         
         if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
         const data = await response.json();
