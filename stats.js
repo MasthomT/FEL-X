@@ -4,14 +4,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
-    
-    // --- FIX : RÉCUPÉRATION DE L'URL ET AUTH ---
+
+    // On récupère tout depuis le fichier config.js
     const SERVER_URL = CONFIG.SERVER_URL;
-    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+    const CLIENT_ID = CONFIG.CLIENT_ID;
+    const BROADCASTER_NAME = CONFIG.BROADCASTER_NAME;
 
     try {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
+        // Préparation de l'autorisation
+        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
             method: 'GET',
             headers: {
@@ -42,6 +46,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const li = document.createElement("li");
                 li.className = "top-item";
                 let rankBadge = `<span class="rank-badge">${i+1}</span>`;
+                if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
+                if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
+                if (i === 2) rankBadge = `<span class="rank-badge rank-3">3</span>`;
+
                 li.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px;">
                         ${rankBadge} <span style="font-weight:600; color:white;">${u.name}</span>
@@ -52,14 +60,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
-        // Twitch API
-        const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID };
-        const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${CONFIG.BROADCASTER_NAME}`, { headers });
+        // Twitch API (Followers)
+        const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
+        const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers: twitchHeaders });
         const userData = await userResp.json();
         
         if (userData.data && userData.data.length > 0) {
             const broadcasterId = userData.data[0].id;
-            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}`, { headers });
+            const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}`, { headers: twitchHeaders });
             const followData = await followResp.json();
             
             const currentFollows = followData.total;

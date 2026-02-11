@@ -7,14 +7,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const podiumEl = document.getElementById("podium-container");
     
     const token = localStorage.getItem("twitch_token");
-    const CLIENT_ID = CONFIG.CLIENT_ID; // Utilise le CONFIG
-
-    // --- FIX : DÉFINITION DE L'URL ---
+    
+    // On utilise les variables du fichier CONFIG
     const SERVER_URL = CONFIG.SERVER_URL;
-    const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+    const CLIENT_ID = CONFIG.CLIENT_ID;
 
     try {
         loadingEl.textContent = "Récupération des données SQL...";
+
+        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
 
         const response = await fetch(`${SERVER_URL}/api/leaderboard`, {
             method: 'GET',
@@ -28,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
 
         const rawData = await response.json(); 
-        
         if (!rawData || rawData.length === 0) {
             loadingEl.textContent = "Aucune donnée SQL trouvée.";
             return;
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const top3 = usersArray.slice(0, 3);
         const rest = usersArray.slice(3, 50);
 
+        // Fetch des avatars Twitch
         let twitchUsers = [];
         if (token && top3.length > 0) {
             try {
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             } catch (e) { console.error("Erreur Twitch:", e); }
         }
 
+        // Rendu Podium
         let top3HTML = "";
         top3.forEach((user, index) => {
             const rank = index + 1;
@@ -77,6 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         podiumEl.innerHTML = top3HTML;
 
+        // Rendu Liste
         listEl.innerHTML = "";
         rest.forEach((user, index) => {
             const rank = index + 4;
