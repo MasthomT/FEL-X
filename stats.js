@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         loadingEl.textContent = "Récupération des statistiques SQL...";
         
-        // 1. Récupération des données SQL du Pi
+        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
             method: 'GET',
             headers: {
