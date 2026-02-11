@@ -47,39 +47,71 @@
     </nav>
 
 
-    <main>
+<main>
         <div style="max-width: 800px; margin: 0 auto;">
             <h1>🧠 Félix et moi</h1>
             <p style="color: var(--text-dim); margin-bottom: 2rem;">Remplis cette fiche pour que l'IA Félix te connaisse mieux et te parle de façon personnalisée ! (Tout est optionnel)</p>
 
             <div id="loading">Chargement de tes infos...</div>
 
-            <form id="felixForm" style="display:none;">
+            <form id="felixForm" method="POST" style="display:none;">
                 
                 <div class="section-title">1. Identité</div>
                 <div class="card">
                     <div class="form-grid">
-                        <div class="form-group"><label>Surnom</label><input type="text" id="nickname" placeholder="Comment veux-tu qu'il t'appelle ?"></div>
-                        <div class="form-group"><label>Anniversaire 🎂</label><input type="date" id="birthday"></div>
-                        <div class="form-group"><label>Pronoms</label><select id="pronouns"><option value="">Peu importe</option><option value="il">Il / Lui</option><option value="elle">Elle</option><option value="iel">Iel</option></select></div>
-                        <div class="form-group"><label>Ta Vibe</label><input type="text" id="vibe" placeholder="Ex: Chill, Troll, Compétitif..."></div>
+                        <div class="form-group">
+                            <label>Surnom</label>
+                            <input type="text" id="nickname" name="v_nickname" value="{{ context.nickname or '' }}" placeholder="Comment veux-tu qu'il t'appelle ?">
+                        </div>
+                        <div class="form-group">
+                            <label>Anniversaire 🎂</label>
+                            <input type="date" id="birthday" name="v_birthday" value="{{ context.birthday or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Pronoms</label>
+                            <select id="pronouns" name="v_pronouns">
+                                <option value="" {% if not context.pronouns %}selected{% endif %}>Peu importe</option>
+                                <option value="il" {% if context.pronouns == 'il' %}selected{% endif %}>Il / Lui</option>
+                                <option value="elle" {% if context.pronouns == 'elle' %}selected{% endif %}>Elle</option>
+                                <option value="iel" {% if context.pronouns == 'iel' %}selected{% endif %}>Iel</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ta Vibe</label>
+                            <input type="text" id="vibe" name="v_vibe" value="{{ context.vibe or '' }}" placeholder="Ex: Chill, Troll, Compétitif...">
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-title">2. Gaming</div>
                 <div class="card">
                     <div class="form-grid">
-                        <div class="form-group"><label>Jeu Favori ❤️</label><input type="text" id="favorite_game"></div>
-                        <div class="form-group"><label>Genre Détesté ❌</label><input type="text" id="hated_genre"></div>
-                        <div class="form-group form-full"><label>Passion hors jeux ?</label><input type="text" id="hobby" placeholder="Sport, Cuisine, Musique..."></div>
+                        <div class="form-group">
+                            <label>Jeu Favori ❤️</label>
+                            <input type="text" id="favorite_game" name="favorite_game" value="{{ context.favorite_game or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Genre Détesté ❌</label>
+                            <input type="text" id="hated_genre" name="hated_genre" value="{{ context.hated_genre or '' }}">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Passion hors jeux ?</label>
+                            <input type="text" id="hobby" name="hobby" value="{{ context.hobby or '' }}" placeholder="Sport, Cuisine, Musique...">
+                        </div>
                     </div>
                 </div>
 
                 <div class="section-title">3. Goûts</div>
                 <div class="card">
                     <div class="form-grid">
-                        <div class="form-group"><label>Plat / Snack 🍕</label><input type="text" id="favorite_food"></div>
-                        <div class="form-group"><label>Boisson 🥤</label><input type="text" id="favorite_drink"></div>
+                        <div class="form-group">
+                            <label>Plat / Snack 🍕</label>
+                            <input type="text" id="favorite_food" name="favorite_food" value="{{ context.favorite_food or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Boisson 🥤</label>
+                            <input type="text" id="favorite_drink" name="favorite_drink" value="{{ context.favorite_drink or '' }}">
+                        </div>
                     </div>
                 </div>
 
@@ -87,7 +119,7 @@
                 <div class="card">
                     <div class="form-group">
                         <label>Raconte ce que tu veux à Félix (Bio, Anecdote...)</label>
-                        <textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec, j'ai un chat qui s'appelle Pompom..."></textarea>
+                        <textarea id="free_message" name="v_free_message" rows="5" placeholder="Ex: J'habite au Québec, j'ai un chat qui s'appelle Pompom...">{{ context.free_message or '' }}</textarea>
                     </div>
                 </div>
 

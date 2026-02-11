@@ -1,6 +1,6 @@
 const CONFIG = {
     // TON NOUVEL ADRESSE NGROK (Vu dans ta session active)
-    SERVER_URL: "https://f5024db2450c.ngrok-free.app", 
+    SERVER_URL: "https://prime-nearby-tick.ngrok-free.app", 
     
     // TON IP LOCALE RASPBERRY
     RASPBERRY_IP: "http://192.168.1.109:8080",            
