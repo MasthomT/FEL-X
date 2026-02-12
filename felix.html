@@ -196,76 +196,80 @@
 				// 1. CHARGEMENT DEPUIS FIREBASE
 				database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
 				const data = snapshot.val();
-				console.log("📂 Données Firebase reçues :", data);
 
-				if (data) {
-				fields.forEach(f => {
-				const input = document.getElementById(f);
-				if (input) {
-				// On force la valeur. On utilise '|| ""' pour éviter les 'undefined'
-				input.value = data[f] || "";
-				console.log(`|-- Remplissage de [${f}] avec: "${data[f] || 'VIDE'}"`);
-				} else {
-				console.warn(`|-- ⚠️ ID [${f}] introuvable dans le HTML`);
-				}
-				});
-				} else {
-				console.warn("⚠️ Aucune donnée trouvée dans Firebase pour cet utilisateur.");
-				}
-				}).catch(err => {
-				console.error("❌ Erreur Firebase Database:", err);
-				}).finally(() => {
-				loadingEl.style.display = 'none';
-				formEl.style.display = 'block';
-				});
+				// 🔍 ANALYSE CRITIQUE
+				console.log("--- INSPECTION FIREBASE ---");
+				console.log("Objet complet reçu :", data); // <--- CLIQUE="" SUR="" LA="" FLÈCHE="" DANS="" LA="" CONSOLE="" F12=""
 
-				// 2. SAUVEGARDE
-				formEl.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const btn = document.getElementById('saveBtn');
-				btn.textContent = "⌛ Synchronisation...";
-				btn.disabled = true;
+    if="" (data=""
+        fields.forEach(f ="">
+					{
+					const input = document.getElementById(f);
+					if (input) {
+					// On vérifie si la donnée existe ET n'est pas une chaîne vide
+					if (data[f] && data[f].toString().trim() !== "") {
+					input.value = data[f];
+					console.log(`✅ [${f}] rempli avec : "${data[f]}"`);
+					} else {
+					console.log(`⚠️ [${f}] est vide dans Firebase, on laisse le placeholder.`);
+					}
+					}
+					});
+					} else {
+					console.error("❌ Le dossier 'viewer_data/ai_context/" + userId + "' est totalement inexistant.");
+					}
+					}).finally(() => {
+					loadingEl.style.display = 'none';
+					formEl.style.display = 'block';
+					});
 
-				const payload = {
-				twitch_id: userId,
-				username: localStorage.getItem('twitch_username') || ""
-				};
+					// 2. SAUVEGARDE
+					formEl.addEventListener('submit', async (e) => {
+					e.preventDefault();
+					const btn = document.getElementById('saveBtn');
+					btn.textContent = "⌛ Synchronisation...";
+					btn.disabled = true;
 
-				fields.forEach(f => {
-				const el = document.getElementById(f);
-				if (el) payload[f] = el.value;
-				});
+					const payload = {
+					twitch_id: userId,
+					username: localStorage.getItem('twitch_username') || ""
+					};
 
-				try {
-				// A. Mise à jour Firebase
-				await database.ref('viewer_data/ai_context/' + userId).update({
-				...payload,
-				last_updated: new Date().toISOString()
-				});
+					fields.forEach(f => {
+					const el = document.getElementById(f);
+					if (el) payload[f] = el.value;
+					});
 
-				// B. Envoi au Raspberry (Bot)
-				await fetch(`${CONFIG.SERVER_URL}/api/update_context`, {
-				method: 'POST',
-				headers: {
-				'Content-Type': 'application/json',
-				'ngrok-skip-browser-warning': 'true'
-				},
-				body: JSON.stringify(payload)
-				});
+					try {
+					// A. Mise à jour Firebase
+					await database.ref('viewer_data/ai_context/' + userId).update({
+					...payload,
+					last_updated: new Date().toISOString()
+					});
 
-				alert("✨ Félix a bien reçu tes infos !");
-				} catch (err) {
-				console.error("❌ Erreur lors de la sauvegarde :", err);
-				alert("✅ Sauvegardé dans le Cloud ! (Synchro Bot différée)");
-				} finally {
-				btn.textContent = "Sauvegarder les informations";
-				btn.disabled = false;
-				}
-				});
-				} else {
-				console.error("❌ Impossible de récupérer l'ID Twitch.");
-				}
-				});
-			</script>
+					// B. Envoi au Raspberry (Bot)
+					await fetch(`${CONFIG.SERVER_URL}/api/update_context`, {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'ngrok-skip-browser-warning': 'true'
+					},
+					body: JSON.stringify(payload)
+					});
+
+					alert("✨ Félix a bien reçu tes infos !");
+					} catch (err) {
+					console.error("❌ Erreur lors de la sauvegarde :", err);
+					alert("✅ Sauvegardé dans le Cloud ! (Synchro Bot différée)");
+					} finally {
+					btn.textContent = "Sauvegarder les informations";
+					btn.disabled = false;
+					}
+					});
+					} else {
+					console.error("❌ Impossible de récupérer l'ID Twitch.");
+					}
+					});
+				</script>
 	</body>
 </html>
