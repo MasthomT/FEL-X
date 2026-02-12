@@ -35,7 +35,7 @@
 			<a href="profile.html" class="logo">
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
-			</a>
+				</a>
 			<a href="profile.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -159,99 +159,101 @@
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script>
-			// Liste des IDs de tes <input>
-    const fields = [
-        'nickname', 'birthday', 'pronouns', 'vibe',
-        'favorite_game', 'hated_genre', 'hobby',
-        'favorite_food', 'favorite_drink', 'free_message'
-    ];
+			const fields = [
+			'nickname', 'birthday', 'pronouns', 'vibe',
+			'favorite_game', 'hated_genre', 'hobby',
+			'favorite_food', 'favorite_drink', 'free_message'
+			];
 
-    async function getUserId(token) {
-        try {
-            const r = await fetch('https://api.twitch.tv/helix/users', {
-                headers: { 'Authorization': 'Bearer ' + token, 'Client-Id': CONFIG.CLIENT_ID }
-            });
-            const d = await r.json();
-            return d.data && d.data.length > 0 ? d.data[0].id : null;
-        } catch (e) { return null; }
-    }
+			async function getUserId(token) {
+			try {
+			const r = await fetch('https://api.twitch.tv/helix/users', {
+			headers: { 'Authorization': 'Bearer ' + token, 'Client-Id': CONFIG.CLIENT_ID }
+			});
+			const d = await r.json();
+			return d.data && d.data.length > 0 ? d.data[0].id : null;
+			} catch (e) { return null; }
+			}
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        const database = firebase.database();
-        const token = checkAuth(); 
-        if(!token) return;
+			document.addEventListener('DOMContentLoaded', async () => {
+			const database = firebase.database();
+			const token = checkAuth();
+			if(!token) return;
 
-        const userId = await getUserId(token);
-        const loadingEl = document.getElementById('loading');
-        const formEl = document.getElementById('felixForm');
+			const userId = await getUserId(token);
+			const loadingEl = document.getElementById('loading');
+			const formEl = document.getElementById('felixForm');
 
-        if (userId) {
-            // --- CHARGEMENT DEPUIS FIREBASE ---
-            database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
-                const data = snapshot.val();
-                console.log("Données Firebase reçues :", data);
+			if (userId) {
+			// --- 🔄 SYNCHRO TEMPS RÉEL (CLOUD -> VERCEL) ---
+			// On utilise .on('value') au lieu de .once pour écouter les changements du Pi
+			database.ref('viewer_data/ai_context/' + userId).on('value', (snapshot) => {
+			const data = snapshot.val();
+			console.log("🔄 Mise à jour Cloud reçue :", data);
 
-                if (data) {
-                    fields.forEach(f => {
-                        const input = document.getElementById(f);
-                        if (input) {
-                            // On remplit la case. Si la donnée n'existe pas, on met du vide ""
-                            input.value = data[f] || "";
-                        }
-                    });
-                }
-            }).catch(err => {
-                console.error("Erreur Firebase:", err);
-            }).finally(() => {
-                loadingEl.style.display = 'none';
-                formEl.style.display = 'block';
-            });
+			if (data) {
+			fields.forEach(f => {
+			const input = document.getElementById(f);
+			if (input) {
+			// SÉCURITÉ : On ne remplace la valeur QUE si l'utilisateur
+			// n'est pas en train de taper dedans (focus)
+			if (document.activeElement !== input) {
+			input.value = data[f] || "";
+			}
+			}
+			});
+			}
+			loadingEl.style.display = 'none';
+			formEl.style.display = 'block';
+			}, (error) => {
+			console.error("Erreur d'écoute Firebase:", error);
+			});
 
-            // --- SAUVEGARDE ---
-            formEl.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('saveBtn');
-                btn.textContent = "⌛ Synchronisation...";
-                btn.disabled = true;
+			// --- 💾 SAUVEGARDE (VERCEL -> CLOUD & PI) ---
+			formEl.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const btn = document.getElementById('saveBtn');
+			btn.textContent = "⌛ Synchronisation...";
+			btn.disabled = true;
 
-                // On prépare l'objet (Attention : on utilise ":" et pas "=" ici)
-                const payload = { 
-                    twitch_id: userId, 
-                    username: localStorage.getItem('twitch_username') || "" 
-                };
-                
-                fields.forEach(f => {
-                    const el = document.getElementById(f);
-                    if (el) payload[f] = el.value;
-                });
+			const payload = {
+			twitch_id: userId,
+			username: localStorage.getItem('twitch_username') || "inconnu"
+			};
 
-                try {
-                    // A. Mise à jour Firebase (Cloud)
-                    await database.ref('viewer_data/ai_context/' + userId).update({
-                        ...payload,
-                        last_updated: new Date().toISOString()
-                    });
+			fields.forEach(f => {
+			const el = document.getElementById(f);
+			if (el) payload[f] = el.value;
+			});
 
-                    // B. Envoi au Raspberry (Local) via Ngrok
-                    await fetch(CONFIG.SERVER_URL + '/api/update_context', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true' 
-                        },
-                        body: JSON.stringify(payload)
-                    });
+			try {
+			// 1. On pousse sur Firebase
+			await database.ref('viewer_data/ai_context/' + userId).update({
+			...payload,
+			last_updated: new Date().toISOString()
+			});
 
-                    alert("✨ Succès ! Félix est au courant.");
-                } catch (err) {
-                    alert("✅ Sauvegardé dans le Cloud !");
-                } finally {
-                    btn.textContent = "Sauvegarder les informations";
-                    btn.disabled = false;
-                }
-            });
-        }
-    });
-</script>
+			// 2. On pousse sur le Raspberry Pi (via ton tunnel Ngrok)
+			await fetch(CONFIG.SERVER_URL + '/api/update_context', {
+			method: 'POST',
+			headers: {
+			'Content-Type': 'application/json',
+			'ngrok-skip-browser-warning': 'true'
+			},
+			body: JSON.stringify(payload)
+			});
+
+			alert("✨ Succès ! Félix est au courant.");
+			} catch (err) {
+			console.error("Erreur de synchro:", err);
+			alert("✅ Sauvegardé dans le Cloud (Le Pi semble hors-ligne).");
+			} finally {
+			btn.textContent = "Sauvegarder les informations";
+			btn.disabled = false;
+			}
+			});
+			}
+			});
+		</script>
 	</body>
 </html>
