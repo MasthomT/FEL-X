@@ -159,102 +159,99 @@
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script>
-			// 1. Liste des champs (IDs des inputs HTML)
-			const fields = [
-			'nickname', 'birthday', 'pronouns', 'vibe',
-			'favorite_game', 'hated_genre', 'hobby',
-			'favorite_food', 'favorite_drink', 'free_message'
-			];
+			// Liste des IDs de tes <input>
+    const fields = [
+        'nickname', 'birthday', 'pronouns', 'vibe',
+        'favorite_game', 'hated_genre', 'hobby',
+        'favorite_food', 'favorite_drink', 'free_message'
+    ];
 
-			// 2. Récupération de l'ID Twitch via le Token
-			async function getUserId(token) {
-			try {
-			const r = await fetch('https://api.twitch.tv/helix/users', {
-			headers: { 'Authorization': 'Bearer ' + token, 'Client-Id': CONFIG.CLIENT_ID }
-			});
-			const d = await r.json();
-			return d.data && d.data.length > 0 ? d.data[0].id : null;
-			} catch (e) {
-			console.error("Erreur Twitch API:", e);
-			return null;
-			}
-			}
+    async function getUserId(token) {
+        try {
+            const r = await fetch('https://api.twitch.tv/helix/users', {
+                headers: { 'Authorization': 'Bearer ' + token, 'Client-Id': CONFIG.CLIENT_ID }
+            });
+            const d = await r.json();
+            return d.data && d.data.length > 0 ? d.data[0].id : null;
+        } catch (e) { return null; }
+    }
 
-			document.addEventListener('DOMContentLoaded', async () => {
-			const database = firebase.database();
-			const token = checkAuth(); // Récupère le token (depuis ton app.js)
-			if(!token) return;
+    document.addEventListener('DOMContentLoaded', async () => {
+        const database = firebase.database();
+        const token = checkAuth(); 
+        if(!token) return;
 
-			const userId = await getUserId(token);
-			const loadingEl = document.getElementById('loading');
-			const formEl = document.getElementById('felixForm');
+        const userId = await getUserId(token);
+        const loadingEl = document.getElementById('loading');
+        const formEl = document.getElementById('felixForm');
 
-			if (userId) {
-			// --- CHARGEMENT DEPUIS FIREBASE ---
-			database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
-			const data = snapshot.val();
-			console.log("Données Firebase reçues :", data);
+        if (userId) {
+            // --- CHARGEMENT DEPUIS FIREBASE ---
+            database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
+                const data = snapshot.val();
+                console.log("Données Firebase reçues :", data);
 
-			if (data) {
-			fields.forEach(f => {
-			const input = document.getElementById(f);
-			if (input) {
-			// On injecte la valeur. Si vide, on met une chaîne vide.
-			input.value = data[f] || "";
-			}
-			});
-			}
-			}).finally(() => {
-			loadingEl.style.display = 'none';
-			formEl.style.display = 'block';
-			});
+                if (data) {
+                    fields.forEach(f => {
+                        const input = document.getElementById(f);
+                        if (input) {
+                            // On remplit la case. Si la donnée n'existe pas, on met du vide ""
+                            input.value = data[f] || "";
+                        }
+                    });
+                }
+            }).catch(err => {
+                console.error("Erreur Firebase:", err);
+            }).finally(() => {
+                loadingEl.style.display = 'none';
+                formEl.style.display = 'block';
+            });
 
-			// --- SAUVEGARDE ---
-			formEl.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			const btn = document.getElementById('saveBtn');
-			btn.textContent = "Mise à jour...";
-			btn.disabled = true;
+            // --- SAUVEGARDE ---
+            formEl.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('saveBtn');
+                btn.textContent = "⌛ Synchronisation...";
+                btn.disabled = true;
 
-			// CRITIQUE : Utilise bien ":" et pas "=" ici !
-			const payload = {
-			twitch_id: userId,
-			username: localStorage.getItem('twitch_username') || ""
-			};
+                // On prépare l'objet (Attention : on utilise ":" et pas "=" ici)
+                const payload = { 
+                    twitch_id: userId, 
+                    username: localStorage.getItem('twitch_username') || "" 
+                };
+                
+                fields.forEach(f => {
+                    const el = document.getElementById(f);
+                    if (el) payload[f] = el.value;
+                });
 
-			fields.forEach(f => {
-			const el = document.getElementById(f);
-			if (el) payload[f] = el.value;
-			});
+                try {
+                    // A. Mise à jour Firebase (Cloud)
+                    await database.ref('viewer_data/ai_context/' + userId).update({
+                        ...payload,
+                        last_updated: new Date().toISOString()
+                    });
 
-			try {
-			// A. Enregistrement Cloud (Firebase)
-			await database.ref('viewer_data/ai_context/' + userId).update({
-			...payload,
-			last_updated: new Date().toISOString()
-			});
+                    // B. Envoi au Raspberry (Local) via Ngrok
+                    await fetch(CONFIG.SERVER_URL + '/api/update_context', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true' 
+                        },
+                        body: JSON.stringify(payload)
+                    });
 
-			// B. Envoi au Raspberry (Ngrok)
-			await fetch(CONFIG.SERVER_URL + '/api/update_context', {
-			method: 'POST',
-			headers: {
-			'Content-Type': 'application/json',
-			'ngrok-skip-browser-warning': 'true'
-			},
-			body: JSON.stringify(payload)
-			});
-
-			alert("✨ Infos sauvegardées !");
-			} catch (err) {
-			console.error("Erreur de synchro :", err);
-			alert("✅ Sauvegardé sur le cloud !");
-			} finally {
-			btn.textContent = "Sauvegarder les informations";
-			btn.disabled = false;
-			}
-			});
-			}
-			});
-		</script>
+                    alert("✨ Succès ! Félix est au courant.");
+                } catch (err) {
+                    alert("✅ Sauvegardé dans le Cloud !");
+                } finally {
+                    btn.textContent = "Sauvegarder les informations";
+                    btn.disabled = false;
+                }
+            });
+        }
+    });
+</script>
 	</body>
 </html>
