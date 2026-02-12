@@ -6,6 +6,10 @@
 		<title>Félix et moi - FEL-X</title>
 		<link rel="stylesheet" href="style.css" />
 		<style>
+			:root {
+			--bg: #18181b; --card: #2c2f33; --border: #3f3f46;
+			--text: #f4f4f5; --text-dim: #a1a1aa; --accent: #8b5cf6;
+			}
 			.section-title { color: var(--accent); font-size: 1.1rem; margin: 2rem 0 1rem 0; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
 			.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 			.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
@@ -22,6 +26,7 @@
 			}
 			.btn-save:hover { background: white; transform: translateY(-2px); }
 			.status-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; text-align: center; }
+			#loading { text-align:center; padding:5rem; font-size: 1.2rem; color: var(--accent); }
 			@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 		</style>
 	</head>
@@ -31,7 +36,6 @@
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
 			</a>
-
 			<a href="profile.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -42,13 +46,11 @@
 					<path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
 				</svg> Infos
 			</a>
-
 			<a href="leaderboard.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/>
 				</svg> Classement
 			</a>
-
 			<a href="clips.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
@@ -72,13 +74,12 @@
 			<a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 		</nav>
 
-
 		<main>
 			<div style="max-width: 800px; margin: 0 auto;">
 				<h1>🧠 Félix et moi</h1>
-				<p style="color: var(--text-dim); margin-bottom: 2rem;">Remplis cette fiche pour que Félix te connaisse mieux ! (Optionnel)</p>
+				<p style="color: var(--text-dim); margin-bottom: 2rem;">Remplis cette fiche pour que Félix te connaisse mieux !</p>
 
-				<div id="loading" style="text-align:center; padding:2rem;">Chargement de tes infos...</div>
+				<div id="loading">Chargement de tes infos en cours...</div>
 
 				<form id="felixForm" style="display:none;">
 					<div class="section-title">1. Identité</div>
@@ -113,15 +114,15 @@
 						<div class="form-grid">
 							<div class="form-group">
 								<label>Jeu Favori ❤️</label>
-								<input type="text" id="favorite_game" placeholder="Ex: Minecraft, Elden Ring, Valorant...">
+								<input type="text" id="favorite_game" placeholder="Ex: Minecraft, Elden Ring...">
                         </div>
 							<div class="form-group">
 								<label>Genre Détesté ❌</label>
-								<input type="text" id="hated_genre" placeholder="Ex: Horreur, Sport, FPS...">
+								<input type="text" id="hated_genre" placeholder="Ex: Horreur, Sport...">
                         </div>
 							<div class="form-group form-full">
 								<label>Passion hors jeux ?</label>
-								<input type="text" id="hobby" placeholder="Ex: Musique, Dessin, Cuisine, Astronomie...">
+								<input type="text" id="hobby" placeholder="Ex: Musique, Dessin...">
                         </div>
 						</div>
 					</div>
@@ -131,11 +132,11 @@
 						<div class="form-grid">
 							<div class="form-group">
 								<label>Plat / Snack 🍕</label>
-								<input type="text" id="favorite_food" placeholder="Ex: Pizza, Sushi, Kinder Bueno...">
+								<input type="text" id="favorite_food" placeholder="Ex: Pizza, Sushi...">
                         </div>
 							<div class="form-group">
 								<label>Boisson 🥤</label>
-								<input type="text" id="favorite_drink" placeholder="Ex: Café, Thé glacé, Dr Pepper...">
+								<input type="text" id="favorite_drink" placeholder="Ex: Café, Thé glacé...">
                         </div>
 						</div>
 					</div>
@@ -144,11 +145,11 @@
 					<div class="card">
 						<div class="form-group">
 							<label>Raconte ce que tu veux à Félix (Bio, Anecdote...)</label>
-							<textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec, j'ai un chat qui s'appelle Pompom et je déteste le réveil le matin..."></textarea>
+							<textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec..."></textarea>
 						</div>
 					</div>
 
-					<button type="submit" id="saveBtn" class="btn-save">Sauvegarder</button>
+					<button type="submit" id="saveBtn" class="btn-save">Sauvegarder les informations</button>
 				</form>
 			</div>
 		</main>
@@ -157,7 +158,6 @@
 		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 		<script src="config.js"></script>
 		<script src="app.js"></script>
-
 		<script>
 			const fields = [
 			'nickname', 'birthday', 'pronouns', 'vibe',
@@ -185,13 +185,17 @@
 			const formEl = document.getElementById('felixForm');
 
 			if (userId) {
-			// 1. CHARGEMENT DEPUIS FIREBASE
+			// 1. CHARGEMENT ET PRÉ-REMPLISSAGE (FORCÉ)
 			database.ref('viewer_data/ai_context/' + userId).once('value').then((snapshot) => {
 			const data = snapshot.val();
 			if (data) {
 			fields.forEach(f => {
 			const input = document.getElementById(f);
-			if (input && data[f]) input.value = data[f];
+			if (input) {
+			// On injecte la valeur. Si c'est vide dans Firebase, on laisse vide.
+			// C'est ici que "Comment doit-il t'appeler ?" devient ton pseudo enregistré.
+			input.value = data[f] !== undefined ? data[f] : "";
+			}
 			});
 			}
 			}).finally(() => {
@@ -203,40 +207,34 @@
 			formEl.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			const btn = document.getElementById('saveBtn');
-			btn.textContent = "Mise à jour...";
+			btn.textContent = "⌛ Synchronisation...";
 			btn.disabled = true;
 
-			const payload = { twitch_id: userId };
+			const payload = { twitch_id: userId, username: localStorage.getItem('twitch_username') || "" };
 			fields.forEach(f => {
 			const el = document.getElementById(f);
 			if (el) payload[f] = el.value;
 			});
 
 			try {
-			// ÉTAPE A : FIREBASE (Cloud)
+			// A. FIREBASE
 			await database.ref('viewer_data/ai_context/' + userId).update({
 			...payload,
 			last_updated: new Date().toISOString()
 			});
 
-			// ÉTAPE B : BOT (Raspberry via Ngrok)
-			try {
+			// B. BOT RASPBERRY
 			await fetch(`${CONFIG.SERVER_URL}/api/update_context`, {
 			method: 'POST',
-			headers: {
-			'Content-Type': 'application/json',
-			'ngrok-skip-browser-warning': 'true'
-			},
+			headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
 			body: JSON.stringify(payload)
 			});
-			alert("✨ Succès ! Ton profil est à jour.");
+
+			alert("✨ Félix a bien reçu tes infos !");
 			} catch (err) {
-			alert("✅ Profil sauvé sur le cloud ! (Félix synchronisera au prochain live)");
-			}
-			} catch (err) {
-			alert("❌ Erreur de connexion.");
+			alert("✅ Sauvegardé ! Félix synchronisera tes infos au prochain live.");
 			} finally {
-			btn.textContent = "Sauvegarder";
+			btn.textContent = "Sauvegarder les informations";
 			btn.disabled = false;
 			}
 			});
