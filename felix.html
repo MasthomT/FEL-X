@@ -158,15 +158,6 @@
 		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 		<script src="config.js"></script>
 		<script src="app.js"></script>
-		Si le Pi est OK mais que Vercel reste vide, c'est que le lien entre Firebase et tes champs HTML ne se fait pas. Ton script est correct dans l'intention, mais on va le rendre "verbeux" (avec des logs) pour que tu puisses voir exactement où ça bloque dans ta console (F12).
-
-		Voici ton bloc <script>
-			pour felix.html optimisé pour le débogage et le remplissage forcé.
-
-			🛠️ Script de Correction et Debug pour Vercel
-			Remplace tout ton bloc de script par celui-ci :
-
-			JavaScript
 			<script>
 				const fields = [
 				'nickname', 'birthday', 'pronouns', 'vibe',
