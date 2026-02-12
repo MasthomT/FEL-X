@@ -313,28 +313,30 @@
                 document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
             });
 
-            // 6. HISTORIQUE DES GAINS D'XP (MODE TEMPS RÉEL)
-	    db.ref('viewer_data/history/' + userKey).limitToLast(20).on('value', snapshot => {
-                const historyData = snapshot.val();
-                const listEl = document.getElementById("xp-history-list");
-                if (historyData) {
-                    listEl.innerHTML = "";
-                    // Firebase peut renvoyer un objet ou un tableau selon l'index
-                    const historyArray = Array.isArray(historyData) ? historyData : Object.values(historyData);
+            // 6. HISTORIQUE DES GAINS D'XP (MODE LIVE)
+db.ref('viewer_data/history/' + userKey).limitToLast(20).on('value', snapshot => {
+    const historyData = snapshot.val();
+    const listEl = document.getElementById("xp-history-list");
+    if (historyData) {
+        listEl.innerHTML = "";
+        // On convertit l'objet Firebase en tableau
+        const historyArray = Object.values(historyData);
         
-                // On trie par date la plus récente en haut
-                historyArray.filter(i => i).reverse().forEach(item => {
-                    listEl.innerHTML += `
-                <li class="history-item">
-                    <div>
-                        <div class="history-reason">${item.reason || "Gain d'XP"}</div>
-                        <div class="history-date">${formatDate(item.timestamp)}</div>
-                    </div>
-                    <div class="history-val">+${item.amount} XP</div>
-                </li>`;
-                    });
-                }
-            });
+        // On trie pour avoir le plus récent en haut et on affiche
+        historyArray.reverse().forEach(item => {
+            if(item) {
+                listEl.innerHTML += `
+                    <li class="history-item">
+                        <div>
+                            <div class="history-reason">${item.reason || "Gain d'XP"}</div>
+                            <div class="history-date">${formatDate(item.timestamp)}</div>
+                        </div>
+                        <div class="history-val">+${item.amount} XP</div>
+                    </li>`;
+            }
+        });
+    }
+});
 
             // 7. CARTE D'IDENTITÉ IA
             db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
