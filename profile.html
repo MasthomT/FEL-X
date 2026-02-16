@@ -408,59 +408,59 @@ db.ref('viewer_data/history/' + userKey).limitToLast(20).on('value', snapshot =>
             } else {
                 // Si c'est le streamer (toi)
                 badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
-                document.getElementById("stat-sub").textContent = "Créateur";
-                document.getElementById("stat-sub-detail").textContent = "👑";
-            }
-        } catch (error) {
-            console.error("Erreur Profil:", error);
-            document.getElementById("loading-overlay").style.display = "none";
-        }
-    });
+	document.getElementById("stat-sub").textContent = "Créateur";
+	document.getElementById("stat-sub-detail").textContent = "👑";
+	}
+	} catch (error) {
+	console.error("Erreur Profil:", error);
+	document.getElementById("loading-overlay").style.display = "none";
+	}
+	});
 
-    // --- FONCTIONS SONDAGE ---
+	// --- FONCTIONS SONDAGE ---
 
-    async function loadPoll() {
-        const username = localStorage.getItem('twitch_username') || "none";
-        const pi_url = "http://192.168.1.109:8080";
-        try {
-            const res = await fetch(`${pi_url}/api/poll?user=${username}`);
-            const poll = await res.json();
-            if (poll) {
-                document.getElementById('poll-container').style.display = 'block';
-                document.getElementById('poll-question').textContent = poll.question;
-                const optionsDiv = document.getElementById('poll-options');
-                optionsDiv.innerHTML = "";
-                poll.options.forEach(option => {
-                    const percent = poll.stats ? (poll.stats[option] || 0) : 0;
-                    const isMyVote = poll.user_vote === option;
-                    const container = document.createElement('div');
-                    container.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
-                    container.innerHTML = `
-                        <div style="background: rgba(255,255,255,0.05); height: 40px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
+	async function loadPoll() {
+	const username = localStorage.getItem('twitch_username') || "none";
+	const pi_url = "https://prime-nearby-tick.ngrok-free.app";
+	try {
+	const res = await fetch(`${pi_url}/api/poll?user=${username}`);
+	const poll = await res.json();
+	if (poll) {
+	document.getElementById('poll-container').style.display = 'block';
+	document.getElementById('poll-question').textContent = poll.question;
+	const optionsDiv = document.getElementById('poll-options');
+	optionsDiv.innerHTML = "";
+	poll.options.forEach(option => {
+	const percent = poll.stats ? (poll.stats[option] || 0) : 0;
+	const isMyVote = poll.user_vote === option;
+	const container = document.createElement('div');
+	container.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
+	container.innerHTML = `
+	<div style="background: rgba(255,255,255,0.05); height: 40px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
                             <div style="background: var(--accent); opacity: 0.3; height: 100%; width: ${poll.user_vote ? percent : 0}%; transition: width 0.5s ease;"></div>
                             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 500; color: white;">
                                 <span>${isMyVote ? '✅ ' : ''}${option}</span>
                                 ${poll.user_vote ? `<span>${percent}%</span>` : ''}
                             </div>
                         </div>`;
-                    container.onclick = () => castVote(poll.id, option);
-                    optionsDiv.appendChild(container);
-                });
-            }
-        } catch(e) { console.log("Sondage indisponible"); }
-    }
+	container.onclick = () => castVote(poll.id, option);
+	optionsDiv.appendChild(container);
+	});
+	}
+	} catch(e) { console.log("Sondage indisponible"); }
+	}
 
-    async function castVote(pollId, option) {
-        const username = localStorage.getItem('twitch_username');
-        if (!username || username === "none") return;
-        const pi_url = "http://192.168.1.109:8080";
-        await fetch(`${pi_url}/api/poll/vote`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ poll_id: pollId, option: option, user: username })
-        });
-        loadPoll();
-    }
+	async function castVote(pollId, option) {
+	const username = localStorage.getItem('twitch_username');
+	if (!username || username === "none") return;
+	const pi_url = "https://prime-nearby-tick.ngrok-free.app";
+	await fetch(`${pi_url}/api/poll/vote`, {
+	method: 'POST',
+	headers: {'Content-Type': 'application/json'},
+	body: JSON.stringify({ poll_id: pollId, option: option, user: username })
+	});
+	loadPoll();
+	}
 </script>
 </body>
 </html>
