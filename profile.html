@@ -140,7 +140,7 @@
 			<a href="profile.html" class="logo">
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
-			</a>
+				</a>
 			<a href="profile.html" class="nav-link active">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -272,9 +272,6 @@
 			const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 			const BROADCASTER_NAME = "masthom_";
 
-			// TON ADRESSE CLOUDFLARE TUNNEL (Pour Starlink)
-			const PI_TUNNEL_URL = "https://thy-castle-boots-school.trycloudflare.com";
-
 			function formatDate(timestamp) {
 			if (!timestamp) return "Date inconnue";
 			const d = new Date(timestamp);
@@ -299,7 +296,7 @@
 			const user = userData.data[0];
 			const userKey = user.login.toLowerCase();
 
-			// Sauvegarde locale pour le vote
+			// Sauvegarde locale pour identifier le vote
 			localStorage.setItem('twitch_username', userKey);
 
 			// 2. MISE À JOUR INTERFACE DE BASE
@@ -311,11 +308,11 @@
 			const channelData = await channelResp.json();
 			const broadcasterId = channelData.data[0].id;
 
-			// --- CHARGEMENT DU SONDAGE VIA FIREBASE ---
+			// Initialisation Firebase
 			const db = firebase.database();
 
+			// --- 🔄 4. CHARGEMENT DU SONDAGE VIA FIREBASE (TEMPS RÉEL) ---
 			console.log("📡 Écoute du sondage sur Firebase lancée...");
-
 			db.ref('current_poll').on('value', snapshot => {
 			const poll = snapshot.val();
 			const container = document.getElementById('poll-container');
@@ -328,8 +325,7 @@
 			}
 
 			console.log("📊 Sondage reçu :", poll.question);
-
-			container.style.display = 'block'; // On affiche le bloc
+			container.style.display = 'block';
 			document.getElementById('poll-question').textContent = poll.question;
 			optionsDiv.innerHTML = "";
 
@@ -354,7 +350,7 @@
 			console.error("❌ Erreur Firebase Sondage:", error);
 			});
 
-			// 5. LOGIQUE XP & WATCHTIME (VIA FIREBASE)
+			// --- 📈 5. LOGIQUE XP & WATCHTIME ---
 			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
 			const data = snapshot.val();
 			let xp = 0, wt_seconds = 0;
@@ -378,11 +374,11 @@
 			document.getElementById("current-xp").textContent = xp.toLocaleString();
 			document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
 
-			// Fin du chargement
+			// On cache l'overlay une fois les données vitales reçues
 			document.getElementById("loading-overlay").style.display = "none";
 			});
 
-			// 6. CALCUL DU RANG GLOBAL
+			// --- 🏆 6. CALCUL DU RANG GLOBAL ---
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 			const allData = snap.val() || {};
 			const sorted = Object.entries(allData)
@@ -392,7 +388,7 @@
 			document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
 			});
 
-			// 7. HISTORIQUE DES GAINS D'XP (MODE LIVE)
+			// --- 📜 7. HISTORIQUE DES GAINS D'XP ---
 			db.ref('viewer_data/history/' + userKey).limitToLast(20).on('value', snapshot => {
 			const historyData = snapshot.val();
 			const listEl = document.getElementById("xp-history-list");
@@ -414,7 +410,7 @@
 			}
 			});
 
-			// 8. CARTE D'IDENTITÉ IA
+			// --- 🆔 8. CARTE D'IDENTITÉ IA ---
 			db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
 			const ctx = snapshot.val();
 			const grid = document.getElementById("ai-id-content");
@@ -441,10 +437,10 @@
 			}
 			});
 
-			// 9. STATUTS TWITCH (FOLLOW & SUB)
+			// --- 🎖️ 9. STATUTS TWITCH (FOLLOW & SUB) ---
 			const badgesDiv = document.getElementById("badges-container");
 
-			// Follow
+			// Vérification Follow
 			fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
 			.then(r => r.json()).then(d => {
 			const elStatus = document.getElementById("stat-follow");
@@ -454,15 +450,14 @@
 			badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
 			elStatus.textContent = "Oui";
 			elStatus.style.color = "#43b581";
-			elDate.textContent = `Depuis le ${date}`;
+			if (elDate) elDate.textContent = `Depuis le ${date}`;
 			} else {
 			elStatus.textContent = "Non";
 			elStatus.style.color = "#ff4757";
-			elDate.textContent = "Pas encore follow";
 			}
 			}).catch(() => {});
 
-			// Subscription
+			// Vérification Sub
 			if (user.id !== broadcasterId) {
 			fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
 			.then(r => r.status === 200 ? r.json() : null)
@@ -497,7 +492,7 @@
 			}
 			});
 
-			// --- 🗳️ ACTION DE VOTE (VIA TUNNEL CLOUDFLARE VERS LE PI) ---
+			// --- 🗳️ ACTION DE VOTE (VIA FIREBASE - SOLUTION STARLINK) ---
 			async function castVote(pollId, option) {
 			const username = localStorage.getItem('twitch_username');
 			if (!username || username === "none") {
@@ -505,11 +500,13 @@
 			return;
 			}
 
-			// On prépare le chemin dans Firebase (ex: poll_incoming_votes/masthom_)
+			// On utilise l'instance Firebase déjà initialisée
+			const db = firebase.database();
 			const voteRef = db.ref('poll_incoming_votes/' + username);
 
 			try {
-			// On écrit le vote sur Firebase (Le Pi le verra instantanément)
+			// On écrit le vote directement sur Firebase.
+			// Le Pi (écouteur Python) le verra et mettra à jour le SQL et les stats Cloud.
 			await voteRef.set({
 			poll_id: pollId,
 			option: option,
@@ -518,24 +515,11 @@
 			});
 
 			console.log("✅ Vote envoyé sur Firebase !");
-			// On peut ajouter un petit effet visuel ici si tu veux
+			// Feedback visuel optionnel ici
 			} catch (e) {
 			console.error("❌ Erreur Firebase Vote:", e);
 			alert("Erreur lors de l'envoi du vote au Cloud.");
 			}
-			}
-
-			if (response.ok) {
-			console.log("✅ Vote enregistré sur le Pi !");
-			} else {
-			console.error("❌ Erreur lors du vote.");
-			}
-			catch(e) {
-			console.error("❌ Impossible de contacter le Raspberry Pi :", e);
-			alert("Le Raspberry Pi ne répond pas... Vérifie ton tunnel Cloudflare !");
-			}
-			// Pas besoin de rafraîchir manuellement : Firebase mettra à jour l'interface
-			// dès que le Pi aura synchronisé les nouveaux pourcentages !
 			}
 		</script>
 	</body>
