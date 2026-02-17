@@ -148,86 +148,89 @@
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
-    <main>
-        <div id="loading-overlay">
-            <h2>Connexion...</h2>
-            <p style="color:var(--text-dim)">Chargement du profil</p>
-        </div>
+	<main>
+		<div id="loading-overlay">
+			<h2>Connexion...</h2>
+			<p style="color:var(--text-dim)">Chargement du profil</p>
+		</div>
 
-        <div class="profile-header">
-            <img id="avatar" class="avatar-large" src="">
-            <div style="flex-grow:1;">
-                <h1 id="username" style="margin:0;">...</h1>
-                <div id="rank" style="color:var(--text-dim);">Rang #--</div>
-                <div class="badges-list" id="badges-container"></div>
-            </div>
-        </div>
+		<div class="profile-header">
+			<img id="avatar" class="avatar-large" src="">
+				<div style="flex-grow:1;">
+					<h1 id="username" style="margin:0;">...</h1>
+					<div id="rank" style="color:var(--text-dim);">Rang #--</div>
+					<div class="badges-list" id="badges-container"></div>
+				</div>
+			</div>
 
-        <div class="grid">
-            <div class="xp-container">
-                <div class="xp-text">
-                    <span style="color:white; font-weight:600;">PROGRESSION</span>
-                    <span><span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP</span>
-                </div>
-                <div class="xp-bar-bg"><div class="xp-fill" id="xp-fill"></div></div>
-            </div>
+		<div class="xp-container" style="margin-bottom: 2rem;">
+			<div class="xp-text">
+				<span style="color:white; font-weight:600;">PROGRESSION</span>
+				<span>
+					<span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP
+				</span>
+			</div>
+			<div class="xp-bar-bg">
+				<div class="xp-fill" id="xp-fill"></div>
+			</div>
+		</div>
 
-            <div class="stats-mini-grid" style="grid-column: 1/-1;">
-                <div class="stat-box">
-                    <div class="stat-title">Niveau</div>
-                    <div class="stat-num" id="stat-level">1</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Temps de Visionnage</div>
-                    <div id="stat-watchtime" class="stat-num">-</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">XP Total</div>
-                    <div class="stat-num" id="stat-xp">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Abonnement</div>
-                    <div class="stat-num" id="stat-sub">...</div>
-                    <div class="stat-sub" id="stat-sub-detail"></div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Follow</div>
-                    <div class="stat-num" id="stat-follow">...</div>
-                    <div class="stat-sub" id="stat-follow-date"></div>
-                </div>
-            </div>
+		<div class="stats-mini-grid">
+			<div class="stat-box">
+				<div class="stat-title">Niveau</div>
+				<div class="stat-num" id="stat-level">1</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-title">Watchtime</div>
+				<div id="stat-watchtime" class="stat-num">-</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-title">XP Total</div>
+				<div class="stat-num" id="stat-xp">0</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-title">Abonnement</div>
+				<div class="stat-num" id="stat-sub">...</div>
+				<div class="stat-sub" id="stat-sub-detail"></div>
+			</div>
+		</div>
 
-<div class="profile-main-row" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%; align-items: start;">
-    
-    <div class="id-card-section" style="grid-column: 1 / -1; width: 100%; margin-bottom: 2rem;">
-    <div class="id-card" style="min-height: 180px; display: flex; flex-direction: column;">
-        <div class="id-card-header">
-            <span class="id-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> IDENTITÉ VIEWER</span>
-            <a href="felix.html" class="id-edit">Modifier</a>
-        </div>
-        <div class="id-grid" id="ai-id-content" style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-            <p style="color: var(--text-dim); font-style: italic;">Félix est en train d'apprendre à vous connaître...</p>
-        </div>
-    </div>
-</div>
+		<div class="id-card-section" style="margin-top: 2rem; margin-bottom: 2rem;">
+			<div class="id-card">
+				<div class="id-card-header">
+					<span class="id-title">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+						</svg>
+						IDENTITÉ VIEWER
+					</span>
+					<a href="felix.html" class="id-edit">Modifier</a>
+				</div>
+				<div class="id-grid" id="ai-id-content">
+					<p style="color: var(--text-dim); font-style: italic;">Félix est en train d'apprendre à vous connaître...</p>
+				</div>
+			</div>
+		</div>
 
-<div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%;">
-    
-    <div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; height: 100%;">
-        <div class="history-header">📜 Historique XP</div>
-        <ul class="history-list" id="xp-history-list">
-            </ul>
-    </div>
+		<div class="profile-main-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
 
-    <div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; height: 100%;">
-        <h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage</h3>
-        <p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white;"></p>
-        <div id="poll-options" style="display: flex; flex-direction: column; gap: 10px;">
-            </div>
-    </div>
-</div>
-</div>
-</main>
+			<div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+				<div class="history-header" style="font-size: 1rem; color: white; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+					📜 Historique XP
+				</div>
+				<ul class="history-list" id="xp-history-list">
+				</ul>
+			</div>
+
+			<div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+				<h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage en cours</h3>
+				<p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white; font-size: 1.1rem;"></p>
+				<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;">
+				</div>
+			</div>
+
+		</div>
+	</main>
 
 	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
