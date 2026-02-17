@@ -311,9 +311,26 @@
 			// Initialisation Firebase
 			db = firebase.database();
 
-			// --- 🔄 4. LOGIQUE SONDAGE (TEMPS RÉEL) ---
+			// --- 🔄 4. LOGIQUE SONDAGE (AMÉLIORÉE) ---
+			let userVote = null;
+
+			// A. On écoute d'abord le vote personnel du viewer
+			db.ref('poll_incoming_votes/' + userKey).on('value', snap => {
+			const data = snap.val();
+			if (data) userVote = data.option;
+			// On force une mise à jour de l'affichage si le sondage est déjà chargé
+			refreshPollUI();
+			});
+
+			// B. On écoute les données globales du sondage
+			let currentPollData = null;
 			db.ref('current_poll').on('value', snapshot => {
-			const poll = snapshot.val();
+			currentPollData = snapshot.val();
+			refreshPollUI();
+			});
+
+			function refreshPollUI() {
+			const poll = currentPollData;
 			const container = document.getElementById('poll-container');
 			const optionsDiv = document.getElementById('poll-options');
 
@@ -327,19 +344,20 @@
 			optionsDiv.innerHTML = "";
 
 			poll.options.forEach(option => {
-			// NETTOYAGE DE LA CLÉ : On remplace le point par un underscore
-			// pour correspondre à ce que le Pi envoie à Firebase
+			// On nettoie la clé pour correspondre au format Firebase (ex: "Oui." -> "Oui_")
 			const safeKey = option.replace(/\./g, "_");
 			const percent = poll.stats ? (poll.stats[safeKey] || 0) : 0;
+			const isMyVote = (userVote === option);
 
 			const optBtn = document.createElement('div');
 			optBtn.className = "poll-option-wrapper";
-			optBtn.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
+			optBtn.style = `position: relative; margin-bottom: 10px; cursor: pointer;`;
+
 			optBtn.innerHTML = `
-			<div style="background: rgba(255,255,255,0.05); height: 45px; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; position: relative;">
-				<div style="background: var(--accent); opacity: 0.3; height: 100%; width: ${percent}%; transition: width 0.6s ease;"></div>
+			<div style="background: rgba(255,255,255,0.05); height: 45px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
+				<div style="background: var(--accent); opacity: ${isMyVote ? '0.5' : '0.2'}; height: 100%; width: ${percent}%; transition: width 0.6s ease;"></div>
 				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 500; color: white;">
-					<span>${option}</span>
+					<span>${isMyVote ? '✅ ' : ''}${option}</span>
 					<span>${percent}%</span>
 				</div>
 			</div>`;
@@ -347,7 +365,7 @@
 			optBtn.onclick = () => castVote(poll.id, option);
 			optionsDiv.appendChild(optBtn);
 			});
-			});
+			}
 
 			// --- 📈 5. LOGIQUE XP & WATCHTIME ---
 			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
