@@ -505,17 +505,25 @@
 			return;
 			}
 
+			// On prépare le chemin dans Firebase (ex: poll_incoming_votes/masthom_)
+			const voteRef = db.ref('poll_incoming_votes/' + username);
+
 			try {
-			// On envoie le vote au Raspberry Pi via l'adresse publique HTTPS
-			const response = await fetch(`${PI_TUNNEL_URL}/api/poll/vote`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+			// On écrit le vote sur Firebase (Le Pi le verra instantanément)
+			await voteRef.set({
 			poll_id: pollId,
 			option: option,
-			user: username
-			})
+			username: username,
+			timestamp: firebase.database.ServerValue.TIMESTAMP
 			});
+
+			console.log("✅ Vote envoyé sur Firebase !");
+			// On peut ajouter un petit effet visuel ici si tu veux
+			} catch (e) {
+			console.error("❌ Erreur Firebase Vote:", e);
+			alert("Erreur lors de l'envoi du vote au Cloud.");
+			}
+			}
 
 			if (response.ok) {
 			console.log("✅ Vote enregistré sur le Pi !");
