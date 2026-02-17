@@ -311,19 +311,21 @@
 			// Initialisation Firebase
 			db = firebase.database();
 
-			// --- 🔄 4. LOGIQUE SONDAGE (AMÉLIORÉE) ---
+			// --- 🔄 4. LOGIQUE SONDAGE (VERSION FINALE) ---
 			let userVote = null;
+			let currentPollData = null;
 
-			// A. On écoute d'abord le vote personnel du viewer
-			db.ref('poll_incoming_votes/' + userKey).on('value', snap => {
+			// A. On écoute le vote DURABLE (celui que le Pi vient de créer)
+			// Comme il n'est pas supprimé, le ✅ restera après actualisation
+			db.ref('user_persistent_votes/' + userKey).on('value', snap => {
 			const data = snap.val();
-			if (data) userVote = data.option;
-			// On force une mise à jour de l'affichage si le sondage est déjà chargé
+			if (data) {
+			userVote = data.option;
 			refreshPollUI();
+			}
 			});
 
-			// B. On écoute les données globales du sondage
-			let currentPollData = null;
+			// B. On écoute les données du sondage
 			db.ref('current_poll').on('value', snapshot => {
 			currentPollData = snapshot.val();
 			refreshPollUI();
@@ -334,7 +336,7 @@
 			const container = document.getElementById('poll-container');
 			const optionsDiv = document.getElementById('poll-options');
 
-			if (!poll || poll.active === false) {
+			if (!poll || !poll.active) {
 			container.style.display = 'none';
 			return;
 			}
@@ -344,18 +346,18 @@
 			optionsDiv.innerHTML = "";
 
 			poll.options.forEach(option => {
-			// On nettoie la clé pour correspondre au format Firebase (ex: "Oui." -> "Oui_")
+			// IMPORTANT : Nettoyage de la clé pour matcher Firebase (ex: "Oui." -> "Oui_")
 			const safeKey = option.replace(/\./g, "_");
-			const percent = poll.stats ? (poll.stats[safeKey] || 0) : 0;
+
+			// On récupère le score depuis les stats envoyées par le Pi
+			const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
 			const isMyVote = (userVote === option);
 
 			const optBtn = document.createElement('div');
-			optBtn.className = "poll-option-wrapper";
-			optBtn.style = `position: relative; margin-bottom: 10px; cursor: pointer;`;
-
+			optBtn.style = "position: relative; margin-bottom: 10px; cursor: pointer;";
 			optBtn.innerHTML = `
 			<div style="background: rgba(255,255,255,0.05); height: 45px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
-				<div style="background: var(--accent); opacity: ${isMyVote ? '0.5' : '0.2'}; height: 100%; width: ${percent}%; transition: width 0.6s ease;"></div>
+				<div style="background: var(--accent); opacity: ${isMyVote ? '0.4' : '0.15'}; height: 100%; width: ${percent}%; transition: width 0.8s ease;"></div>
 				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 500; color: white;">
 					<span>${isMyVote ? '✅ ' : ''}${option}</span>
 					<span>${percent}%</span>
