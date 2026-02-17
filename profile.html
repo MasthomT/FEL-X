@@ -237,7 +237,8 @@
 		// --- CONFIGURATION ---
 		const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 		const BROADCASTER_NAME = "masthom_";
-		// Ton adresse Cloudflare Tunnel (fixe et HTTPS pour Vercel)
+
+		// TON ADRESSE CLOUDFLARE TUNNEL (Pour Starlink)
 		const PI_TUNNEL_URL = "https://thy-castle-boots-school.trycloudflare.com";
 
 		function formatDate(timestamp) {
@@ -264,7 +265,7 @@
 		const user = userData.data[0];
 		const userKey = user.login.toLowerCase();
 
-		// Stockage local pour les fonctions de vote
+		// Sauvegarde locale pour le vote
 		localStorage.setItem('twitch_username', userKey);
 
 		// 2. MISE À JOUR INTERFACE DE BASE
@@ -276,11 +277,11 @@
 		const channelData = await channelResp.json();
 		const broadcasterId = channelData.data[0].id;
 
-		// Initialisation de la base de données Firebase (déjà configurée dans app.js)
+		// Initialisation Firebase (db est défini dans app.js ou ici via firebase.database())
 		const db = firebase.database();
 
-		// 4. CHARGEMENT DU SONDAGE (VIA FIREBASE - LECTURE)
-		// On écoute en temps réel pour que les barres bougent toutes seules
+		// --- 🔄 4. CHARGEMENT DU SONDAGE (VIA FIREBASE - TEMPS RÉEL) ---
+		// Plus de fetch vers le Pi pour l'affichage, on écoute le Cloud
 		db.ref('current_poll').on('value', snapshot => {
 		const poll = snapshot.val();
 		const container = document.getElementById('poll-container');
@@ -297,8 +298,6 @@
 
 		poll.options.forEach(option => {
 		const percent = poll.stats ? (poll.stats[option] || 0) : 0;
-		// Note : poll.user_vote n'est pas dans Firebase (c'est privé),
-		// on pourrait le récupérer via une petite API sur le Pi si besoin.
 
 		const optBtn = document.createElement('div');
 		optBtn.className = "poll-option-wrapper";
@@ -377,7 +376,7 @@
 		}
 		});
 
-		// 8. CARTE D'IDENTITÉ IA (BASÉE SUR L'ID TWITCH)
+		// 8. CARTE D'IDENTITÉ IA
 		db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
 		const ctx = snapshot.val();
 		const grid = document.getElementById("ai-id-content");
@@ -460,8 +459,7 @@
 		}
 		});
 
-		// --- LOGIQUE DE VOTE (VIA TUNNEL CLOUDFLARE) ---
-
+		// --- 🗳️ ACTION DE VOTE (VIA TUNNEL CLOUDFLARE VERS LE PI) ---
 		async function castVote(pollId, option) {
 		const username = localStorage.getItem('twitch_username');
 		if (!username || username === "none") {
@@ -470,12 +468,10 @@
 		}
 
 		try {
-		// On envoie le vote au Raspberry Pi via le tunnel public HTTPS
+		// On envoie le vote au Raspberry Pi via l'adresse publique HTTPS
 		const response = await fetch(`${PI_TUNNEL_URL}/api/poll/vote`, {
 		method: 'POST',
-		headers: {
-		'Content-Type': 'application/json'
-		},
+		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 		poll_id: pollId,
 		option: option,
@@ -485,16 +481,15 @@
 
 		if (response.ok) {
 		console.log("✅ Vote enregistré sur le Pi !");
-		// Optionnel : un petit retour visuel pour le viewer
 		} else {
-		console.error("❌ Erreur serveur lors du vote.");
+		console.error("❌ Erreur lors du vote.");
 		}
 		} catch(e) {
 		console.error("❌ Impossible de contacter le Raspberry Pi :", e);
-		alert("Félix ne répond pas... Le Raspberry Pi est peut-être éteint ?");
+		alert("Le Raspberry Pi ne répond pas... Vérifie ton tunnel Cloudflare !");
 		}
-		// Pas besoin de recharger loadPoll(), Firebase s'en chargera
-		// dès que le Pi aura mis à jour les stats Cloud.
+		// Pas besoin de rafraîchir manuellement : Firebase mettra à jour l'interface
+		// dès que le Pi aura synchronisé les nouveaux pourcentages !
 		}
 	</script>
 </body>
