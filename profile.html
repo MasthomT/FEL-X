@@ -4,86 +4,64 @@
 		<meta charset="UTF-8">
 			<title>Mon Profil - FEL-X</title>
 			<link rel="stylesheet" href="style.css">
-				<style>
-					/* --- STYLES GÉNÉRAUX & LAYOUT --- */
-					body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
-					main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
+				<!DOCTYPE html>
+				<html lang="fr">
+					<head>
+						<meta charset="UTF-8">
+							<title>Mon Profil - FEL-X</title>
+							<link rel="stylesheet" href="style.css">
+								<style>
+									/* --- STYLES SPÉCIFIQUES PROFIL --- */
+									.profile-header {
+									display: flex; align-items: center; gap: 25px; margin-bottom: 2rem;
+									background: var(--surface); padding: 1.5rem 2rem; border-radius: 16px; border: 1px solid var(--border);
+									position: relative; overflow: hidden;
+									}
+									.profile-header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+									.avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
 
-					/* --- EN-TÊTE DU PROFIL --- */
-					.profile-header {
-					display: flex; align-items: center; gap: 25px; margin-bottom: 2rem;
-					background: var(--surface); padding: 1.5rem 2rem; border-radius: 16px; border: 1px solid var(--border);
-					position: relative; overflow: hidden;
-					}
-					.profile-header::before {
-					content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent);
-					}
-					.avatar-large {
-					width: 90px; height: 90px; border-radius: 50%;
-					border: 3px solid var(--accent); object-fit: cover;
-					}
+									.badges-list { display: flex; gap: 8px; margin-top: 8px; }
+									.badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+									.badge-sub { color: var(--live); background: rgba(233, 30, 99, 0.1); border: 1px solid rgba(233, 30, 99, 0.2); }
+									.badge-follow { color: #43b581; background: rgba(67, 181, 129, 0.1); border: 1px solid rgba(67, 181, 129, 0.2); }
+									.badge-creator { color: #FFD700; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.2); }
 
-					/* --- BADGES TWITCH --- */
-					.badges-list { display: flex; gap: 8px; margin-top: 8px; }
-					.badge {
-					padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
-					text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;
-					}
-					.badge-sub { color: var(--live); background: rgba(233, 30, 99, 0.1); border: 1px solid rgba(233, 30, 99, 0.2); }
-					.badge-follow { color: #43b581; background: rgba(67, 181, 129, 0.1); border: 1px solid rgba(67, 181, 129, 0.2); }
-					.badge-creator { color: #FFD700; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.2); }
+									.xp-container { grid-column: 1 / -1; margin-bottom: 0.5rem; }
+									.xp-bar-bg { width: 100%; height: 8px; background: #111; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+									.xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease; }
+									.xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
 
-					/* --- SYSTÈME D'XP --- */
-					.xp-container { grid-column: 1 / -1; margin-bottom: 2rem; }
-					.xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }
-					.xp-bar-bg { width: 100%; height: 10px; background: #111; border-radius: 5px; overflow: hidden; }
-					.xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+									.stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+									.stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 15px; text-align: center; }
+									.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; }
+									.stat-num { font-size: 1.4rem; font-weight: 700; color: white; }
 
-					/* --- MINI STATS --- */
-					.stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-					.stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
-					.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-					.stat-num { font-size: 1.6rem; font-weight: 700; color: white; }
+									.id-card { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+									.id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+									.id-field { display: flex; flex-direction: column; gap: 4px; }
+									.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); }
+									.id-value { font-size: 0.95rem; color: white; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
 
-					/* --- CARTE D'IDENTITÉ IA --- */
-					.id-card {
-					background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-					border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
-					}
-					.id-title { color: var(--accent); font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-					.id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-					.id-field { display: flex; flex-direction: column; gap: 4px; }
-					.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); }
-					.id-value { font-size: 0.95rem; color: white; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+									.history-list { list-style: none; padding: 0; }
+									.history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem; }
+									.history-val { color: var(--accent); font-weight: 600; }
 
-					/* --- HISTORIQUE & SONDAGE --- */
-					.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
-					.card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
-					.history-list { list-style: none; padding: 0; }
-					.history-item {
-					display: flex; justify-content: space-between; padding: 12px 0;
-					border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem;
-					}
-					.history-val { color: var(--accent); font-weight: 600; }
+									#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0b; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+								</style>
+							</head>
+					<body>
 
-					/* --- SONDAGE OPTIONS --- */
-					.poll-option-container { position: relative; margin-bottom: 12px; cursor: pointer; }
-					.poll-option-bg {
-					background: rgba(255,255,255,0.05); height: 50px; border-radius: 10px;
-					border: 1px solid var(--border); overflow: hidden; position: relative; transition: 0.2s;
-					}
-					.poll-option-fill { background: var(--accent); height: 100%; transition: width 0.8s ease; }
-					.poll-option-label {
-					position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-					display: flex; justify-content: space-between; align-items: center;
-					padding: 0 15px; font-weight: 600; color: white;
-					}
-
-					#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0b; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-
-					@media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
-					@media (max-width: 800px) { main { margin-left: 0; padding: 1rem; } .stats-mini-grid { grid-template-columns: repeat(2, 1fr); } }
-				</style>
+						<nav class="sidebar">
+							<a href="profile.html" class="logo">
+								<img src="logo-felix.png">
+									<span>FEL-X</span>
+								</a>
+							<a href="profile.html" class="nav-link active">Profil</a>
+							<a href="infos.html" class="nav-link">Infos</a>
+							<a href="leaderboard.html" class="nav-link">Classement</a>
+							<a href="felix.html" class="nav-link">Félix et moi</a>
+							<a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
+						</nav>
 			</head>
 	<body>
 
