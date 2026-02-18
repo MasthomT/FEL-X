@@ -5,7 +5,11 @@
 			<title>Mon Profil - FEL-X</title>
 			<link rel="stylesheet" href="style.css">
 				<style>
-					/* --- STYLES SPÉCIFIQUES PROFIL --- */
+					/* --- STYLES GÉNÉRAUX & LAYOUT --- */
+					body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+					main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
+
+					/* --- EN-TÊTE DU PROFIL --- */
 					.profile-header {
 					display: flex; align-items: center; gap: 25px; margin-bottom: 2rem;
 					background: var(--surface); padding: 1.5rem 2rem; border-radius: 16px; border: 1px solid var(--border);
@@ -19,6 +23,7 @@
 					border: 3px solid var(--accent); object-fit: cover;
 					}
 
+					/* --- BADGES TWITCH --- */
 					.badges-list { display: flex; gap: 8px; margin-top: 8px; }
 					.badge {
 					padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
@@ -28,42 +33,56 @@
 					.badge-follow { color: #43b581; background: rgba(67, 181, 129, 0.1); border: 1px solid rgba(67, 181, 129, 0.2); }
 					.badge-creator { color: #FFD700; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.2); }
 
-					.xp-container { grid-column: 1 / -1; margin-bottom: 0.5rem; }
-					.xp-bar-bg { width: 100%; height: 8px; background: #111; border-radius: 4px; overflow: hidden; margin-top: 10px; }
-					.xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease; }
-					.xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
+					/* --- SYSTÈME D'XP --- */
+					.xp-container { grid-column: 1 / -1; margin-bottom: 2rem; }
+					.xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }
+					.xp-bar-bg { width: 100%; height: 10px; background: #111; border-radius: 5px; overflow: hidden; }
+					.xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 
-					.stats-mini-grid {
-					display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;
-					}
-					.stat-box {
-					background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 15px; text-align: center;
-					}
-					.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-					.stat-num { font-size: 1.4rem; font-weight: 700; color: white; }
+					/* --- MINI STATS --- */
+					.stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+					.stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+					.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+					.stat-num { font-size: 1.6rem; font-weight: 700; color: white; }
 
+					/* --- CARTE D'IDENTITÉ IA --- */
 					.id-card {
 					background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-					border: 1px solid var(--border); border-radius: 16px; padding: 2rem;
+					border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
 					}
-					.id-grid {
-					display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
-					}
+					.id-title { color: var(--accent); font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+					.id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
 					.id-field { display: flex; flex-direction: column; gap: 4px; }
-					.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
-					.id-value { font-size: 0.95rem; color: white; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
+					.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); }
+					.id-value { font-size: 0.95rem; color: white; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
 
+					/* --- HISTORIQUE & SONDAGE --- */
+					.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+					.card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
 					.history-list { list-style: none; padding: 0; }
 					.history-item {
-					display: flex; justify-content: space-between; padding: 8px 0;
+					display: flex; justify-content: space-between; padding: 12px 0;
 					border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem;
 					}
 					.history-val { color: var(--accent); font-weight: 600; }
 
+					/* --- SONDAGE OPTIONS --- */
+					.poll-option-container { position: relative; margin-bottom: 12px; cursor: pointer; }
+					.poll-option-bg {
+					background: rgba(255,255,255,0.05); height: 50px; border-radius: 10px;
+					border: 1px solid var(--border); overflow: hidden; position: relative; transition: 0.2s;
+					}
+					.poll-option-fill { background: var(--accent); height: 100%; transition: width 0.8s ease; }
+					.poll-option-label {
+					position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+					display: flex; justify-content: space-between; align-items: center;
+					padding: 0 15px; font-weight: 600; color: white;
+					}
+
 					#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0b; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
-					@media (max-width: 1200px) { .profile-main-row { grid-template-columns: 1fr !important; } }
-					@media (max-width: 800px) { .stats-mini-grid { grid-template-columns: repeat(2, 1fr); } }
+					@media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
+					@media (max-width: 800px) { main { margin-left: 0; padding: 1rem; } .stats-mini-grid { grid-template-columns: repeat(2, 1fr); } }
 				</style>
 			</head>
 	<body>
@@ -82,22 +101,24 @@
 
 		<main>
 			<div id="loading-overlay">
-				<h2>Connexion...</h2>
-				<p style="color:var(--text-dim)">Chargement du profil</p>
+				<h2>Initialisation...</h2>
+				<p style="color:var(--text-dim)">Récupération des données</p>
 			</div>
 
 			<div class="profile-header">
 				<img id="avatar" class="avatar-large" src="">
 					<div style="flex-grow:1;">
-						<h1 id="username" style="margin:0;">...</h1>
+						<h1 id="username" style="margin:0;">Chargement...</h1>
 						<div id="rank" style="color:var(--text-dim);">Rang #--</div>
 						<div class="badges-list" id="badges-container"></div>
 					</div>
 				</div>
 
-			<div class="xp-container" style="margin-bottom: 2rem;">
+			<div class="xp-container">
 				<div class="xp-text">
-					<span style="color:white; font-weight:600;">PROGRESSION</span>
+					<span style="color:white; font-weight:bold; letter-spacing: 1px;">
+						NIVEAU <span id="stat-level-text">1</span>
+					</span>
 					<span>
 						<span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP
 					</span>
@@ -114,7 +135,7 @@
 				</div>
 				<div class="stat-box">
 					<div class="stat-title">Watchtime</div>
-					<div id="stat-watchtime" class="stat-num">-</div>
+					<div class="stat-num" id="stat-watchtime">-</div>
 				</div>
 				<div class="stat-box">
 					<div class="stat-title">XP Total</div>
@@ -126,25 +147,23 @@
 				</div>
 			</div>
 
-			<div class="id-card-section" style="margin-top: 2rem; margin-bottom: 2rem;">
-				<div class="id-card">
-					<div style="margin-bottom: 20px; color: var(--accent); font-weight: bold;">IDENTITÉ VIEWER</div>
-					<div class="id-grid" id="ai-id-content">
-						<p style="color: var(--text-dim); font-style: italic;">Félix apprend à vous connaître...</p>
-					</div>
+			<div class="id-card">
+				<div class="id-title">IDENTITÉ VIEWER (IA)</div>
+				<div class="id-grid" id="ai-id-content">
+					<p style="color:var(--text-dim); font-style:italic;">Félix analyse vos interactions...</p>
 				</div>
 			</div>
 
-			<div class="profile-main-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
-				<div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
-					<div style="color: white; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">📜 Historique XP</div>
+			<div class="main-grid">
+				<div class="card-panel">
+					<h3 style="color:white; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">📜 Historique XP</h3>
 					<ul class="history-list" id="xp-history-list"></ul>
 				</div>
 
-				<div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
-					<h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage en cours</h3>
-					<p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white; font-size: 1.1rem;"></p>
-					<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;"></div>
+				<div class="card-panel" id="poll-container" style="display:none;">
+					<h3 style="color:var(--accent); margin-bottom:10px;">📊 Sondage en cours</h3>
+					<p id="poll-question" style="font-weight:bold; color:white; margin-bottom:1.5rem; font-size:1.1rem;"></p>
+					<div id="poll-options"></div>
 				</div>
 			</div>
 		</main>
@@ -161,6 +180,7 @@
 			let userVote = null;
 			let currentPollData = null;
 
+			// --- UTILITAIRES ---
 			function sanitize(k) {
 			if (!k) return "";
 			return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
@@ -172,6 +192,7 @@
 			return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
 			}
 
+			// --- LOGIQUE PRINCIPALE ---
 			document.addEventListener("DOMContentLoaded", async () => {
 			const token = checkAuth();
 			if (!token) return;
@@ -179,6 +200,7 @@
 			try {
 			const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
 
+			// 1. Infos Twitch
 			const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
 			const userData = await userResp.json();
 			const user = userData.data[0];
@@ -188,13 +210,10 @@
 			document.getElementById("username").textContent = user.display_name;
 			document.getElementById("avatar").src = user.profile_image_url;
 
-			const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-			const channelData = await channelResp.json();
-			const broadcasterId = channelData.data[0].id;
-
+			// 2. Initialisation DB
 			db = firebase.database();
 
-			// Vote PERSISTANT (✅ au refresh)
+			// 3. Écoute Vote Persistant
 			db.ref('user_persistent_votes/' + userKey).on('value', snap => {
 			const data = snap.val();
 			if (data) {
@@ -203,13 +222,14 @@
 			}
 			});
 
-			// Sondage (Stats globales)
-			db.ref('current_poll').on('value', snapshot => {
-			currentPollData = snapshot.val();
+			// 4. Écoute Sondage Actif
+			db.ref('current_poll').on('value', snap => {
+			currentPollData = snap.val();
 			window.refreshPollUI();
 			document.getElementById("loading-overlay").style.display = "none";
 			});
 
+			// --- RENDU SONDAGE ---
 			window.refreshPollUI = function() {
 			const poll = currentPollData;
 			const container = document.getElementById('poll-container');
@@ -229,114 +249,108 @@
 			const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
 			const isMyVote = (userVote === option);
 
-			const optBtn = document.createElement('div');
-			optBtn.style = "position: relative; margin-bottom: 12px; cursor: pointer;";
-			optBtn.innerHTML = `
-			<div style="background: rgba(255,255,255,0.05); height: 50px; border-radius: 10px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
-				<div style="background: var(--accent); opacity: ${isMyVote ? '0.4' : '0.15'}; height: 100%; width: ${percent}%; transition: width 0.8s ease;"></div>
-				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 600; color: white;">
+			const wrapper = document.createElement('div');
+			wrapper.className = "poll-option-container";
+			wrapper.innerHTML = `
+			<div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
+				<div class="poll-option-fill" style="width: ${percent}%; opacity: ${isMyVote ? '0.4' : '0.15'}"></div>
+				<div class="poll-option-label">
 					<span>${isMyVote ? '✅ ' : ''}${option}</span>
-					<span style="font-family: monospace; font-size: 1.1rem;">${percent}%</span>
+					<span style="font-family: monospace;">${percent}%</span>
 				</div>
 			</div>`;
 
-			optBtn.onclick = () => window.castVote(poll.id, option);
-			optionsDiv.appendChild(optBtn);
+			wrapper.onclick = () => window.castVote(poll.id, option);
+			optionsDiv.appendChild(wrapper);
 			});
 			};
 
-			// XP & Watchtime
-			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
-			const data = snapshot.val();
+			// --- XP & WATCHTIME ---
+			db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
+			const data = snap.val();
 			let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
 			const level = calculateLevel(xp);
+
 			document.getElementById("stat-level").textContent = level;
+			document.getElementById("stat-level-text").textContent = level;
 			document.getElementById("stat-xp").textContent = xp.toLocaleString();
 
-			const wt_seconds = data?.watchtime_seconds || 0;
-			document.getElementById("stat-watchtime").textContent = `${Math.floor(wt_seconds / 3600)}h ${Math.floor((wt_seconds % 3600) / 60)}m`;
+			const wt = data?.watchtime_seconds || 0;
+			document.getElementById("stat-watchtime").textContent = `${Math.floor(wt/3600)}h ${Math.floor((wt%3600)/60)}m`;
 
-			const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
-			const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-			const progress = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, progress)) + "%";
+			const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+			const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+			const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
+
+			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
 			document.getElementById("current-xp").textContent = xp.toLocaleString();
-			document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
+			document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 			});
 
-			// Historique
+			// --- HISTORIQUE ---
 			db.ref('viewer_data/history/' + userKey).limitToLast(15).on('value', snap => {
-			const listEl = document.getElementById("xp-history-list");
+			const list = document.getElementById("xp-history-list");
 			if (snap.val()) {
-			listEl.innerHTML = "";
-			Object.values(snap.val()).reverse().forEach(item => {
-			listEl.innerHTML += `<li class="history-item">
+			list.innerHTML = "";
+			Object.values(snap.val()).reverse().forEach(h => {
+			list.innerHTML += `
+			<li class="history-item">
 				<div>
-					<div style="color:white;">${item.reason}</div>
-					<div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
+					<div style="color:white;">${h.reason}</div>
+					<div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
 				</div>
-				<div class="history-val">+${item.amount} XP</div>
+				<div class="history-val">+${h.amount} XP</div>
 			</li>`;
 			});
 			}
 			});
 
-			// Identité IA
-			db.ref('viewer_data/ai_context/' + user.id).once('value').then(snapshot => {
-			const ctx = snapshot.val();
-			const grid = document.getElementById("ai-id-content");
-			if (ctx && grid) {
-			grid.innerHTML = "";
-			const fields = [
-			{ key: "nickname", label: "Surnom" }, { key: "vibe", label: "Vibe" },
-			{ key: "favorite_game", label: "Jeu Fav." }, { key: "hobby", label: "Passion" }
-			];
-			fields.forEach(f => {
-			if (ctx[f.key] && ctx[f.key].trim() !== "") {
-			grid.innerHTML += `<div class="id-field">
-				<span class="id-label">${f.label}</span>
-				<span class="id-value">${ctx[f.key]}</span>
-			</div>`;
-			}
-			});
-			}
+			// --- RANG ---
+			db.ref('viewer_data/xp_data').once('value').then(snap => {
+			const all = snap.val() || {};
+			const sorted = Object.entries(all)
+			.map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
+			.sort((a, b) => b.xp - a.xp);
+			const myRank = sorted.findIndex(u => u.k === userKey) + 1;
+			document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
 			});
 
-			// Badges & Subs
-			const badgesDiv = document.getElementById("badges-container");
-			if (user.id !== broadcasterId) {
-			fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
+			// --- TWITCH BADGES ---
+			const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
+			const chData = await chResp.json();
+			const bId = chData.data[0].id;
+
+			fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers })
 			.then(r => r.status === 200 ? r.json() : null)
-			.then(data => {
-			if (data?.data?.length > 0) {
-			badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
+			.then(d => {
+			const bDiv = document.getElementById("badges-container");
+			if (d?.data?.length > 0) {
+			bDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
 			document.getElementById("stat-sub").textContent = "Oui";
 			} else {
 			document.getElementById("stat-sub").textContent = "Non";
 			}
 			});
-			} else {
-			badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
-			document.getElementById("stat-sub").textContent = "👑";
-			}
 
 			} catch (e) { console.error("❌ Erreur Profil:", e); }
 			});
 
-			window.castVote = async function(pollId, option) {
-			const username = localStorage.getItem('twitch_username');
-			if (!username || !db) return;
+			// --- ACTION DE VOTE ---
+			window.castVote = async function(pId, opt) {
+			const name = localStorage.getItem('twitch_username');
+			if (!name || !db) return;
 
-			// Double écriture pour réactivité instantanée
-			userVote = option;
+			// Mise à jour optimiste (visuelle immédiate)
+			userVote = opt;
 			window.refreshPollUI();
 
 			try {
-			await db.ref('poll_incoming_votes/' + username).set({
-			poll_id: pollId, option: option, username: username,
+			// Double écriture pour la file d'attente (Pi) et la persistance (UI)
+			await db.ref('poll_incoming_votes/' + name).set({
+			poll_id: pId, option: opt, username: name,
 			timestamp: firebase.database.ServerValue.TIMESTAMP
 			});
-			await db.ref('user_persistent_votes/' + username).set({ poll_id: pollId, option: option });
+			await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
 			} catch (e) { console.error("❌ Erreur Vote:", e); }
 			};
 		</script>
