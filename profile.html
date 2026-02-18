@@ -131,18 +131,22 @@
 		<script src="app.js"></script>
 
 		<script>
-			// --- 1. CONFIGURATION ---
+			// --- 1. CONFIGURATION ET VARIABLES ---
 			const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 			const BROADCASTER_NAME = "masthom_";
 
 			let db;
-			let userVote = null;
-			let currentPollData = null;
+			let userVote = null;        // Mémoire locale du vote (le ✅)
+			let currentPollData = null;   // Stats globales du sondage
 
-			// Nettoyage des clés (Identique au Python du Pi : remplace / par - et . par _)
+			// Nettoyage des clés pour Firebase (Identique au Python du Pi)
+			// Indispensable pour gérer les options comme "15h/23h" ou "Planning."
 			function sanitize(k) {
 			if (!k) return "";
-			return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
+			return k.toString()
+			.replace(/\//g, "-")  // Le slash devient un tiret
+			.replace(/\./g, "_")  // Le point devient un underscore
+			.replace(/[\$#\[\]]/g, ""); // Supprime les autres caractères interdits
 			}
 
 			function formatDate(timestamp) {
@@ -151,7 +155,7 @@
 			return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
 			}
 
-			// --- 2. LOGIQUE INITIALE ---
+			// --- 2. INITIALISATION AU CHARGEMENT ---
 			document.addEventListener("DOMContentLoaded", async () => {
 			const token = checkAuth();
 			if (!token) return;
@@ -159,7 +163,7 @@
 			try {
 			const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
 
-			// A. Infos Viewer
+			// A. Infos du Viewer (Twitch)
 			const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
 			const userData = await userResp.json();
 			const user = userData.data[0];
@@ -169,32 +173,35 @@
 			document.getElementById("username").textContent = user.display_name;
 			document.getElementById("avatar").src = user.profile_image_url;
 
-			// B. ID Broadcaster
+			// B. ID de Masthom (pour les badges)
 			const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
 			const channelData = await channelResp.json();
 			const broadcasterId = channelData.data[0].id;
 
+			// C. Initialisation Firebase
 			db = firebase.database();
 
-			// --- 3. ÉCOUTES FIREBASE ---
+			// --- 3. ÉCOUTES TEMPS RÉEL (FIREBASE) ---
 
-			// Vote PERSISTANT (Le ✅ qui reste au refresh)
+			// Écoute du VOTE PERSISTANT (Le Pi écrit ici pour que le ✅ reste au refresh)
 			db.ref('user_persistent_votes/' + userKey).on('value', snap => {
 			const data = snap.val();
 			if (data) {
 			userVote = data.option;
+			console.log("📍 Vote persistant détecté :", userVote);
 			window.refreshPollUI();
 			}
 			});
 
-			// Données Sondage (Stats)
+			// Écoute du SONDAGE ACTUEL (Question + Stats %)
 			db.ref('current_poll').on('value', snapshot => {
 			currentPollData = snapshot.val();
+			console.log("📊 Stats sondage reçues :", currentPollData);
 			window.refreshPollUI();
 			document.getElementById("loading-overlay").style.display = "none";
 			});
 
-			// --- 4. RENDU INTERFACE ---
+			// --- 4. FONCTION DE RENDU (Mise à jour visuelle) ---
 			window.refreshPollUI = function() {
 			const poll = currentPollData;
 			const container = document.getElementById('poll-container');
@@ -210,6 +217,7 @@
 			optionsDiv.innerHTML = "";
 
 			poll.options.forEach(option => {
+			// On nettoie l'option pour trouver la stat (ex: 22/23h -> 22-23h)
 			const safeKey = sanitize(option);
 			const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
 			const isMyVote = (userVote === option);
@@ -218,7 +226,7 @@
 			optBtn.style = "position: relative; margin-bottom: 12px; cursor: pointer;";
 			optBtn.innerHTML = `
 			<div style="background: rgba(255,255,255,0.05); height: 50px; border-radius: 10px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
-				<div style="background: var(--accent); opacity: ${isMyVote ? '0.4' : '0.15'}; height: 100%; width: ${percent}%; transition: width 0.8s ease;"></div>
+				<div style="background: var(--accent); opacity: ${isMyVote ? '0.4' : '0.15'}; height: 100%; width: ${percent}%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
 				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 600; color: white;">
 					<span>${isMyVote ? '✅ ' : ''}${option}</span>
 					<span style="font-family: monospace; font-size: 1.1rem;">${percent}%</span>
@@ -230,26 +238,28 @@
 			});
 			};
 
-			// --- 5. XP & HISTORIQUE ---
+			// --- 5. LOGIQUE XP & WATCHTIME ---
 			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
 			const data = snapshot.val();
 			let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
 			const level = calculateLevel(xp);
 			document.getElementById("stat-level").textContent = level;
 			document.getElementById("stat-xp").textContent = xp.toLocaleString();
-			const nextLevelXp = Math.floor(100 * Math.pow(level, 2.2));
-			const currentLevelXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-			const progress = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, progress)) + "%";
-			document.getElementById("current-xp").textContent = xp.toLocaleString();
-			document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
 
 			const wt_seconds = (data && data.watchtime_seconds) ? data.watchtime_seconds : 0;
 			const h = Math.floor(wt_seconds / 3600);
 			const m = Math.floor((wt_seconds % 3600) / 60);
 			document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
+
+			const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+			const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+			const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
+			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
+			document.getElementById("current-xp").textContent = xp.toLocaleString();
+			document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 			});
 
+			// --- 6. HISTORIQUE ET BADGES ---
 			db.ref('viewer_data/history/' + userKey).limitToLast(15).on('value', snap => {
 			const listEl = document.getElementById("xp-history-list");
 			if (snap.val()) {
@@ -266,28 +276,10 @@
 			}
 			});
 
-			// --- 6. BADGES ---
-			const badgesDiv = document.getElementById("badges-container");
 			fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
 			.then(r => r.json()).then(d => {
-			if (d.data && d.data.length > 0) badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
+			if (d.data && d.data.length > 0) document.getElementById("badges-container").innerHTML += `<div class="badge badge-follow">Follower</div>`;
 			});
-
-			if (user.id !== broadcasterId) {
-			fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
-			.then(r => r.status === 200 ? r.json() : null)
-			.then(data => {
-			if (data && data.data && data.data.length > 0) {
-			badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-			document.getElementById("stat-sub").textContent = "Oui";
-			} else {
-			document.getElementById("stat-sub").textContent = "Non";
-			}
-			});
-			} else {
-			badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
-			document.getElementById("stat-sub").textContent = "👑";
-			}
 
 			} catch (e) { console.error("❌ Erreur Initialisation:", e); }
 			});
@@ -297,10 +289,10 @@
 			const username = localStorage.getItem('twitch_username');
 			if (!username || !db) return;
 
-			console.log(`🗳️ Envoi du vote : ${option} pour ${username}`);
+			console.log(`🗳️ Tentative de vote : ${option}`);
 
 			try {
-			// Écriture vers le Pi
+			// Écriture vers la file d'attente du Pi
 			await db.ref('poll_incoming_votes/' + username).set({
 			poll_id: pollId,
 			option: option,
@@ -308,13 +300,12 @@
 			timestamp: firebase.database.ServerValue.TIMESTAMP
 			});
 
-			// Retour visuel IMMÉDIAT
+			// Feedback visuel INSTANTANÉ
 			userVote = option;
 			window.refreshPollUI();
 			console.log("✅ Vote transmis au Cloud !");
 			} catch (e) {
 			console.error("❌ Erreur Firebase Vote:", e);
-			alert("Erreur de connexion Firebase.");
 			}
 			};
 		</script>
