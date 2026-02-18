@@ -6,132 +6,41 @@
 			<link rel="stylesheet" href="style.css">
 				<style>
 					/* --- STYLES SPÉCIFIQUES PROFIL --- */
-
-					/* En-tête */
 					.profile-header {
 					display: flex; align-items: center; gap: 25px; margin-bottom: 2rem;
 					background: var(--surface); padding: 1.5rem 2rem; border-radius: 16px; border: 1px solid var(--border);
 					position: relative; overflow: hidden;
 					}
-					.profile-main-content {
-					display: grid;
-					grid-template-columns: 1fr 1fr; /* Deux colonnes égales */
-					gap: 2rem;
-					grid-column: 1 / -1;
-					}
-					.profile-header::before { /* Petite barre décorative */
-					content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent);
-					}
-					.avatar-large {
-					width: 90px; height: 90px; border-radius: 50%;
-					border: 3px solid var(--accent); object-fit: cover;
-					}
+					.profile-header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+					.avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
 
-					/* Badges */
 					.badges-list { display: flex; gap: 8px; margin-top: 8px; }
-					.badge {
-					padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
-					text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;
-					}
+					.badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
 					.badge-sub { color: var(--live); background: rgba(233, 30, 99, 0.1); border: 1px solid rgba(233, 30, 99, 0.2); }
 					.badge-follow { color: #43b581; background: rgba(67, 181, 129, 0.1); border: 1px solid rgba(67, 181, 129, 0.2); }
 					.badge-creator { color: #FFD700; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.2); }
 
-					/* Barre XP */
 					.xp-container { grid-column: 1 / -1; margin-bottom: 0.5rem; }
 					.xp-bar-bg { width: 100%; height: 8px; background: #111; border-radius: 4px; overflow: hidden; margin-top: 10px; }
 					.xp-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1s ease; }
 					.xp-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
 
-					/* Bouton sondage */
-					.poll-btn {
-					background: rgba(255,255,255,0.05);
-					border: 1px solid var(--border);
-					color: white;
-					padding: 12px;
-					border-radius: 8px;
-					cursor: pointer;
-					text-align: left;
-					transition: 0.2s;
-					font-weight: 500;
-					}
-					.poll-btn:hover {
-					background: var(--accent);
-					border-color: var(--accent);
-					transform: translateX(5px);
-					}
-
-					/* Stats Grid (4 blocs) */
-					.stats-mini-grid {
-					display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;
-					}
-					.stat-box {
-					background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 15px; text-align: center;
-					}
-					.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+					.stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+					.stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 15px; text-align: center; }
+					.stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; }
 					.stat-num { font-size: 1.4rem; font-weight: 700; color: white; }
-					.stat-sub { font-size: 0.7rem; color: var(--text-dim); margin-top: 3px; display: block; }
 
-					/* --- CARTE D'IDENTITÉ FÉLIX (NOUVEAU DESIGN) --- */
-					.id-card-section { grid-column: 1 / -1; margin-bottom: 2rem; }
-					.id-card {
-					background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-					border: 1px solid var(--border); border-radius: 16px; padding: 2rem;
-					position: relative;
-					}
-					.id-card-header {
-					display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
-					padding-bottom: 15px; margin-bottom: 20px;
-					}
-					.id-title { font-size: 1.1rem; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-					.id-edit { font-size: 0.8rem; color: var(--text-dim); text-decoration: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; transition: 0.2s; }
-					.id-edit:hover { color: white; border-color: var(--accent); }
-
-					.id-grid {
-					display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
-					}
+					.id-card { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+					.id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
 					.id-field { display: flex; flex-direction: column; gap: 4px; }
-					.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
+					.id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); }
 					.id-value { font-size: 0.95rem; color: white; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
 
-					.id-bio { grid-column: 1 / -1; margin-top: 10px; }
-					.id-bio .id-value { border: none; font-style: italic; color: #ddd; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; }
-
-					/* Historique */
-					.history-header { font-size: 1rem; color: white; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-					.history-list {
-					list-style: none;
-					padding: 0;
-					max-height: none;
-					overflow-y: visible;
-					}
-					.history-item {
-					display: flex; justify-content: space-between; padding: 8px 0;
-					border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem;
-					}
-					.history-reason { color: #ccc; }
+					.history-list { list-style: none; padding: 0; }
+					.history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem; }
 					.history-val { color: var(--accent); font-weight: 600; }
-					.history-date { color: var(--text-dim); font-size: 0.8rem; min-width: 120px; text-align: right; }
 
-					#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-
-					@media (max-width: 1200px) {
-					/* Sur tablette, on garde l'identité en haut et on met l'historique/sondage sur une ligne en dessous */
-					.profile-main-row {
-					grid-template-columns: 1fr !important;
-					}
-					}
-
-					@media (max-width: 800px) {
-					/* Sur mobile, tout le monde prend 100% de largeur et s'empile verticalement */
-					.profile-main-row div[style*="display: grid"] {
-					grid-template-columns: 1fr !important;
-					}
-
-					.stats-mini-grid {
-					grid-template-columns: repeat(2, 1fr); /* Les stats passent de 4 à 2 colonnes */
-					}
-					}
+					#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0b; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 				</style>
 			</head>
 	<body>
@@ -140,42 +49,11 @@
 			<a href="profile.html" class="logo">
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
-				</a>
-			<a href="profile.html" class="nav-link active">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-				</svg> Profil
 			</a>
-			<a href="infos.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-				</svg> Infos
-			</a>
-			<a href="leaderboard.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/>
-				</svg> Classement
-			</a>
-			<a href="clips.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
-				</svg> Clips
-			</a>
-			<a href="commands.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-				</svg> Commandes
-			</a>
-			<a href="stats.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/>
-				</svg> Stats
-			</a>
-			<a href="felix.html" class="nav-link">
-				<svg viewBox="0 0 24 24" fill="currentColor">
-					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-				</svg> Félix et moi
-			</a>
+			<a href="profile.html" class="nav-link active">Profil</a>
+			<a href="infos.html" class="nav-link">Infos</a>
+			<a href="leaderboard.html" class="nav-link">Classement</a>
+			<a href="felix.html" class="nav-link">Félix et moi</a>
 			<a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
 		</nav>
 
@@ -194,7 +72,7 @@
 					</div>
 				</div>
 
-			<div class="xp-container" style="margin-bottom: 2rem;">
+			<div class="xp-container">
 				<div class="xp-text">
 					<span style="color:white; font-weight:600;">PROGRESSION</span>
 					<span>
@@ -222,44 +100,29 @@
 				<div class="stat-box">
 					<div class="stat-title">Abonnement</div>
 					<div class="stat-num" id="stat-sub">...</div>
-					<div class="stat-sub" id="stat-sub-detail"></div>
 				</div>
 			</div>
 
-			<div class="id-card-section" style="margin-top: 2rem; margin-bottom: 2rem;">
+			<div class="id-card-section" style="margin: 2rem 0;">
 				<div class="id-card">
-					<div class="id-card-header">
-						<span class="id-title">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-							</svg>
-							IDENTITÉ VIEWER
-						</span>
-						<a href="felix.html" class="id-edit">Modifier</a>
-					</div>
+					<div class="id-card-header" style="margin-bottom:20px; color:var(--accent); font-weight:bold;">IDENTITÉ VIEWER</div>
 					<div class="id-grid" id="ai-id-content">
-						<p style="color: var(--text-dim); font-style: italic;">Félix est en train d'apprendre à vous connaître...</p>
+						<p style="color: var(--text-dim); font-style: italic;">Félix apprend à vous connaître...</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="profile-main-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
-
-				<div class="history-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
-					<div class="history-header" style="font-size: 1rem; color: white; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-						📜 Historique XP
-					</div>
-					<ul class="history-list" id="xp-history-list">
-					</ul>
+			<div class="profile-main-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+				<div class="history-card" style="background: var(--surface); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border);">
+					<div class="history-header" style="color:white; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">📜 Historique XP</div>
+					<ul class="history-list" id="xp-history-list"></ul>
 				</div>
 
-				<div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+				<div class="card poll-card" id="poll-container" style="display:none; background: var(--surface); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border);">
 					<h3 style="color: var(--accent); margin-bottom: 10px;">📊 Sondage en cours</h3>
-					<p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white; font-size: 1.1rem;"></p>
-					<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;">
-					</div>
+					<p id="poll-question" style="margin-bottom: 1.5rem; font-weight: bold; color: white;"></p>
+					<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;"></div>
 				</div>
-
 			</div>
 		</main>
 
@@ -267,21 +130,16 @@
 		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 		<script src="app.js"></script>
 
-		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-		<script src="app.js"></script>
-
 		<script>
-			// --- 1. CONFIGURATION ET VARIABLES GLOBALES ---
+			// --- 1. CONFIGURATION ---
 			const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 			const BROADCASTER_NAME = "masthom_";
 
 			let db;
-			let userVote = null;      // Choix mémorisé (le ✅)
-			let currentPollData = null; // Données reçues (Stats)
+			let userVote = null;
+			let currentPollData = null;
 
-			// Nettoyage des clés pour Firebase (Identique au Python du Pi)
-			// On remplace / par - et . par _
+			// Nettoyage des clés (Identique au Python du Pi : remplace / par - et . par _)
 			function sanitize(k) {
 			if (!k) return "";
 			return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
@@ -293,7 +151,7 @@
 			return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
 			}
 
-			// --- 2. INITIALISATION ET LOGIQUE PRINCIPALE ---
+			// --- 2. LOGIQUE INITIALE ---
 			document.addEventListener("DOMContentLoaded", async () => {
 			const token = checkAuth();
 			if (!token) return;
@@ -301,7 +159,7 @@
 			try {
 			const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
 
-			// A. Infos du Viewer
+			// A. Infos Viewer
 			const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
 			const userData = await userResp.json();
 			const user = userData.data[0];
@@ -311,32 +169,32 @@
 			document.getElementById("username").textContent = user.display_name;
 			document.getElementById("avatar").src = user.profile_image_url;
 
-			// B. ID de Masthom pour les badges
+			// B. ID Broadcaster
 			const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
 			const channelData = await channelResp.json();
 			const broadcasterId = channelData.data[0].id;
 
 			db = firebase.database();
 
-			// --- 3. ÉCOUTES TEMPS RÉEL (FIREBASE) ---
+			// --- 3. ÉCOUTES FIREBASE ---
 
-			// Écoute du vote PERSISTANT (Le ✅ qui reste après actualisation)
+			// Vote PERSISTANT (Le ✅ qui reste au refresh)
 			db.ref('user_persistent_votes/' + userKey).on('value', snap => {
 			const data = snap.val();
 			if (data) {
 			userVote = data.option;
-			window.refreshPollUI(); // Mise à jour visuelle
+			window.refreshPollUI();
 			}
 			});
 
-			// Écoute du sondage (Question + Stats)
+			// Données Sondage (Stats)
 			db.ref('current_poll').on('value', snapshot => {
 			currentPollData = snapshot.val();
 			window.refreshPollUI();
 			document.getElementById("loading-overlay").style.display = "none";
 			});
 
-			// --- 4. FONCTION DE RENDU (Globale pour castVote) ---
+			// --- 4. RENDU INTERFACE ---
 			window.refreshPollUI = function() {
 			const poll = currentPollData;
 			const container = document.getElementById('poll-container');
@@ -352,7 +210,6 @@
 			optionsDiv.innerHTML = "";
 
 			poll.options.forEach(option => {
-			// On nettoie le texte pour trouver la stat (ex: 22/23h -> 22-23h)
 			const safeKey = sanitize(option);
 			const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
 			const isMyVote = (userVote === option);
@@ -373,7 +230,7 @@
 			});
 			};
 
-			// --- 5. LOGIQUE XP & HISTORIQUE ---
+			// --- 5. XP & HISTORIQUE ---
 			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
 			const data = snapshot.val();
 			let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
@@ -386,6 +243,11 @@
 			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, progress)) + "%";
 			document.getElementById("current-xp").textContent = xp.toLocaleString();
 			document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
+
+			const wt_seconds = (data && data.watchtime_seconds) ? data.watchtime_seconds : 0;
+			const h = Math.floor(wt_seconds / 3600);
+			const m = Math.floor((wt_seconds % 3600) / 60);
+			document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
 			});
 
 			db.ref('viewer_data/history/' + userKey).limitToLast(15).on('value', snap => {
@@ -395,8 +257,8 @@
 			Object.values(snap.val()).reverse().forEach(item => {
 			listEl.innerHTML += `<li class="history-item">
 				<div>
-					<div class="history-reason">${item.reason}</div>
-					<div class="history-date">${formatDate(item.timestamp)}</div>
+					<div style="color:white;">${item.reason}</div>
+					<div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
 				</div>
 				<div class="history-val">+${item.amount} XP</div>
 			</li>`;
@@ -404,7 +266,7 @@
 			}
 			});
 
-			// --- 6. BADGES ET SUBS ---
+			// --- 6. BADGES ---
 			const badgesDiv = document.getElementById("badges-container");
 			fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
 			.then(r => r.json()).then(d => {
@@ -424,10 +286,10 @@
 			});
 			} else {
 			badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
-			document.getElementById("stat-sub").textContent = "Créateur";
+			document.getElementById("stat-sub").textContent = "👑";
 			}
 
-			} catch (e) { console.error("❌ Erreur Profil:", e); }
+			} catch (e) { console.error("❌ Erreur Initialisation:", e); }
 			});
 
 			// --- 7. ACTION DE VOTE (Globale) ---
@@ -435,9 +297,10 @@
 			const username = localStorage.getItem('twitch_username');
 			if (!username || !db) return;
 
-			console.log(`🗳️ Envoi du vote : ${option}`);
+			console.log(`🗳️ Envoi du vote : ${option} pour ${username}`);
 
 			try {
+			// Écriture vers le Pi
 			await db.ref('poll_incoming_votes/' + username).set({
 			poll_id: pollId,
 			option: option,
@@ -445,12 +308,13 @@
 			timestamp: firebase.database.ServerValue.TIMESTAMP
 			});
 
-			// MISE À JOUR VISUELLE IMMÉDIATE
+			// Retour visuel IMMÉDIAT
 			userVote = option;
 			window.refreshPollUI();
 			console.log("✅ Vote transmis au Cloud !");
 			} catch (e) {
 			console.error("❌ Erreur Firebase Vote:", e);
+			alert("Erreur de connexion Firebase.");
 			}
 			};
 		</script>
