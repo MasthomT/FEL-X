@@ -267,17 +267,23 @@
 		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 		<script src="app.js"></script>
 
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+		<script src="app.js"></script>
+
 		<script>
-			// --- 1. CONFIGURATION ---
+			// --- 1. CONFIGURATION ET VARIABLES GLOBALES ---
 			const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 			const BROADCASTER_NAME = "masthom_";
 
 			let db;
-			let userVote = null;
-			let currentPollData = null;
+			let userVote = null;      // Choix mémorisé (le ✅)
+			let currentPollData = null; // Données reçues (Stats)
 
-			// Nettoyage des clés (Doit être identique à ton Python sur le Pi)
+			// Nettoyage des clés pour Firebase (Identique au Python du Pi)
+			// On remplace / par - et . par _
 			function sanitize(k) {
+			if (!k) return "";
 			return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
 			}
 
@@ -287,13 +293,15 @@
 			return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
 			}
 
-			// --- 2. INITIALISATION ---
+			// --- 2. INITIALISATION ET LOGIQUE PRINCIPALE ---
 			document.addEventListener("DOMContentLoaded", async () => {
 			const token = checkAuth();
 			if (!token) return;
 
 			try {
 			const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
+
+			// A. Infos du Viewer
 			const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
 			const userData = await userResp.json();
 			const user = userData.data[0];
@@ -303,33 +311,33 @@
 			document.getElementById("username").textContent = user.display_name;
 			document.getElementById("avatar").src = user.profile_image_url;
 
+			// B. ID de Masthom pour les badges
 			const channelResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
 			const channelData = await channelResp.json();
 			const broadcasterId = channelData.data[0].id;
 
 			db = firebase.database();
 
-			// --- 3. LOGIQUE SONDAGE (ÉCOUTES TEMPS RÉEL) ---
+			// --- 3. ÉCOUTES TEMPS RÉEL (FIREBASE) ---
 
-			// A. On écoute le vote durable du viewer (le ✅)
+			// Écoute du vote PERSISTANT (Le ✅ qui reste après actualisation)
 			db.ref('user_persistent_votes/' + userKey).on('value', snap => {
 			const data = snap.val();
 			if (data) {
 			userVote = data.option;
-			console.log("📍 Vote persistant trouvé :", userVote);
-			renderPoll();
+			window.refreshPollUI(); // Mise à jour visuelle
 			}
 			});
 
-			// B. On écoute les données globales du sondage
+			// Écoute du sondage (Question + Stats)
 			db.ref('current_poll').on('value', snapshot => {
 			currentPollData = snapshot.val();
-			console.log("📊 Données sondage reçues :", currentPollData);
-			renderPoll();
+			window.refreshPollUI();
 			document.getElementById("loading-overlay").style.display = "none";
 			});
 
-			function renderPoll() {
+			// --- 4. FONCTION DE RENDU (Globale pour castVote) ---
+			window.refreshPollUI = function() {
 			const poll = currentPollData;
 			const container = document.getElementById('poll-container');
 			const optionsDiv = document.getElementById('poll-options');
@@ -344,6 +352,7 @@
 			optionsDiv.innerHTML = "";
 
 			poll.options.forEach(option => {
+			// On nettoie le texte pour trouver la stat (ex: 22/23h -> 22-23h)
 			const safeKey = sanitize(option);
 			const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
 			const isMyVote = (userVote === option);
@@ -351,20 +360,20 @@
 			const optBtn = document.createElement('div');
 			optBtn.style = "position: relative; margin-bottom: 12px; cursor: pointer;";
 			optBtn.innerHTML = `
-			<div style="background: rgba(255,255,255,0.05); height: 48px; border-radius: 8px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
+			<div style="background: rgba(255,255,255,0.05); height: 50px; border-radius: 10px; border: 1px solid ${isMyVote ? 'var(--accent)' : 'var(--border)'}; overflow: hidden; position: relative;">
 				<div style="background: var(--accent); opacity: ${isMyVote ? '0.4' : '0.15'}; height: 100%; width: ${percent}%; transition: width 0.8s ease;"></div>
 				<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 600; color: white;">
 					<span>${isMyVote ? '✅ ' : ''}${option}</span>
-					<span style="font-family: monospace;">${percent}%</span>
+					<span style="font-family: monospace; font-size: 1.1rem;">${percent}%</span>
 				</div>
 			</div>`;
 
-			optBtn.onclick = () => castVote(poll.id, option);
+			optBtn.onclick = () => window.castVote(poll.id, option);
 			optionsDiv.appendChild(optBtn);
 			});
-			}
+			};
 
-			// --- 4. LOGIQUE XP & WATCHTIME ---
+			// --- 5. LOGIQUE XP & HISTORIQUE ---
 			db.ref('viewer_data/xp_data/' + userKey).on('value', snapshot => {
 			const data = snapshot.val();
 			let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
@@ -379,7 +388,6 @@
 			document.getElementById("next-level-xp").textContent = nextLevelXp.toLocaleString();
 			});
 
-			// (Classement et Historique)
 			db.ref('viewer_data/history/' + userKey).limitToLast(15).on('value', snap => {
 			const listEl = document.getElementById("xp-history-list");
 			if (snap.val()) {
@@ -396,18 +404,40 @@
 			}
 			});
 
-			} catch (e) { console.error("❌ Erreur Initialisation:", e); }
+			// --- 6. BADGES ET SUBS ---
+			const badgesDiv = document.getElementById("badges-container");
+			fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${user.id}&broadcaster_id=${broadcasterId}`, { headers })
+			.then(r => r.json()).then(d => {
+			if (d.data && d.data.length > 0) badgesDiv.innerHTML += `<div class="badge badge-follow">Follower</div>`;
 			});
 
-			// --- 5. ENVOI DU VOTE ---
-			async function castVote(pollId, option) {
+			if (user.id !== broadcasterId) {
+			fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${user.id}`, { headers })
+			.then(r => r.status === 200 ? r.json() : null)
+			.then(data => {
+			if (data && data.data && data.data.length > 0) {
+			badgesDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
+			document.getElementById("stat-sub").textContent = "Oui";
+			} else {
+			document.getElementById("stat-sub").textContent = "Non";
+			}
+			});
+			} else {
+			badgesDiv.innerHTML += `<div class="badge badge-creator">Créateur</div>`;
+			document.getElementById("stat-sub").textContent = "Créateur";
+			}
+
+			} catch (e) { console.error("❌ Erreur Profil:", e); }
+			});
+
+			// --- 7. ACTION DE VOTE (Globale) ---
+			window.castVote = async function(pollId, option) {
 			const username = localStorage.getItem('twitch_username');
 			if (!username || !db) return;
 
-			console.log(`🗳️ Envoi du vote : ${option} pour ${username}`);
+			console.log(`🗳️ Envoi du vote : ${option}`);
 
 			try {
-			// Écriture dans poll_incoming_votes
 			await db.ref('poll_incoming_votes/' + username).set({
 			poll_id: pollId,
 			option: option,
@@ -415,17 +445,14 @@
 			timestamp: firebase.database.ServerValue.TIMESTAMP
 			});
 
-			// Retour visuel immédiat (optimiste)
+			// MISE À JOUR VISUELLE IMMÉDIATE
 			userVote = option;
-			const event = new Event('renderTrigger'); // On peut forcer un refresh si besoin
-			// renderPoll() est dans le scope de DOMContentLoaded,
-			// pour faire simple on attend que le Pi réponde ou on recharge
+			window.refreshPollUI();
 			console.log("✅ Vote transmis au Cloud !");
 			} catch (e) {
 			console.error("❌ Erreur Firebase Vote:", e);
-			alert("Erreur de connexion Firebase.");
 			}
-			}
+			};
 		</script>
 	</body>
 </html>
