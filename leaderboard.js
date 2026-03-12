@@ -40,7 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             xp: parseInt(u.xp) || 0,
             watchtime_seconds: parseInt(u.watchtime_seconds) || 0,
             level: calculateLevel(parseInt(u.xp) || 0)
-        })).sort((a, b) => b.xp - a.xp);
+        }))
+        .filter(u => u.key !== "masthom_" && u.key !== "felixthebigblackcat")
+        .sort((a, b) => b.xp - a.xp);
 
         const top3 = usersArray.slice(0, 3);
         const rest = usersArray.slice(3, 50);
