@@ -9,81 +9,100 @@
 						/* --- STYLE DESKTOP (PC) --- */
 						main {
 						padding: 2rem;
-						margin-left: 250px; /* Aligné sur la sidebar PC */
+						margin-left: 250px;
 						min-height: 100vh;
 						}
 
 						.controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-						.search-input { flex-grow: 1; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 8px; font-family: inherit; }
-						.filter-select { padding: 12px; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 8px; font-family: inherit; cursor: pointer; }
+						.search-input, .filter-select {
+						padding: 12px; background: var(--surface); border: 1px solid var(--border);
+						color: white; border-radius: 8px; font-family: inherit;
+						}
 
-						/* Table Classique PC */
 						table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
 						th { text-align: left; padding: 15px; background: rgba(255,255,255,0.05); color: var(--text-dim); border-bottom: 2px solid var(--border); }
 						td { padding: 15px; border-bottom: 1px solid var(--border); color: white; }
-						.command-trigger { color: var(--accent); font-weight: bold; font-family: monospace; }
+						.command-trigger { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 1.1em; }
 
 						/* --- OPTIMISATION MOBILE (< 800px) --- */
         @media (max-width: 800px) {
-            main {
-                margin-left: 0 !important; /* Retire le décalage Sidebar */
-                padding: 1.5rem 1rem 100px 1rem !important; /* Espace TabBar */
+            main { 
+                margin-left: 0 !important; 
+                padding: 1.5rem 1rem 100px 1rem !important; 
             }
 
             .controls { flex-direction: column; }
             h1 { text-align: center; font-size: 1.6rem; }
 
-            /* Transformation Table -> Cartes (Style Félix et moi) */
+            /* On transforme le tableau en liste de cartes verticales */
             table, thead, tbody, th, td, tr { display: block !important; width: 100% !important; }
-            thead { display: none; } /* On cache les entêtes */
+            thead { display: none; } 
 
             tr {
                 background: var(--surface);
                 border: 1px solid var(--border);
                 border-radius: 12px;
-                padding: 12px;
-                margin-bottom: 1rem;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                padding: 15px;
+                margin-bottom: 1.5rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             }
 
-            /* Alignement Gauche (Label) / Droite (Valeur) */
-            td {
-        display: flex !important;
-        flex-direction: column !important; /* On empile Label et Valeur pour plus de place */
-        align-items: flex-start !important; /* Aligné à gauche comme Félix et moi */
-        gap: 4px !important;
-        padding: 12px 10px !important;
-        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-        text-align: left !important;
-        background: transparent !important;
-    }
-            td:last-child { border-bottom: none !important; }
+            /* 🚫 ON SUPPRIME LES LABELS REPETITIFS */
+            td::before { display: none !important; }
 
-            /* Affichage du Label via data-label */
-            td::before {
-        content: attr(data-label);
-        font-weight: 800;
-        color: var(--accent);
-        text-transform: uppercase;
-        font-size: 0.65rem; /* Label plus petit pour laisser la place au texte */
-        letter-spacing: 1px;
-        opacity: 0.8;
-    }
-	td span, td code, td div {
-        width: 100%;
-        word-break: break-word; /* Force le retour à la ligne si un mot est trop long */
-        font-size: 0.95rem;
-        color: white;
-    }
+            td {
+                display: block !important;
+                padding: 0 !important;
+                border: none !important;
+                text-align: left !important;
+                background: transparent !important;
+                margin-bottom: 8px;
+            }
+
+            /* --- MISE EN FORME DES DONNÉES SANS LABELS --- */
+            
+            /* 1. La Commande (Titre de la carte) */
+            td:nth-child(1) { 
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            /* 2. La Description (Corps de texte) */
+            td:nth-child(2) { 
+                color: var(--text-main);
+                font-size: 1rem;
+                line-height: 1.4;
+                margin-bottom: 15px;
+            }
+
+            /* 3 & 4. Catégorie et Accès (Badges en bas de carte) */
+            td:nth-child(3), td:nth-child(4) { 
+                display: inline-block !important;
+                width: auto !important;
+                font-size: 0.7rem;
+                background: rgba(255,255,255,0.05) !important;
+                padding: 4px 10px !important;
+                border-radius: 6px !important;
+                margin-right: 8px;
+                color: var(--text-dim);
+                text-transform: uppercase;
+                font-weight: 800;
+                letter-spacing: 0.5px;
+            }
+            
+            /* On met en avant l'accès (Modo/Streamer) avec une bordure discrète */
+            td:nth-child(4) { 
+                color: var(--accent); 
+                border: 1px solid rgba(0, 245, 195, 0.2) !important; 
+            }
         }
 
-        /* Styles Modal Admin */
+        /* Styles Admin & Modal (inchangés) */
+        .admin-controls { margin-bottom: 1rem; display: none; justify-content: flex-end; gap: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; justify-content: center; align-items: center; }
         .modal { background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); width: 90%; max-width: 500px; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 6px; }
         .btn-save { background: var(--accent); color: #18181b; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 8px 16px; border-radius: 6px; cursor: pointer; }
 					</style>
 				</head>
 	<body>
@@ -92,7 +111,6 @@
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
 			</a>
-
 			<a href="profile.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -103,13 +121,11 @@
 					<path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
 				</svg> Infos
 			</a>
-
 			<a href="leaderboard.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/>
 				</svg> Classement
 			</a>
-
 			<a href="clips.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
@@ -135,10 +151,9 @@
 
 		<main>
 			<h1>📜 Commandes du Chat</h1>
-
 			<div id="admin-panel" class="admin-controls">
 				<button id="btn-add-cmd" class="btn-save" style="margin:0; width:auto;">+ Ajouter</button>
-				<button id="btn-init-db" class="btn-cancel" style="margin-left:10px;">🔄 Restaurer la liste officielle</button>
+				<button id="btn-init-db" class="btn-cancel" style="margin-left:10px;">🔄 Restaurer la liste</button>
 			</div>
 
 			<div class="controls">
@@ -146,18 +161,13 @@
 					<select id="cmd-filter" class="filter-select">
 						<option value="all">Toutes les catégories</option>
 						<option value="Infos">Infos</option>
-						<option value="Traduction">Traduction</option>
-						<option value="Emotes">Emotes</option>
-						<option value="Sons">Sons</option>
-						<option value="Modération">Modération</option>
 						<option value="Chat Mode">Chat Mode</option>
+						<option value="Modération">Modération</option>
 						<option value="VIP">VIP</option>
-						<option value="Timer">Timer</option>
-						<option value="Game Bomb">Game Bomb</option>
 					</select>
 				</div>
 
-			<div class="card">
+			<div class="card" style="padding:0; background:none; border:none;">
 				<table>
 					<thead>
 						<tr>
@@ -165,7 +175,6 @@
 							<th>Description</th>
 							<th width="15%">Catégorie</th>
 							<th width="15%">Accès</th>
-							<th id="th-actions" style="display:none"></th>
 						</tr>
 					</thead>
 					<tbody id="cmd-list"></tbody>
@@ -175,32 +184,23 @@
 
 		<div id="cmd-modal" class="modal-overlay">
 			<div class="modal">
-				<h2 id="modal-title">Ajouter une commande</h2>
+				<h2 id="modal-title">Édition</h2>
 				<form id="cmd-form">
 					<input type="hidden" id="cmd-id">
-
 						<div class="form-group">
 							<label>Commande</label>
-							<input type="text" id="in-trigger" required="" placeholder="Ex: !test">
+							<input type="text" id="in-trigger" required="">
 						</div>
 						<div class="form-group">
 							<label>Description</label>
 							<input type="text" id="in-desc" required="">
 						</div>
-
 						<div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
 							<div class="form-group">
 								<label>Catégorie</label>
 								<select id="in-cat">
 									<option value="Infos">Infos</option>
-									<option value="Traduction">Traduction</option>
-									<option value="Emotes">Emotes</option>
-									<option value="Sons">Sons</option>
 									<option value="Modération">Modération</option>
-									<option value="Chat Mode">Chat Mode</option>
-									<option value="VIP">VIP</option>
-									<option value="Timer">Timer</option>
-									<option value="Game Bomb">Game Bomb</option>
 								</select>
 							</div>
 							<div class="form-group">
@@ -212,7 +212,6 @@
 								</select>
 							</div>
 						</div>
-
 						<div class="modal-actions">
 							<button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
 							<button type="submit" class="btn-save">Sauvegarder</button>
