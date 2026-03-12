@@ -40,11 +40,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Élite Top 5
         const topContainer = document.getElementById("top-5-list");
-        if (topContainer && data.top5) {
+            if (topContainer && data.top5) {
             topContainer.innerHTML = ""; 
-            data.top5.forEach((u, i) => {
+
+            // 🛡️ FILTRE : On exclut Masthom_ et Félix du calcul de l'élite
+            const filteredTop = data.top5.filter(u => {
+                const n = u.name.toLowerCase();
+                return n !== "masthom_" && n !== "felixthebigblackcat" && n !== "streamelements" && n !== "wizebot";
+            });
+
+            filteredTop.slice(0, 5).forEach((u, i) => { // On s'assure d'en garder 5 max
                 const li = document.createElement("li");
                 li.className = "top-item";
+                
                 let rankBadge = `<span class="rank-badge">${i+1}</span>`;
                 if (i === 0) rankBadge = `<span class="rank-badge rank-1">1</span>`;
                 if (i === 1) rankBadge = `<span class="rank-badge rank-2">2</span>`;
@@ -59,7 +67,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 topContainer.appendChild(li);
             });
         }
-
         // Twitch API (Followers)
         const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
         const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers: twitchHeaders });
