@@ -10,23 +10,28 @@
 			--bg: #18181b; --card: #2c2f33; --border: #3f3f46;
 			--text: #f4f4f5; --text-dim: #a1a1aa; --accent: #8b5cf6;
 			}
-			.section-title { color: var(--accent); font-size: 1.1rem; margin: 2rem 0 1rem 0; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+			.section-title { color: var(--accent); font-size: 1.1rem; margin: 2rem 0 1rem 0; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; }
 			.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-			.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
+			.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; font-weight: 500; }
 			input, select, textarea {
 			width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border);
-			color: white; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: 0.2s;
+			color: white; border-radius: 8px; font-size: 1rem; font-family: inherit; transition: 0.2s;
 			}
-			input:focus, textarea:focus { border-color: var(--accent); outline: none; background: #202024; }
+			input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: none; background: #202024; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+
+			/* Style pour le slider de taquinerie */
+			.range-container { display: flex; align-items: center; gap: 15px; background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+			input[type="range"] { accent-color: var(--accent); cursor: pointer; }
+			.range-value { font-weight: bold; color: var(--accent); min-width: 25px; }
+
 			.form-full { grid-column: 1 / -1; }
 			.btn-save {
-			background: var(--accent); color: #18181b; border: none; padding: 14px 24px;
-			font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 2rem; font-size: 1.1rem;
-			transition: 0.2s;
+			background: var(--accent); color: white; border: none; padding: 16px 24px;
+			font-weight: 800; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 2rem; font-size: 1.1rem;
+			text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
 			}
-			.btn-save:hover { background: white; transform: translateY(-2px); }
-			.status-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; text-align: center; }
-			#loading { text-align:center; padding:5rem; font-size: 1.2rem; color: var(--accent); }
+			.btn-save:hover { background: #7c3aed; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+			#loading { text-align:center; padding:5rem; font-size: 1.2rem; color: var(--accent); font-weight: 600; }
 			@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 		</style>
 	</head>
@@ -35,7 +40,7 @@
 			<a href="profile.html" class="logo">
 				<img src="logo-felix.png">
 					<span>FEL-X</span>
-				</a>
+			</a>
 			<a href="profile.html" class="nav-link">
 				<svg viewBox="0 0 24 24" fill="currentColor">
 					<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -75,24 +80,36 @@
 		</nav>
 
 		<main>
-			<div style="max-width: 800px; margin: 0 auto;">
+			<div style="max-width: 800px; margin: 0 auto; padding-bottom: 4rem;">
 				<h1>🧠 Félix et moi</h1>
-				<p style="color: var(--text-dim); margin-bottom: 2rem;">Remplis cette fiche pour que Félix te connaisse mieux !</p>
+				<p style="color: var(--text-dim); margin-bottom: 2rem;">Personnalise ton expérience : plus j'en sais, plus je serai précis avec toi !</p>
 
-				<div id="loading">Chargement de tes infos en cours...</div>
+				<div id="loading">Chargement de ton profil psychologique...</div>
 
 				<form id="felixForm" style="display:none;">
-					<div class="section-title">1. Identité</div>
+					<div class="section-title">👤 1. Identité & Rythme</div>
 					<div class="card">
 						<div class="form-grid">
 							<div class="form-group">
-								<label>Surnom</label>
-								<input type="text" id="nickname" placeholder="Comment doit-il t'appeler ?">
-                        </div>
+								<label>Surnom pour toi</label>
+								<input type="text" id="nickname" placeholder="Comment dois-je t'appeler ?">
+                            </div>
+							<div class="form-group">
+								<label>Ton surnom pour MOI (Félix)</label>
+								<input type="text" id="felix_nickname" placeholder="Ex: Le Chat, Chef...">
+                            </div>
 							<div class="form-group">
 								<label>Anniversaire 🎂</label>
 								<input type="date" id="birthday">
-                        </div>
+                            </div>
+							<div class="form-group">
+								<label>Rythme de vie</label>
+								<select id="sleep_pattern">
+									<option value="none">Non précisé</option>
+									<option value="night_owl">Oiseau de nuit (Couche-tard)</option>
+									<option value="early_bird">Lève-tôt (Matin) </option>
+								</select>
+							</div>
 							<div class="form-group">
 								<label>Pronoms</label>
 								<select id="pronouns">
@@ -103,53 +120,80 @@
 								</select>
 							</div>
 							<div class="form-group">
-								<label>Ta Vibe</label>
-								<input type="text" id="vibe" placeholder="Ex: Chill, Troll...">
-                        </div>
+								<label>Ta Vibe générale</label>
+								<input type="text" id="vibe" placeholder="Ex: Chill, Tryharder, Observateur...">
+                            </div>
 						</div>
 					</div>
 
-					<div class="section-title">2. Gaming</div>
+					<div class="section-title">🎮 2. Gaming & Stream</div>
 					<div class="card">
 						<div class="form-grid">
 							<div class="form-group">
 								<label>Jeu Favori ❤️</label>
-								<input type="text" id="favorite_game" placeholder="Ex: Minecraft, Elden Ring...">
-                        </div>
+								<input type="text" id="favorite_game" placeholder="Le jeu de ton coeur">
+                            </div>
 							<div class="form-group">
-								<label>Genre Détesté ❌</label>
-								<input type="text" id="hated_genre" placeholder="Ex: Horreur, Sport...">
-                        </div>
+								<label>Ton jeu "Doudou"</label>
+								<input type="text" id="comfort_game" placeholder="Celui où tu reviens toujours">
+                            </div>
+							<div class="form-group">
+								<label>Emote signature</label>
+								<input type="text" id="signature_emote" placeholder="Celle qui te définit">
+                            </div>
+							<div class="form-group">
+								<label>Style de jeu</label>
+								<select id="play_style">
+									<option value="chill">Détente / Fun</option>
+									<option value="tryhard">Tryhard / Compétitif</option>
+								</select>
+							</div>
 							<div class="form-group form-full">
-								<label>Passion hors jeux ?</label>
-								<input type="text" id="hobby" placeholder="Ex: Musique, Dessin...">
-                        </div>
+								<label>Talent inutile ou Passion ?</label>
+								<input type="text" id="useless_talent" placeholder="Savoir faire le cri de la chèvre, dessin, astro...">
+                            </div>
 						</div>
 					</div>
 
-					<div class="section-title">3. Goûts</div>
+					<div class="section-title">🎭 3. Relation & Goûts</div>
 					<div class="card">
 						<div class="form-grid">
 							<div class="form-group">
+								<label>Niveau de Taquinerie souhaité (1-10)</label>
+								<div class="range-container">
+									<input type="range" id="roast_level" min="1" max="10" value="5" oninput="this.nextElementSibling.innerText = this.value">
+										<span class="range-value">5</span>
+									</div>
+							</div>
+							<div class="form-group">
+								<label>Ta fonction préférée chez moi</label>
+								<select id="favorite_feature">
+									<option value="ia_chat">Discuter avec moi</option>
+									<option value="xp_system">L'XP et les niveaux</option>
+									<option value="commands">Les commandes fun</option>
+									<option value="clips">Voir les clips</option>
+								</select>
+							</div>
+							<div class="form-group">
 								<label>Plat / Snack 🍕</label>
-								<input type="text" id="favorite_food" placeholder="Ex: Pizza, Sushi...">
-                        </div>
+								<input type="text" id="favorite_food" placeholder="Pour les soirées stream">
+                            </div>
 							<div class="form-group">
 								<label>Boisson 🥤</label>
-								<input type="text" id="favorite_drink" placeholder="Ex: Café, Thé glacé...">
-                        </div>
+								<input type="text" id="favorite_drink" placeholder="Café ? Eau ? Soda ?">
+                            </div>
 						</div>
 					</div>
 
-					<div class="section-title">4. Zone Libre</div>
+					<div class="section-title">📝 4. Zone Libre</div>
 					<div class="card">
 						<div class="form-group">
-							<label>Raconte ce que tu veux à Félix (Bio, Anecdote...)</label>
-							<textarea id="free_message" rows="5" placeholder="Ex: J'habite au Québec..."></textarea>
+							<label>Un message ou une anecdote pour Félix ?</label>
+							<textarea id="free_message" rows="4" placeholder="C'est ici que tu peux me raconter ta vie..."></textarea>
 						</div>
 					</div>
 
-					<button type="submit" id="saveBtn" class="btn-save">Sauvegarder les informations</button>
+					<button type="submit" id="saveBtn" class="btn-save">Mémoriser mon profil ✨</button>
 				</form>
 			</div>
 		</main>
@@ -159,10 +203,11 @@
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script>
+			// Mise à jour de la liste exhaustive des champs
 			const fields = [
-			'nickname', 'birthday', 'pronouns', 'vibe',
-			'favorite_game', 'hated_genre', 'hobby',
-			'favorite_food', 'favorite_drink', 'free_message'
+			'nickname', 'felix_nickname', 'birthday', 'sleep_pattern', 'pronouns', 'vibe',
+			'favorite_game', 'comfort_game', 'signature_emote', 'play_style', 'useless_talent',
+			'favorite_food', 'favorite_drink', 'roast_level', 'favorite_feature', 'free_message'
 			];
 
 			async function getUserId(token) {
@@ -185,35 +230,28 @@
 			const formEl = document.getElementById('felixForm');
 
 			if (userId) {
-			// --- 🔄 SYNCHRO TEMPS RÉEL (CLOUD -> VERCEL) ---
-			// On utilise .on('value') au lieu de .once pour écouter les changements du Pi
+			// --- 🔄 SYNCHRONISATION (CLOUD -> UI) ---
 			database.ref('viewer_data/ai_context/' + userId).on('value', (snapshot) => {
 			const data = snapshot.val();
-			console.log("🔄 Mise à jour Cloud reçue :", data);
-
 			if (data) {
 			fields.forEach(f => {
 			const input = document.getElementById(f);
-			if (input) {
-			// SÉCURITÉ : On ne remplace la valeur QUE si l'utilisateur
-			// n'est pas en train de taper dedans (focus)
-			if (document.activeElement !== input) {
-			input.value = data[f] || "";
-			}
+			if (input && document.activeElement !== input) {
+			input.value = data[f] || (f === 'roast_level' ? 5 : "");
+			// Mise à jour visuelle du badge du slider
+			if(f === 'roast_level') input.nextElementSibling.innerText = input.value;
 			}
 			});
 			}
 			loadingEl.style.display = 'none';
 			formEl.style.display = 'block';
-			}, (error) => {
-			console.error("Erreur d'écoute Firebase:", error);
 			});
 
-			// --- 💾 SAUVEGARDE (VERCEL -> CLOUD & PI) ---
+			// --- 💾 SAUVEGARDE (UI -> CLOUD & PI) ---
 			formEl.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			const btn = document.getElementById('saveBtn');
-			btn.textContent = "⌛ Synchronisation...";
+			btn.textContent = "⌛ Synchronisation en cours...";
 			btn.disabled = true;
 
 			const payload = {
@@ -227,28 +265,25 @@
 			});
 
 			try {
-			// 1. On pousse sur Firebase
+			// 1. Mise à jour Firebase
 			await database.ref('viewer_data/ai_context/' + userId).update({
 			...payload,
 			last_updated: new Date().toISOString()
 			});
 
-			// 2. On pousse sur le Raspberry Pi (via ton tunnel Ngrok)
+			// 2. Notification au Raspberry Pi (Bot local)
 			await fetch(CONFIG.SERVER_URL + '/api/update_context', {
 			method: 'POST',
-			headers: {
-			'Content-Type': 'application/json',
-			'ngrok-skip-browser-warning': 'true'
-			},
+			headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
 			body: JSON.stringify(payload)
 			});
 
-			alert("✨ Succès ! Félix est au courant.");
+			alert("✨ Miaou ! J'ai bien noté tout ça dans mon carnet.");
 			} catch (err) {
 			console.error("Erreur de synchro:", err);
-			alert("✅ Sauvegardé dans le Cloud (Le Pi semble hors-ligne).");
+			alert("✅ Sauvegardé dans le Cloud (Le serveur local est peut-être en pause).");
 			} finally {
-			btn.textContent = "Sauvegarder les informations";
+			btn.textContent = "Mémoriser mon profil ✨";
 			btn.disabled = false;
 			}
 			});
