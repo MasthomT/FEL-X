@@ -67,12 +67,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             tr.innerHTML = `
-                <td><span class="command-trigger">${cmd.trigger}</span></td>
-                <td style="color:var(--text-dim)">${cmd.description}</td>
-                <td><span style="padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; ${badgeColor}">${cat}</span></td>
-                <td>${cmd.access}</td>
-                ${actionsHTML}
-            `;
+    <td data-label="Commande"><span class="command-trigger">${cmd.trigger}</span></td>
+    <td data-label="Description">${cmd.description}</td>
+    <td data-label="Catégorie">${cmd.category}</td>
+    <td data-label="Accès">${cmd.access}</td>
+`;
             listEl.appendChild(tr);
         });
     }
