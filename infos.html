@@ -140,9 +140,37 @@
 			ul.simple-rules li:hover { background: rgba(255,255,255,0.03); border-left-color: var(--accent); }
 			.emoji { font-size: 1.2rem; }
 
+			/* --- CORRECTIF INFOS MOBILE --- */
 			@media (max-width: 900px) {
-			.info-container { grid-template-columns: 1fr; }
-			.left-column { position: static; }
+			main.content {
+			margin-left: 0 !important; /* Retire la marge sidebar PC */
+			padding: 1rem !important;
+			padding-bottom: 100px !important; /* Laisse de la place pour la nav en bas */
+			width: 100% !important;
+			max-width: 100vw !important;
+			overflow-x: hidden; /* Empêche le glissement latéral */
+			}
+
+			.info-container {
+			display: flex !important;
+			flex-direction: column !important;
+			gap: 1.5rem !important;
+			width: 100% !important;
+			}
+
+			.social-card, .content-card {
+			width: 100% !important;
+			padding: 1.2rem !important;
+			box-sizing: border-box; /* Crucial pour ne pas dépasser */
+			}
+
+			/* On empile les règles en une seule colonne */
+			ul.simple-rules {
+			grid-template-columns: 1fr !important;
+			}
+
+			/* On réduit la taille des titres de jours pour le planning */
+			.day-time { font-size: 1.4rem !important; }
 			}
 		</style>
 	</head>
