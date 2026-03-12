@@ -175,7 +175,8 @@
 								<img src="logo-felix.png">
 									<span>FEL-X</span>
 							</a>
-							<a href="profile.html" class="nav-link active">
+
+							<a href="profile.html" class="nav-link">
 								<svg viewBox="0 0 24 24" fill="currentColor">
 									<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
 								</svg> Profil
@@ -185,15 +186,27 @@
 									<path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
 								</svg> Infos
 							</a>
-							<a href="leaderboard.html" class="nav-link">
+
+							<a href="leaderboard.html" class="nav-link active">
 								<svg viewBox="0 0 24 24" fill="currentColor">
 									<path d="M16 11V3H8v8H2v10h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-8h4v8z"/>
 								</svg> Classement
 							</a>
+
 							<a href="clips.html" class="nav-link">
 								<svg viewBox="0 0 24 24" fill="currentColor">
 									<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
 								</svg> Clips
+							</a>
+							<a href="commands.html" class="nav-link">
+								<svg viewBox="0 0 24 24" fill="currentColor">
+									<path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+								</svg> Commandes
+							</a>
+							<a href="stats.html" class="nav-link">
+								<svg viewBox="0 0 24 24" fill="currentColor">
+									<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20z"/>
+								</svg> Stats
 							</a>
 							<a href="felix.html" class="nav-link">
 								<svg viewBox="0 0 24 24" fill="currentColor">
@@ -258,6 +271,20 @@
 								</div>
 							</div>
 
+							<div class="id-card">
+								<div class="id-title">🐾 LE FÉLIX-LOG</div>
+								<div id="felix-log-content" class="id-grid">
+									<div class="stat-box" style="background: rgba(0,0,0,0.2);">
+										<div class="id-label">Humeur de Félix à ton égard</div>
+										<div class="id-value" id="felix-mood">Analyse...</div>
+									</div>
+									<div class="stat-box" style="background: rgba(0,0,0,0.2); grid-column: span 2;">
+										<div class="id-label">Dernière observation de Félix</div>
+										<div class="id-value" id="felix-observation" style="font-style: italic;">"Je t'observe..."</div>
+									</div>
+								</div>
+							</div>
+							
 							<div class="main-grid">
 								<div class="card-panel">
 									<h3 class="panel-title">📜 Historique XP</h3>
@@ -440,6 +467,18 @@
 							await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
 							} catch (e) { console.error("❌ Erreur Vote:", e); }
 							};
+							db.ref('viewer_logs/' + userKey).on('value', snap => {
+							const log = snap.val();
+							if (log) {
+							document.getElementById("felix-mood").textContent = log.mood || "Neutre 😐";
+							document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
+
+							// Petit effet visuel : fait briller le bloc quand il change
+							const content = document.getElementById("felix-log-content");
+							content.style.transition = "0.3s";
+							content.style.boxShadow = "0 0 15px var(--accent)";
+							setTimeout(() => content.style.boxShadow = "none", 1000);
+							}
 						</script>
 					</body>
 				</html>
