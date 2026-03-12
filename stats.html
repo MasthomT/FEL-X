@@ -2,7 +2,7 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>Statistiques - FEL-X</title>
 		<link rel="stylesheet" href="style.css" />
 		<style>
@@ -55,7 +55,17 @@
 			.progress-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); width: 0%; transition: width 1.5s ease; }
 			.progress-text { position: absolute; width: 100%; text-align: center; line-height: 20px; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 2px black; }
 
-			@media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+			@media (max-width: 800px) {
+			.metrics-grid {
+			grid-template-columns: 1fr 1fr !important;
+			}
+			.metric-val {
+			font-size: 1.8rem !important;
+			}
+			.main-grid {
+			grid-template-columns: 1fr !important;
+			}
+			}
 		</style>
 	</head>
 	<body>

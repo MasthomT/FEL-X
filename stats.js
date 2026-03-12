@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const response = await fetch(`${SERVER_URL}/api/global_stats`, {
             method: 'GET',
-            headers: {
+            headers: { 
                 "ngrok-skip-browser-warning": "true",
                 "Accept": "application/json",
                 "Authorization": `Basic ${auth}`

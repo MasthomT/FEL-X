@@ -2,7 +2,8 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8">
-			<title>Mon Profil - FEL-X</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Mon Profil - FEL-X</title>
 			<link rel="stylesheet" href="style.css">
 				<!DOCTYPE html>
 				<html lang="fr">
@@ -163,8 +164,50 @@
 
 									@media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
 									@media (max-width: 800px) {
-									main { margin-left: 0; padding: 1rem; }
-									.stats-mini-grid { grid-template-columns: repeat(2, 1fr); }
+									main {
+									margin-left: 0 !important;
+									padding: 1.5rem 1rem 100px 1rem !important; /* Espace pour la Tab Bar en bas */
+									}
+
+									.profile-header {
+									flex-direction: column;
+									text-align: center;
+									padding: 2rem 1rem !important;
+									gap: 15px;
+									}
+
+									/* Grille de stats 2x2 comme dans Félix et moi */
+									.stats-mini-grid {
+									grid-template-columns: 1fr 1fr !important;
+									gap: 10px !important;
+									}
+
+									.stat-box {
+									padding: 1rem !important;
+									}
+
+									.stat-num {
+									font-size: 1.2rem !important;
+									}
+
+									/* Section Félix-Log et Identité en colonne unique */
+									.id-grid {
+									grid-template-columns: 1fr !important;
+									gap: 15px !important;
+									}
+
+									.main-grid {
+									grid-template-columns: 1fr !important;
+									gap: 1.5rem !important;
+									}
+
+									#username {
+									font-size: 1.5rem !important;
+									}
+
+									.avatar-large {
+									width: 80px; height: 80px;
+									}
 									}
 								</style>
 							</head>
