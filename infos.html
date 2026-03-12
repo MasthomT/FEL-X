@@ -192,32 +192,41 @@
                 <div class="content-card">
                     <h2>📅 Emploi du Temps</h2>
                     <div class="calendar-grid">
-                        <div class="day-card" id="day-2"> <div class="day-name">Mardi</div>
+                        <div class="day-card" id="day-1"> 
+							<div class="day-name">Lundi</div>
                             <div class="day-time">18h00</div>
                             <div class="day-event">Live Soirée</div>
                         </div>
-                        <div class="day-card" id="day-4"> <div class="day-name">Jeudi</div>
+                        <div class="day-card" id="day-2"> 
+							<div class="day-name">Mardi</div>
                             <div class="day-time">18h00</div>
                             <div class="day-event">Live Soirée</div>
                         </div>
-                        <div class="day-card" id="day-5"> <div class="day-name">Vendredi</div>
+                        <div class="day-card" id="day-3"> 
+							<div class="day-name">Mercredi</div>
+                            <div class="day-time">15h00</div>
+                            <div class="day-event">Live Aprem</div>
+                        </div>
+                        <div class="day-card" id="day-4">
+                            <div class="day-name">Jeudi</div>
                             <div class="day-time">20h00</div>
-                            <div class="day-event">Weekend !</div>
+                            <div class="day-event">Live Soir</div>
                         </div>
-                        <div class="day-card" id="day-6a">
-                            <div class="day-name">Samedi (Matin)</div>
-                            <div class="day-time">10h00</div>
-                            <div class="day-event">Double Dose - Partie 1</div>
+                        <div class="day-card" id="day-5">
+                            <div class="day-name">Vendredi</div>
+                            <div class="day-time">18h00</div>
+                            <div class="day-event">Live Soirée</div>
                         </div>
-                        <div class="day-card" id="day-6b">
-                            <div class="day-name">Samedi (Soir)</div>
-                            <div class="day-time">20h00</div>
-                            <div class="day-event">Double Dose - Partie 2</div>
+                        <div class="day-card" id="day-6"> 
+							<div class="day-name">Samedi</div>
+                            <div class="day-time">15h00</div>
+                            <div class="day-event">Live Aprem</div>
                         </div>
-                        <div class="day-card" id="day-0"> <div class="day-name">Dimanche</div>
-                            <div class="day-time">10h00</div>
-                            <div class="day-event">Chill Matin</div>
-                        </div>
+						<div class="day-card" id="day-7">
+							<div class="day-name">Dimanche</div>
+							<div class="day-time">15h00</div>
+							<div class="day-event">Live Aprem</div>
+						</div>
                     </div>
                     <p style="margin-top:20px; color:var(--text-dim); font-style:italic; font-size:0.9rem; text-align:center;">
                         🔔 Activez la cloche ! Des lives "sauvages" peuvent apparaître à tout moment.
@@ -247,29 +256,30 @@
     <script src="app.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            checkAuth(); 
-            
-            // SCRIPT INTELLIGENT POUR LE PROCHAIN LIVE
-            const now = new Date();
-            const day = now.getDay(); // 0=Dim, 1=Lun, 2=Mar...
-            const hour = now.getHours();
-            
-            // Définition des créneaux (Jour, Heure début, Heure fin approx, ID HTML)
-            const streams = [
-                { d: 2, h: 18, name: "Mardi", id: "day-2" },
-                { d: 4, h: 18, name: "Jeudi", id: "day-4" },
-                { d: 5, h: 20, name: "Vendredi", id: "day-5" },
-                { d: 6, h: 10, name: "Samedi", id: "day-6a" }, // Matin (ID unique)
-                { d: 6, h: 20, name: "Samedi Soir", id: "day-6b" }, // Soir (ID unique)
-                { d: 0, h: 10, name: "Dimanche", id: "day-0" }
-            ];
+		document.addEventListener("DOMContentLoaded", () => {
+		checkAuth();
 
-            // Trouver le prochain
-            let nextStream = null;
-            for (let s of streams) {
-                // Si c'est le même jour mais plus tard, ou un jour suivant
-                if (s.d > day || (s.d === day && s.h > hour)) {
+		// SCRIPT INTELLIGENT POUR LE PROCHAIN LIVE
+		const now = new Date();
+		const day = now.getDay(); // 0=Dim, 1=Lun, 2=Mar...
+		const hour = now.getHours();
+
+		// Définition des créneaux (Jour, Heure début, Heure fin approx, ID HTML)
+		const streams = [
+		{ d: 1, h: 18, name: "Lundi", id: "day-1" },
+		{ d: 2, h: 18, name: "Mardi", id: "day-2" },
+		{ d: 3, h: 15, name: "Mercredi", id: "day-3" },
+		{ d: 4, h: 20, name: "jeudi", id: "day-4" },
+		{ d: 5, h: 18, name: "Vendredi", id: "day-5" },
+		{ d: 6, h: 15, name: "Samedi", id: "day-6" },
+		{ d: 7, h: 15, name: "Dimanche", id: "day-7" }
+		];
+
+		// Trouver le prochain
+		let nextStream = null;
+		for (let s of streams) {
+		// Si c'est le même jour mais plus tard, ou un jour suivant
+		if (s.d > day || (s.d === day && s.h > hour)) {
                     nextStream = s;
                     break;
                 }
