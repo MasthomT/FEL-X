@@ -451,9 +451,29 @@
 							}
 							});
 
-							} catch (e) { console.error("❌ Erreur Profil:", e); }
+							// --- AJOUT DE L'ÉCOUTEUR FÉLIX-LOG ---
+							db.ref('viewer_logs/' + userKey).on('value', snap => {
+							const log = snap.val();
+							if (log) {
+							const moodEl = document.getElementById("felix-mood");
+							const obsEl = document.getElementById("felix-observation");
+							if(moodEl) moodEl.textContent = log.mood || "Analyse...";
+							if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
+
+							const card = document.querySelector(".id-card");
+							if(card) {
+							card.style.borderColor = "var(--accent)";
+							setTimeout(() => card.style.borderColor = "var(--border)", 1000);
+							}
+							}
 							});
 
+							} catch (e) {
+							console.error("❌ Erreur Profil:", e);
+							}
+							}); // Fermeture de DOMContentLoaded
+
+							// Fonction de vote (en dehors de DOMContentLoaded)
 							window.castVote = async function(pId, opt) {
 							const name = localStorage.getItem('twitch_username');
 							if (!name || !db) return;
@@ -467,18 +487,6 @@
 							await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
 							} catch (e) { console.error("❌ Erreur Vote:", e); }
 							};
-							db.ref('viewer_logs/' + userKey).on('value', snap => {
-							const log = snap.val();
-							if (log) {
-							document.getElementById("felix-mood").textContent = log.mood || "Neutre 😐";
-							document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
-
-							// Petit effet visuel : fait briller le bloc quand il change
-							const content = document.getElementById("felix-log-content");
-							content.style.transition = "0.3s";
-							content.style.boxShadow = "0 0 15px var(--accent)";
-							setTimeout(() => content.style.boxShadow = "none", 1000);
-							}
 						</script>
 					</body>
 				</html>
