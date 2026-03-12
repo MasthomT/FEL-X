@@ -48,25 +48,33 @@
 
             /* Alignement Gauche (Label) / Droite (Valeur) */
             td {
-                display: flex !important;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 5px !important;
-                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-                text-align: right !important;
-                background: transparent !important;
-            }
+        display: flex !important;
+        flex-direction: column !important; /* On empile Label et Valeur pour plus de place */
+        align-items: flex-start !important; /* Aligné à gauche comme Félix et moi */
+        gap: 4px !important;
+        padding: 12px 10px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        text-align: left !important;
+        background: transparent !important;
+    }
             td:last-child { border-bottom: none !important; }
 
             /* Affichage du Label via data-label */
             td::before {
-                content: attr(data-label);
-                font-weight: 800;
-                color: var(--accent);
-                text-transform: uppercase;
-                font-size: 0.7rem;
-                letter-spacing: 1px;
-            }
+        content: attr(data-label);
+        font-weight: 800;
+        color: var(--accent);
+        text-transform: uppercase;
+        font-size: 0.65rem; /* Label plus petit pour laisser la place au texte */
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+	td span, td code, td div {
+        width: 100%;
+        word-break: break-word; /* Force le retour à la ligne si un mot est trop long */
+        font-size: 0.95rem;
+        color: white;
+    }
         }
 
         /* Styles Modal Admin */
