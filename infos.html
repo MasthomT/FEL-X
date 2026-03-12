@@ -4,129 +4,147 @@
     <meta charset="UTF-8">
     <title>Infos - FEL-X</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* --- Styles Spécifiques à la Mise en Page Infos --- */
-        
-        /* Retrait des définitions CSS de base qui sont déjà dans style.css */
-        
-        main.content { 
-            flex-grow: 1; 
-            padding: 2rem; 
-            max-width: 1400px; 
-            width: 100%; /* La largeur sera gérée par le flexbox + le padding de main */
-            min-height: 100vh;
-            overflow: visible;
-        }
+		<style>
+			/* --- Styles Spécifiques à la Mise en Page Infos --- */
+			html, body {
+			/* On autorise le défilement global */
+			height: auto !important;
+			min-height: 100%;
+			overflow-y: auto !important;
+			background: var(--bg); /* Pour éviter les flashs blancs au scroll */
+			}
 
-        /* --- MISE EN PAGE INFOS --- */
-        .info-container {
-            display: grid; grid-template-columns: 300px 1fr;
-            gap: 2rem; align-items: start;
-        }
+			main.content {
+			flex-grow: 1;
+			padding: 2rem;
+			max-width: 1400px;
+			width: 100%;
+			/* min-height assure qu'il fait au moins l'écran,
+			mais peut grandir si le contenu dépasse */
+			min-height: 100vh;
+			/* On s'assure que rien ne bloque le flux */
+			overflow: visible;
+			}
+			/* Retrait des définitions CSS de base qui sont déjà dans style.css */
 
-        /* COLONNE GAUCHE (RÉSEAUX) */
-        .left-column {
-            display: flex; flex-direction: column; gap: 1.5rem;
-            position: sticky; top: 20px; 
-        }
+			main.content {
+			flex-grow: 1;
+			padding: 2rem;
+			max-width: 1400px;
+			width: 100%; /* La largeur sera gérée par le flexbox + le padding de main */
+			min-height: 100vh;
+			overflow: visible;
+			}
 
-        .social-card {
-            background: var(--surface); /* Utilisation de la variable globale */
-            border: 1px solid var(--border); /* Utilisation de la variable globale */
-            border-radius: 16px; padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .social-card h3 { 
-            color: white; margin-bottom: 1.5rem; 
-            text-transform: uppercase; font-size: 1.1rem; letter-spacing: 1px;
-            border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block;
-        }
+			/* --- MISE EN PAGE INFOS --- */
+			.info-container {
+			display: grid; grid-template-columns: 300px 1fr;
+			gap: 2rem; align-items: start;
+			}
 
-        .social-links { display: flex; flex-direction: column; gap: 12px; }
+			/* COLONNE GAUCHE (RÉSEAUX) */
+			.left-column {
+			display: flex; flex-direction: column; gap: 1.5rem;
+			position: sticky; top: 20px;
+			}
 
-        .social-btn {
-            display: flex; align-items: center; gap: 15px; padding: 15px;
-            border-radius: 12px; text-decoration: none; font-weight: bold; color: white;
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            background: rgba(255,255,255,0.03); border: 1px solid transparent;
-        }
-        .social-btn:hover { transform: translateX(5px); color: white; }
-        .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
-        
-        /* COULEURS */
-        .discord:hover { background: #5865F2; border-color: #5865F2; box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3); }
-        .youtube:hover { background: #FF0000; border-color: #FF0000; box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
-        .twitch:hover { background: var(--twitch); border-color: var(--twitch); box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3); }
-        .tips:hover { background: var(--accent); border-color: var(--accent); color: #18181b; box-shadow: 0 5px 15px rgba(0, 245, 195, 0.3); }
-        .tiktok:hover { background: #000000; border-color: #fe2c55; box-shadow: 0 5px 15px rgba(254, 44, 85, 0.3); }
-        .instagram:hover { 
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
-            border-color: #bc1888; box-shadow: 0 5px 15px rgba(188, 24, 136, 0.3);
-        }
+			.social-card {
+			background: var(--surface); /* Utilisation de la variable globale */
+			border: 1px solid var(--border); /* Utilisation de la variable globale */
+			border-radius: 16px; padding: 1.5rem;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+			}
+			.social-card h3 {
+			color: white; margin-bottom: 1.5rem;
+			text-transform: uppercase; font-size: 1.1rem; letter-spacing: 1px;
+			border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block;
+			}
 
-        /* --- COLONNE DROITE (CONTENU) --- */
-        .right-column { display: flex; flex-direction: column; gap: 2rem; }
+			.social-links { display: flex; flex-direction: column; gap: 12px; }
 
-        /* PLANNING CALENDRIER */
-        .content-card {
-            background: var(--surface); /* Utilisation de la variable globale */
-            border: 1px solid var(--border); /* Utilisation de la variable globale */
-            border-radius: 16px; padding: 2rem;
-        }
-        .content-card h2 {
-            font-size: 1.8rem; color: white; margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 10px;
-        }
+			.social-btn {
+			display: flex; align-items: center; gap: 15px; padding: 15px;
+			border-radius: 12px; text-decoration: none; font-weight: bold; color: white;
+			transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+			background: rgba(255,255,255,0.03); border: 1px solid transparent;
+			}
+			.social-btn:hover { transform: translateX(5px); color: white; }
+			.social-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-        .calendar-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;
-        }
-        .day-card {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            border-radius: 12px; padding: 1.5rem 1rem; text-align: center;
-            transition: transform 0.3s, border-color 0.3s; position: relative; overflow: hidden;
-        }
-        
-        /* Animation "Prochain Live" */
-        .next-stream {
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 15px rgba(0, 245, 195, 0.3); /* Utilisation de la couleur accent */
-            background: rgba(0, 245, 195, 0.1) !important; /* Utilisation de la couleur accent */
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0.4); } /* Utilisation de la couleur accent */
-            70% { box-shadow: 0 0 0 10px rgba(0, 245, 195, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0); }
-        }
+			/* COULEURS */
+			.discord:hover { background: #5865F2; border-color: #5865F2; box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3); }
+			.youtube:hover { background: #FF0000; border-color: #FF0000; box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
+			.twitch:hover { background: var(--twitch); border-color: var(--twitch); box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3); }
+			.tips:hover { background: var(--accent); border-color: var(--accent); color: #18181b; box-shadow: 0 5px 15px rgba(0, 245, 195, 0.3); }
+			.tiktok:hover { background: #000000; border-color: #fe2c55; box-shadow: 0 5px 15px rgba(254, 44, 85, 0.3); }
+			.instagram:hover {
+			background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+			border-color: #bc1888; box-shadow: 0 5px 15px rgba(188, 24, 136, 0.3);
+			}
 
-        .day-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--accent); opacity: 0.5;
-        }
-        .day-name { font-size: 1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-        .day-time { font-size: 1.8rem; font-weight: 800; color: white; }
-        .day-event { font-size: 0.8rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+			/* --- COLONNE DROITE (CONTENU) --- */
+			.right-column { display: flex; flex-direction: column; gap: 2rem; }
 
-        /* RÈGLES */
-        ul.simple-rules {
-            list-style: none; padding: 0;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem;
-        }
-        ul.simple-rules li {
-            background: rgba(0,0,0,0.2); padding: 12px 15px; border-radius: 8px;
-            font-size: 0.95rem; display: flex; align-items: center; gap: 12px;
-            border-left: 3px solid var(--border); transition: 0.2s;
-        }
-        ul.simple-rules li:hover { background: rgba(255,255,255,0.03); border-left-color: var(--accent); }
-        .emoji { font-size: 1.2rem; }
+			/* PLANNING CALENDRIER */
+			.content-card {
+			background: var(--surface); /* Utilisation de la variable globale */
+			border: 1px solid var(--border); /* Utilisation de la variable globale */
+			border-radius: 16px; padding: 2rem;
+			}
+			.content-card h2 {
+			font-size: 1.8rem; color: white; margin-bottom: 1.5rem;
+			display: flex; align-items: center; gap: 10px;
+			}
 
-        @media (max-width: 900px) { 
-            .info-container { grid-template-columns: 1fr; } 
-            .left-column { position: static; }
-        }
-    </style>
-</head>
+			.calendar-grid {
+			display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;
+			}
+			.day-card {
+			background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+			border-radius: 12px; padding: 1.5rem 1rem; text-align: center;
+			transition: transform 0.3s, border-color 0.3s; position: relative; overflow: hidden;
+			}
+
+			/* Animation "Prochain Live" */
+			.next-stream {
+			border-color: var(--accent) !important;
+			box-shadow: 0 0 15px rgba(0, 245, 195, 0.3); /* Utilisation de la couleur accent */
+			background: rgba(0, 245, 195, 0.1) !important; /* Utilisation de la couleur accent */
+			animation: pulse 2s infinite;
+			}
+			@keyframes pulse {
+			0% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0.4); } /* Utilisation de la couleur accent */
+			70% { box-shadow: 0 0 0 10px rgba(0, 245, 195, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(0, 245, 195, 0); }
+			}
+
+			.day-card::before {
+			content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+			background: var(--accent); opacity: 0.5;
+			}
+			.day-name { font-size: 1rem; font-weight: bold; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+			.day-time { font-size: 1.8rem; font-weight: 800; color: white; }
+			.day-event { font-size: 0.8rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+
+			/* RÈGLES */
+			ul.simple-rules {
+			list-style: none; padding: 0;
+			display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem;
+			}
+			ul.simple-rules li {
+			background: rgba(0,0,0,0.2); padding: 12px 15px; border-radius: 8px;
+			font-size: 0.95rem; display: flex; align-items: center; gap: 12px;
+			border-left: 3px solid var(--border); transition: 0.2s;
+			}
+			ul.simple-rules li:hover { background: rgba(255,255,255,0.03); border-left-color: var(--accent); }
+			.emoji { font-size: 1.2rem; }
+
+			@media (max-width: 900px) {
+			.info-container { grid-template-columns: 1fr; }
+			.left-column { position: static; }
+			}
+		</style>
+	</head>
 <body>
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"> <span>FEL-X</span></a>
