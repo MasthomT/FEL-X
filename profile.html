@@ -454,37 +454,42 @@
 
 							db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
   							  const list = document.getElementById("xp-history-list");
-  							  const data = snap.val();
-    
- 							   if (data) {
-   							     list.innerHTML = "";
+  							  if (snap.val()) {
+  							      list.innerHTML = "";
+  							      const allItems = Object.values(snap.val()).reverse();
         
-  							      // 1. On transforme l'objet en tableau et on l'inverse (récent en haut)
-  							      const allItems = Object.values(data).reverse();
-        
-   							     // 2. On FILTRE pour enlever les messages et la présence
-    							    const filteredItems = allItems.filter(h => {
-     							       const r = h.reason.toLowerCase();
-     							       return r !== "message" && r !== "presence";
-     							   });
+  							      let lastAction = null;
+  							      let groupCount = 0;
+  							      let groupXp = 0;
 
-      							  // 3. On n'affiche que les 15 premiers de cette liste propre
-							        filteredItems.slice(0, 15).forEach(h => {
-							            list.innerHTML += `
- 							           <li class="history-item">
- 							               <div>
-  							                  <div style="color:white; text-transform: capitalize;">${h.reason.replace('_', ' ')}</div>
-  							                  <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
-  							              </div>
-   							             <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
-   							         </li>`;
+   							     allItems.forEach((h, index) => {
+   							         const currentAction = h.reason.toLowerCase();
+   							         
+          							  if (currentAction === "message" || currentAction === "presence") {
+       							         // On peut choisir de ne pas les afficher du tout pour garder l'historique "propre"
+      							          // comme on a fait sur le PI (où on ne garde que les évènements marquants dans le feed)
+     							           return; 
+     							       }
+
+    							        // Pour tout le reste (Bits, Subs, Raids), on affiche avec le style propre
+    							        let displayReason = h.reason.replace('_x', ' ˟');
+   							         displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
+
+   							         list.innerHTML += `
+     							       <li class="history-item">
+    							            <div>
+     							               <div style="color:white;">${displayReason}</div>
+      							              <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
+    							            </div>
+     							           <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
+    							        </li>`;
    							     });
         
- 							       // Si après filtrage il n'y a vraiment rien
- 							       if (filteredItems.length === 0) {
- 							           list.innerHTML = "<li class='history-item' style='color:var(--text-dim);'>Aucun événement marquant récent.</li>";
- 							       }
-							    }
+    							    // Si la liste est vide après avoir viré les messages/présence
+   							     if (list.innerHTML === "") {
+   							         list.innerHTML = "<li class='history-item' style='color:var(--text-dim);'>Aucun événement marquant (Bits/Subs/Raids).</li>";
+  							      }
+  							  }
 							});
 
 							db.ref('viewer_data/xp_data').once('value').then(snap => {
