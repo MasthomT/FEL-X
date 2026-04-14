@@ -462,76 +462,52 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
+db.ref('viewer_data/history/' + userKey).limitToLast(300).on('value', snap => {
     const list = document.getElementById("xp-history-list");
     const data = snap.val();
-    if (!data) return;
+    
+    if (!data) {
+        list.innerHTML = "<li class='history-item'>Aucun historique</li>";
+        return;
+    }
 
     list.innerHTML = "";
     
-    // Convertir l'objet Firebase en tableau et RÉPARER les dates
-    const allItems = Object.values(data).map(h => {
-        let finalTs = h.timestamp;
-        
-        // Si c'est du texte (comme Jessie), on le convertit en chiffre
-        if (typeof finalTs === 'string') {
-            finalTs = new Date(finalTs).getTime();
-        }
-        
-        return { ...h, timestamp: finalTs };
+    // 1. Transformer l'objet en tableau et normaliser les dates
+    const allItems = Object.entries(data).map(([key, h]) => {
+        let ts = h.timestamp;
+        // Gestion des dates format ISO (Jessie) vs Millisecondes
+        if (typeof ts === 'string') ts = new Date(ts).getTime();
+        return { ...h, timestamp: ts };
     });
 
-    // Trier : plus récent en haut
+    // 2. TRI CRITIQUE : Le plus récent (timestamp plus grand) en haut
     allItems.sort((a, b) => b.timestamp - a.timestamp);
 
-    const dailyGroups = {};
-    const finalDisplay = [];
+    // 3. Affichage des 50 derniers événements mixés
+    allItems.slice(0, 50).forEach(item => {
+        const dateObj = new Date(item.timestamp);
+        const dateFormattee = dateObj.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
 
-    allItems.forEach(h => {
-        const d = new Date(h.timestamp);
-        if (isNaN(d.getTime())) return; // Skip si la date est corrompue
-
-        const dateKey = d.toLocaleDateString('fr-FR');
-        const reason = h.reason.toLowerCase();
-
-        // On regroupe Messages et Présence
-        if (reason === "message" || reason === "presence") {
-            const groupKey = `${dateKey}_${reason}`;
-            if (!dailyGroups[groupKey]) {
-                dailyGroups[groupKey] = {
-                    reason: reason === "presence" ? "Présence" : "Message",
-                    amount: 0,
-                    timestamp: h.timestamp,
-                    isGroup: true
-                };
-            }
-            dailyGroups[groupKey].amount += h.amount;
-        } else {
-            // Bits, Subs, etc.
-            finalDisplay.push({ ...h, isGroup: false });
-        }
-    });
-
-    // Fusionner les groupes et trier une dernière fois
-    Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
-    finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Affichage final
-    finalDisplay.forEach(item => {
-        const isGrp = item.isGroup;
         const label = item.reason.charAt(0).toUpperCase() + item.reason.slice(1);
-        
+        const color = item.reason === 'presence' ? 'gray' : 'var(--accent, #00ff00)';
+
         list.innerHTML += `
-        <li class="history-item ${isGrp ? 'history-group' : ''}">
-            <div>
-                <div style="color:white; font-weight:600;">${label}</div>
-                <div style="font-size:0.75rem; color:var(--text-dim);">${new Date(item.timestamp).toLocaleString('fr-FR')}</div>
-            </div>
-            <div style="color: var(--accent); font-weight:700;">+${item.amount} XP</div>
-        </li>`;
+            <li class="history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <div style="color:white; font-weight:600;">${label}</div>
+                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.5);">${dateFormattee}</div>
+                </div>
+                <div style="color: ${color}; font-weight:700;">+${item.amount} XP</div>
+            </li>`;
     });
-});
-							db.ref('viewer_data/xp_data').once('value').then(snap => {
+});							db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
 							.map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
