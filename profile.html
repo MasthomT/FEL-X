@@ -394,16 +394,17 @@
 
             // --- 1. WATCHTIME (EN DUR DEPUIS STATS_PERMA) ---
             db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
-                const p = snap.val();
-                if (p && p.total_presence_minutes !== undefined) {
-                    const h = Math.floor(p.total_presence_minutes / 60);
-                    const m = p.total_presence_minutes % 60;
-                    document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
+                const stats = snap.val();
+                const wtEl = document.getElementById("stat-watchtime");
+                if (stats && stats.total_presence_minutes !== undefined) {
+                    const h = Math.floor(stats.total_presence_minutes / 60);
+                    const m = stats.total_presence_minutes % 60;
+                    if (wtEl) wtEl.textContent = `${h}h ${m}m`;
                 }
             });
 
-            // --- 2. HISTORIQUE REGROUPÉ (RÈGLE 12H + TOUT ÉVÈNEMENT) ---
-            db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
+            // --- 2. HISTORIQUE REGROUPÉ (RÈGLE 12H) ---
+            db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                 const data = snap.val();
                 const list = document.getElementById("xp-history-list");
                 if (!data) {
@@ -411,50 +412,46 @@
                     return;
                 }
 
-                // Normalisation et tri
-                let rawItems = Object.entries(data).map(([key, item]) => {
-                    let ts = item.timestamp;
+                // Normalisation : on transforme tout en liste propre
+                let items = Object.entries(data).map(([key, val]) => {
+                    let ts = val.timestamp;
                     if (typeof ts === 'string') ts = new Date(ts).getTime();
                     return {
-                        reason: (item.reason || "xp").toLowerCase().trim(),
-                        amount: parseInt(item.amount) || 0,
+                        reason: (val.reason || "xp").toLowerCase().trim(),
+                        amount: parseInt(val.amount) || 0,
                         timestamp: ts,
-                        duration: parseInt(item.duration) || 10
-                    };
-                }).sort((a, b) => b.timestamp - a.timestamp);
-
-                const grouped = [];
-                let current = null;
-
-                rawItems.forEach(item => {
-                    // On regroupe si c'est la MÊME raison ET < 12h d'écart
-                    if (current && current.reason === item.reason) {
-                        const diff = Math.abs(current.lastTs - item.timestamp);
-                        if (diff < 43200000) { 
-                            current.amount += item.amount;
-                            current.duration += (item.duration || 0);
-                            current.count++;
-                            current.lastTs = item.timestamp; 
-                            return;
-                        }
-                    }
-
-                    if (current) grouped.push(current);
-
-                    current = {
-                        reason: item.reason,
-                        amount: item.amount,
-                        duration: item.duration,
-                        timestamp: item.timestamp, 
-                        lastTs: item.timestamp,
-                        count: 1
+                        duration: parseInt(val.duration) || 10
                     };
                 });
-                if (current) grouped.push(current);
+
+                // Tri chronologique inverse (le plus récent en premier)
+                items.sort((a, b) => b.timestamp - a.timestamp);
+
+                const grouped = [];
+                if (items.length > 0) {
+                    let current = { ...items[0], count: 1 };
+
+                    for (let i = 1; i < items.length; i++) {
+                        let item = items[i];
+                        let diff = Math.abs(current.timestamp - item.timestamp);
+
+                        // Si c'est la même raison ET moins de 12h d'écart -> on cumule
+                        if (item.reason === current.reason && diff < 43200000) {
+                            current.amount += item.amount;
+                            current.duration += item.duration;
+                            current.count += 1;
+                            // On garde le timestamp le plus récent pour l'affichage
+                        } else {
+                            grouped.push(current);
+                            current = { ...item, count: 1 };
+                        }
+                    }
+                    grouped.push(current);
+                }
 
                 list.innerHTML = "";
                 grouped.slice(0, 50).forEach(item => {
-                    let label = "✨ Action Spéciale";
+                    let label = "✨ Action";
                     let color = "#00ffcc";
                     let detail = "";
                     const r = item.reason;
@@ -523,7 +520,6 @@
 
         } catch (e) { console.error("❌ Erreur Profil:", e); }
     });
-</script>
-					</body>
+</script>					</body>
 				</html>
 			
