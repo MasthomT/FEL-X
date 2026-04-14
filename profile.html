@@ -452,21 +452,32 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(15).on('value', snap => {
-							const list = document.getElementById("xp-history-list");
-							if (snap.val()) {
-							list.innerHTML = "";
-							Object.values(snap.val()).reverse().forEach(h => {
-							list.innerHTML += `
-							<li class="history-item">
-								<div>
-									<div style="color:white;">${h.reason}</div>
-									<div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
-								</div>
-								<div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
-							</li>`;
-							});
-							}
+							db.ref('viewer_data/history/' + userKey).limitToLast(60).on('value', snap => {
+							    const list = document.getElementById("xp-history-list");
+							    const historyData = snap.val();
+							    
+							    if (historyData) {
+							        list.innerHTML = "";
+							        // Conversion en tableau et inversion pour avoir le plus récent en haut
+							        const items = Object.values(historyData).reverse();
+							        
+							        items.forEach(h => {
+							            // 🚫 FILTRE STRICT : On ignore 'message' et 'presence'
+							            // On vérifie en minuscule pour être sûr de tout attraper
+							            const reasonLower = h.reason.toLowerCase();
+							            if (reasonLower === "message" || reasonLower === "presence") return;
+							
+							            // Rendu de la ligne (On garde ton style d'origine)
+							            list.innerHTML += `
+							            <li class="history-item">
+							                <div>
+							                    <div style="color:white; text-transform: capitalize;">${h.reason.replace('_', ' ')}</div>
+							                    <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
+							                </div>
+							                <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
+							            </li>`;
+							        });
+							    }
 							});
 
 							db.ref('viewer_data/xp_data').once('value').then(snap => {
