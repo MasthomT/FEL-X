@@ -462,21 +462,30 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(300).on('value', snap => {
+db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
     const list = document.getElementById("xp-history-list");
-    if (snap.val()) {
+    const data = snap.val();
+    if (data) {
         list.innerHTML = "";
-        const allItems = Object.values(snap.val()).reverse();
-        
+        const allItems = Object.values(data).map(h => {
+            // FORCE LA DATE : Que ce soit du texte ou un chiffre, on le répare
+            let ts = h.timestamp;
+            if (typeof ts === 'string' && ts.includes('T')) {
+                ts = new Date(ts).getTime(); // Convertit l'ISO en millisecondes
+            }
+            return { ...h, timestamp: ts };
+        }).reverse();
+
+        const dailyGroups = {};
         const finalDisplay = [];
-        const dailyGroups = {}; 
 
         allItems.forEach(h => {
-            const dateObj = new Date(h.timestamp);
-            const dateKey = dateObj.toLocaleDateString('fr-FR'); 
+            const d = new Date(h.timestamp);
+            if (isNaN(d.getTime())) return; // Sécurité si la date est vraiment pétée
+
+            const dateKey = d.toLocaleDateString('fr-FR');
             const reason = h.reason.toLowerCase();
 
-            // REGROUPEMENT : Message ET Présence
             if (reason === "message" || reason === "presence") {
                 const groupKey = `${dateKey}_${reason}`;
                 if (!dailyGroups[groupKey]) {
@@ -489,39 +498,29 @@
                 }
                 dailyGroups[groupKey].amount += h.amount;
             } else {
-                // ÉVÉNEMENTS UNIQUES (Bits, Raids, Subs)
-                finalDisplay.push({
-                    reason: h.reason.replace('_x', ' ˟'),
-                    amount: h.amount,
-                    timestamp: h.timestamp,
-                    isGroup: false
-                });
+                finalDisplay.push({ ...h, isGroup: false });
             }
         });
 
-        // Ajouter les groupes (Messages et Présences) à la liste finale
         Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
-
-        // Tri par date (plus récent en haut)
         finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
-        // On affiche les 50 premières lignes de cette liste traitée
-        finalDisplay.slice(0, 50).forEach(item => {
+        finalDisplay.slice(0, 30).forEach(item => {
             const isGrp = item.isGroup;
+            let displayReason = item.reason.replace('_x', ' ˟');
+            displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
+
             list.innerHTML += `
             <li class="history-item ${isGrp ? 'history-group' : ''}">
                 <div>
-                    <div style="color:white; font-weight: 600;">${item.reason}</div>
+                    <div style="color:white; font-weight: 600;">${displayReason}</div>
                     <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
                 </div>
-                <div style="color: var(--accent); font-weight: 700;">
-                    +${item.amount.toLocaleString()} XP
-                </div>
+                <div style="color: var(--accent); font-weight: 700;">+${item.amount.toLocaleString()} XP</div>
             </li>`;
         });
     }
 });
-
 							db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
