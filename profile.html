@@ -465,45 +465,39 @@
 db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
     const data = snap.val();
     const list = document.getElementById("xp-history-list");
-    if (!data) return;
+    if (!data) {
+        list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité récente ✨</li>";
+        return;
+    }
 
     list.innerHTML = "";
     
-    // 1. Normalisation des données
+    // 1. Normalisation (ISO -> Millisecondes)
     const allItems = Object.entries(data).map(([key, h]) => {
         let ts = h.timestamp;
         if (typeof ts === 'string') ts = new Date(ts).getTime();
         return { ...h, timestamp: ts };
     });
 
-    // 2. Tri du plus récent au plus ancien
+    // 2. Tri chronologique (Plus récent en haut)
     allItems.sort((a, b) => b.timestamp - a.timestamp);
 
     const finalDisplay = [];
     let currentGroup = null;
 
-    // 3. Logique de regroupement par HEURE (ou par jour si tu préfères)
-    // Ici on regroupe si c'est la même heure ET la même raison
+    // 3. Logique de Session (Regroupement si écart < 12h)
     allItems.forEach(item => {
-        const reason = item.reason.toLowerCase();
-        
-        // On ne groupe que Message et Presence
+        const reason = (item.reason || "inconnu").toLowerCase();
         const isGroupable = (reason === "presence" || reason === "message");
 
         if (isGroupable && currentGroup && currentGroup.reason === reason) {
-            // Calcul de l'écart entre cet item et le dernier du groupe (en millisecondes)
-            // 12 heures = 12 * 60 * 60 * 1000 = 43 200 000 ms
             const timeDiff = Math.abs(currentGroup.timestamp - item.timestamp);
-            
-            if (timeDiff < 43200000) {
+            if (timeDiff < 43200000) { // 12 heures
                 currentGroup.amount += item.amount;
-                // On ne met pas à jour le timestamp pour que le bloc reste 
-                // épinglé à l'heure de FIN de session (la plus récente)
                 return; 
             }
         }
 
-        // Si on arrive ici, c'est qu'on crée un nouveau bloc
         if (currentGroup) finalDisplay.push(currentGroup);
         
         currentGroup = {
@@ -513,54 +507,54 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
             isGroup: isGroupable
         };
     });
-    
     if (currentGroup) finalDisplay.push(currentGroup);
 
-    // 4. Affichage propre
+    // 4. Rendu visuel avec Émojis
     finalDisplay.slice(0, 40).forEach(item => {
-        // --- CONFIGURATION DES LABELS ET ÉMOJIS ---
-        const reason = item.reason.toLowerCase();
-        let label = "";
-        let color = "var(--accent, #00ff00)"; // Vert par défaut
+        const r = item.reason;
+        let label = "✨ Action";
+        let color = "#00ffcc"; // Turquoise par défaut
 
-        if (reason === 'presence') {
-            label = "🎬 Présence";
-        } else if (reason === 'message') {
-            label = "💬 Messages";
-        } else if (reason === 'sub' || reason === 'resub') {
-            label = "⭐ Sub";
-        } else if (reason === 'subgift') {
-            label = "🎁 Subgifts";
-        } else if (reason === 'bits' || reason === 'cheer') {
-            label = "💎 Cheers";
-        } else if (reason === 'raid') {
-            label = "⚔️ Raid";
-        } else if (reason === 'follow') {
-            label = "💖 Nouveau Follow";
-        } else {
-            // Si c'est un label inconnu, on met un émoji par défaut
-            label = `✨ ${reason.charAt(0).toUpperCase() + reason.slice(1)}`;
-        }
+        if (r === 'presence') { label = "🎬 Session Streaming"; color = "#94a3b8"; }
+        else if (r === 'message') { label = "💬 Activité Chat"; color = "#60a5fa"; }
+        else if (r === 'sub' || r === 'resub') { label = "⭐ Abonnement"; color = "#fbbf24"; }
+        else if (r === 'subgift') { label = "🎁 Cadeau d'Abo"; color = "#f472b6"; }
+        else if (r === 'bits' || r === 'cheer') { label = "💎 Cheers Bits"; color = "#c084fc"; }
+        else if (r === 'raid') { label = "⚔️ Raid !"; color = "#f87171"; }
+        else if (r === 'follow') { label = "💖 Nouveau Follow"; color = "#34d399"; }
 
-        const dateObj = new Date(item.timestamp);
-        const timeStr = dateObj.toLocaleString('fr-FR', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        const timeStr = new Date(item.timestamp).toLocaleString('fr-FR', { 
+            day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
         });
 
         list.innerHTML += `
-            <li class="history-item" style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="color: white; font-weight: bold; font-size: 1rem;">${label}</div>
-                    <div style="color: #666; font-size: 0.8rem; margin-top: 2px;">${timeStr}</div>
+            <li class="history-item" style="
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 14px; 
+                margin-bottom: 8px; 
+                background: rgba(255,255,255,0.03); 
+                border-radius: 10px; 
+                border-left: 4px solid ${color};
+            ">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: white; font-weight: 700; font-size: 0.95rem;">${label}</span>
+                    <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px;">${timeStr}</span>
                 </div>
-                <div style="background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 6px; color: ${color}; font-weight: 800; border: 1px solid ${color}33;">
+                <div style="
+                    font-family: 'monospace'; 
+                    font-weight: 900; 
+                    color: ${color}; 
+                    background: ${color}15; 
+                    padding: 4px 12px; 
+                    border-radius: 20px;
+                ">
                     +${item.amount.toLocaleString()} XP
                 </div>
             </li>`;
     });
+});
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
