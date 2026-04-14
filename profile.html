@@ -485,24 +485,35 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
     // 3. Logique de regroupement par HEURE (ou par jour si tu préfères)
     // Ici on regroupe si c'est la même heure ET la même raison
     allItems.forEach(item => {
-        const dateObj = new Date(item.timestamp);
-        const hourKey = `${dateObj.toLocaleDateString()}_${dateObj.getHours()}`;
-        const groupKey = `${hourKey}_${item.reason}`;
+        const reason = item.reason.toLowerCase();
+        
+        // On ne groupe que Message et Presence
+        const isGroupable = (reason === "presence" || reason === "message");
 
-        if (currentGroup && currentGroup.key === groupKey) {
-            currentGroup.amount += item.amount;
-            // On garde le timestamp le plus récent pour le groupe
-        } else {
-            if (currentGroup) finalDisplay.push(currentGroup);
-            currentGroup = {
-                key: groupKey,
-                reason: item.reason,
-                amount: item.amount,
-                timestamp: item.timestamp,
-                isGroup: true
-            };
+        if (isGroupable && currentGroup && currentGroup.reason === reason) {
+            // Calcul de l'écart entre cet item et le dernier du groupe (en millisecondes)
+            // 12 heures = 12 * 60 * 60 * 1000 = 43 200 000 ms
+            const timeDiff = Math.abs(currentGroup.timestamp - item.timestamp);
+            
+            if (timeDiff < 43200000) {
+                currentGroup.amount += item.amount;
+                // On ne met pas à jour le timestamp pour que le bloc reste 
+                // épinglé à l'heure de FIN de session (la plus récente)
+                return; 
+            }
         }
+
+        // Si on arrive ici, c'est qu'on crée un nouveau bloc
+        if (currentGroup) finalDisplay.push(currentGroup);
+        
+        currentGroup = {
+            reason: reason,
+            amount: item.amount,
+            timestamp: item.timestamp,
+            isGroup: isGroupable
+        };
     });
+    
     if (currentGroup) finalDisplay.push(currentGroup);
 
     // 4. Affichage propre
