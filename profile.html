@@ -465,61 +465,71 @@
 db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
     const list = document.getElementById("xp-history-list");
     const data = snap.val();
-    if (data) {
-        list.innerHTML = "";
-        const allItems = Object.values(data).map(h => {
-            // FORCE LA DATE : Que ce soit du texte ou un chiffre, on le répare
-            let ts = h.timestamp;
-            if (typeof ts === 'string' && ts.includes('T')) {
-                ts = new Date(ts).getTime(); // Convertit l'ISO en millisecondes
+    if (!data) return;
+
+    list.innerHTML = "";
+    
+    // Convertir l'objet Firebase en tableau et RÉPARER les dates
+    const allItems = Object.values(data).map(h => {
+        let finalTs = h.timestamp;
+        
+        // Si c'est du texte (comme Jessie), on le convertit en chiffre
+        if (typeof finalTs === 'string') {
+            finalTs = new Date(finalTs).getTime();
+        }
+        
+        return { ...h, timestamp: finalTs };
+    });
+
+    // Trier : plus récent en haut
+    allItems.sort((a, b) => b.timestamp - a.timestamp);
+
+    const dailyGroups = {};
+    const finalDisplay = [];
+
+    allItems.forEach(h => {
+        const d = new Date(h.timestamp);
+        if (isNaN(d.getTime())) return; // Skip si la date est corrompue
+
+        const dateKey = d.toLocaleDateString('fr-FR');
+        const reason = h.reason.toLowerCase();
+
+        // On regroupe Messages et Présence
+        if (reason === "message" || reason === "presence") {
+            const groupKey = `${dateKey}_${reason}`;
+            if (!dailyGroups[groupKey]) {
+                dailyGroups[groupKey] = {
+                    reason: reason === "presence" ? "Présence" : "Message",
+                    amount: 0,
+                    timestamp: h.timestamp,
+                    isGroup: true
+                };
             }
-            return { ...h, timestamp: ts };
-        }).reverse();
+            dailyGroups[groupKey].amount += h.amount;
+        } else {
+            // Bits, Subs, etc.
+            finalDisplay.push({ ...h, isGroup: false });
+        }
+    });
 
-        const dailyGroups = {};
-        const finalDisplay = [];
+    // Fusionner les groupes et trier une dernière fois
+    Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
+    finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
-        allItems.forEach(h => {
-            const d = new Date(h.timestamp);
-            if (isNaN(d.getTime())) return; // Sécurité si la date est vraiment pétée
-
-            const dateKey = d.toLocaleDateString('fr-FR');
-            const reason = h.reason.toLowerCase();
-
-            if (reason === "message" || reason === "presence") {
-                const groupKey = `${dateKey}_${reason}`;
-                if (!dailyGroups[groupKey]) {
-                    dailyGroups[groupKey] = {
-                        reason: reason === "presence" ? "Présence" : "Message",
-                        amount: 0,
-                        timestamp: h.timestamp,
-                        isGroup: true
-                    };
-                }
-                dailyGroups[groupKey].amount += h.amount;
-            } else {
-                finalDisplay.push({ ...h, isGroup: false });
-            }
-        });
-
-        Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
-        finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
-
-        finalDisplay.slice(0, 30).forEach(item => {
-            const isGrp = item.isGroup;
-            let displayReason = item.reason.replace('_x', ' ˟');
-            displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
-
-            list.innerHTML += `
-            <li class="history-item ${isGrp ? 'history-group' : ''}">
-                <div>
-                    <div style="color:white; font-weight: 600;">${displayReason}</div>
-                    <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
-                </div>
-                <div style="color: var(--accent); font-weight: 700;">+${item.amount.toLocaleString()} XP</div>
-            </li>`;
-        });
-    }
+    // Affichage final
+    finalDisplay.forEach(item => {
+        const isGrp = item.isGroup;
+        const label = item.reason.charAt(0).toUpperCase() + item.reason.slice(1);
+        
+        list.innerHTML += `
+        <li class="history-item ${isGrp ? 'history-group' : ''}">
+            <div>
+                <div style="color:white; font-weight:600;">${label}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim);">${new Date(item.timestamp).toLocaleString('fr-FR')}</div>
+            </div>
+            <div style="color: var(--accent); font-weight:700;">+${item.amount} XP</div>
+        </li>`;
+    });
 });
 							db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
