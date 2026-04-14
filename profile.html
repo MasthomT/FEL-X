@@ -357,291 +357,195 @@
 						<script src="app.js"></script>
 
 						<script>
-							const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-							const BROADCASTER_NAME = "masthom_";
+    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+    const BROADCASTER_NAME = "masthom_";
 
-							let db;
-							let userVote = null;
-							let currentPollData = null;
+    let db;
+    let userVote = null;
+    let currentPollData = null;
 
-							function sanitize(k) {
-							if (!k) return "";
-							return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
-							}
+    function sanitize(k) {
+        if (!k) return "";
+        return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
+    }
 
-							function formatDate(timestamp) {
-							if (!timestamp) return "Date inconnue";
-							const d = new Date(timestamp);
-							return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-							}
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = checkAuth();
+        if (!token) return;
 
-							document.addEventListener("DOMContentLoaded", async () => {
-							const token = checkAuth();
-							if (!token) return;
+        try {
+            const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
+            const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
+            const userData = await userResp.json();
+            const user = userData.data[0];
+            const userKey = user.login.toLowerCase();
+            localStorage.setItem('twitch_username', userKey);
 
-							try {
-							const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
-							const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
-							const userData = await userResp.json();
-							const user = userData.data[0];
-							const userKey = user.login.toLowerCase();
-							localStorage.setItem('twitch_username', userKey);
+            document.getElementById("username").textContent = user.display_name;
+            document.getElementById("avatar").src = user.profile_image_url;
 
-							document.getElementById("username").textContent = user.display_name;
-							document.getElementById("avatar").src = user.profile_image_url;
+            db = firebase.database();
 
-							db = firebase.database();
+            // --- 1. COMPTEUR SOLIDE (WATCHTIME EN DUR DANS LE BADGE) ---
+            db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
+                const stats = snap.val();
+                const watchtimeEl = document.getElementById("stat-watchtime");
+                const totalHeaderEl = document.getElementById("total-presence-header");
+                
+                if (stats && stats.total_presence_minutes !== undefined) {
+                    const total = stats.total_presence_minutes;
+                    const h = Math.floor(total / 60);
+                    const m = total % 60;
+                    const formatted = `${h}h ${m}m`;
+                    if (watchtimeEl) watchtimeEl.textContent = formatted;
+                    if (totalHeaderEl) totalHeaderEl.innerHTML = `Total Présence : <strong style="color:#94a3b8;">${formatted}</strong>`;
+                }
+            });
 
-							db.ref('user_persistent_votes/' + userKey).on('value', snap => {
-							const data = snap.val();
-							if (data) {
-							userVote = data.option;
-							window.refreshPollUI();
-							}
-							});
+            // --- 2. HISTORIQUE UNIQUE (REGROUPÉ PAR SESSION 12H) ---
+            db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
+                const data = snap.val();
+                const list = document.getElementById("xp-history-list");
+                if (!data) {
+                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité enregistrée ✨</li>";
+                    return;
+                }
 
-							db.ref('current_poll').on('value', snap => {
-							currentPollData = snap.val();
-							window.refreshPollUI();
-							document.getElementById("loading-overlay").style.display = "none";
-							});
+                // Normalisation et conversion des timestamps (Gestion SQL + Bot)
+                let items = Object.entries(data).map(([key, item]) => {
+                    let ts = item.timestamp;
+                    if (typeof ts === 'string') ts = new Date(ts).getTime();
+                    return {
+                        reason: (item.reason || "xp").toLowerCase(),
+                        amount: parseInt(item.amount) || 0,
+                        timestamp: ts,
+                        duration: item.duration || 10
+                    };
+                }).sort((a, b) => b.timestamp - a.timestamp);
 
-							window.refreshPollUI = function() {
-							const poll = currentPollData;
-							const container = document.getElementById('poll-container');
-							const optionsDiv = document.getElementById('poll-options');
+                const grouped = [];
+                let currentGroup = null;
 
-							if (!poll || !poll.active) {
-							container.style.display = 'none';
-							return;
-							}
+                items.forEach(item => {
+                    const isPresence = item.reason.includes("presence");
+                    
+                    // Logique de session : même raison ET moins de 12h d'écart
+                    if (isPresence && currentGroup && currentGroup.reason === item.reason) {
+                        const diff = Math.abs(currentGroup.lastTs - item.timestamp);
+                        if (diff < 43200000) { // 12 heures
+                            currentGroup.amount += item.amount;
+                            currentGroup.duration += item.duration || 10;
+                            currentGroup.count++;
+                            currentGroup.lastTs = item.timestamp; // On met à jour pour le prochain calcul
+                            return;
+                        }
+                    }
 
-							container.style.display = 'block';
-							document.getElementById('poll-question').textContent = poll.question;
-							optionsDiv.innerHTML = "";
+                    if (currentGroup) grouped.push(currentGroup);
 
-							poll.options.forEach(option => {
-							const safeKey = sanitize(option);
-							const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
-							const isMyVote = (userVote === option);
+                    currentGroup = {
+                        reason: item.reason,
+                        amount: item.amount,
+                        duration: item.duration || 10,
+                        timestamp: item.timestamp, // Date d'affichage (la plus récente du bloc)
+                        lastTs: item.timestamp,
+                        count: 1
+                    };
+                });
+                if (currentGroup) grouped.push(currentGroup);
 
-							const wrapper = document.createElement('div');
-							wrapper.className = "poll-option-container";
-							wrapper.innerHTML = `
-							<div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
-								<div class="poll-option-fill" style="width: ${percent}%;"></div>
-								<div class="poll-option-label">
-									<span>${isMyVote ? '✅ ' : ''}${option}</span>
-									<span style="font-family: monospace;">${percent}%</span>
-								</div>
-							</div>`;
+                list.innerHTML = "";
+                grouped.slice(0, 40).forEach(item => {
+                    let label = "✨ Action";
+                    let color = "#00ffcc";
+                    let detail = "";
 
-							wrapper.onclick = () => window.castVote(poll.id, option);
-							optionsDiv.appendChild(wrapper);
-							});
-							};
+                    if (item.reason.includes('presence')) {
+                        label = "🎬 Session Streaming";
+                        color = "#94a3b8";
+                        detail = `${item.duration} min de présence`;
+                    } else if (item.reason.includes('message')) {
+                        label = "💬 Activité Chat";
+                        color = "#60a5fa";
+                        detail = `${item.count} messages envoyés`;
+                    } else if (item.reason.includes('sub')) {
+                        label = "⭐ Abonnement";
+                        color = "#fbbf24";
+                    }
 
-							db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
-							const data = snap.val();
-							let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
-							const level = calculateLevel(xp);
+                    const timeStr = new Date(item.timestamp).toLocaleString('fr-FR', {
+                        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                    });
 
-							document.getElementById("stat-level").textContent = level;
-							document.getElementById("stat-level-text").textContent = level;
-							document.getElementById("stat-xp").textContent = xp.toLocaleString();
+                    list.innerHTML += `
+                        <li class="history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid ${color};">
+                            <div>
+                                <span style="color: ${color}; font-weight: 700;">${label}</span><br>
+                                <span style="color: #64748b; font-size: 0.75rem;">${timeStr} ${detail ? '• ' + detail : ''}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-weight: 800; color: ${color}; font-size: 1.05rem;">+${item.amount.toLocaleString()} XP</span>
+                            </div>
+                        </li>`;
+                });
+            });
 
-							const wt = data?.watchtime_seconds || 0;
-							document.getElementById("stat-watchtime").textContent = `${Math.floor(wt/3600)}h ${Math.floor((wt%3600)/60)}m`;
+            // --- 3. XP DATA & NIVEAU ---
+            db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
+                const data = snap.val();
+                let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
+                const level = calculateLevel(xp);
+                document.getElementById("stat-level").textContent = level;
+                document.getElementById("stat-level-text").textContent = level;
+                document.getElementById("stat-xp").textContent = xp.toLocaleString();
+                const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+                const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+                const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
+                document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
+                document.getElementById("current-xp").textContent = xp.toLocaleString();
+                document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
+            });
 
-							const nextXp = Math.floor(100 * Math.pow(level, 2.2));
-							const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-							const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
+            // --- 4. RANG & SONDAGES (RESTE DU CODE) ---
+            db.ref('viewer_data/xp_data').once('value').then(snap => {
+                const all = snap.val() || {};
+                const sorted = Object.entries(all).map(([k, v]) => ({ k, xp: (v?.xp || v || 0) })).sort((a, b) => b.xp - a.xp);
+                const myRank = sorted.findIndex(u => u.k === userKey) + 1;
+                document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
+            });
 
-							document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
-							document.getElementById("current-xp").textContent = xp.toLocaleString();
-							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
-							});
+            db.ref('current_poll').on('value', snap => {
+                currentPollData = snap.val();
+                if(window.refreshPollUI) window.refreshPollUI();
+                document.getElementById("loading-overlay").style.display = "none";
+            });
 
-							db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
- 							   const stats = snap.val();
- 							   const totalEl = document.getElementById("total-presence-header");
-    
- 							   if (totalEl && stats && stats.total_presence_minutes !== undefined) {
- 							       const total = stats.total_presence_minutes;
- 							       const h = Math.floor(total / 60);
- 							       const m = total % 60;
- 							       totalEl.innerHTML = `Total Présence : <strong style="color:#94a3b8;">${h}h ${m}m</strong>`;
- 							   }
-							});
+            db.ref('viewer_logs/' + userKey).on('value', snap => {
+                const log = snap.val();
+                if (log) {
+                    const moodEl = document.getElementById("felix-mood");
+                    const obsEl = document.getElementById("felix-observation");
+                    if(moodEl) moodEl.textContent = log.mood || "Analyse...";
+                    if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
+                }
+            });
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(200).on('value', snap => {
-   							 const data = snap.val();
-   							 const list = document.getElementById("xp-history-list");
+        } catch (e) {
+            console.error("❌ Erreur Profil:", e);
+        }
+    });
 
-    							if (!data) {
-    							    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune session de présence pour le moment ✨</li>";
-   							     return;
-   							 }
-
-   							 list.innerHTML = "";
-
-  							  // On filtre UNIQUEMENT les entrées "presence"
-  							  const presenceItems = Object.entries(data)
-  							      .map(([key, item]) => ({ ...item, key }))
-  							      .filter(item => (item.reason || "").toLowerCase().includes("presence"))
-  							      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));   // plus récent en haut
-
-   							 if (presenceItems.length === 0) {
-  							      list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune session de présence enregistrée ✨</li>";
-   							     return;
-  							  }
-
-  							  presenceItems.slice(0, 30).forEach(item => {   // limite à 30 sessions
- 							       const ts = item.timestamp || Date.now();
-  							      const timeStr = new Date(ts).toLocaleString('fr-FR', { 
- 							           day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
-     							   });
-
-    							    // Calcul des minutes pour cette session (si tu as stocké "duration", sinon 10 par défaut)
-   							     const minutesThisSession = item.duration || 10;
-
-   							     list.innerHTML += `
-   							         <li class="history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); 							border-radius: 10px; border-left: 4px solid #94a3b8;">
-      							          <div>
-      							              <span style="color: #94a3b8; font-weight: 700;">🎬 Session Streaming</span><br>
-      							              <span style="color: #64748b; font-size: 0.8rem;">${timeStr}</span>
-      							          </div>
-      							          <div style="text-align: right;">
-      							              <span style="font-weight: 800; color: #94a3b8; font-size: 1rem;">+${minutesThisSession} min</span><br>
-      							              <span style="color: #64748b; font-size: 0.75rem;">présence</span>
-      							          </div>
-     							       </li>`;
- 							   });
-							});
-
-
-							db.ref('viewer_data/history/' + userKey).limitToLast(300).on('value', snap => {
-  							  const data = snap.val();
-  							  const list = document.getElementById("xp-history-list");
-							
- 							   if (!data) {
- 							       list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune session de présence pour le moment ✨</li>";
- 							       return;
- 							   }
-							
- 							   list.innerHTML = "";
-
-  							  // Filtre UNIQUEMENT les entrées "presence"
-  							  const presenceItems = Object.entries(data)
-  							      .map(([key, item]) => ({ ...item, key }))
-  							      .filter(item => (item.reason || "").toLowerCase().includes("presence"))
-   							     .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-							
-  							  if (presenceItems.length === 0) {
-   							     list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune session de présence enregistrée ✨</li>";
-   							     return;
-  							  }
-
- 							   // Affichage simple des 25 dernières sessions de présence
- 							   presenceItems.slice(0, 25).forEach(item => {
- 							       const ts = typeof item.timestamp === 'string' 
- 							           ? new Date(item.timestamp).getTime() 
- 							           : (item.timestamp || Date.now());
-
- 							       const timeStr = new Date(ts).toLocaleString('fr-FR', {
- 							           day: '2-digit',
- 							           month: '2-digit',
- 							           hour: '2-digit',
- 							           minute: '2-digit'
-							        });
-
- 							       const minutesThis = item.duration || 10;   // 10 minutes par session par défaut
-
-							        list.innerHTML += `
- 							           <li class="history-item" style="
-    							            display: flex; 
- 							               justify-content: space-between; 
-    							            align-items: center; 
-    							            padding: 14px; 
-     							           margin-bottom: 8px; 
-       							         background: rgba(255,255,255,0.03); 
-      							          border-radius: 10px; 
-      							          border-left: 4px solid #94a3b8;
-      							      ">
-               							 <div style="display: flex; flex-direction: column;">
-               							     <span style="color: #94a3b8; font-weight: 700; font-size: 0.95rem;">🎬 Session Streaming</span>
-               							     <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px;">${timeStr}</span>
-               							 </div>
-               							 <div style="text-align: right;">
-               							     <span style="font-weight: 800; color: #94a3b8; font-size: 1.05rem;">+${minutesThis} min</span><br>
-               							     <span style="color: #64748b; font-size: 0.75rem;">présence</span>
-               							 </div>
-           							 </li>`;
-							    });
-							});
-
-							db.ref('viewer_data/xp_data').once('value').then(snap => {
-							const all = snap.val() || {};
-							const sorted = Object.entries(all)
-							.map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
-							.sort((a, b) => b.xp - a.xp);
-							const myRank = sorted.findIndex(u => u.k === userKey) + 1;
-							document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
-							});
-
-							const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-							const chData = await chResp.json();
-							const bId = chData.data[0].id;
-
-							fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers })
-							.then(r => r.status === 200 ? r.json() : null)
-							.then(d => {
-							const bDiv = document.getElementById("badges-container");
-							if (d?.data?.length > 0) {
-							bDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-							document.getElementById("stat-sub").textContent = "Oui";
-							} else {
-							document.getElementById("stat-sub").textContent = "Non";
-							}
-							});
-
-							// --- AJOUT DE L'ÉCOUTEUR FÉLIX-LOG ---
-							db.ref('viewer_logs/' + userKey).on('value', snap => {
-							const log = snap.val();
-							if (log) {
-							const moodEl = document.getElementById("felix-mood");
-							const obsEl = document.getElementById("felix-observation");
-							if(moodEl) moodEl.textContent = log.mood || "Analyse...";
-							if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
-
-							const card = document.querySelector(".id-card");
-							if(card) {
-							card.style.borderColor = "var(--accent)";
-							setTimeout(() => card.style.borderColor = "var(--border)", 1000);
-							}
-							}
-							});
-
-							} catch (e) {
-							console.error("❌ Erreur Profil:", e);
-							}
-							}); // Fermeture de DOMContentLoaded
-
-							// Fonction de vote (en dehors de DOMContentLoaded)
-							window.castVote = async function(pId, opt) {
-							const name = localStorage.getItem('twitch_username');
-							if (!name || !db) return;
-							userVote = opt;
-							window.refreshPollUI();
-							try {
-							await db.ref('poll_incoming_votes/' + name).set({
-							poll_id: pId, option: opt, username: name,
-							timestamp: firebase.database.ServerValue.TIMESTAMP
-							});
-							await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-							} catch (e) { console.error("❌ Erreur Vote:", e); }
-							};
-						</script>
+    window.castVote = async function(pId, opt) {
+        const name = localStorage.getItem('twitch_username');
+        if (!name || !db) return;
+        userVote = opt;
+        if(window.refreshPollUI) window.refreshPollUI();
+        try {
+            await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
+        } catch (e) { console.error("❌ Erreur Vote:", e); }
+    };
+</script>
 					</body>
 				</html>
 			
