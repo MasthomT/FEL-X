@@ -524,18 +524,17 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
         let color = "var(--accent, #00ff00)"; // Vert par défaut
 
         if (reason === 'presence') {
-            label = "🎬 Session Streaming";
-            color = "#888"; // Gris pour la présence
+            label = "🎬 Présence";
         } else if (reason === 'message') {
-            label = "💬 Activité Chat";
+            label = "💬 Messages";
         } else if (reason === 'sub' || reason === 'resub') {
-            label = "⭐ Abonnement";
+            label = "⭐ Sub";
         } else if (reason === 'subgift') {
-            label = "🎁 Cadeau d'Abo";
+            label = "🎁 Subgifts";
         } else if (reason === 'bits' || reason === 'cheer') {
-            label = "💎 Cheers Bits";
+            label = "💎 Cheers";
         } else if (reason === 'raid') {
-            label = "⚔️ Raid !";
+            label = "⚔️ Raid";
         } else if (reason === 'follow') {
             label = "💖 Nouveau Follow";
         } else {
@@ -562,7 +561,7 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
                 </div>
             </li>`;
     });
-		db.ref('viewer_data/xp_data').once('value').then(snap => {
+			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
 							.map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
