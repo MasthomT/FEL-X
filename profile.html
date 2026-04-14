@@ -510,10 +510,10 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
     if (currentGroup) finalDisplay.push(currentGroup);
 
     // 4. Rendu visuel avec Émojis
-    finalDisplay.slice(0, 40).forEach(item => {
+finalDisplay.slice(0, 40).forEach(item => {
         const r = item.reason;
         let label = "✨ Action";
-        let color = "#00ffcc"; // Turquoise par défaut
+        let color = "#00ffcc"; 
 
         if (r === 'presence') { label = "🎬 Session Streaming"; color = "#94a3b8"; }
         else if (r === 'message') { label = "💬 Activité Chat"; color = "#60a5fa"; }
@@ -539,22 +539,23 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
                 border-left: 4px solid ${color};
             ">
                 <div style="display: flex; flex-direction: column;">
-                    <span style="color: white; font-weight: 700; font-size: 0.95rem;">${label}</span>
-                    <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px;">${timeStr}</span>
+                    <span style="color: white; font-weight: 700; font-size: 0.95rem; font-family: inherit;">${label}</span>
+                    <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px; font-family: inherit;">${timeStr}</span>
                 </div>
                 <div style="
-                    font-family: 'monospace'; 
-                    font-weight: 900; 
+                    font-weight: 800; 
                     color: ${color}; 
                     background: ${color}15; 
                     padding: 4px 12px; 
-                    border-radius: 20px;
+                    border-radius: 8px;
+                    font-family: inherit; /* Utilise la police globale du site */
+                    font-size: 0.9rem;
                 ">
                     +${item.amount.toLocaleString()} XP
                 </div>
             </li>`;
     });
-});
+    });
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
