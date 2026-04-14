@@ -511,17 +511,36 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
 
     // 4. Rendu visuel avec Émojis
 finalDisplay.slice(0, 40).forEach(item => {
-        const r = item.reason;
+        const r = (item.reason || "").toLowerCase();
         let label = "✨ Action";
         let color = "#00ffcc"; 
 
-        if (r === 'presence') { label = "🎬 Session Streaming"; color = "#94a3b8"; }
-        else if (r === 'message') { label = "💬 Activité Chat"; color = "#60a5fa"; }
-        else if (r === 'sub' || r === 'resub') { label = "⭐ Abonnement"; color = "#fbbf24"; }
-        else if (r === 'subgift') { label = "🎁 Cadeau d'Abo"; color = "#f472b6"; }
-        else if (r === 'bits' || r === 'cheer') { label = "💎 Cheers Bits"; color = "#c084fc"; }
-        else if (r === 'raid') { label = "⚔️ Raid !"; color = "#f87171"; }
-        else if (r === 'follow') { label = "💖 Nouveau Follow"; color = "#34d399"; }
+        // --- DÉTECTION INTELLIGENTE DES MOTS-CLÉS ---
+        if (r.includes('presence')) { 
+            label = "🎬 Session Streaming"; color = "#94a3b8"; 
+        } 
+        else if (r.includes('message')) { 
+            label = "💬 Activité Chat"; color = "#60a5fa"; 
+        } 
+        else if (r.includes('bits') || r.includes('cheer')) { 
+            label = "💎 Cheers Bits"; color = "#c084fc"; 
+        } 
+        else if (r.includes('subgift')) { 
+            label = "🎁 Cadeau d'Abo"; color = "#f472b6"; 
+        } 
+        else if (r.includes('sub')) { // Capturera 'sub', 'resub', 'sub_3_months', etc.
+            label = "⭐ Abonnement"; color = "#fbbf24"; 
+        } 
+        else if (r.includes('raid')) { 
+            label = "⚔️ Raid !"; color = "#f87171"; 
+        } 
+        else if (r.includes('follow')) { 
+            label = "💖 Nouveau Follow"; color = "#34d399"; 
+        }
+        else {
+            // Si vraiment inconnu, on nettoie le texte (ex: 'bits_x10' devient 'Bits X10')
+            label = `✨ ${r.charAt(0).toUpperCase() + r.slice(1).replace(/_/g, ' ')}`;
+        }
 
         const timeStr = new Date(item.timestamp).toLocaleString('fr-FR', { 
             day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
@@ -548,14 +567,14 @@ finalDisplay.slice(0, 40).forEach(item => {
                     background: ${color}15; 
                     padding: 4px 12px; 
                     border-radius: 8px;
-                    font-family: inherit; /* Utilise la police globale du site */
+                    font-family: inherit;
                     font-size: 0.9rem;
                 ">
                     +${item.amount.toLocaleString()} XP
                 </div>
             </li>`;
     });
-    });
+});
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
