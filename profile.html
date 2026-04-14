@@ -452,61 +452,57 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(200).on('value', snap => {
+							db.ref('viewer_data/history/' + userKey).limitToLast(150).on('value', snap => {
     							const list = document.getElementById("xp-history-list");
     							if (snap.val()) {
     							    list.innerHTML = "";
     							    const allItems = Object.values(snap.val()).reverse();
         
     							    const finalDisplay = [];
-    							    const dailyGroups = {}; // Pour cumuler : { "2026-04-14_message": total_xp }
+    							    const dailyGroups = {}; 
 
-    							    allItems.forEach(h => {
-     							       const dateObj = new Date(h.timestamp);
-     							       const dateKey = dateObj.toLocaleDateString('fr-FR'); // Ex: "14/04/2026"
-      							      const reason = h.reason.toLowerCase();
+     							   allItems.forEach(h => {
+    							        const dateObj = new Date(h.timestamp);
+    							        const dateKey = dateObj.toLocaleDateString('fr-FR'); 
+   							         const reason = h.reason.toLowerCase();
 
- 
-       							     if (reason === "message" || reason === "presence") {
-         							       const groupKey = `${dateKey}_${reason}`;
-         							       if (!dailyGroups[groupKey]) {
-         							           dailyGroups[groupKey] = {
-         							               reason: reason,
-         							               amount: 0,
-         							               timestamp: h.timestamp, // On garde le plus récent du jour
-         							               isGroup: true
-        							            };
-       							         }
-        							        dailyGroups[groupKey].amount += h.amount;
-      							      } else {
- 
-         							       finalDisplay.push({
-           							         reason: h.reason,
-           							         amount: h.amount,
-     							               timestamp: h.timestamp,
-     							               isGroup: false
-     							           });
-    							        }
-   							     });
+   							         if (reason === "message" || reason === "presence") {
+  							              const groupKey = `${dateKey}_${reason}`;
+   							             if (!dailyGroups[groupKey]) {
+   							                 dailyGroups[groupKey] = {
+    							                    reason: reason === "message" ? "Message" : "Présence",
+   							                     amount: 0,
+   							                     timestamp: h.timestamp,
+    							                    isGroup: true
+    							                };
+  							              }
+  							              dailyGroups[groupKey].amount += h.amount;
+  							          } else {
 
-      							  Object.values(dailyGroups).forEach(group => {
-      							      finalDisplay.push(group);
-    							    });
+   							             finalDisplay.push({
+   							                 reason: h.reason.replace('_x', ' ˟'),
+    							                amount: h.amount,
+    							                timestamp: h.timestamp,
+                  							  isGroup: false
+    							            });
+         							   }
+        							});
 
-    							    finalDisplay.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    							    Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
 
-   							     finalDisplay.slice(0, 30).forEach(item => {
+      							  finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
-    							        let displayReason = item.reason.replace('_x', ' ˟');
-    							        displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
-
+       							 finalDisplay.slice(0, 20).forEach(item => {
+       							     const isGrp = item.isGroup;
        							     list.innerHTML += `
-      							      <li class="history-item" style="${item.isGroup ? 'border-left: 3px solid var(--border); padding-left: 10px;' : ''}">
-      							          <div>
-      							              <div style="color:white; font-weight: ${item.isGroup ? 'normal' : 'bold'};">${displayReason}</div>
-      							              <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
-     							           </div>
-     							           <div style="color: var(--accent); font-weight: 600;">+${item.amount.toLocaleString()} XP</div>
+        							    <li class="history-item ${isGrp ? 'history-group' : ''}">
+       							         <div>
+       							             <div style="color:white; font-weight: 600; text-transform: capitalize;">${item.reason}</div>
+       							             <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
+        							        </div>
+       							         <div style="color: ${isGrp ? 'var(--accent)' : 'var(--accent)'}; font-weight: 700;">
+       							             +${item.amount.toLocaleString()} XP
+      							          </div>
      							       </li>`;
     							    });
   							  }
