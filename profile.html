@@ -518,25 +518,51 @@ db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
 
     // 4. Affichage propre
     finalDisplay.slice(0, 40).forEach(item => {
-        const dateObj = new Date(item.timestamp);
-        const timeStr = dateObj.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        
-        const label = item.reason === 'presence' ? '🕒 Présence (Session)' : 
-                      item.reason === 'message' ? '💬 Messages' : 
-                      item.reason.toUpperCase();
+        // --- CONFIGURATION DES LABELS ET ÉMOJIS ---
+        const reason = item.reason.toLowerCase();
+        let label = "";
+        let color = "var(--accent, #00ff00)"; // Vert par défaut
 
-        const color = item.reason === 'presence' ? '#888' : '#00ff00';
+        if (reason === 'presence') {
+            label = "🎬 Session Streaming";
+            color = "#888"; // Gris pour la présence
+        } else if (reason === 'message') {
+            label = "💬 Activité Chat";
+        } else if (reason === 'sub' || reason === 'resub') {
+            label = "⭐ Abonnement";
+        } else if (reason === 'subgift') {
+            label = "🎁 Cadeau d'Abo";
+        } else if (reason === 'bits' || reason === 'cheer') {
+            label = "💎 Cheers Bits";
+        } else if (reason === 'raid') {
+            label = "⚔️ Raid !";
+        } else if (reason === 'follow') {
+            label = "💖 Nouveau Follow";
+        } else {
+            // Si c'est un label inconnu, on met un émoji par défaut
+            label = `✨ ${reason.charAt(0).toUpperCase() + reason.slice(1)}`;
+        }
+
+        const dateObj = new Date(item.timestamp);
+        const timeStr = dateObj.toLocaleString('fr-FR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
 
         list.innerHTML += `
-            <li class="history-item" style="padding: 12px; border-bottom: 1px solid #222; display: flex; justify-content: space-between;">
+            <li class="history-item" style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="color: white; font-weight: bold;">${label}</div>
-                    <div style="color: #666; font-size: 0.8rem;">${timeStr}</div>
+                    <div style="color: white; font-weight: bold; font-size: 1rem;">${label}</div>
+                    <div style="color: #666; font-size: 0.8rem; margin-top: 2px;">${timeStr}</div>
                 </div>
-                <div style="color: ${color}; font-weight: bold;">+${item.amount} XP</div>
+                <div style="background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 6px; color: ${color}; font-weight: 800; border: 1px solid ${color}33;">
+                    +${item.amount.toLocaleString()} XP
+                </div>
             </li>`;
     });
-});			db.ref('viewer_data/xp_data').once('value').then(snap => {
+		db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
 							.map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
