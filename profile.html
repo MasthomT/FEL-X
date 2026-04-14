@@ -463,59 +463,64 @@
 							});
 
 							db.ref('viewer_data/history/' + userKey).limitToLast(300).on('value', snap => {
-        							const list = document.getElementById("xp-history-list");
-        							if (snap.val()) {
-         							   list.innerHTML = "";
-         							   const allItems = Object.values(snap.val()).reverse();
+    const list = document.getElementById("xp-history-list");
+    if (snap.val()) {
+        list.innerHTML = "";
+        const allItems = Object.values(snap.val()).reverse();
         
-          							  const finalDisplay = [];
-          							  const dailyGroups = {}; 
+        const finalDisplay = [];
+        const dailyGroups = {}; 
 
-           							 allItems.forEach(h => {
-            							    const dateObj = new Date(h.timestamp);
-            							    const dateKey = dateObj.toLocaleDateString('fr-FR'); 
-            							    const reason = h.reason.toLowerCase();
+        allItems.forEach(h => {
+            const dateObj = new Date(h.timestamp);
+            const dateKey = dateObj.toLocaleDateString('fr-FR'); 
+            const reason = h.reason.toLowerCase();
 
-           							     if (reason === "message" || reason === "presence") {
-           							         const groupKey = `${dateKey}_${reason}`;
-           							         if (!dailyGroups[groupKey]) {
-          							              dailyGroups[groupKey] = {
-          							                  reason: reason === "presence" ? "Présence" : "Message",
-          							                  amount: 0,
-          							                  timestamp: h.timestamp,
-         							                   isGroup: true
-        							                };
-        							            }
-         							           dailyGroups[groupKey].amount += h.amount;
-        							        } else {
-        							            finalDisplay.push({
-        							                reason: h.reason.replace('_x', ' ˟'),
-        							                amount: h.amount,
-         							               timestamp: h.timestamp,
-         							               isGroup: false
-        							            });
-       							         }
-       							     });
+            // REGROUPEMENT : Message ET Présence
+            if (reason === "message" || reason === "presence") {
+                const groupKey = `${dateKey}_${reason}`;
+                if (!dailyGroups[groupKey]) {
+                    dailyGroups[groupKey] = {
+                        reason: reason === "presence" ? "Présence" : "Message",
+                        amount: 0,
+                        timestamp: h.timestamp,
+                        isGroup: true
+                    };
+                }
+                dailyGroups[groupKey].amount += h.amount;
+            } else {
+                // ÉVÉNEMENTS UNIQUES (Bits, Raids, Subs)
+                finalDisplay.push({
+                    reason: h.reason.replace('_x', ' ˟'),
+                    amount: h.amount,
+                    timestamp: h.timestamp,
+                    isGroup: false
+                });
+            }
+        });
 
-       							     Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
+        // Ajouter les groupes (Messages et Présences) à la liste finale
+        Object.values(dailyGroups).forEach(g => finalDisplay.push(g));
 
-      							      finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
+        // Tri par date (plus récent en haut)
+        finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
-      							      finalDisplay.slice(0, 50).forEach(item => {
-      							          const isGrp = item.isGroup;
-     							           list.innerHTML += `
-     							           <li class="history-item ${isGrp ? 'history-group' : ''}">
-      							              <div>
-       							                 <div style="color:white; font-weight: 600;">${item.reason}</div>
-       							                 <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
-       							             </div>
-        							            <div style="color: var(--accent); font-weight: 700;">
-        							                +${item.amount.toLocaleString()} XP
-        							            </div>
-        							        </li>`;
-       							     });
-      							  }
-    							});
+        // On affiche les 50 premières lignes de cette liste traitée
+        finalDisplay.slice(0, 50).forEach(item => {
+            const isGrp = item.isGroup;
+            list.innerHTML += `
+            <li class="history-item ${isGrp ? 'history-group' : ''}">
+                <div>
+                    <div style="color:white; font-weight: 600;">${item.reason}</div>
+                    <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
+                </div>
+                <div style="color: var(--accent); font-weight: 700;">
+                    +${item.amount.toLocaleString()} XP
+                </div>
+            </li>`;
+        });
+    }
+});
 
 							db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
