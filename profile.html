@@ -452,43 +452,63 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
-  							  const list = document.getElementById("xp-history-list");
-  							  if (snap.val()) {
-  							      list.innerHTML = "";
-  							      const allItems = Object.values(snap.val()).reverse();
+							db.ref('viewer_data/history/' + userKey).limitToLast(200).on('value', snap => {
+    							const list = document.getElementById("xp-history-list");
+    							if (snap.val()) {
+    							    list.innerHTML = "";
+    							    const allItems = Object.values(snap.val()).reverse();
         
-  							      let lastAction = null;
-  							      let groupCount = 0;
-  							      let groupXp = 0;
+    							    const finalDisplay = [];
+    							    const dailyGroups = {}; // Pour cumuler : { "2026-04-14_message": total_xp }
 
-   							     allItems.forEach((h, index) => {
-   							         const currentAction = h.reason.toLowerCase();
-   							         
-          							  if (currentAction === "message" || currentAction === "presence") {
-       							         // On peut choisir de ne pas les afficher du tout pour garder l'historique "propre"
-      							          // comme on a fait sur le PI (où on ne garde que les évènements marquants dans le feed)
-     							           return; 
-     							       }
+    							    allItems.forEach(h => {
+     							       const dateObj = new Date(h.timestamp);
+     							       const dateKey = dateObj.toLocaleDateString('fr-FR'); // Ex: "14/04/2026"
+      							      const reason = h.reason.toLowerCase();
 
-    							        // Pour tout le reste (Bits, Subs, Raids), on affiche avec le style propre
-    							        let displayReason = h.reason.replace('_x', ' ˟');
-   							         displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
-
-   							         list.innerHTML += `
-     							       <li class="history-item">
-    							            <div>
-     							               <div style="color:white;">${displayReason}</div>
-      							              <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
-    							            </div>
-     							           <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
-    							        </li>`;
+ 
+       							     if (reason === "message" || reason === "presence") {
+         							       const groupKey = `${dateKey}_${reason}`;
+         							       if (!dailyGroups[groupKey]) {
+         							           dailyGroups[groupKey] = {
+         							               reason: reason,
+         							               amount: 0,
+         							               timestamp: h.timestamp, // On garde le plus récent du jour
+         							               isGroup: true
+        							            };
+       							         }
+        							        dailyGroups[groupKey].amount += h.amount;
+      							      } else {
+ 
+         							       finalDisplay.push({
+           							         reason: h.reason,
+           							         amount: h.amount,
+     							               timestamp: h.timestamp,
+     							               isGroup: false
+     							           });
+    							        }
    							     });
-        
-    							    // Si la liste est vide après avoir viré les messages/présence
-   							     if (list.innerHTML === "") {
-   							         list.innerHTML = "<li class='history-item' style='color:var(--text-dim);'>Aucun événement marquant (Bits/Subs/Raids).</li>";
-  							      }
+
+      							  Object.values(dailyGroups).forEach(group => {
+      							      finalDisplay.push(group);
+    							    });
+
+    							    finalDisplay.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+   							     finalDisplay.slice(0, 30).forEach(item => {
+
+    							        let displayReason = item.reason.replace('_x', ' ˟');
+    							        displayReason = displayReason.charAt(0).toUpperCase() + displayReason.slice(1);
+
+       							     list.innerHTML += `
+      							      <li class="history-item" style="${item.isGroup ? 'border-left: 3px solid var(--border); padding-left: 10px;' : ''}">
+      							          <div>
+      							              <div style="color:white; font-weight: ${item.isGroup ? 'normal' : 'bold'};">${displayReason}</div>
+      							              <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
+     							           </div>
+     							           <div style="color: var(--accent); font-weight: 600;">+${item.amount.toLocaleString()} XP</div>
+     							       </li>`;
+    							    });
   							  }
 							});
 
