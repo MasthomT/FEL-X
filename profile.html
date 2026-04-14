@@ -462,6 +462,14 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
+db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
+    const stats = snap.val();
+    if (stats && stats.total_presence_minutes) {
+        const hours = (stats.total_presence_minutes / 60).toFixed(1);
+        document.getElementById("total-presence-display").innerText = `${hours} h`;
+    }
+});
+
 db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
     const data = snap.val();
     const list = document.getElementById("xp-history-list");
