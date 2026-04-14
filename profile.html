@@ -452,31 +452,38 @@
 							document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(60).on('value', snap => {
-							    const list = document.getElementById("xp-history-list");
-							    const historyData = snap.val();
-							    
-							    if (historyData) {
-							        list.innerHTML = "";
-							        // Conversion en tableau et inversion pour avoir le plus récent en haut
-							        const items = Object.values(historyData).reverse();
-							        
-							        items.forEach(h => {
-							            // 🚫 FILTRE STRICT : On ignore 'message' et 'presence'
-							            // On vérifie en minuscule pour être sûr de tout attraper
-							            const reasonLower = h.reason.toLowerCase();
-							            if (reasonLower === "message" || reasonLower === "presence") return;
-							
-							            // Rendu de la ligne (On garde ton style d'origine)
+							db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
+  							  const list = document.getElementById("xp-history-list");
+  							  const data = snap.val();
+    
+ 							   if (data) {
+   							     list.innerHTML = "";
+        
+  							      // 1. On transforme l'objet en tableau et on l'inverse (récent en haut)
+  							      const allItems = Object.values(data).reverse();
+        
+   							     // 2. On FILTRE pour enlever les messages et la présence
+    							    const filteredItems = allItems.filter(h => {
+     							       const r = h.reason.toLowerCase();
+     							       return r !== "message" && r !== "presence";
+     							   });
+
+      							  // 3. On n'affiche que les 15 premiers de cette liste propre
+							        filteredItems.slice(0, 15).forEach(h => {
 							            list.innerHTML += `
-							            <li class="history-item">
-							                <div>
-							                    <div style="color:white; text-transform: capitalize;">${h.reason.replace('_', ' ')}</div>
-							                    <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
-							                </div>
-							                <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
-							            </li>`;
-							        });
+ 							           <li class="history-item">
+ 							               <div>
+  							                  <div style="color:white; text-transform: capitalize;">${h.reason.replace('_', ' ')}</div>
+  							                  <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
+  							              </div>
+   							             <div style="color: var(--accent); font-weight: 600;">+${h.amount} XP</div>
+   							         </li>`;
+   							     });
+        
+ 							       // Si après filtrage il n'y a vraiment rien
+ 							       if (filteredItems.length === 0) {
+ 							           list.innerHTML = "<li class='history-item' style='color:var(--text-dim);'>Aucun événement marquant récent.</li>";
+ 							       }
 							    }
 							});
 
