@@ -594,11 +594,9 @@
                 const finalDisplay = [];
 
                 items.forEach(item => {
-                    const reason = String(item.reason || item.type || item.event || item.source || '').toLowerCase();
-                    const hasPresenceMetric = item.totalPresenceMinutes != null || item.presenceMinutes != null || item.watchtimeMinutes != null;
-                    const hasMessageMetric = item.totalMessages != null || item.messageCount != null || item.count != null;
-                    const isStream = reason.includes("presence") || reason.includes("watchtime") || hasPresenceMetric;
-                    const isChat = reason.includes("message") || reason.includes("chat") || hasMessageMetric;
+                    const reason = String(item.reason || '').toLowerCase();
+                    const isStream = reason.includes("presence");
+                    const isChat = reason.includes("message");
 
                     if (isStream || isChat) {
                         const dayKey = new Date(item.timestamp).toLocaleDateString('fr-FR');
@@ -620,22 +618,11 @@
                         dailyGroups[dayKey].amount += parseInt(item.amount, 10) || 0;
                         if (isStream) {
                             dailyGroups[dayKey].hasStream = true;
-                            const presenceMinutes =
-                                parseInt(item.duration, 10) ||
-                                parseInt(item.totalPresenceMinutes, 10) ||
-                                parseInt(item.presenceMinutes, 10) ||
-                                parseInt(item.watchtimeMinutes, 10) ||
-                                10;
-                            dailyGroups[dayKey].duration += presenceMinutes;
+                            dailyGroups[dayKey].duration += parseInt(item.duration, 10) || 10;
                         }
                         if (isChat) {
                             dailyGroups[dayKey].hasChat = true;
-                            const messageCount =
-                                parseInt(item.count, 10) ||
-                                parseInt(item.totalMessages, 10) ||
-                                parseInt(item.messageCount, 10) ||
-                                1;
-                            dailyGroups[dayKey].count += messageCount;
+                            dailyGroups[dayKey].count += parseInt(item.count, 10) || 1;
                         }
                     } else {
                         finalDisplay.push({ ...item, isDaily: false });
