@@ -349,7 +349,7 @@
 						<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 						<script src="app.js"></script>
 
-const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+<script> const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
 const BROADCASTER_NAME = "masthom_";
 
 let db;
@@ -386,20 +386,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // --- 1. SONDAGES ---
         db.ref('user_persistent_votes/' + userKey).on('value', snap => {
-    const data = snap.val();
-    if (data) {
-        userVote = data.option;
-        if (window.refreshPollUI) window.refreshPollUI();
-    }
-});
+            const data = snap.val();
+            if (data) {
+                userVote = data.option;
+                window.refreshPollUI();
+            }
+        });
 
         db.ref('current_poll').on('value', snap => {
             currentPollData = snap.val();
             window.refreshPollUI();
-    
-            // On enlève l'overlay dès qu'on a une réponse (même si null)
-            const loader = document.getElementById("loading-overlay");
-            if (loader) loader.style.display = "none";
+            document.getElementById("loading-overlay").style.display = "none";
         });
 
         window.refreshPollUI = function() {
