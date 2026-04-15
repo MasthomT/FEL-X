@@ -56,7 +56,7 @@
         .history-item { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 14px; background: rgba(255, 255, 255, 0.03); 
-            margin-bottom: 8px; border-radius: 10px;
+            margin-bottom: 8px; border-radius: 10px; border-left: 4px solid var(--accent);
         }
 
         .poll-option-container { position: relative; margin-bottom: 12px; cursor: pointer; }
@@ -164,15 +164,10 @@
         let userVote = null;
         let currentPollData = null;
 
-        function sanitize(k) {
-            if (!k) return "";
-            return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
-        }
-
-        function formatDate(timestamp) {
-            if (!timestamp) return "Date inconnue";
-            const d = new Date(timestamp);
-            return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        function sanitize(k) { return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : ""; }
+        function formatDate(ts) {
+            const d = new Date(ts);
+            return isNaN(d.getTime()) ? "Date inconnue" : d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -192,7 +187,7 @@
 
                 db = firebase.database();
 
-                // --- SONDAGES ---
+                // --- GESTION DES SONDAGES ---
                 db.ref('user_persistent_votes/' + userKey).on('value', snap => {
                     const data = snap.val();
                     if (data) { userVote = data.option; if(window.refreshPollUI) window.refreshPollUI(); }
@@ -213,25 +208,21 @@
                     document.getElementById('poll-question').textContent = poll.question;
                     optionsDiv.innerHTML = "";
                     poll.options.forEach(option => {
-                        const safeKey = sanitize(option);
-                        const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
+                        const percent = (poll.stats && poll.stats[sanitize(option)]) ? poll.stats[sanitize(option)] : 0;
                         const isMyVote = (userVote === option);
                         const wrapper = document.createElement('div');
                         wrapper.className = "poll-option-container";
                         wrapper.innerHTML = `
                             <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
                                 <div class="poll-option-fill" style="width: ${percent}%;"></div>
-                                <div class="poll-option-label">
-                                    <span>${isMyVote ? '✅ ' : ''}${option}</span>
-                                    <span style="font-family: monospace;">${percent}%</span>
-                                </div>
+                                <div class="poll-option-label"><span>${isMyVote ? '✅ ' : ''}${option}</span><span>${percent}%</span></div>
                             </div>`;
                         wrapper.onclick = () => window.castVote(poll.id, option);
                         optionsDiv.appendChild(wrapper);
                     });
                 };
 
-                // --- XP & WATCHTIME ---
+                // --- XP & STATS ---
                 db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
                     const data = snap.val();
                     let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
@@ -246,9 +237,6 @@
                             const h = Math.floor(sData.total_presence_minutes / 60);
                             const m = sData.total_presence_minutes % 60;
                             document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
-                        } else {
-                            const wt = data?.watchtime_seconds || 0;
-                            document.getElementById("stat-watchtime").textContent = `${Math.floor(wt/3600)}h ${Math.floor((wt%3600)/60)}m`;
                         }
                     });
 
@@ -260,43 +248,83 @@
                     document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
                 });
 
-                // --- HISTORIQUE (LECTURE DES SESSIONS PRÉ-CALCULÉES) ---
-                db.ref('viewer_data/history_sessions/' + userKey).on('value', snap => {
+                // --- HISTORIQUE CLASSÉ PAR JOUR ---
+                db.ref('viewer_data/history/' + userKey).on('value', snap => {
                     const data = snap.val();
                     const list = document.getElementById("xp-history-list");
                     list.innerHTML = "";
-                    if (!data) { list.innerHTML = "<li>Aucune activité récente ✨</li>"; return; }
+                    if (!data) { list.innerHTML = "<li>Aucun historique récent ✨</li>"; return; }
 
-                    Object.values(data).sort((a,b) => b.timestamp - a.timestamp).forEach(item => {
-                        let label = ""; let color = "#00ffcc";
+                    const items = Object.values(data).map(v => {
+                        let ts = v.timestamp;
+                        if (typeof ts === 'string') ts = new Date(ts).getTime();
+                        return { ...v, timestamp: ts };
+                    }).sort((a, b) => b.timestamp - a.timestamp);
+
+                    const dailyGroups = {};
+                    const specialEvents = [];
+
+                    items.forEach(item => {
                         const r = (item.reason || "").toLowerCase();
+                        const isStreamOrChat = r.includes('presence') || r.includes('message');
 
-                        // Priorité 1 : Événements Spéciaux (Emoji & Nom précis)
-                        if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
+                        if (isStreamOrChat) {
+                            const day = new Date(item.timestamp).toLocaleDateString('fr-FR');
+                            if (!dailyGroups[day]) dailyGroups[day] = { xp: 0, duration: 0, count: 0, timestamp: item.timestamp };
+                            dailyGroups[day].xp += item.amount;
+                            if (r.includes('presence')) dailyGroups[day].duration += (item.duration || 10);
+                            if (r.includes('message')) dailyGroups[day].count += (item.count || 1);
+                        } else {
+                            specialEvents.push(item);
+                        }
+                    });
+
+                    const finalList = [...specialEvents];
+                    Object.keys(dailyGroups).forEach(day => {
+                        finalList.push({
+                            isDaily: true,
+                            dayLabel: day,
+                            ...dailyGroups[day]
+                        });
+                    });
+
+                    finalList.sort((a, b) => b.timestamp - a.timestamp).slice(0, 40).forEach(h => {
+                        let label = ""; let color = "#00ffcc";
+                        const r = (h.reason || "").toLowerCase();
+
+                        if (h.isDaily) {
+                            let parts = [];
+                            if (h.duration > 0) parts.push(`🎬 Stream (${h.duration} min)`);
+                            if (h.count > 0) parts.push(`💬 Chat (${h.count} msg)`);
+                            label = `${h.dayLabel} : ${parts.join(' + ')}`;
+                            color = "#94a3b8";
+                        } else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
                         else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
                         else if (r.includes('raid')) { label = "⚔️ Raid Host"; color = "#f87171"; }
                         else if (r.includes('follow')) { label = "💖 Nouveau Follow"; color = "#34d399"; }
-                        // Priorité 2 : Sessions regroupées Stream/Chat
-                        else if (item.duration > 0 || item.count > 0) {
-                            let parts = [];
-                            if (item.duration > 0) parts.push(`🎬 Stream (${item.duration} min)`);
-                            if (item.count > 0) parts.push(`💬 Chat (${item.count} msg)`);
-                            label = parts.join(' + ');
-                            color = item.duration > 0 ? "#94a3b8" : "#60a5fa";
-                        } else { label = "✨ Action"; color = "#00ffcc"; }
+                        else { label = `✨ ${h.reason || 'Action'}`; }
 
                         list.innerHTML += `
                         <li class="history-item" style="border-left: 4px solid ${color};">
                             <div>
                                 <div style="font-weight:700; color:white;">${label}</div>
-                                <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
+                                <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
                             </div>
-                            <div style="font-weight:800; color:${color};">+${item.amount.toLocaleString()} XP</div>
+                            <div style="font-weight:800; color:${color};">+${h.amount.toLocaleString()} XP</div>
                         </li>`;
                     });
                 });
 
-                // --- CLASSEMENT ---
+                // --- FÉLIX-LOG ---
+                db.ref('viewer_logs/' + userKey).on('value', snap => {
+                    const l = snap.val();
+                    if(l) {
+                        document.getElementById("felix-mood").textContent = l.mood || "Analyse...";
+                        document.getElementById("felix-observation").textContent = `"${l.last_comment}"`;
+                    }
+                });
+
+                // --- CLASSEMENT & BADGES ---
                 db.ref('viewer_data/xp_data').once('value').then(snap => {
                     const all = snap.val() || {};
                     const sorted = Object.entries(all).map(([k, v]) => ({ k, xp: (v?.xp || v || 0) })).sort((a, b) => b.xp - a.xp);
@@ -304,28 +332,7 @@
                     document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
                 });
 
-                // --- BADGES TWITCH ---
-                const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-                const chData = await chResp.json();
-                fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${chData.data[0].id}&user_id=${user.id}`, { headers })
-                .then(r => r.status === 200 ? r.json() : null)
-                .then(d => {
-                    if (d?.data?.length > 0) {
-                        document.getElementById("badges-container").innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-                        document.getElementById("stat-sub").textContent = "Oui";
-                    } else { document.getElementById("stat-sub").textContent = "Non"; }
-                });
-
-                // --- FÉLIX-LOG ---
-                db.ref('viewer_logs/' + userKey).on('value', snap => {
-                    const log = snap.val();
-                    if (log) {
-                        document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
-                        document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
-                    }
-                });
-
-            } catch (e) { console.error("❌ Erreur Profil:", e); }
+            } catch (e) { console.error(e); }
         });
 
         window.castVote = async function(pId, opt) {
@@ -335,7 +342,7 @@
             try {
                 await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
                 await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-            } catch (e) { console.error("❌ Erreur Vote:", e); }
+            } catch (e) { console.error(e); }
         };
     </script>
 </body>
