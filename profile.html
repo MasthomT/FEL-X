@@ -359,40 +359,32 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="app.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="app.js"></script>
-
 <script>
-    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-    const BROADCASTER_NAME = "masthom_";
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const BROADCASTER_NAME = "masthom_";
 
-    // Initialisation immédiate pour éviter le "ReferenceError"
-    var db = firebase.database(); 
-    var userVote = null;
-    var currentPollData = null;
+        // Récupération de l'instance déjà initialisée par app.js
+        var db = firebase.database(); 
+        var userVote = null;
+        var currentPollData = null;
 
-    function sanitize(k) {
-        if (!k) return "";
-        return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
-    }
+        function sanitize(k) {
+            return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : "";
+        }
 
-    function formatDate(timestamp) {
-        if (!timestamp) return "Date inconnue";
-        const d = new Date(timestamp);
-        if (isNaN(d.getTime())) return "Format date invalide";
-        return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-    }
+        function formatDate(timestamp) {
+            if (!timestamp) return "Date inconnue";
+            const d = new Date(timestamp);
+            return isNaN(d.getTime()) ? "Date invalide" : d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        }
 
-    window.refreshPollUI = function() {
-        const poll = currentPollData;
-        const container = document.getElementById('poll-container');
-        const optionsDiv = document.getElementById('poll-options');
-        if (!poll || !poll.active) { if(container) container.style.display = 'none'; return; }
-        if(container) container.style.display = 'block';
-        const qEl = document.getElementById('poll-question');
-        if(qEl) qEl.textContent = poll.question;
-        if(optionsDiv) {
+        window.refreshPollUI = function() {
+            const poll = currentPollData;
+            const container = document.getElementById('poll-container');
+            const optionsDiv = document.getElementById('poll-options');
+            if (!poll || !poll.active) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            document.getElementById('poll-question').textContent = poll.question;
             optionsDiv.innerHTML = "";
             poll.options.forEach(option => {
                 const safeKey = sanitize(option);
@@ -400,159 +392,130 @@
                 const isMyVote = (userVote === option);
                 const wrapper = document.createElement('div');
                 wrapper.className = "poll-option-container";
-                wrapper.innerHTML = `<div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
+                wrapper.innerHTML = `
+                <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
                     <div class="poll-option-fill" style="width: ${percent}%;"></div>
                     <div class="poll-option-label"><span>${isMyVote ? '✅ ' : ''}${option}</span><span>${percent}%</span></div>
                 </div>`;
                 wrapper.onclick = () => window.castVote(poll.id, option);
                 optionsDiv.appendChild(wrapper);
             });
-        }
-    };
+        };
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        const token = checkAuth();
-        if (!token) return;
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = checkAuth();
+            if (!token) return;
 
-        try {
-            const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
-            const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
-            const userData = await userResp.json();
-            const user = userData.data[0];
-            const userKey = user.login.toLowerCase();
-            localStorage.setItem('twitch_username', userKey);
+            try {
+                const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
+                const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
+                const userData = await userResp.json();
+                const user = userData.data[0];
+                const userKey = user.login.toLowerCase();
 
-            document.getElementById("username").textContent = user.display_name;
-            document.getElementById("avatar").src = user.profile_image_url;
+                document.getElementById("username").textContent = user.display_name;
+                document.getElementById("avatar").src = user.profile_image_url;
 
-            // --- WATCHTIME (STATS PERMA) ---
-            db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
-                const s = snap.val();
-                if (s && s.total_presence_minutes !== undefined) {
-                    const h = Math.floor(s.total_presence_minutes / 60);
-                    const m = s.total_presence_minutes % 60;
-                    document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
-                }
-            });
-
-            // --- XP & NIVEAU ---
-            db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
-                const data = snap.val();
-                let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
-                const level = calculateLevel(xp);
-                document.getElementById("stat-level").textContent = level;
-                document.getElementById("stat-level-text").textContent = level;
-                document.getElementById("stat-xp").textContent = xp.toLocaleString();
-                const nextXp = Math.floor(100 * Math.pow(level, 2.2));
-                const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-                const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
-                const xpFill = document.getElementById("xp-fill");
-                if(xpFill) xpFill.style.width = Math.min(100, Math.max(0, prog)) + "%";
-            });
-
-            // --- HISTORIQUE D'EXP (RETOUR DES ANCIENNES DONNÉES) ---
-            // On enlève le limitToLast pour tout charger au moins une fois
-            db.ref('viewer_data/history/' + userKey).on('value', snap => {
-                const data = snap.val();
-                const list = document.getElementById("xp-history-list");
-                if (!data) {
-                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité XP ✨</li>";
-                    return;
-                }
-
-                let totals = { presence: { xp: 0, min: 0, ts: 0 }, message: { xp: 0, count: 0, ts: 0 } };
-                let events = [];
-
-                // On boucle sur tout (anciennes clés migr_ et nouvelles bot_)
-                Object.values(data).forEach(item => {
-                    let ts = item.timestamp;
-                    if (typeof ts === 'string') ts = new Date(ts).getTime();
-                    if (!ts || isNaN(ts)) ts = 0;
-
-                    const reason = (item.reason || "xp").toLowerCase().trim();
-                    const amount = parseInt(item.amount) || 0;
-
-                    if (reason.includes("presence")) {
-                        totals.presence.xp += amount;
-                        totals.presence.min += (parseInt(item.duration) || 10);
-                        if (ts > totals.presence.ts) totals.presence.ts = ts;
-                    } else if (reason.includes("message")) {
-                        totals.message.xp += amount;
-                        totals.message.count += 1;
-                        if (ts > totals.message.ts) totals.message.ts = ts;
-                    } else {
-                        events.push({ ...item, timestamp: ts, reason: reason });
+                // --- WATCHTIME (STATS PERMA) ---
+                db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
+                    const s = snap.val();
+                    if (s && s.total_presence_minutes !== undefined) {
+                        const h = Math.floor(s.total_presence_minutes / 60);
+                        const m = s.total_presence_minutes % 60;
+                        document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
                     }
                 });
 
-                list.innerHTML = "";
-
-                // 1. BLOC UNIQUE PRÉSENCE
-                if (totals.presence.xp > 0) {
-                    const h = Math.floor(totals.presence.min / 60);
-                    const m = totals.presence.min % 60;
-                    list.innerHTML += `
-                    <li class="history-item" style="border-left: 5px solid #94a3b8; display: flex; justify-content: space-between; align-items: center; padding: 16px; margin-bottom: 12px; background: rgba(148, 163, 184, 0.12); border-radius: 12px;">
-                        <div>
-                            <div style="color: white; font-weight: 700;">🎬 Temps de Présence Total</div>
-                            <div style="font-size: 0.8rem; color: #94a3b8;">${h}h ${m}m cumulés • Dernier : ${formatDate(totals.presence.ts)}</div>
-                        </div>
-                        <div style="color: #94a3b8; font-weight: 800; font-size: 1.1rem;">+${totals.presence.xp.toLocaleString()} XP</div>
-                    </li>`;
-                }
-
-                // 2. BLOC UNIQUE MESSAGES
-                if (totals.message.xp > 0) {
-                    list.innerHTML += `
-                    <li class="history-item" style="border-left: 5px solid #60a5fa; display: flex; justify-content: space-between; align-items: center; padding: 16px; margin-bottom: 12px; background: rgba(96, 165, 250, 0.12); border-radius: 12px;">
-                        <div>
-                            <div style="color: white; font-weight: 700;">💬 Activité Chat Totale</div>
-                            <div style="font-size: 0.8rem; color: #60a5fa;">${totals.message.count} messages envoyés</div>
-                        </div>
-                        <div style="color: #60a5fa; font-weight: 800; font-size: 1.1rem;">+${totals.message.xp.toLocaleString()} XP</div>
-                    </li>`;
-                }
-
-                // 3. ÉVÉNEMENTS SPÉCIFIQUES
-                events.sort((a, b) => b.timestamp - a.timestamp);
-                events.slice(0, 30).forEach(item => {
-                    let label = "✨ Action"; let color = "#00ffcc";
-                    const r = item.reason;
-                    if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
-                    else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Bits / Cheers"; color = "#c084fc"; }
-                    else if (r.includes('raid')) { label = "⚔️ Raid"; color = "#f87171"; }
-                    else if (r.includes('follow')) { label = "💖 Follow"; color = "#34d399"; }
-
-                    list.innerHTML += `
-                    <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                        <div><div style="color:white; font-weight: 700;">${label}</div><div style="font-size:0.75rem; color:#64748b;">${formatDate(item.timestamp)}</div></div>
-                        <div style="color: ${color}; font-weight: 800;">+${parseInt(item.amount || 0).toLocaleString()} XP</div>
-                    </li>`;
+                // --- XP & NIVEAU ---
+                db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
+                    const data = snap.val();
+                    let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
+                    const level = calculateLevel(xp);
+                    document.getElementById("stat-level").textContent = level;
+                    document.getElementById("stat-level-text").textContent = level;
+                    document.getElementById("stat-xp").textContent = xp.toLocaleString();
+                    const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+                    const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+                    const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
+                    document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
                 });
-            });
 
-            // --- AUTRES INFOS ---
-            db.ref('viewer_logs/' + userKey).on('value', snap => {
-                const log = snap.val();
-                if (log) {
-                    document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
-                    document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
-                }
-            });
+                // --- HISTORIQUE CONSOLIDÉ (BILAN UNIQUE + EVENTS) ---
+                db.ref('viewer_data/history/' + userKey).on('value', snap => {
+                    const data = snap.val();
+                    const list = document.getElementById("xp-history-list");
+                    if (!data) { list.innerHTML = "<li>Aucune activité ✨</li>"; return; }
+                    
+                    let totals = { presence: { xp: 0, min: 0, ts: 0 }, message: { xp: 0, count: 0, ts: 0 } };
+                    let events = [];
 
-        } catch (e) { console.error("❌ Erreur Profil:", e); }
-    });
+                    Object.values(data).forEach(item => {
+                        let ts = typeof item.timestamp === 'string' ? new Date(item.timestamp).getTime() : item.timestamp;
+                        const reason = (item.reason || "xp").toLowerCase().trim();
+                        const amount = parseInt(item.amount) || 0;
 
-    window.castVote = async function(pId, opt) {
-        const name = localStorage.getItem('twitch_username');
-        if (!name || !db) return;
-        userVote = opt; window.refreshPollUI();
-        try {
-            await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-        } catch (e) { console.error("❌ Erreur Vote:", e); }
-    };
-</script>
+                        if (reason.includes("presence")) {
+                            totals.presence.xp += amount;
+                            totals.presence.min += (parseInt(item.duration) || 10);
+                            if (ts > totals.presence.ts) totals.presence.ts = ts;
+                        } else if (reason.includes("message")) {
+                            totals.message.xp += amount;
+                            totals.message.count++;
+                            if (ts > totals.message.ts) totals.message.ts = ts;
+                        } else {
+                            events.push({ ...item, timestamp: ts, reason: reason });
+                        }
+                    });
+
+                    list.innerHTML = "";
+                    if (totals.presence.xp > 0) {
+                        list.innerHTML += `<li class="history-item" style="border-left:5px solid #94a3b8; background:rgba(148,163,184,0.1); margin-bottom:12px; border-radius:12px; padding:15px;">
+                            <div><b>🎬 Temps de Présence Total</b><br><small>${Math.floor(totals.presence.min/60)}h ${totals.presence.min%60}m cumulés</small></div>
+                            <div style="color:#94a3b8; font-weight:800;">+${totals.presence.xp.toLocaleString()} XP</div></li>`;
+                    }
+                    if (totals.message.xp > 0) {
+                        list.innerHTML += `<li class="history-item" style="border-left:5px solid #60a5fa; background:rgba(96,165,250,0.1); margin-bottom:12px; border-radius:12px; padding:15px;">
+                            <div><b>💬 Activité Chat Totale</b><br><small>${totals.message.count} messages</small></div>
+                            <div style="color:#60a5fa; font-weight:800;">+${totals.message.xp.toLocaleString()} XP</div></li>`;
+                    }
+
+                    events.sort((a,b) => b.timestamp - a.timestamp).slice(0, 20).forEach(e => {
+                        let label = "✨ Action", color = "#00ffcc";
+                        if (e.reason.includes('sub')) { label = "⭐ Abo"; color = "#fbbf24"; }
+                        else if (e.reason.includes('bits')) { label = "💎 Bits"; color = "#c084fc"; }
+                        list.innerHTML += `<li class="history-item" style="border-left:4px solid ${color}; padding:10px;">
+                            <div>${label}<br><small>${formatDate(e.timestamp)}</small></div>
+                            <div style="font-weight:700;">+${e.amount} XP</div></li>`;
+                    });
+                });
+
+                // --- SONDAGES & LOGS ---
+                db.ref('current_poll').on('value', snap => {
+                    currentPollData = snap.val();
+                    window.refreshPollUI();
+                    document.getElementById("loading-overlay").style.display = "none";
+                });
+                db.ref('viewer_logs/' + userKey).on('value', snap => {
+                    const log = snap.val();
+                    if (log) {
+                        document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
+                        document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
+                    }
+                });
+
+            } catch (e) { console.error("❌ Erreur Profil:", e); }
+        });
+
+        window.castVote = async function(pId, opt) {
+            const name = localStorage.getItem('twitch_username');
+            if (!name || !db) return;
+            userVote = opt; window.refreshPollUI();
+            try {
+                await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
+            } catch (e) { console.error("❌ Erreur Vote:", e); }
+        };
+    </script>
 					</body>
 				</html>
 				
