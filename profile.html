@@ -480,137 +480,80 @@
  							   }
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
- 							   const data = snap.val();
- 							   const list = document.getElementById("xp-history-list");
- 							   if (!data) { list.innerHTML = "<li>Aucune activité récente ✨</li>"; return; }
+db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
+    const data = snap.val();
+    const list = document.getElementById("xp-history-list");
+    if (!data) { 
+        list.innerHTML = "<li>Aucun historique récent ✨</li>"; 
+        return; 
+    }
 
- 							   // 1. Normalisation et Tri
- 							   const allItems = Object.values(data).map(h => {
- 							       let ts = h.timestamp;
- 							       if (typeof ts === 'string') ts = new Date(ts).getTime();
- 							       return { ...h, timestamp: ts };
-							    }).sort((a, b) => b.timestamp - a.timestamp);
-							
-							    // 2. Groupement par JOUR pour Chat et Stream
-							    const finalDisplay = [];
- 							   const dailyGroups = {}; // Pour stocker { "15/04/2026": {amount, duration, count, timestamp} }
+    const items = Object.values(data).map(v => {
+        let ts = v.timestamp;
+        if (typeof ts === 'string') ts = new Date(ts).getTime();
+        return { ...v, timestamp: ts };
+    }).sort((a, b) => b.timestamp - a.timestamp);
 
- 							   allItems.forEach(item => {
-   							     const r = (item.reason || "").toLowerCase();
-  							      const isGroupable = (r.includes("presence") || r.includes("message"));
+    const dailyGroups = {};
+    const finalDisplay = []; // <--- On le définit BIEN au début
 
-  							      if (isGroupable) {
-    							            const dayKey = new Date(item.timestamp).toLocaleDateString('fr-FR');
-    							            if (!dailyGroups[dayKey]) {
-    							                dailyGroups[dayKey] = { day: dayKey, amount: 0, duration: 0, count: 0, timestamp: item.timestamp, isDaily: true };
-    							                finalDisplay.push(dailyGroups[dayKey]);
-    							            }
-   							             dailyGroups[dayKey].amount += item.amount;
-  							              if (r.includes("presence")) dailyGroups[dayKey].duration += (item.duration || 10);
-  							              if (r.includes("message")) dailyGroups[dayKey].count += (item.count || 1);
-  							          } else {
-  							              // Actions spéciales (Sub, Bits...) -> Lignes uniques
-  							              finalDisplay.push({ ...item, isDaily: false });
- 							           }
- 							       });
+    items.forEach(item => {
+        const r = (item.reason || "").toLowerCase();
+        const isGroupable = r.includes('presence') || r.includes('message');
 
- 							       // 3. Rendu HTML (Trié par date)
- 							       list.innerHTML = "";
-  							      finalDisplay.sort((a, b) => b.timestamp - a.timestamp).slice(0, 40).forEach(item => {
-  							          let label = "✨ Action"; let color = "#00ffcc";
-  							          const r = (item.reason || "").toLowerCase();
- 							   
-  							          if (item.isDaily) {
-  							              let parts = [];
-   							             if (item.duration > 0) parts.push(`🎬 Stream (${item.duration} min)`);
-  							              if (item.count > 0) parts.push(`💬 Chat (${item.count} msg)`);
-  							              label = `${item.day} : ${parts.join(' + ')}`;
-  							              color = "#94a3b8";
-  							          } else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
-   							         else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
-   							         else if (r.includes('raid')) { label = "⚔️ Raid !"; color = "#f87171"; }
-   							         else if (r.includes('follow')) { label = "💖 Follow"; color = "#34d399"; }
+        if (isGroupable) {
+            const day = new Date(item.timestamp).toLocaleDateString('fr-FR');
+            if (!dailyGroups[day]) {
+                dailyGroups[day] = { 
+                    isDaily: true, 
+                    dayLabel: day, 
+                    amount: 0, 
+                    duration: 0, 
+                    count: 0, 
+                    timestamp: item.timestamp 
+                };
+                finalDisplay.push(dailyGroups[day]);
+            }
+            dailyGroups[day].amount += item.amount;
+            if (r.includes('presence')) dailyGroups[day].duration += (item.duration || 10);
+            if (r.includes('message')) dailyGroups[day].count += (item.count || 1);
+        } else {
+            // Actions spéciales (Sub, Bits...) -> Lignes uniques
+            finalDisplay.push({ ...item, isDaily: false });
+        }
+    });
 
-    							        list.innerHTML += `
-         							       <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center;  							   padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px;">
-          							          <div>
-        							                <div style="color: white; font-weight: 700;">${label}</div>
-        							                <div style="color: #64748b; font-size: 0.75rem;">${formatDate(item.timestamp)}</div>
-       							             </div>
-       							             <div style="font-weight: 800; color: ${color}; background: ${color}15; padding: 4px 12px; border-radius: 8px;">
-       							                 +${item.amount.toLocaleString()} XP
-      							              </div>
-     							           </li>`;
-   							     });
- 							   });
+    // On trie le résultat final par date
+    finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
-    							// 4. Rendu visuel avec Émojis
-							finalDisplay.slice(0, 40).forEach(item => {
-    							    const r = (item.reason || "").toLowerCase();
-   							     let label = "✨ Action";
-    							    let color = "#00ffcc"; 
+    list.innerHTML = "";
+    finalDisplay.slice(0, 40).forEach(h => {
+        let label = ""; 
+        let color = "#00ffcc";
+        const r = (h.reason || "").toLowerCase();
 
-   							     // --- DÉTECTION INTELLIGENTE DES MOTS-CLÉS ---
-   							     if (r.includes('presence')) { 
-  							          label = "🎬 Session Streaming"; color = "#94a3b8"; 
- 							       } 
- 							       else if (r.includes('message')) { 
-        							    label = "💬 Activité Chat"; color = "#60a5fa"; 
-      							  } 
-   							     else if (r.includes('bits') || r.includes('cheer')) { 
-    							        label = "💎 Cheers Bits"; color = "#c084fc"; 
-    							    } 
-    							    else if (r.includes('subgift')) { 
-    							        label = "🎁 Cadeau d'Abo"; color = "#f472b6"; 
-    							    } 
-    							    else if (r.includes('sub')) { // Capturera 'sub', 'resub', 'sub_3_months', etc.
-    							        label = "⭐ Abonnement"; color = "#fbbf24"; 
-   							     } 
-    							    else if (r.includes('raid')) { 
-    							        label = "⚔️ Raid !"; color = "#f87171"; 
-   							     } 
-    							    else if (r.includes('follow')) { 
-    							        label = "💖 Nouveau Follow"; color = "#34d399"; 
-   							     }
-   							     else {
-   							         // Si vraiment inconnu, on nettoie le texte (ex: 'bits_x10' devient 'Bits X10')
-   							         label = `✨ ${r.charAt(0).toUpperCase() + r.slice(1).replace(/_/g, ' ')}`;
-   							     }
+        if (h.isDaily) {
+            let parts = [];
+            if (h.duration > 0) parts.push(`🎬 Stream (${h.duration} min)`);
+            if (h.count > 0) parts.push(`💬 Chat (${h.count} msg)`);
+            label = `${h.dayLabel} : ${parts.join(' + ')}`;
+            color = "#94a3b8";
+        } else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
+        else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
+        else if (r.includes('raid')) { label = "⚔️ Raid Host"; color = "#f87171"; }
+        else if (r.includes('follow')) { label = "💖 Nouveau Follow"; color = "#34d399"; }
+        else { label = `✨ ${h.reason || 'Action'}`; }
 
-   							     const timeStr = new Date(item.timestamp).toLocaleString('fr-FR', { 
-    							        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
-   							     });
-
-   							     list.innerHTML += `
-   							         <li class="history-item" style="
-   							             display: flex; 
-   							             justify-content: space-between; 
-   							             align-items: center; 
-         							       padding: 14px; 
-        							        margin-bottom: 8px; 
-         							       background: rgba(255,255,255,0.03); 
-       							         border-radius: 10px; 
-       							         border-left: 4px solid ${color};
-     							       ">
-      							          <div style="display: flex; flex-direction: column;">
-      							              <span style="color: white; font-weight: 700; font-size: 0.95rem; font-family: inherit;">${label}</span>
-     							               <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px; font-family: inherit;">${timeStr}</span>
-      							          </div>
-    							            <div style="
-    							                font-weight: 800; 
-    							                color: ${color}; 
-   							                 background: ${color}15; 
-   							                 padding: 4px 12px; 
-   							                 border-radius: 8px;
-   							                 font-family: inherit;
-   							                 font-size: 0.9rem;
-   							             ">
-   							                 +${item.amount.toLocaleString()} XP
-  							              </div>
-  							          </li>`;
- 							   });
-							
+        list.innerHTML += `
+        <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px;">
+            <div>
+                <div style="font-weight:700; color:white;">${label}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(h.timestamp)}</div>
+            </div>
+            <div style="font-weight:800; color:${color};">+${h.amount.toLocaleString()} XP</div>
+        </li>`;
+    });
+});							
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
