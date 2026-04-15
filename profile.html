@@ -505,18 +505,10 @@
    							     return `${y}-${m}-${day}`;
    							 };
 
-   							 const getReasonType = (reasonRaw) => {
-   							     const reason = (reasonRaw || "").toLowerCase();
-   							     if (reason === "message") return "message";
-   							     if (reason === "presence") return "presence";
-   							     return "other";
-   							 };
-
    							 allItems.forEach(item => {
    							     const reason = (item.reason || "inconnu").toLowerCase();
-   							     const reasonType = getReasonType(reason);
    							     const amount = Number(item.amount) || 0;
-   							     const isDailyGroupable = (reasonType === "presence" || reasonType === "message");
+   							     const isDailyGroupable = (reason === "presence" || reason === "message");
 
    							     if (!isDailyGroupable) {
    							         finalDisplay.push({ ...item, reason, amount });
@@ -524,11 +516,11 @@
    							     }
 
    							     const dayKey = getDayKey(item.timestamp);
-   							     const bucketKey = `${dayKey}-${reasonType}`;
+   							     const bucketKey = `${dayKey}-${reason}`;
 
    							     if (!dayBuckets[bucketKey]) {
    							         dayBuckets[bucketKey] = {
-   							             reason: reasonType,
+   							             reason,
    							             amount: 0,
    							             timestamp: new Date(`${dayKey}T23:59:59`).getTime(),
    							             dayKey,
@@ -540,12 +532,12 @@
    							     const bucket = dayBuckets[bucketKey];
    							     bucket.amount += amount;
 
-   							     if (reasonType === "message") {
+   							     if (reason === "message") {
    							         const msgCount = Number(item.message_count ?? item.messages_sent ?? item.messages ?? 1) || 1;
    							         bucket.totalMessages += msgCount;
    							     }
 
-   							     if (reasonType === "presence") {
+   							     if (reason === "presence") {
    							         const presenceMinutes = Number(
    							             item.presence_minutes
    							             ?? item.watch_minutes
