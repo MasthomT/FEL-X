@@ -513,8 +513,7 @@
     							        } else {
     							            const parsedFromKey = new Date(String(key)).getTime();
     							            ts = Number.isNaN(parsedFromKey) ? Date.now() : parsedFromKey;
-    							        }
-    							    }
+   							    }
    							     return { ...h, timestamp: ts, _key: key };
     							});
     const dailyGroups = {};
