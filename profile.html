@@ -467,7 +467,6 @@
  							   const statWatchtimeEl = document.getElementById("stat-watchtime");
 
  							   const totalMinutes = Number(stats?.total_presence_minutes) || 0;
-							   globalPresenceMinutes = totalMinutes;
 							   const hours = Math.floor(totalMinutes / 60);
  							   const minutes = totalMinutes % 60;
  							   const formatted = `${hours}h ${minutes}m`;
@@ -516,20 +515,10 @@
    							     return `${y}-${m}-${day}`;
    							 };
 
-   							 const getReasonType = (reasonRaw) => {
-   							     const reason = (reasonRaw || "").toLowerCase();
-    							     if (reason === "message") return "message";
-    							     if (reason === "presence") return "presence";
-   							     // Compatibilité anciennes données
-   							     if (reason === "watchtime" || reason === "watch_time" || reason === "viewer_time") return "presence";
-    							     return "other";
-    							 };
-
    							 allItems.forEach(item => {
    							     const reason = (item.reason || "inconnu").toLowerCase();
-   							     const reasonType = getReasonType(reason);
    							     const amount = Number(item.amount) || 0;
-   							     const isDailyGroupable = (reasonType === "presence" || reasonType === "message");
+   							     const isDailyGroupable = (reason === "presence" || reason === "message");
 
    							     if (!isDailyGroupable) {
    							         finalDisplay.push({ ...item, reason, amount });
@@ -537,11 +526,11 @@
    							     }
 
    							     const dayKey = getDayKey(item.timestamp);
-   							     const bucketKey = `${dayKey}-${reasonType}`;
+   							     const bucketKey = `${dayKey}-${reason}`;
 
    							     if (!dayBuckets[bucketKey]) {
    							         dayBuckets[bucketKey] = {
-   							             reason: reasonType,
+   							             reason,
    							             amount: 0,
    							             timestamp: new Date(`${dayKey}T23:59:59`).getTime(),
    							             dayKey,
@@ -553,36 +542,29 @@
    							     const bucket = dayBuckets[bucketKey];
    							     bucket.amount += amount;
 
-   							     if (reasonType === "message") {
+   							     if (reason === "message") {
    							         const msgCount = Number(item.message_count ?? item.messages_sent ?? item.messages ?? 1) || 1;
    							         bucket.totalMessages += msgCount;
    							     }
 
-   							     if (reasonType === "presence") {
-    							         const presenceMinutes = Number(
-    							             item.presence_minutes
-    							             ?? item.watch_minutes
-    							             ?? item.minutes
-    							             ?? ((Number(item.presence_seconds ?? item.watchtime_seconds) || 0) / 60)
-    							             ?? 0
-    							         );
+   							     if (reason === "presence") {
+   							         const presenceMinutes = Number(
+   							             item.presence_minutes
+   							             ?? item.watch_minutes
+   							             ?? item.minutes
+   							             ?? ((Number(item.presence_seconds ?? item.watchtime_seconds) || 0) / 60)
+   							             ?? 0
+   							         );
 
-    							         if (Number.isFinite(presenceMinutes) && presenceMinutes > 0) {
-    							             bucket.totalPresenceMinutes += presenceMinutes;
-    							         }
-    							     }
+   							         if (Number.isFinite(presenceMinutes) && presenceMinutes > 0) {
+   							             bucket.totalPresenceMinutes += presenceMinutes;
+   							         } else {
+   							             bucket.totalPresenceMinutes += 1;
+   							         }
+   							     }
    							 });
 
    							 finalDisplay.push(...Object.values(dayBuckets));
-   							 const hasPresenceLine = finalDisplay.some(item => (item.reason || "").toLowerCase() === "presence");
-   							 if (!hasPresenceLine && globalPresenceMinutes > 0) {
-   							     finalDisplay.push({
-   							         reason: "presence",
-   							         amount: 0,
-   							         timestamp: Date.now(),
-   							         totalPresenceMinutes: globalPresenceMinutes
-   							     });
-   							 }
    							 finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
     							// 4. Rendu visuel avec Émojis
@@ -627,14 +609,12 @@
    							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${totalMessages.toLocaleString()} message(s)`;
    							     }
 
-	   							     if (r === "presence") {
-   							         const dayMinutes = Math.max(0, Math.round(Number(item.totalPresenceMinutes) || 0));
-   							         const totalMinutesToShow = dayMinutes > 0 ? dayMinutes : globalPresenceMinutes;
-   							         const hours = Math.floor(totalMinutesToShow / 60);
-   							         const minutes = totalMinutesToShow % 60;
-   							         const suffix = dayMinutes > 0 ? "de présence" : "de présence (global)";
-   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${hours}h ${minutes}m ${suffix}`;
-    							     }
+   							     if (r === "presence") {
+   							         const totalMinutes = Math.max(0, Math.round(Number(item.totalPresenceMinutes) || 0));
+   							         const hours = Math.floor(totalMinutes / 60);
+   							         const minutes = totalMinutes % 60;
+   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${hours}h ${minutes}m de présence`;
+   							     }
 
    							     list.innerHTML += `
    							         <li class="history-item" style="
