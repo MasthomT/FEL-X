@@ -499,32 +499,69 @@
    							 // 2. Tri chronologique (Plus récent en haut)
    							 allItems.sort((a, b) => b.timestamp - a.timestamp);
 
+   							 // 3. Regroupement journalier pour PRESENCE + MESSAGE
+   							 const dayBuckets = {};
    							 const finalDisplay = [];
-   							 let currentGroup = null;
 
-   							 // 3. Logique de Session (Regroupement si écart < 12h)
-  							  allItems.forEach(item => {
-     							   const reason = (item.reason || "inconnu").toLowerCase();
-     							   const isGroupable = (reason === "presence" || reason === "message");
+   							 const getDayKey = (ts) => {
+   							     const d = new Date(ts);
+   							     const y = d.getFullYear();
+   							     const m = String(d.getMonth() + 1).padStart(2, "0");
+   							     const day = String(d.getDate()).padStart(2, "0");
+   							     return `${y}-${m}-${day}`;
+   							 };
 
-     							   if (isGroupable && currentGroup && currentGroup.reason === reason) {
-     							       const timeDiff = Math.abs(currentGroup.timestamp - item.timestamp);
-    							        if (timeDiff < 43200000) { // 12 heures
-    							            currentGroup.amount += item.amount;
-    							            return; 
-   							         }
+   							 allItems.forEach(item => {
+   							     const reason = (item.reason || "inconnu").toLowerCase();
+   							     const amount = Number(item.amount) || 0;
+   							     const isDailyGroupable = (reason === "presence" || reason === "message");
+
+   							     if (!isDailyGroupable) {
+   							         finalDisplay.push({ ...item, reason, amount });
+   							         return;
    							     }
 
-  							      if (currentGroup) finalDisplay.push(currentGroup);
-        
-  							      currentGroup = {
- 							           reason: reason,
-  							          amount: item.amount,
- 							           timestamp: item.timestamp,
-  							          isGroup: isGroupable
- 							       };
- 							   });
- 							   if (currentGroup) finalDisplay.push(currentGroup);
+   							     const dayKey = getDayKey(item.timestamp);
+   							     const bucketKey = `${dayKey}-${reason}`;
+
+   							     if (!dayBuckets[bucketKey]) {
+   							         dayBuckets[bucketKey] = {
+   							             reason,
+   							             amount: 0,
+   							             timestamp: new Date(`${dayKey}T23:59:59`).getTime(),
+   							             dayKey,
+   							             totalMessages: 0,
+   							             totalPresenceMinutes: 0
+   							         };
+   							     }
+
+   							     const bucket = dayBuckets[bucketKey];
+   							     bucket.amount += amount;
+
+   							     if (reason === "message") {
+   							         const msgCount = Number(item.message_count ?? item.messages_sent ?? item.messages ?? 1) || 1;
+   							         bucket.totalMessages += msgCount;
+   							     }
+
+   							     if (reason === "presence") {
+   							         const presenceMinutes = Number(
+   							             item.presence_minutes
+   							             ?? item.watch_minutes
+   							             ?? item.minutes
+   							             ?? ((Number(item.presence_seconds ?? item.watchtime_seconds) || 0) / 60)
+   							             ?? 0
+   							         );
+
+   							         if (Number.isFinite(presenceMinutes) && presenceMinutes > 0) {
+   							             bucket.totalPresenceMinutes += presenceMinutes;
+   							         } else {
+   							             bucket.totalPresenceMinutes += 1;
+   							         }
+   							     }
+   							 });
+
+   							 finalDisplay.push(...Object.values(dayBuckets));
+   							 finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
     							// 4. Rendu visuel avec Émojis
 							finalDisplay.slice(0, 40).forEach(item => {
@@ -533,11 +570,11 @@
     							    let color = "#00ffcc"; 
 
    							     // --- DÉTECTION INTELLIGENTE DES MOTS-CLÉS ---
-   							     if (r.includes('presence')) { 
-  							          label = "🎬 Session Streaming"; color = "#94a3b8"; 
+   							     if (r.includes('presence')) {
+  							          label = "🎬 PRESENCES"; color = "#94a3b8";
  							       } 
- 							       else if (r.includes('message')) { 
-        							    label = "💬 Activité Chat"; color = "#60a5fa"; 
+ 							       else if (r.includes('message')) {
+        							    label = "💬 MESSAGES"; color = "#60a5fa";
       							  } 
    							     else if (r.includes('bits') || r.includes('cheer')) { 
     							        label = "💎 Cheers Bits"; color = "#c084fc"; 
@@ -559,9 +596,21 @@
    							         label = `✨ ${r.charAt(0).toUpperCase() + r.slice(1).replace(/_/g, ' ')}`;
    							     }
 
-   							     const timeStr = new Date(item.timestamp).toLocaleString('fr-FR', { 
-    							        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+   							     let timeStr = new Date(item.timestamp).toLocaleString('fr-FR', {
+    							        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
    							     });
+
+   							     if (r === "message") {
+   							         const totalMessages = Number(item.totalMessages) || 0;
+   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${totalMessages.toLocaleString()} message(s)`;
+   							     }
+
+   							     if (r === "presence") {
+   							         const totalMinutes = Math.max(0, Math.round(Number(item.totalPresenceMinutes) || 0));
+   							         const hours = Math.floor(totalMinutes / 60);
+   							         const minutes = totalMinutes % 60;
+   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${hours}h ${minutes}m de présence`;
+   							     }
 
    							     list.innerHTML += `
    							         <li class="history-item" style="
