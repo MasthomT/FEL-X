@@ -404,6 +404,10 @@
 							currentPollData = snap.val();
 							window.refreshPollUI();
 							document.getElementById("loading-overlay").style.display = "none";
+} catch (e) {
+        console.error("❌ Erreur Profil:", e);
+        document.getElementById("loading-overlay").style.display = "none";
+    }
 							});
 
 							window.refreshPollUI = function() {
@@ -601,20 +605,21 @@
 							});
 
 							const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-							const chData = await chResp.json();
-							const bId = chData.data[0].id;
-
-							fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers })
-							.then(r => r.status === 200 ? r.json() : null)
-							.then(d => {
-							const bDiv = document.getElementById("badges-container");
-							if (d?.data?.length > 0) {
-							bDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-							document.getElementById("stat-sub").textContent = "Oui";
-							} else {
-							document.getElementById("stat-sub").textContent = "Non";
-							}
-							});
+        const chData = await chResp.json();
+        if (chData.data && chData.data.length > 0) {
+            const bId = chData.data[0].id;
+            
+            const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers });
+            const d = subResp.status === 200 ? await subResp.json() : null;
+            
+            const bDiv = document.getElementById("badges-container");
+            if (d && d.data && d.data.length > 0) {
+                if (bDiv) bDiv.innerHTML += '<div class="badge badge-sub">Abonné</div>';
+                document.getElementById("stat-sub").textContent = "Oui";
+            } else {
+                document.getElementById("stat-sub").textContent = "Non";
+            }
+        }
 
 							// --- 7. FÉLIX-LOG (MAINTENU) ---
                 db.ref('viewer_logs/' + userKey).on('value', snap => {
