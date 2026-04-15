@@ -610,7 +610,7 @@
   							              </div>
   							          </li>`;
  							   });
-							});
+							
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
