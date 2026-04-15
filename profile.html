@@ -488,7 +488,6 @@ db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
         return; 
     }
 
-    // 1. On prépare les listes
     const items = Object.values(data).map(v => {
         let ts = v.timestamp;
         if (typeof ts === 'string') ts = new Date(ts).getTime();
@@ -496,9 +495,8 @@ db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
     }).sort((a, b) => b.timestamp - a.timestamp);
 
     const dailyGroups = {};
-    const finalDisplay = []; // Initialisation propre pour éviter le ReferenceError
+    const finalDisplay = [];
 
-    // 2. On trie : Stream/Chat vont dans dailyGroups, le reste en ligne unique
     items.forEach(item => {
         const r = (item.reason || "").toLowerCase();
         const isStream = r.includes("presence");
@@ -513,37 +511,43 @@ db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                     duration: 0, 
                     count: 0, 
                     timestamp: item.timestamp, 
-                    isDaily: true 
+                    isDaily: true,
+                    hasStream: false, // Flag de sécurité
+                    hasChat: false    // Flag de sécurité
                 };
                 finalDisplay.push(dailyGroups[dayKey]);
             }
             dailyGroups[dayKey].amount += (parseInt(item.amount) || 0);
-            if (isStream) dailyGroups[dayKey].duration += (parseInt(item.duration) || 10);
-            if (isChat) dailyGroups[dayKey].count += (parseInt(item.count) || 1);
+            
+            if (isStream) {
+                dailyGroups[dayKey].hasStream = true;
+                dailyGroups[dayKey].duration += (parseInt(item.duration) || 10); // 10 par défaut si absent
+            }
+            if (isChat) {
+                dailyGroups[dayKey].hasChat = true;
+                dailyGroups[dayKey].count += (parseInt(item.count) || 1);
+            }
         } else {
-            // C'est une action spéciale (Bits, Sub...), on l'ajoute directement
             finalDisplay.push({ ...item, isDaily: false });
         }
     });
 
-    // 3. Rendu HTML
     list.innerHTML = "";
-    // On trie par date pour que le plus récent soit en haut
     finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
 
     finalDisplay.slice(0, 50).forEach(item => {
-        let label = "✨ Action"; 
+        let label = ""; 
         let color = "#00ffcc";
         const r = (item.reason || "").toLowerCase();
 
         if (item.isDaily) {
             let parts = [];
-            // ON FORCE L'AFFICHAGE SI LA DURÉE EXISTE
-            if (item.duration > 0) parts.push(`🎬 Stream (${item.duration} min)`);
-            if (item.count > 0) parts.push(`💬 Chat (${item.count} msg)`);
+            // ICI ON FORCE : Si le flag est vrai, on affiche l'icône, point barre.
+            if (item.hasStream) parts.push(`🎬 Stream (${item.duration} min)`);
+            if (item.hasChat) parts.push(`💬 Chat (${item.count} msg)`);
             
-            label = `${item.day} : ${parts.length > 0 ? parts.join(' + ') : 'Activité'}`;
-            color = "#94a3b8";
+            label = parts.length > 0 ? parts.join(' + ') : 'Activité';
+            color = item.hasStream ? "#94a3b8" : "#60a5fa";
         } 
         else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
         else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
