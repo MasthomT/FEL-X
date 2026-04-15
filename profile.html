@@ -361,11 +361,12 @@
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const BROADCASTER_NAME = "masthom_";
 
-    // Initialisation globale
+    // Initialisation globale de la DB pour éviter les erreurs "db is not defined"
     var db = firebase.database(); 
     var userVote = null;
     var currentPollData = null;
 
+    // --- FONCTIONS UTILES ---
     function sanitize(k) {
         return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : "";
     }
@@ -373,7 +374,7 @@
     function formatDate(timestamp) {
         if (!timestamp) return "Date inconnue";
         const d = new Date(timestamp);
-        return isNaN(d.getTime()) ? "Date invalide" : d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        return isNaN(d.getTime()) ? "Format invalide" : d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
     }
 
     // --- LOGIQUE SONDAGE ---
@@ -382,18 +383,24 @@
         const container = document.getElementById('poll-container');
         const optionsDiv = document.getElementById('poll-options');
         if (!poll || !poll.active) { if(container) container.style.display = 'none'; return; }
+        
         if(container) container.style.display = 'block';
         document.getElementById('poll-question').textContent = poll.question;
         optionsDiv.innerHTML = "";
+        
         poll.options.forEach(option => {
             const safeKey = sanitize(option);
             const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
             const isMyVote = (userVote === option);
             const wrapper = document.createElement('div');
             wrapper.className = "poll-option-container";
-            wrapper.innerHTML = `<div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
+            wrapper.innerHTML = `
+            <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
                 <div class="poll-option-fill" style="width: ${percent}%;"></div>
-                <div class="poll-option-label"><span>${isMyVote ? '✅ ' : ''}${option}</span><span>${percent}%</span></div>
+                <div class="poll-option-label">
+                    <span>${isMyVote ? '✅ ' : ''}${option}</span>
+                    <span>${percent}%</span>
+                </div>
             </div>`;
             wrapper.onclick = () => window.castVote(poll.id, option);
             optionsDiv.appendChild(wrapper);
@@ -410,12 +417,12 @@
             const userData = await userResp.json();
             const user = userData.data[0];
             const userKey = user.login.toLowerCase();
-            localStorage.setItem('twitch_username', userKey);
 
             document.getElementById("username").textContent = user.display_name;
             document.getElementById("avatar").src = user.profile_image_url;
 
-            // --- 1. WATCHTIME TOTAL (PROFIL & BADGE) ---
+            // --- 1. WATCHTIME TOTAL (Badge Statistique) ---
+            // On lit stats_perma pour avoir le total absolu (47k+) sans charger l'historique
             db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
                 const s = snap.val();
                 if (s && s.total_presence_minutes !== undefined) {
@@ -433,22 +440,24 @@
                 document.getElementById("stat-level").textContent = level;
                 document.getElementById("stat-level-text").textContent = level;
                 document.getElementById("stat-xp").textContent = xp.toLocaleString();
+                
                 const nextXp = Math.floor(100 * Math.pow(level, 2.2));
                 const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
                 const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
                 document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
             });
 
-            // --- 3. HISTORIQUE AVEC RÈGLE DES 12 HEURES ---
+            // --- 3. HISTORIQUE AVEC REGROUPEMENT SESSION (12H) ---
+            // limitToLast(1000) permet d'avoir les sessions récentes sans saturer la RAM
             db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                 const data = snap.val();
                 const list = document.getElementById("xp-history-list");
                 if (!data) {
-                    list.innerHTML = "<li>Aucune activité récente ✨</li>";
+                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité récente ✨</li>";
                     return;
                 }
 
-                // Normalisation et tri (plus récent d'abord)
+                // Normalisation et tri
                 let items = Object.values(data).map(item => {
                     let ts = item.timestamp;
                     if (typeof ts === 'string') ts = new Date(ts).getTime();
@@ -467,14 +476,13 @@
                     for (let i = 1; i < items.length; i++) {
                         let item = items[i];
                         let diff = Math.abs(current.timestamp - item.timestamp);
-                        const GAP_LIMIT = 12 * 60 * 60 * 1000; // 12 heures en millisecondes
+                        const GAP_12H = 12 * 60 * 60 * 1000;
 
-                        // RÈGLE : Même raison + moins de 12h d'écart
-                        if (item.reason === current.reason && diff < GAP_LIMIT) {
+                        // RÈGLE : Même raison + moins de 12h d'écart = MÊME BLOC
+                        if (item.reason === current.reason && diff < GAP_12H) {
                             current.amount += item.amount;
                             current.duration += item.duration;
                             current.count += 1;
-                            // On garde le timestamp le plus récent du bloc
                         } else {
                             grouped.push(current);
                             current = { ...item, count: 1 };
@@ -485,7 +493,7 @@
 
                 list.innerHTML = "";
                 grouped.slice(0, 50).forEach(item => {
-                    let label = "✨ Action";
+                    let label = "✨ Action Spéciale";
                     let color = "#00ffcc";
                     let detail = "";
                     const r = item.reason;
@@ -500,8 +508,8 @@
                         detail = `${item.count} messages`;
                     } else if (r.includes('sub')) {
                         label = "⭐ Abonnement"; color = "#fbbf24";
-                    } else if (r.includes('bits')) {
-                        label = "💎 Bits / Cheers"; color = "#c084fc";
+                    } else if (r.includes('bits') || r.includes('cheer')) {
+                        label = "💎 Cheers Bits"; color = "#c084fc";
                     } else if (r.includes('raid')) {
                         label = "⚔️ Raid Host"; color = "#f87171";
                     }
@@ -517,18 +525,12 @@
                 });
             });
 
-            // --- 4. RANG, SONDAGES & LOGS ---
+            // --- 4. RANG & LOGS FÉLIX ---
             db.ref('viewer_data/xp_data').once('value').then(snap => {
                 const all = snap.val() || {};
                 const sorted = Object.entries(all).map(([k, v]) => ({ k, xp: (v?.xp || v || 0) })).sort((a, b) => b.xp - a.xp);
                 const myRank = sorted.findIndex(u => u.k === userKey) + 1;
                 document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
-            });
-
-            db.ref('current_poll').on('value', snap => {
-                currentPollData = snap.val();
-                window.refreshPollUI();
-                document.getElementById("loading-overlay").style.display = "none";
             });
 
             db.ref('viewer_logs/' + userKey).on('value', snap => {
@@ -545,9 +547,13 @@
     window.castVote = async function(pId, opt) {
         const name = localStorage.getItem('twitch_username');
         if (!name || !db) return;
-        userVote = opt; window.refreshPollUI();
+        userVote = opt;
+        window.refreshPollUI();
         try {
-            await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            await db.ref('poll_incoming_votes/' + name).set({
+                poll_id: pId, option: opt, username: name,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
             await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
         } catch (e) { console.error("❌ Erreur Vote:", e); }
     };
