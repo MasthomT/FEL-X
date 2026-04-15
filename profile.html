@@ -359,17 +359,16 @@
 
 <script>
     // =================================================================
-    // 1. CONFIGURATION & INITIALISATION GLOBALE
+    // 1. INITIALISATION GLOBALE
     // =================================================================
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const BROADCASTER_NAME = "masthom_";
 
-    // Initialisation immédiate de la DB pour qu'elle soit disponible partout
+    // On récupère la base de données déjà initialisée dans app.js
     var db = firebase.database(); 
     var userVote = null;
     var currentPollData = null;
 
-    // --- Helpers ---
     function sanitize(k) {
         return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : "";
     }
@@ -381,8 +380,17 @@
         return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
     }
 
+    // Sécurité : masquer le chargement quoi qu'il arrive après 5 secondes
+    setTimeout(() => {
+        const loader = document.getElementById("loading-overlay");
+        if (loader && loader.style.display !== "none") {
+            console.warn("⚠️ Timeout : Masquage forcé du loader.");
+            loader.style.display = "none";
+        }
+    }, 5000);
+
     // =================================================================
-    // 2. LOGIQUE D'AFFICHAGE DU SONDAGE
+    // 2. LOGIQUE SONDAGE
     // =================================================================
     window.refreshPollUI = function() {
         const poll = currentPollData;
@@ -412,7 +420,7 @@
                     <div class="poll-option-fill" style="width: ${percent}%;"></div>
                     <div class="poll-option-label">
                         <span>${isMyVote ? '✅ ' : ''}${option}</span>
-                        <span style="font-family: monospace;">${percent}%</span>
+                        <span>${percent}%</span>
                     </div>
                 </div>`;
                 wrapper.onclick = () => window.castVote(poll.id, option);
@@ -422,24 +430,40 @@
     };
 
     // =================================================================
-    // 3. CHARGEMENT DES DONNÉES UTILISATEUR
+    // 3. CHARGEMENT DES DONNÉES (DOMContentLoaded)
     // =================================================================
     document.addEventListener("DOMContentLoaded", async () => {
+        const loader = document.getElementById("loading-overlay");
+        
+        // Vérification Auth (défini dans app.js)
         const token = checkAuth();
-        if (!token) return;
+        if (!token) {
+            console.error("❌ Pas de token Twitch.");
+            return;
+        }
 
         try {
+            // Récupération utilisateur Twitch
             const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
             const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
             const userData = await userResp.json();
+            
+            if (!userData.data || userData.data.length === 0) {
+                throw new Error("Utilisateur Twitch introuvable");
+            }
+
             const user = userData.data[0];
             const userKey = user.login.toLowerCase();
             localStorage.setItem('twitch_username', userKey);
 
+            // Mise à jour UI de base
             document.getElementById("username").textContent = user.display_name;
             document.getElementById("avatar").src = user.profile_image_url;
 
-            // --- ÉCOUTE : WATCHTIME TOTAL (SOLID) ---
+            // ✅ ON MASQUE LE CHARGEMENT ICI (Dès qu'on a l'utilisateur)
+            if(loader) loader.style.display = "none";
+
+            // --- ÉCOUTE : WATCHTIME TOTAL ---
             db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
                 const s = snap.val();
                 if (s && s.total_presence_minutes !== undefined) {
@@ -466,7 +490,6 @@
             });
 
             // --- ÉCOUTE : HISTORIQUE (REGROUPEMENT 12H) ---
-            // On limite à 1000 pour la performance, suffisant pour l'historique visuel
             db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                 const data = snap.val();
                 const list = document.getElementById("xp-history-list");
@@ -475,7 +498,6 @@
                     return;
                 }
 
-                // Normalisation et tri (plus récent d'abord)
                 let items = Object.values(data).map(item => {
                     let ts = item.timestamp;
                     if (typeof ts === 'string') ts = new Date(ts).getTime();
@@ -490,14 +512,10 @@
                 const grouped = [];
                 if (items.length > 0) {
                     let current = { ...items[0], count: 1 };
-
                     for (let i = 1; i < items.length; i++) {
                         let item = items[i];
                         let diff = Math.abs(current.timestamp - item.timestamp);
-                        const GAP_12H = 12 * 60 * 60 * 1000;
-
-                        // RÈGLE : Même raison + moins de 12h d'écart = MÊME SESSION
-                        if (item.reason === current.reason && diff < GAP_12H) {
+                        if (item.reason === current.reason && diff < 43200000) {
                             current.amount += item.amount;
                             current.duration += (item.duration || 10);
                             current.count += 1;
@@ -511,29 +529,15 @@
 
                 list.innerHTML = "";
                 grouped.slice(0, 50).forEach(item => {
-                    let label = "✨ Action";
-                    let color = "#00ffcc";
-                    let detail = "";
+                    let label = "✨ Action"; let color = "#00ffcc"; let detail = "";
                     const r = item.reason;
-
-                    if (r.includes('presence')) {
-                        label = "🎬 Session Streaming";
-                        color = "#94a3b8";
-                        detail = `${item.duration} min de présence`;
-                    } else if (r.includes('message')) {
-                        label = "💬 Activité Chat";
-                        color = "#60a5fa";
-                        detail = `${item.count} messages`;
-                    } else if (r.includes('sub')) {
-                        label = "⭐ Abonnement"; color = "#fbbf24";
-                    } else if (r.includes('bits') || r.includes('cheer')) {
-                        label = "💎 Cheers Bits"; color = "#c084fc";
-                    } else if (r.includes('raid')) {
-                        label = "⚔️ Raid Host"; color = "#f87171";
-                    }
+                    if (r.includes('presence')) { label = "🎬 Session Streaming"; color = "#94a3b8"; detail = `${item.duration} min`; }
+                    else if (r.includes('message')) { label = "💬 Activité Chat"; color = "#60a5fa"; detail = `${item.count} messages`; }
+                    else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
+                    else if (r.includes('bits')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
 
                     list.innerHTML += `
-                    <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                    <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
                         <div>
                             <div style="color:white; font-weight: 700;">${label}</div>
                             <div style="font-size:0.75rem; color:#64748b;">${formatDate(item.timestamp)} ${detail ? ' • ' + detail : ''}</div>
@@ -552,23 +556,20 @@
             db.ref('current_poll').on('value', snap => {
                 currentPollData = snap.val();
                 window.refreshPollUI();
-                const loader = document.getElementById("loading-overlay");
-                if(loader) loader.style.display = "none";
             });
 
             // --- ÉCOUTE : LOGS FÉLIX ---
             db.ref('viewer_logs/' + userKey).on('value', snap => {
                 const log = snap.val();
                 if (log) {
-                    const moodEl = document.getElementById("felix-mood");
-                    const obsEl = document.getElementById("felix-observation");
-                    if(moodEl) moodEl.textContent = log.mood || "Analyse...";
-                    if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
+                    document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
+                    document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
                 }
             });
 
         } catch (e) {
             console.error("❌ Erreur Profil:", e);
+            if(loader) loader.style.display = "none"; // On masque quand même en cas d'erreur
         }
     });
 
@@ -582,9 +583,7 @@
         window.refreshPollUI();
         try {
             await db.ref('poll_incoming_votes/' + name).set({
-                poll_id: pId,
-                option: opt,
-                username: name,
+                poll_id: pId, option: opt, username: name,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
             await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
