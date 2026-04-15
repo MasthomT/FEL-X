@@ -6,18 +6,15 @@
     <title>Mon Profil - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- ADAPTATION AU STYLE GLOBAL --- */
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; }
         main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
 
-        /* --- ÉCRAN DE CHARGEMENT --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 2000; display: flex;
             flex-direction: column; justify-content: center; align-items: center;
         }
 
-        /* --- EN-TÊTE DU PROFIL --- */
         .profile-header {
             display: flex; align-items: center; gap: 25px; margin-bottom: 2rem;
             background: var(--surface); padding: 1.5rem 2rem; border-radius: 12px;
@@ -28,82 +25,71 @@
             width: 4px; background: var(--accent); border-radius: 12px 0 0 12px;
         }
 
-        #username { color: white !important; margin: 0; font-size: 2rem; font-weight: 700; }
+        #username { color: white; margin: 0; font-size: 2rem; font-weight: 700; }
         .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
-
-        /* --- BADGES & STATS --- */
-        .badges-list { display: flex; gap: 8px; margin-top: 8px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .badge-sub { color: #eb0400; background: rgba(235, 4, 0, 0.1); border: 1px solid rgba(235, 4, 0, 0.2); }
 
         .stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
         .stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
         .stat-num { font-size: 1.5rem; font-weight: 700; color: white; }
 
-        /* --- XP PROGRESSION --- */
         .xp-container { margin-bottom: 2rem; }
-        .xp-text { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; }
         .xp-bar-bg { width: 100%; height: 10px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
         .xp-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease; }
 
-        /* --- PANNEAUX --- */
         .id-card, .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
         .id-title, .panel-title { color: var(--accent); font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
-        .id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-        .id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); }
-        .id-value { font-size: 0.95rem; color: white; border-bottom: 1px dashed var(--border); padding-bottom: 4px; }
 
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
         .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 14px; border-left: 4px solid var(--accent); 
+            background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 10px;
+        }
 
-        /* --- SONDAGE --- */
         .poll-option-container { position: relative; margin-bottom: 12px; cursor: pointer; }
         .poll-option-bg { background: var(--bg); height: 50px; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; position: relative; }
         .poll-option-fill { background: var(--accent); opacity: 0.2; height: 100%; transition: width 0.8s ease; }
-        .poll-option-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 600; color: white; }
+        .poll-option-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-weight: 600; }
 
-        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
         @media (max-width: 800px) {
-            main { margin-left: 0 !important; padding: 1.5rem 1rem 100px 1rem !important; }
+            main { margin-left: 0; padding: 1rem; padding-bottom: 100px; }
+            .stats-mini-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .profile-header { flex-direction: column; text-align: center; }
-            .stats-mini-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-            .id-grid { grid-template-columns: 1fr !important; }
+            .main-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div id="loading-overlay">
+        <h2>Initialisation...</h2>
+        <p>Synchronisation avec Félix</p>
+    </div>
 
     <nav class="sidebar">
         <a href="profile.html" class="logo"><img src="logo-felix.png"><span>FEL-X</span></a>
         <a href="profile.html" class="nav-link active">Profil</a>
-        <a href="infos.html" class="nav-link">Infos</a>
         <a href="leaderboard.html" class="nav-link">Classement</a>
         <a href="clips.html" class="nav-link">Clips</a>
-        <a href="commands.html" class="nav-link">Commandes</a>
         <a href="stats.html" class="nav-link">Stats</a>
         <a href="felix.html" class="nav-link">Félix et moi</a>
         <a href="#" id="logout-btn" class="nav-link logout">Déconnexion</a>
     </nav>
 
     <main>
-        <div id="loading-overlay">
-            <h2>Initialisation...</h2>
-            <p>Récupération des données</p>
-        </div>
-
         <div class="profile-header">
             <img id="avatar" class="avatar-large" src="">
             <div style="flex-grow:1;">
                 <h1 id="username">Chargement...</h1>
                 <div id="rank" style="color:var(--text-dim);">Rang #--</div>
-                <div class="badges-list" id="badges-container"></div>
+                <div id="badges-container" class="badges-list"></div>
             </div>
         </div>
 
         <div class="xp-container">
-            <div class="xp-text">
-                <span style="color:white; font-weight:bold;">NIVEAU <span id="stat-level-text">1</span></span>
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+                <span style="font-weight:bold; color:white;">NIVEAU <span id="stat-level-text">1</span></span>
                 <span><span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP</span>
             </div>
             <div class="xp-bar-bg"><div class="xp-fill" id="xp-fill"></div></div>
@@ -117,35 +103,21 @@
         </div>
 
         <div class="id-card">
-            <div class="id-title">IDENTITÉ VIEWER (IA)</div>
-            <div class="id-grid" id="ai-id-content">
-                <p style="color:var(--text-dim); font-style:italic;">Félix analyse vos interactions...</p>
+            <div class="id-title">🐾 LE FÉLIX-LOG</div>
+            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:15px;">
+                <div class="stat-box" style="background: rgba(0,0,0,0.2);"><div class="id-label">Humeur</div><div id="felix-mood" class="id-value" style="border:none;">Analyse...</div></div>
+                <div class="stat-box" style="background: rgba(0,0,0,0.2);"><div class="id-label">Observation</div><div id="felix-observation" class="id-value" style="border:none; font-style:italic;">"..."</div></div>
             </div>
         </div>
 
-        <div class="id-card">
-            <div class="id-title">🐾 LE FÉLIX-LOG</div>
-            <div id="felix-log-content" class="id-grid">
-                <div class="stat-box" style="background: rgba(0,0,0,0.2);">
-                    <div class="id-label">Humeur de Félix</div>
-                    <div class="id-value" id="felix-mood">Analyse...</div>
-                </div>
-                <div class="stat-box" style="background: rgba(0,0,0,0.2); grid-column: span 2;">
-                    <div class="id-label">Dernière observation</div>
-                    <div class="id-value" id="felix-observation" style="font-style: italic;">"Je t'observe..."</div>
-                </div>
-            </div>
-        </div>
-        
         <div class="main-grid">
             <div class="card-panel">
-                <h3 class="panel-title">📜 Historique XP</h3>
+                <h3 class="panel-title">📜 Historique des Sessions</h3>
                 <ul class="history-list" id="xp-history-list"></ul>
             </div>
-
             <div class="card-panel" id="poll-container" style="display:none;">
-                <h3 class="panel-title">📊 Sondage en cours</h3>
-                <p id="poll-question" style="font-weight:bold; color:white; margin-bottom:1.5rem; font-size:1.1rem;"></p>
+                <h3 class="panel-title">📊 Sondage</h3>
+                <p id="poll-question" style="font-weight:bold;"></p>
                 <div id="poll-options"></div>
             </div>
         </div>
@@ -156,24 +128,56 @@
     <script src="app.js"></script>
 
     <script>
+        // 1. DÉCLARATION DES VARIABLES GLOBALES
         const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
         const BROADCASTER_NAME = "masthom_";
+        var db = firebase.database();
+        var userVote = null;
+        var currentPollData = null;
 
-        let db;
-        let userVote = null;
-        let currentPollData = null;
-
-        function sanitize(k) {
-            if (!k) return "";
-            return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
+        function sanitize(k) { return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : ""; }
+        
+        function formatDate(ts) {
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) return "Date inconnue";
+            return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return "Date inconnue";
-            const d = new Date(timestamp);
-            return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-        }
+        // --- SONDAGES ---
+        window.refreshPollUI = function() {
+            const poll = currentPollData;
+            const container = document.getElementById('poll-container');
+            const optionsDiv = document.getElementById('poll-options');
+            if (!poll || !poll.active) { if(container) container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            document.getElementById('poll-question').textContent = poll.question;
+            optionsDiv.innerHTML = "";
+            poll.options.forEach(option => {
+                const percent = (poll.stats && poll.stats[sanitize(option)]) ? poll.stats[sanitize(option)] : 0;
+                const isMyVote = (userVote === option);
+                const wrapper = document.createElement('div');
+                wrapper.className = "poll-option-container";
+                wrapper.innerHTML = `
+                    <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
+                        <div class="poll-option-fill" style="width: ${percent}%;"></div>
+                        <div class="poll-option-label"><span>${isMyVote ? '✅ ' : ''}${option}</span><span>${percent}%</span></div>
+                    </div>`;
+                wrapper.onclick = () => window.castVote(poll.id, option);
+                optionsDiv.appendChild(wrapper);
+            });
+        };
 
+        window.castVote = async function(pId, opt) {
+            const name = localStorage.getItem('twitch_username');
+            if (!name || !db) return;
+            userVote = opt; window.refreshPollUI();
+            try {
+                await db.ref('poll_incoming_votes/' + name).set({ poll_id: pId, option: opt, username: name, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
+            } catch (e) { console.error(e); }
+        };
+
+        // --- CHARGEMENT ---
         document.addEventListener("DOMContentLoaded", async () => {
             const token = checkAuth();
             if (!token) return;
@@ -188,178 +192,65 @@
 
                 document.getElementById("username").textContent = user.display_name;
                 document.getElementById("avatar").src = user.profile_image_url;
+                document.getElementById("loading-overlay").style.display = "none";
 
-                db = firebase.database();
-
-                // --- SONDAGES ---
-                db.ref('user_persistent_votes/' + userKey).on('value', snap => {
-                    const data = snap.val();
-                    if (data) { userVote = data.option; if(window.refreshPollUI) window.refreshPollUI(); }
+                // Watchtime & XP
+                db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
+                    const min = snap.val()?.total_presence_minutes || 0;
+                    document.getElementById("stat-watchtime").textContent = Math.floor(min/60) + "h " + (min%60) + "m";
                 });
 
-                db.ref('current_poll').on('value', snap => {
-                    currentPollData = snap.val();
-                    if(window.refreshPollUI) window.refreshPollUI();
-                    document.getElementById("loading-overlay").style.display = "none";
-                });
-
-                window.refreshPollUI = function() {
-                    const poll = currentPollData;
-                    const container = document.getElementById('poll-container');
-                    const optionsDiv = document.getElementById('poll-options');
-                    if (!poll || !poll.active) { container.style.display = 'none'; return; }
-                    container.style.display = 'block';
-                    document.getElementById('poll-question').textContent = poll.question;
-                    optionsDiv.innerHTML = "";
-                    poll.options.forEach(option => {
-                        const safeKey = sanitize(option);
-                        const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
-                        const isMyVote = (userVote === option);
-                        const wrapper = document.createElement('div');
-                        wrapper.className = "poll-option-container";
-                        wrapper.innerHTML = `
-                        <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
-                            <div class="poll-option-fill" style="width: ${percent}%;"></div>
-                            <div class="poll-option-label">
-                                <span>${isMyVote ? '✅ ' : ''}${option}</span>
-                                <span style="font-family: monospace;">${percent}%</span>
-                            </div>
-                        </div>`;
-                        wrapper.onclick = () => window.castVote(poll.id, option);
-                        optionsDiv.appendChild(wrapper);
-                    });
-                };
-
-                // --- XP & WATCHTIME ---
                 db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
-                    const data = snap.val();
-                    let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
+                    const xp = snap.val()?.xp || snap.val() || 0;
                     const level = calculateLevel(xp);
                     document.getElementById("stat-level").textContent = level;
                     document.getElementById("stat-level-text").textContent = level;
                     document.getElementById("stat-xp").textContent = xp.toLocaleString();
+                    document.getElementById("current-xp").textContent = xp.toLocaleString();
                     
-                    // Priorité au watchtime de stats_perma s'il existe, sinon xp_data
-                    db.ref('viewer_data/stats_perma/' + userKey).once('value', sSnap => {
-                        const sData = sSnap.val();
-                        if (sData && sData.total_presence_minutes) {
-                            const h = Math.floor(sData.total_presence_minutes / 60);
-                            const m = sData.total_presence_minutes % 60;
-                            document.getElementById("stat-watchtime").textContent = `${h}h ${m}m`;
-                        } else {
-                            const wt = data?.watchtime_seconds || 0;
-                            document.getElementById("stat-watchtime").textContent = `${Math.floor(wt/3600)}h ${Math.floor((wt%3600)/60)}m`;
-                        }
-                    });
-
                     const nextXp = Math.floor(100 * Math.pow(level, 2.2));
                     const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
                     const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
-                    document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
-                    document.getElementById("current-xp").textContent = xp.toLocaleString();
+                    document.getElementById("xp-fill").style.width = Math.min(100, prog) + "%";
                     document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
                 });
 
-                // --- HISTORIQUE (SESSION LOGIC 12H) ---
-                db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
+                // HISTORIQUE FUSIONNÉ (C'est ici la correction !)
+                db.ref('viewer_data/history_sessions/' + userKey).on('value', snap => {
                     const data = snap.val();
                     const list = document.getElementById("xp-history-list");
-                    if (!data) { list.innerHTML = "<li>Aucun historique récent.</li>"; return; }
-
-                    let items = Object.entries(data).map(([k, v]) => {
-                        let ts = v.timestamp;
-                        if (typeof ts === 'string') ts = new Date(ts).getTime();
-                        return { ...v, timestamp: ts };
-                    }).sort((a, b) => b.timestamp - a.timestamp);
-
-                    const finalHistory = [];
-                    let currentGroup = null;
-
-                    items.forEach(item => {
-                        const reason = (item.reason || "").toLowerCase();
-                        const canGroup = (reason.includes("presence") || reason.includes("message"));
-
-                        if (canGroup && currentGroup && currentGroup.reason === reason) {
-                            if (Math.abs(currentGroup.timestamp - item.timestamp) < 43200000) {
-                                currentGroup.amount += item.amount;
-                                return;
-                            }
-                        }
-                        if (currentGroup) finalHistory.push(currentGroup);
-                        currentGroup = { ...item, reason: reason };
-                    });
-                    if (currentGroup) finalHistory.push(currentGroup);
-
                     list.innerHTML = "";
-                    finalHistory.slice(0, 30).forEach(h => {
-                        let label = "✨ Action", color = "#00ffcc";
-                        if (h.reason.includes('presence')) { label = "🎬 Session Streaming"; color = "#94a3b8"; }
-                        else if (h.reason.includes('message')) { label = "💬 Activité Chat"; color = "#60a5fa"; }
-                        else if (h.reason.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
-                        else if (h.reason.includes('bits')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
-                        else if (h.reason.includes('raid')) { label = "⚔️ Raid !"; color = "#f87171"; }
-                        else if (h.reason.includes('follow')) { label = "💖 Follow"; color = "#34d399"; }
+                    if (!data) { list.innerHTML = "<li>Aucun historique trouvé.</li>"; return; }
+
+                    Object.values(data).sort((a,b) => b.timestamp - a.timestamp).forEach(item => {
+                        let activities = [];
+                        if (item.duration > 0) activities.push(`🎬 Stream (${item.duration} min)`);
+                        if (item.count > 0) activities.push(`💬 Chat (${item.count} msg)`);
+                        if (activities.length === 0) activities.push("✨ Action");
 
                         list.innerHTML += `
-                        <li class="history-item" style="border-left: 4px solid ${color}; background: rgba(255,255,255,0.03); margin-bottom: 8px; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <li class="history-item">
                             <div>
-                                <div style="font-weight: bold; color: white;">${label}</div>
-                                <div style="font-size: 0.75rem; color: #64748b;">${formatDate(h.timestamp)}</div>
+                                <div style="font-weight:700; color:white;">${activities.join(' + ')}</div>
+                                <div style="font-size:0.75rem; color:var(--text-dim);">${formatDate(item.timestamp)}</div>
                             </div>
-                            <div style="font-weight: 800; color: ${color};">+${h.amount.toLocaleString()} XP</div>
+                            <div style="font-weight:800; color:var(--accent);">+${item.amount.toLocaleString()} XP</div>
                         </li>`;
                     });
                 });
 
-                // --- CLASSEMENT ---
-                db.ref('viewer_data/xp_data').once('value').then(snap => {
-                    const all = snap.val() || {};
-                    const sorted = Object.entries(all)
-                        .map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
-                        .sort((a, b) => b.xp - a.xp);
-                    const myRank = sorted.findIndex(u => u.k === userKey) + 1;
-                    document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
-                });
-
-                // --- BADGES TWITCH ---
-                const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-                const chData = await chResp.json();
-                const bId = chData.data[0].id;
-                fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers })
-                .then(r => r.status === 200 ? r.json() : null)
-                .then(d => {
-                    const bDiv = document.getElementById("badges-container");
-                    if (d?.data?.length > 0) {
-                        bDiv.innerHTML += `<div class="badge badge-sub">Abonné</div>`;
-                        document.getElementById("stat-sub").textContent = "Oui";
-                    } else { document.getElementById("stat-sub").textContent = "Non"; }
-                });
-
-                // --- FÉLIX-LOG ---
+                // Logs & Sondages
+                db.ref('current_poll').on('value', snap => { currentPollData = snap.val(); window.refreshPollUI(); });
                 db.ref('viewer_logs/' + userKey).on('value', snap => {
-                    const log = snap.val();
-                    if (log) {
-                        document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
-                        document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
+                    const l = snap.val();
+                    if(l) {
+                        document.getElementById("felix-mood").textContent = l.mood || "Normal";
+                        document.getElementById("felix-observation").textContent = `"${l.last_comment}"`;
                     }
                 });
 
-            } catch (e) { console.error("❌ Erreur Profil:", e); }
+            } catch (e) { console.error(e); }
         });
-
-        window.castVote = async function(pId, opt) {
-            const name = localStorage.getItem('twitch_username');
-            if (!name || !db) return;
-            userVote = opt;
-            window.refreshPollUI();
-            try {
-                await db.ref('poll_incoming_votes/' + name).set({
-                    poll_id: pId, option: opt, username: name,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-            } catch (e) { console.error("❌ Erreur Vote:", e); }
-        };
     </script>
 </body>
 </html>
