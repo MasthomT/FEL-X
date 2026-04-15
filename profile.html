@@ -441,7 +441,9 @@
 							});
 							};
 
-							db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
+								let globalPresenceMinutes = 0;
+
+								db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
 							const data = snap.val();
 							let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
 							const level = calculateLevel(xp);
@@ -473,7 +475,7 @@
  							   if (statWatchtimeEl) statWatchtimeEl.textContent = formatted;
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
+							db.ref('viewer_data/history/' + userKey).limitToLast(5000).on('value', snap => {
     							const data = snap.val();
     							const list = document.getElementById("xp-history-list");
     							if (!data) {
@@ -485,9 +487,17 @@
     
     							// 1. Normalisation (ISO -> Millisecondes)
     							const allItems = Object.entries(data).map(([key, h]) => {
-    							    let ts = h.timestamp;
+    							    let ts = h?.timestamp ?? h?.ts ?? h?.created_at ?? null;
     							    if (typeof ts === 'string') ts = new Date(ts).getTime();
-   							     return { ...h, timestamp: ts };
+    							    if (typeof ts !== 'number' || Number.isNaN(ts)) {
+    							        if (/^\d+$/.test(String(key))) {
+    							            ts = Number(key);
+    							        } else {
+    							            const parsedFromKey = new Date(String(key)).getTime();
+    							            ts = Number.isNaN(parsedFromKey) ? Date.now() : parsedFromKey;
+    							        }
+    							    }
+   							     return { ...h, timestamp: ts, _key: key };
     							});
 
    							 // 2. Tri chronologique (Plus récent en haut)
