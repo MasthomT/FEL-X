@@ -6,7 +6,7 @@
     <title>Mon Profil - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- STYLE GLOBAL --- */
+        /* --- STYLE DE BASE --- */
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; }
         main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
 
@@ -21,30 +21,19 @@
             background: var(--surface); padding: 1.5rem 2rem; border-radius: 12px;
             border: 1px solid var(--border); position: relative;
         }
-        .profile-header::before {
-            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-            width: 4px; background: var(--accent); border-radius: 12px 0 0 12px;
-        }
-
         .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
-        .badges-list { display: flex; gap: 8px; margin-top: 8px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .badge-sub { color: #eb0400; background: rgba(235, 4, 0, 0.1); border: 1px solid rgba(235, 4, 0, 0.2); }
 
         .stats-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
-        .stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
         .stat-num { font-size: 1.5rem; font-weight: 700; color: white; }
 
         .xp-container { margin-bottom: 2rem; }
-        .xp-text { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; }
         .xp-bar-bg { width: 100%; height: 10px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
         .xp-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease; }
 
-        .id-card, .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
-        .id-title, .panel-title { color: var(--accent); font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
-
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+        
         .history-list { list-style: none; padding: 0; margin: 0; }
         .history-item { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -59,8 +48,7 @@
 
         @media (max-width: 800px) {
             main { margin-left: 0; padding: 1.5rem 1rem 100px 1rem; }
-            .stats-mini-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .profile-header { flex-direction: column; text-align: center; }
+            .stats-mini-grid { grid-template-columns: 1fr 1fr; }
             .main-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -78,7 +66,7 @@
     <main>
         <div id="loading-overlay">
             <h2>Initialisation...</h2>
-            <p>Récupération des données</p>
+            <p>Calcul des sessions d'XP</p>
         </div>
 
         <div class="profile-header">
@@ -86,12 +74,12 @@
             <div style="flex-grow:1;">
                 <h1 id="username">Chargement...</h1>
                 <div id="rank" style="color:var(--text-dim);">Rang #--</div>
-                <div class="badges-list" id="badges-container"></div>
+                <div id="badges-container" style="display:flex; gap:5px; margin-top:5px;"></div>
             </div>
         </div>
 
         <div class="xp-container">
-            <div class="xp-text">
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
                 <span style="font-weight:bold;">NIVEAU <span id="stat-level-text">1</span></span>
                 <span><span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP</span>
             </div>
@@ -99,33 +87,27 @@
         </div>
 
         <div class="stats-mini-grid">
-            <div class="stat-box"><div class="stat-title">Niveau</div><div class="stat-num" id="stat-level">1</div></div>
-            <div class="stat-box"><div class="stat-title">Watchtime</div><div class="stat-num" id="stat-watchtime">-</div></div>
-            <div class="stat-box"><div class="stat-title">XP Total</div><div class="stat-num" id="stat-xp">0</div></div>
-            <div class="stat-box"><div class="stat-title">Abonnement</div><div class="stat-num" id="stat-sub">...</div></div>
+            <div class="stat-box"><div style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">Niveau</div><div class="stat-num" id="stat-level">1</div></div>
+            <div class="stat-box"><div style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">Watchtime</div><div class="stat-num" id="stat-watchtime">-</div></div>
+            <div class="stat-box"><div style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">XP Total</div><div class="stat-num" id="stat-xp">0</div></div>
+            <div class="stat-box"><div style="font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">Abonnement</div><div class="stat-num" id="stat-sub">...</div></div>
         </div>
 
-        <div class="id-card">
-            <div class="id-title">🐾 LE FÉLIX-LOG</div>
-            <div id="felix-log-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
-                <div class="stat-box" style="background: rgba(0,0,0,0.2);">
-                    <div style="font-size: 0.7rem; color: var(--text-dim);">Humeur</div>
-                    <div id="felix-mood" style="font-weight: bold;">Analyse...</div>
-                </div>
-                <div class="stat-box" style="background: rgba(0,0,0,0.2);">
-                    <div style="font-size: 0.7rem; color: var(--text-dim);">Dernière observation</div>
-                    <div id="felix-observation" style="font-style: italic;">"Je t'observe..."</div>
-                </div>
+        <div class="id-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="color:var(--accent); font-weight:bold; margin-bottom:15px;">🐾 LE FÉLIX-LOG</div>
+            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:15px;">
+                <div class="stat-box" style="background:rgba(0,0,0,0.2);"><div style="font-size:0.7rem;">Humeur</div><div id="felix-mood" style="font-weight:bold;">Analyse...</div></div>
+                <div class="stat-box" style="background:rgba(0,0,0,0.2);"><div style="font-size:0.7rem;">Observation</div><div id="felix-observation" style="font-style:italic;">"Je t'observe..."</div></div>
             </div>
         </div>
 
         <div class="main-grid">
             <div class="card-panel">
-                <h3 class="panel-title">📜 Historique XP</h3>
+                <h3 style="color:var(--accent); margin-top:0;">📜 Historique XP (Sessions 12h)</h3>
                 <ul class="history-list" id="xp-history-list"></ul>
             </div>
             <div class="card-panel" id="poll-container" style="display:none;">
-                <h3 class="panel-title">📊 Sondage</h3>
+                <h3 style="color:var(--accent); margin-top:0;">📊 Sondage</h3>
                 <p id="poll-question" style="font-weight:bold;"></p>
                 <div id="poll-options"></div>
             </div>
@@ -137,16 +119,18 @@
     <script src="app.js"></script>
 
     <script>
+        // 1. DÉCLARATION GLOBALE (Pour éviter CLIENT_ID_VERCEL is not defined)
+        const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+        const BROADCASTER_NAME = "masthom_";
         var db = firebase.database();
         var userVote = null;
         var currentPollData = null;
 
-        function sanitize(k) {
-            return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : "";
-        }
-
+        // --- HELPERS ---
+        function sanitize(k) { return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : ""; }
+        
         function parseDate(ts) {
-            if (!ts) return 0;
+            if (!ts) return Date.now();
             if (typeof ts === 'string') return new Date(ts.replace(' ', 'T')).getTime();
             return ts;
         }
@@ -157,6 +141,7 @@
             return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
         }
 
+        // --- UI SONDAGE ---
         window.refreshPollUI = function() {
             const poll = currentPollData;
             const container = document.getElementById('poll-container');
@@ -191,12 +176,14 @@
             } catch (e) { console.error("❌ Erreur Vote:", e); }
         };
 
+        // --- CHARGEMENT PRINCIPAL ---
         document.addEventListener("DOMContentLoaded", async () => {
             const loader = document.getElementById("loading-overlay");
-            const token = checkAuth();
+            const token = checkAuth(); // Défini dans app.js
             if (!token) return;
 
             try {
+                // Twitch API
                 const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID_VERCEL };
                 const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
                 const userData = await userResp.json();
@@ -209,7 +196,7 @@
 
                 if(loader) loader.style.display = "none";
 
-                // --- WATCHTIME ---
+                // --- WATCHTIME (SOLID TOTAL) ---
                 db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
                     const s = snap.val();
                     if (s && s.total_presence_minutes !== undefined) {
@@ -223,7 +210,7 @@
                 db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
                     const data = snap.val();
                     let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
-                    const level = calculateLevel(xp);
+                    const level = calculateLevel(xp); // Défini dans app.js
                     document.getElementById("stat-level").textContent = level;
                     document.getElementById("stat-level-text").textContent = level;
                     document.getElementById("stat-xp").textContent = xp.toLocaleString();
@@ -237,11 +224,9 @@
                 db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                     const data = snap.val();
                     const list = document.getElementById("xp-history-list");
-                    if (!data) {
-                        list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucun historique récent ✨</li>";
-                        return;
-                    }
+                    if (!data) { list.innerHTML = "<li>Aucun historique ✨</li>"; return; }
 
+                    // 1. Normalisation et Tri
                     let allItems = Object.values(data).map(item => ({
                         reason: (item.reason || "xp").toLowerCase().trim(),
                         amount: parseInt(item.amount) || 0,
@@ -249,6 +234,7 @@
                         duration: parseInt(item.duration) || 10
                     })).sort((a, b) => b.timestamp - a.timestamp);
 
+                    // 2. Groupement par Session 12h
                     const grouped = [];
                     if (allItems.length > 0) {
                         let current = { ...allItems[0], count: 1 };
@@ -259,7 +245,7 @@
 
                             if (item.reason === current.reason && diff < GAP_12H) {
                                 current.amount += item.amount;
-                                current.duration += item.duration;
+                                current.duration += (item.duration || 0);
                                 current.count++;
                             } else {
                                 grouped.push(current);
@@ -269,14 +255,15 @@
                         grouped.push(current);
                     }
 
+                    // 3. Rendu
                     list.innerHTML = "";
                     grouped.slice(0, 40).forEach(item => {
                         let label = "✨ Action", color = "#00ffcc", detail = "";
                         const r = item.reason;
-                        if (r.includes('presence')) { label = "🎬 Session Streaming"; color = "#94a3b8"; detail = `${item.duration} min`; }
+                        if (r.includes('presence')) { label = "🎬 Session Stream"; color = "#94a3b8"; detail = `${item.duration} min`; }
                         else if (r.includes('message')) { label = "💬 Activité Chat"; color = "#60a5fa"; detail = `${item.count} messages`; }
                         else if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
-                        else if (r.includes('bits')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
+                        else if (r.includes('bits')) { label = "💎 Bits"; color = "#c084fc"; }
 
                         list.innerHTML += `
                         <li class="history-item" style="border-left: 4px solid ${color};">
@@ -290,12 +277,7 @@
                 });
 
                 // --- VOTES & LOGS ---
-                db.ref('user_persistent_votes/' + userKey).on('value', snap => {
-                    const d = snap.val(); if (d) { userVote = d.option; window.refreshPollUI(); }
-                });
-                db.ref('current_poll').on('value', snap => {
-                    currentPollData = snap.val(); window.refreshPollUI();
-                });
+                db.ref('current_poll').on('value', snap => { currentPollData = snap.val(); window.refreshPollUI(); });
                 db.ref('viewer_logs/' + userKey).on('value', snap => {
                     const log = snap.val();
                     if (log) {
