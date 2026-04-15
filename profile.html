@@ -358,15 +358,18 @@
 <script src="app.js"></script>
 
 <script>
+    // =================================================================
+    // 1. CONFIGURATION & INITIALISATION GLOBALE
+    // =================================================================
     const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
     const BROADCASTER_NAME = "masthom_";
 
-    // Initialisation globale de la DB pour éviter les erreurs "db is not defined"
+    // Initialisation immédiate de la DB pour qu'elle soit disponible partout
     var db = firebase.database(); 
     var userVote = null;
     var currentPollData = null;
 
-    // --- FONCTIONS UTILES ---
+    // --- Helpers ---
     function sanitize(k) {
         return k ? k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "") : "";
     }
@@ -374,39 +377,53 @@
     function formatDate(timestamp) {
         if (!timestamp) return "Date inconnue";
         const d = new Date(timestamp);
-        return isNaN(d.getTime()) ? "Format invalide" : d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        if (isNaN(d.getTime())) return "Date invalide";
+        return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
     }
 
-    // --- LOGIQUE SONDAGE ---
+    // =================================================================
+    // 2. LOGIQUE D'AFFICHAGE DU SONDAGE
+    // =================================================================
     window.refreshPollUI = function() {
         const poll = currentPollData;
         const container = document.getElementById('poll-container');
         const optionsDiv = document.getElementById('poll-options');
-        if (!poll || !poll.active) { if(container) container.style.display = 'none'; return; }
-        
+
+        if (!poll || !poll.active) {
+            if(container) container.style.display = 'none';
+            return;
+        }
+
         if(container) container.style.display = 'block';
-        document.getElementById('poll-question').textContent = poll.question;
-        optionsDiv.innerHTML = "";
+        const qEl = document.getElementById('poll-question');
+        if(qEl) qEl.textContent = poll.question;
         
-        poll.options.forEach(option => {
-            const safeKey = sanitize(option);
-            const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
-            const isMyVote = (userVote === option);
-            const wrapper = document.createElement('div');
-            wrapper.className = "poll-option-container";
-            wrapper.innerHTML = `
-            <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
-                <div class="poll-option-fill" style="width: ${percent}%;"></div>
-                <div class="poll-option-label">
-                    <span>${isMyVote ? '✅ ' : ''}${option}</span>
-                    <span>${percent}%</span>
-                </div>
-            </div>`;
-            wrapper.onclick = () => window.castVote(poll.id, option);
-            optionsDiv.appendChild(wrapper);
-        });
+        if(optionsDiv) {
+            optionsDiv.innerHTML = "";
+            poll.options.forEach(option => {
+                const safeKey = sanitize(option);
+                const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
+                const isMyVote = (userVote === option);
+
+                const wrapper = document.createElement('div');
+                wrapper.className = "poll-option-container";
+                wrapper.innerHTML = `
+                <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
+                    <div class="poll-option-fill" style="width: ${percent}%;"></div>
+                    <div class="poll-option-label">
+                        <span>${isMyVote ? '✅ ' : ''}${option}</span>
+                        <span style="font-family: monospace;">${percent}%</span>
+                    </div>
+                </div>`;
+                wrapper.onclick = () => window.castVote(poll.id, option);
+                optionsDiv.appendChild(wrapper);
+            });
+        }
     };
 
+    // =================================================================
+    // 3. CHARGEMENT DES DONNÉES UTILISATEUR
+    // =================================================================
     document.addEventListener("DOMContentLoaded", async () => {
         const token = checkAuth();
         if (!token) return;
@@ -417,12 +434,12 @@
             const userData = await userResp.json();
             const user = userData.data[0];
             const userKey = user.login.toLowerCase();
+            localStorage.setItem('twitch_username', userKey);
 
             document.getElementById("username").textContent = user.display_name;
             document.getElementById("avatar").src = user.profile_image_url;
 
-            // --- 1. WATCHTIME TOTAL (Badge Statistique) ---
-            // On lit stats_perma pour avoir le total absolu (47k+) sans charger l'historique
+            // --- ÉCOUTE : WATCHTIME TOTAL (SOLID) ---
             db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
                 const s = snap.val();
                 if (s && s.total_presence_minutes !== undefined) {
@@ -432,7 +449,7 @@
                 }
             });
 
-            // --- 2. XP & NIVEAU ---
+            // --- ÉCOUTE : XP & NIVEAU ---
             db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
                 const data = snap.val();
                 let xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
@@ -444,27 +461,28 @@
                 const nextXp = Math.floor(100 * Math.pow(level, 2.2));
                 const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
                 const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
-                document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
+                const xpFill = document.getElementById("xp-fill");
+                if(xpFill) xpFill.style.width = Math.min(100, Math.max(0, prog)) + "%";
             });
 
-            // --- 3. HISTORIQUE AVEC REGROUPEMENT SESSION (12H) ---
-            // limitToLast(1000) permet d'avoir les sessions récentes sans saturer la RAM
+            // --- ÉCOUTE : HISTORIQUE (REGROUPEMENT 12H) ---
+            // On limite à 1000 pour la performance, suffisant pour l'historique visuel
             db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
                 const data = snap.val();
                 const list = document.getElementById("xp-history-list");
                 if (!data) {
-                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité récente ✨</li>";
+                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité ✨</li>";
                     return;
                 }
 
-                // Normalisation et tri
+                // Normalisation et tri (plus récent d'abord)
                 let items = Object.values(data).map(item => {
                     let ts = item.timestamp;
                     if (typeof ts === 'string') ts = new Date(ts).getTime();
                     return {
                         reason: (item.reason || "xp").toLowerCase().trim(),
                         amount: parseInt(item.amount) || 0,
-                        timestamp: ts || Date.now(),
+                        timestamp: ts || 0,
                         duration: parseInt(item.duration) || 10
                     };
                 }).sort((a, b) => b.timestamp - a.timestamp);
@@ -478,10 +496,10 @@
                         let diff = Math.abs(current.timestamp - item.timestamp);
                         const GAP_12H = 12 * 60 * 60 * 1000;
 
-                        // RÈGLE : Même raison + moins de 12h d'écart = MÊME BLOC
+                        // RÈGLE : Même raison + moins de 12h d'écart = MÊME SESSION
                         if (item.reason === current.reason && diff < GAP_12H) {
                             current.amount += item.amount;
-                            current.duration += item.duration;
+                            current.duration += (item.duration || 10);
                             current.count += 1;
                         } else {
                             grouped.push(current);
@@ -493,7 +511,7 @@
 
                 list.innerHTML = "";
                 grouped.slice(0, 50).forEach(item => {
-                    let label = "✨ Action Spéciale";
+                    let label = "✨ Action";
                     let color = "#00ffcc";
                     let detail = "";
                     const r = item.reason;
@@ -525,25 +543,38 @@
                 });
             });
 
-            // --- 4. RANG & LOGS FÉLIX ---
-            db.ref('viewer_data/xp_data').once('value').then(snap => {
-                const all = snap.val() || {};
-                const sorted = Object.entries(all).map(([k, v]) => ({ k, xp: (v?.xp || v || 0) })).sort((a, b) => b.xp - a.xp);
-                const myRank = sorted.findIndex(u => u.k === userKey) + 1;
-                document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
+            // --- ÉCOUTE : VOTES & SONDAGES ---
+            db.ref('user_persistent_votes/' + userKey).on('value', snap => {
+                const data = snap.val();
+                if (data) { userVote = data.option; window.refreshPollUI(); }
             });
 
+            db.ref('current_poll').on('value', snap => {
+                currentPollData = snap.val();
+                window.refreshPollUI();
+                const loader = document.getElementById("loading-overlay");
+                if(loader) loader.style.display = "none";
+            });
+
+            // --- ÉCOUTE : LOGS FÉLIX ---
             db.ref('viewer_logs/' + userKey).on('value', snap => {
                 const log = snap.val();
                 if (log) {
-                    document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
-                    document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
+                    const moodEl = document.getElementById("felix-mood");
+                    const obsEl = document.getElementById("felix-observation");
+                    if(moodEl) moodEl.textContent = log.mood || "Analyse...";
+                    if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
                 }
             });
 
-        } catch (e) { console.error("❌ Erreur Profil:", e); }
+        } catch (e) {
+            console.error("❌ Erreur Profil:", e);
+        }
     });
 
+    // =================================================================
+    // 4. FONCTION DE VOTE (ACCESSIBLE GLOBALEMENT)
+    // =================================================================
     window.castVote = async function(pId, opt) {
         const name = localStorage.getItem('twitch_username');
         if (!name || !db) return;
@@ -551,7 +582,9 @@
         window.refreshPollUI();
         try {
             await db.ref('poll_incoming_votes/' + name).set({
-                poll_id: pId, option: opt, username: name,
+                poll_id: pId,
+                option: opt,
+                username: name,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
             await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
