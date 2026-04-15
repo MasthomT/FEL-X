@@ -585,20 +585,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }); // Fermeture correcte de DOMContentLoaded
 
-        // Fonction de vote (doit rester EN DEHORS du bloc DOMContentLoaded)
-        window.castVote = async function(pId, opt) {
-            const name = localStorage.getItem('twitch_username');
-            if (!name || !db) return;
-            userVote = opt;
-            window.refreshPollUI();
-            try {
-                await db.ref('poll_incoming_votes/' + name).set({
-                    poll_id: pId, option: opt, username: name,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-            } catch (e) { console.error("❌ Erreur Vote:", e); }
-        };
 
 // --- 8. VOTE (HORS DOM) ---
 window.castVote = async function(pId, opt) {
