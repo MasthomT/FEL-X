@@ -536,30 +536,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // --- 5. FÉLIX-LOG ---
         db.ref('viewer_logs/' + userKey).on('value', snap => {
-            const log = snap.val();
-            if (log) {
-                document.getElementById("felix-mood").textContent = log.mood || "Analyse...";
-                document.getElementById("felix-observation").textContent = `"${log.last_comment}"`;
+                    const log = snap.val();
+                    if (log) {
+                        const moodEl = document.getElementById("felix-mood");
+                        const obsEl = document.getElementById("felix-observation");
+                        if(moodEl) moodEl.textContent = log.mood || "Analyse...";
+                        if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
+                    }
+                });
+
+            } catch (e) {
+                console.error("❌ Erreur Profil:", e);
+                // Sécurité : on cache le loader même s'il y a une erreur
+                document.getElementById("loading-overlay").style.display = "none";
             }
-        });
+        }); // C'EST CETTE PARENTHÈSE QUI DOIT ÊTRE ICI (après le catch)
 
-    } catch (e) {
-        console.error("❌ Erreur Profil:", e);
-    }
-});
+        // La fonction castVote doit rester EN DEHORS du DOMContentLoaded
+        window.castVote = async function(pId, opt) {
+            const name = localStorage.getItem('twitch_username');
+            if (!name || !db) return;
+            userVote = opt;
+            window.refreshPollUI();
+            try {
+                await db.ref('poll_incoming_votes/' + name).set({
+                    poll_id: pId, option: opt, username: name,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
+            } catch (e) { console.error("❌ Erreur Vote:", e); }
+        };
 
-window.castVote = async function(pId, opt) {
-    const name = localStorage.getItem('twitch_username');
-    if (!name || !db) return;
-    userVote = opt;
-    window.refreshPollUI();
-    try {
-        await db.ref('poll_incoming_votes/' + name).set({
-            poll_id: pId, option: opt, username: name,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-    } catch (e) { console.error("❌ Erreur Vote:", e); }
-};
 					</body>
 				</html>
