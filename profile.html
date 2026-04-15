@@ -479,168 +479,99 @@
  							   }
 							});
 
-							db.ref('viewer_data/history/' + userKey).limitToLast(500).on('value', snap => {
-    							const data = snap.val();
-    							const list = document.getElementById("xp-history-list");
-    							if (!data) {
-    							    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité récente ✨</li>";
-    							    return;
-    							}
+							db.ref('viewer_data/history/' + userKey).limitToLast(1000).on('value', snap => {
+    const data = snap.val();
+    const list = document.getElementById("xp-history-list");
+    if (!data) { 
+        list.innerHTML = "<li>Aucune activité récente ✨</li>"; 
+        return; 
+    }
 
-    							list.innerHTML = "";
-    
-    							// 1. Normalisation (ISO -> Millisecondes)
-    							const allItems = Object.entries(data).map(([key, h]) => {
-    							    let ts = h.timestamp;
-    							    if (typeof ts === 'string') ts = new Date(ts).getTime();
-   							     return { ...h, timestamp: ts };
-    							});
+    // On transforme l'objet en tableau et on trie par date (plus récent en haut)
+    const items = Object.values(data).map(v => {
+        let ts = v.timestamp;
+        if (typeof ts === 'string') ts = new Date(ts.replace(' ', 'T')).getTime();
+        return { ...v, timestamp: ts };
+    }).sort((a, b) => b.timestamp - a.timestamp);
 
-   							 // 2. Tri chronologique (Plus récent en haut)
-   							 allItems.sort((a, b) => b.timestamp - a.timestamp);
+    const dailyGroups = {};
+    const finalDisplay = [];
 
-   							 // 3. Regroupement journalier pour PRESENCE + MESSAGE
-   							 const dayBuckets = {};
-   							 const finalDisplay = [];
+    items.forEach(item => {
+        const r = (item.reason || "").toLowerCase();
+        const isStream = r.includes("presence");
+        const isChat = r.includes("message");
 
-   							 const getDayKey = (ts) => {
-   							     const d = new Date(ts);
-   							     const y = d.getFullYear();
-   							     const m = String(d.getMonth() + 1).padStart(2, "0");
-   							     const day = String(d.getDate()).padStart(2, "0");
-   							     return `${y}-${m}-${day}`;
-   							 };
+        if (isStream || isChat) {
+            // Clé unique par jour (ex: "15/04/2026")
+            const dayKey = new Date(item.timestamp).toLocaleDateString('fr-FR');
+            
+            if (!dailyGroups[dayKey]) {
+                dailyGroups[dayKey] = { 
+                    day: dayKey, 
+                    amount: 0, 
+                    duration: 0, 
+                    count: 0, 
+                    timestamp: item.timestamp, 
+                    isDaily: true,
+                    hasStream: false,
+                    hasChat: false 
+                };
+                finalDisplay.push(dailyGroups[dayKey]);
+            }
+            
+            // On cumule l'XP du jour
+            dailyGroups[dayKey].amount += (parseInt(item.amount) || 0);
+            
+            if (isStream) {
+                dailyGroups[dayKey].hasStream = true;
+                dailyGroups[dayKey].duration += (parseInt(item.duration) || 10);
+            }
+            if (isChat) {
+                dailyGroups[dayKey].hasChat = true;
+                dailyGroups[dayKey].count += (parseInt(item.count) || 1);
+            }
+        } else {
+            // Actions spéciales (Sub, Bits, Raid) -> Lignes uniques
+            finalDisplay.push({ ...item, isDaily: false });
+        }
+    });
 
-   							 allItems.forEach(item => {
-   							     const reason = (item.reason || "inconnu").toLowerCase();
-   							     const amount = Number(item.amount) || 0;
-   							     const isDailyGroupable = (reason === "presence" || reason === "message");
+    // Rendu HTML
+    list.innerHTML = "";
+    finalDisplay.sort((a, b) => b.timestamp - a.timestamp).slice(0, 50).forEach(h => {
+        let label = ""; 
+        let color = "#00ffcc";
+        const r = (h.reason || "").toLowerCase();
 
-   							     if (!isDailyGroupable) {
-   							         finalDisplay.push({ ...item, reason, amount });
-   							         return;
-   							     }
+        if (h.isDaily) {
+            let parts = [];
+            if (h.hasStream) parts.push(`🎬 Stream (${h.duration} min)`);
+            if (h.hasChat) parts.push(`💬 Chat (${h.count} msg)`);
+            label = `${h.day} : ${parts.join(' + ')}`;
+            color = h.hasStream ? "#94a3b8" : "#60a5fa";
+        } else {
+            if (r.includes('sub')) { label = "⭐ Abonnement"; color = "#fbbf24"; }
+            else if (r.includes('bits') || r.includes('cheer')) { label = "💎 Cheers Bits"; color = "#c084fc"; }
+            else if (r.includes('raid')) { label = "⚔️ Raid !"; color = "#f87171"; }
+            else if (r.includes('follow')) { label = "💖 Follow"; color = "#34d399"; }
+            else { label = `✨ ${h.reason || 'Action'}`; }
+        }
 
-   							     const dayKey = getDayKey(item.timestamp);
-   							     const bucketKey = `${dayKey}-${reason}`;
+        list.innerHTML += `
+            <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                <div>
+                    <div style="color: white; font-weight: 700;">${label}</div>
+                    <div style="color: #64748b; font-size: 0.75rem;">${formatDate(h.timestamp)}</div>
+                </div>
+                <div style="font-weight: 800; color: ${color}; background: ${color}15; padding: 4px 12px; border-radius: 8px;">
+                    +${h.amount.toLocaleString()} XP
+                </div>
+            </li>`;
+    });
+});
 
-   							     if (!dayBuckets[bucketKey]) {
-   							         dayBuckets[bucketKey] = {
-   							             reason,
-   							             amount: 0,
-   							             timestamp: new Date(`${dayKey}T23:59:59`).getTime(),
-   							             dayKey,
-   							             totalMessages: 0,
-   							             totalPresenceMinutes: 0
-   							         };
-   							     }
 
-   							     const bucket = dayBuckets[bucketKey];
-   							     bucket.amount += amount;
-
-   							     if (reason === "message") {
-   							         const msgCount = Number(item.message_count ?? item.messages_sent ?? item.messages ?? 1) || 1;
-   							         bucket.totalMessages += msgCount;
-   							     }
-
-   							     if (reason === "presence") {
-   							         const presenceMinutes = Number(
-   							             item.presence_minutes
-   							             ?? item.watch_minutes
-   							             ?? item.minutes
-   							             ?? ((Number(item.presence_seconds ?? item.watchtime_seconds) || 0) / 60)
-   							             ?? 0
-   							         );
-
-   							         if (Number.isFinite(presenceMinutes) && presenceMinutes > 0) {
-   							             bucket.totalPresenceMinutes += presenceMinutes;
-   							         } else {
-   							             bucket.totalPresenceMinutes += 1;
-   							         }
-   							     }
-   							 });
-
-   							 finalDisplay.push(...Object.values(dayBuckets));
-   							 finalDisplay.sort((a, b) => b.timestamp - a.timestamp);
-
-    							// 4. Rendu visuel avec Émojis
-							finalDisplay.slice(0, 40).forEach(item => {
-    							    const r = (item.reason || "").toLowerCase();
-   							     let label = "✨ Action";
-    							    let color = "#00ffcc"; 
-
-   							     // --- DÉTECTION INTELLIGENTE DES MOTS-CLÉS ---
-   							     if (r.includes('presence')) {
-  							          label = "🎬 PRESENCES"; color = "#94a3b8";
- 							       } 
- 							       else if (r.includes('message')) {
-        							    label = "💬 MESSAGES"; color = "#60a5fa";
-      							  } 
-   							     else if (r.includes('bits') || r.includes('cheer')) { 
-    							        label = "💎 Cheers Bits"; color = "#c084fc"; 
-    							    } 
-    							    else if (r.includes('subgift')) { 
-    							        label = "🎁 Cadeau d'Abo"; color = "#f472b6"; 
-    							    } 
-    							    else if (r.includes('sub')) { // Capturera 'sub', 'resub', 'sub_3_months', etc.
-    							        label = "⭐ Abonnement"; color = "#fbbf24"; 
-   							     } 
-    							    else if (r.includes('raid')) { 
-    							        label = "⚔️ Raid !"; color = "#f87171"; 
-   							     } 
-    							    else if (r.includes('follow')) { 
-    							        label = "💖 Nouveau Follow"; color = "#34d399"; 
-   							     }
-   							     else {
-   							         // Si vraiment inconnu, on nettoie le texte (ex: 'bits_x10' devient 'Bits X10')
-   							         label = `✨ ${r.charAt(0).toUpperCase() + r.slice(1).replace(/_/g, ' ')}`;
-   							     }
-
-   							     let timeStr = new Date(item.timestamp).toLocaleString('fr-FR', {
-    							        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-   							     });
-
-   							     if (r === "message") {
-   							         const totalMessages = Number(item.totalMessages) || 0;
-   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${totalMessages.toLocaleString()} message(s)`;
-   							     }
-
-   							     if (r === "presence") {
-   							         const totalMinutes = Math.max(0, Math.round(Number(item.totalPresenceMinutes) || 0));
-   							         const hours = Math.floor(totalMinutes / 60);
-   							         const minutes = totalMinutes % 60;
-   							         timeStr = `${new Date(item.timestamp).toLocaleDateString('fr-FR')} • ${hours}h ${minutes}m de présence`;
-   							     }
-
-   							     list.innerHTML += `
-   							         <li class="history-item" style="
-   							             display: flex; 
-   							             justify-content: space-between; 
-   							             align-items: center; 
-         							       padding: 14px; 
-        							        margin-bottom: 8px; 
-         							       background: rgba(255,255,255,0.03); 
-       							         border-radius: 10px; 
-       							         border-left: 4px solid ${color};
-     							       ">
-      							          <div style="display: flex; flex-direction: column;">
-      							              <span style="color: white; font-weight: 700; font-size: 0.95rem; font-family: inherit;">${label}</span>
-     							               <span style="color: #64748b; font-size: 0.75rem; margin-top: 2px; font-family: inherit;">${timeStr}</span>
-      							          </div>
-    							            <div style="
-    							                font-weight: 800; 
-    							                color: ${color}; 
-   							                 background: ${color}15; 
-   							                 padding: 4px 12px; 
-   							                 border-radius: 8px;
-   							                 font-family: inherit;
-   							                 font-size: 0.9rem;
-   							             ">
-   							                 +${item.amount.toLocaleString()} XP
-  							              </div>
-  							          </li>`;
- 							   });
-							});
 			db.ref('viewer_data/xp_data').once('value').then(snap => {
 							const all = snap.val() || {};
 							const sorted = Object.entries(all)
