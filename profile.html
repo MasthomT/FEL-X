@@ -558,25 +558,47 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
         // --- 7. FÉLIX-LOG ---
-        db.ref('viewer_logs/' + userKey).on('value', snap => {
-            const log = snap.val();
-            if (log) {
-                const moodEl = document.getElementById("felix-mood");
-                const obsEl = document.getElementById("felix-observation");
-                if(moodEl) moodEl.textContent = log.mood || "Analyse...";
-                if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
-                const card = document.querySelector(".id-card");
-                if(card) {
-                    card.style.borderColor = "var(--accent)";
-                    setTimeout(() => card.style.borderColor = "var(--border)", 1000);
-                }
-            }
-        });
+                db.ref('viewer_logs/' + userKey).on('value', snap => {
+                    const log = snap.val();
+                    if (log) {
+                        const moodEl = document.getElementById("felix-mood");
+                        const obsEl = document.getElementById("felix-observation");
+                        if(moodEl) moodEl.textContent = log.mood || "Analyse...";
+                        if(obsEl) obsEl.textContent = `"${log.last_comment}"`;
+                        
+                        const card = document.querySelector(".id-card");
+                        if(card) {
+                            card.style.borderColor = "var(--accent)";
+                            setTimeout(() => card.style.borderColor = "var(--border)", 1000);
+                        }
+                    }
+                });
 
-    } catch (e) {
-        console.error("❌ Erreur Profil:", e);
-    }
-});
+                // --- SÉCURITÉ : CACHER LE LOADER ---
+                // Si on arrive ici, tout s'est bien chargé
+                document.getElementById("loading-overlay").style.display = "none";
+
+            } catch (e) {
+                console.error("❌ Erreur Profil:", e);
+                // On cache aussi le loader en cas d'erreur pour ne pas rester bloqué
+                document.getElementById("loading-overlay").style.display = "none";
+            }
+        }); // Fermeture correcte de DOMContentLoaded
+
+        // Fonction de vote (doit rester EN DEHORS du bloc DOMContentLoaded)
+        window.castVote = async function(pId, opt) {
+            const name = localStorage.getItem('twitch_username');
+            if (!name || !db) return;
+            userVote = opt;
+            window.refreshPollUI();
+            try {
+                await db.ref('poll_incoming_votes/' + name).set({
+                    poll_id: pId, option: opt, username: name,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
+            } catch (e) { console.error("❌ Erreur Vote:", e); }
+        };
 
 // --- 8. VOTE (HORS DOM) ---
 window.castVote = async function(pId, opt) {
