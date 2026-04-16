@@ -566,113 +566,89 @@
                 if (statWatchtimeEl) statWatchtimeEl.textContent = formatted;
             });
 
-            db.ref('viewer_data/history/' + userKey).limitToLast(5000).on('value', snap => {
-                const data = snap.val();
-                const list = document.getElementById("xp-history-list");
-                if (!data) {
-                    list.innerHTML = "<li style='color:gray; padding:20px; text-align:center;'>Aucune activité récente ✨</li>";
-                    return;
-                }
+db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
+    const data = snap.val();
+    const list = document.getElementById("xp-history-list");
+    if (!list) return;
+    if (!data) {
+        list.innerHTML = "<li class='history-item'>Aucune activité enregistrée ✨</li>";
+        return;
+    }
 
-                const items = Object.entries(data)
-                    .map(([key, h]) => {
-                        let ts = h?.timestamp ?? h?.ts ?? h?.created_at ?? null;
-                        if (typeof ts === 'string') ts = new Date(ts).getTime();
-                        if (typeof ts !== 'number' || Number.isNaN(ts)) {
-                            if (/^\d+$/.test(String(key))) {
-                                ts = Number(key);
-                            } else {
-                                const parsedFromKey = new Date(String(key)).getTime();
-                                ts = Number.isNaN(parsedFromKey) ? Date.now() : parsedFromKey;
-                            }
-                        }
-                        return { ...h, timestamp: ts, _key: key };
-                    })
-                    .sort((a, b) => b.timestamp - a.timestamp);
+    // Conversion et tri (du plus récent au plus ancien)
+    const items = Object.entries(data).map(([key, value]) => ({
+        ...value,
+        id: key,
+        timestamp: value.timestamp || Date.now()
+    })).sort((a, b) => b.timestamp - a.timestamp);
 
-                const dailyGroups = {};
-                const finalDisplay = [];
+    list.innerHTML = "";
+    items.forEach(h => {
+        const dateLabel = new Date(h.timestamp).toLocaleDateString('fr-FR');
+        const timeLabel = new Date(h.timestamp).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        
+        let icon = "✨";
+        let label = h.reason || "Activité";
+        let detail = "";
+        let color = "#ffffff"; // Blanc par défaut
+        const r = String(h.reason || "").toLowerCase();
 
-                items.forEach(item => {
-                    const reason = String(item.reason || '').toLowerCase();
-                    const isStream = reason.includes("presence");
-                    const isChat = reason.includes("message");
+        // --- SYSTÈME DE LABELS DYNAMIQUE ---
+        
+        if (h.reason === "Présence") {
+            icon = "🎬";
+            label = "Présence";
+            detail = `(${h.duration || 0} min)`;
+            color = "#00ffcc"; // Vert/Cyan
+        } 
+        else if (h.reason === "Chat") {
+            icon = "💬";
+            label = "Chat";
+            detail = `(${h.count || 0} msg)`;
+            color = "#60a5fa"; // Bleu
+        }
+        else if (r.includes("sub") || r.includes("abonnement")) {
+            icon = "⭐";
+            label = h.reason; 
+            color = "#fbbf24"; // Or
+        }
+        else if (r.includes("raid")) {
+            icon = "⚔️";
+            label = h.reason;
+            color = "#f87171"; // Rouge
+        }
+        else if (r.includes("follow")) {
+            icon = "❤️";
+            label = h.reason;
+            color = "#f472b6"; // Rose
+        }
+        else if (r.includes("bits") || r.includes("cheer")) {
+            icon = "💎";
+            label = h.reason;
+            color = "#c084fc"; // Violet
+        }
+        else if (r.includes("don") || r.includes("tip")) {
+            icon = "💰";
+            label = h.reason;
+            color = "#4ad361"; // Vert
+        }
 
-                    if (isStream || isChat) {
-                        const dayKey = new Date(item.timestamp).toLocaleDateString('fr-FR');
-
-                        if (!dailyGroups[dayKey]) {
-                            dailyGroups[dayKey] = {
-                                day: dayKey,
-                                amount: 0,
-                                duration: 0,
-                                count: 0,
-                                timestamp: item.timestamp,
-                                isDaily: true,
-                                hasStream: false,
-                                hasChat: false
-                            };
-                            finalDisplay.push(dailyGroups[dayKey]);
-                        }
-
-                        dailyGroups[dayKey].amount += parseInt(item.amount, 10) || 0;
-                        if (isStream) {
-                            dailyGroups[dayKey].hasStream = true;
-                            dailyGroups[dayKey].duration += parseInt(item.duration, 10) || 10;
-                        }
-                        if (isChat) {
-                            dailyGroups[dayKey].hasChat = true;
-                            dailyGroups[dayKey].count += parseInt(item.count, 10) || 1;
-                        }
-                    } else {
-                        finalDisplay.push({ ...item, isDaily: false });
-                    }
-                });
-
-                list.innerHTML = "";
-                finalDisplay
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .slice(0, 50)
-                    .forEach(h => {
-                        let label = "";
-                        let color = "#00ffcc";
-                        const reason = String(h.reason || '').toLowerCase();
-
-                        if (h.isDaily) {
-                            const parts = [];
-                            if (h.hasStream) parts.push(`🎬 Stream (${h.duration} min)`);
-                            if (h.hasChat) parts.push(`💬 Chat (${h.count} msg)`);
-                            label = `${h.day} : ${parts.join(' + ')}`;
-                            color = h.hasStream ? "#94a3b8" : "#60a5fa";
-                        } else if (reason.includes('sub')) {
-                            label = "⭐ Abonnement";
-                            color = "#fbbf24";
-                        } else if (reason.includes('bits') || reason.includes('cheer')) {
-                            label = "💎 Cheers Bits";
-                            color = "#c084fc";
-                        } else if (reason.includes('raid')) {
-                            label = "⚔️ Raid !";
-                            color = "#f87171";
-                        } else if (reason.includes('follow')) {
-                            label = "💖 Follow";
-                            color = "#34d399";
-                        } else {
-                            label = `✨ ${h.reason || 'Action'}`;
-                        }
-
-                        list.innerHTML += `
-                            <li class="history-item" style="border-left: 4px solid ${color}; display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 10px;">
-                                <div>
-                                    <div style="color: white; font-weight: 700;">${label}</div>
-                                    <div style="color: #64748b; font-size: 0.75rem;">${formatDate(h.timestamp)}</div>
-                                </div>
-                                <div style="font-weight: 800; color: ${color}; background: ${color}15; padding: 4px 12px; border-radius: 8px;">
-                                    +${(Number(h.amount) || 0).toLocaleString()} XP
-                                </div>
-                            </li>`;
-                    });
-            });
-
+        // --- GÉNÉRATION DU HTML ---
+        list.innerHTML += `
+            <li class="history-item" style="border-left: 3px solid ${color}; background: rgba(255,255,255,0.02); margin-bottom: 8px; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="color: white; font-weight: 600;">
+                        <span style="font-size: 1.1rem; margin-right: 5px;">${icon}</span>
+                        ${dateLabel} : ${label} <span style="color: ${color}; opacity: 0.8;">${detail}</span>
+                    </div>
+                    <small style="color: #64748b;">${timeLabel}</small>
+                </div>
+                <div style="font-weight: 900; color: ${color}; font-family: monospace; font-size: 1.1rem;">
+                    +${(h.amount || 0).toLocaleString()}
+                </div>
+            </li>`;
+    });
+});
             db.ref('viewer_data/xp_data').once('value').then(snap => {
                 const all = snap.val() || {};
                 const sorted = Object.entries(all)
