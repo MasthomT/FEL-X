@@ -1,141 +1,134 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FEL-X : Portail Viewer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --bg: #18181b; --surface: #2a2a2d; --border: #36363a; --text: #f0f0f0; --accent: #00f5c3; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; display: grid; place-items: center; min-height: 90vh; margin: 0; }
-        
-        #logo-container { text-align: center; margin-bottom: 2rem; }
-        h1 { font-size: 4rem; color: var(--accent); margin: 0; }
-        img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); margin: 1rem auto; display: block; }
-        
-        .btn-primary { 
-            background: var(--accent); color: #18181b; padding: 1rem 2rem; border-radius: 8px; 
-            text-decoration: none; font-weight: 600; font-size: 1.2rem; display: inline-block; transition: 0.3s;
-        }
-        .btn-primary:hover { background: white; transform: translateY(-3px); }
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+				<title>Maintenance - FEL-X</title>
+				<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+					<style>
+						:root {
+						--bg: #18181b;
+						--surface: #27272a;
+						--border: #3f3f46;
+						--text: #f4f4f5;
+						--text-dim: #a1a1aa;
+						--accent: #00f5c3;
+						}
+						* { margin: 0; padding: 0; box-sizing: border-box; }
+						body {
+						background: var(--bg);
+						color: var(--text);
+						font-family: 'Inter', sans-serif;
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+						min-height: 100vh;
+						overflow: hidden;
+						}
+						.container {
+						text-align: center;
+						padding: 2rem;
+						max-width: 600px;
+						animation: fadeIn 1s ease-out;
+						}
+						.logo-wrapper {
+						position: relative;
+						display: inline-block;
+						margin-bottom: 2.5rem;
+						}
+						.logo {
+						width: 120px;
+						height: 120px;
+						border-radius: 50%;
+						border: 4px solid var(--surface);
+						position: relative;
+						z-index: 2;
+						background: var(--bg);
+						object-fit: cover;
+						}
+						.pulse {
+						position: absolute;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						border-radius: 50%;
+						background: var(--accent);
+						z-index: 1;
+						animation: pulse-anim 2s infinite;
+						opacity: 0.5;
+						}
+						h1 {
+						font-size: 3rem;
+						color: white;
+						margin-bottom: 1rem;
+						font-weight: 800;
+						letter-spacing: -1px;
+						}
+						.accent { color: var(--accent); }
+						p {
+						font-size: 1.1rem;
+						color: var(--text-dim);
+						line-height: 1.6;
+						margin-bottom: 2.5rem;
+						}
+						.status-badge {
+						display: inline-flex;
+						align-items: center;
+						gap: 10px;
+						background: rgba(0, 245, 195, 0.1);
+						border: 1px solid rgba(0, 245, 195, 0.2);
+						color: var(--accent);
+						padding: 10px 20px;
+						border-radius: 50px;
+						font-weight: 600;
+						font-size: 0.9rem;
+						text-transform: uppercase;
+						letter-spacing: 1px;
+						}
+						.dot {
+						width: 10px;
+						height: 10px;
+						background: var(--accent);
+						border-radius: 50%;
+						animation: blink 1.5s infinite;
+						box-shadow: 0 0 10px var(--accent);
+						}
 
-        /* Boite d'erreur */
-        #error-box {
-            background: #3a2a2a; border: 1px solid #ff4444; color: #ffadad;
-            padding: 20px; border-radius: 8px; margin-top: 20px; max-width: 600px;
-            display: none; text-align: left; font-family: monospace;
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <div id="logo-container">
-            <h1>FEL-X</h1>
-            <img src="/logo-felix.png" alt="Logo">
-            <p id="status-msg" style="font-size: 1.2rem; color: #b9bbbe;">Chargement...</p>
+						@keyframes fadeIn {
+						from { opacity: 0; transform: translateY(20px); }
+						to { opacity: 1; transform: translateY(0); }
+						}
+						@keyframes pulse-anim {
+						0% { transform: scale(1); opacity: 0.6; }
+						100% { transform: scale(1.6); opacity: 0; }
+						}
+						@keyframes blink {
+						0%, 100% { opacity: 1; }
+						50% { opacity: 0.3; }
+						}
+					</style>
+				</head>
+	<body>
+		<div class="container">
+			<div class="logo-wrapper">
+				<div class="pulse"></div>
+				<!-- Assure-toi que logo-felix.png est bien présent à la racine de ton Vercel -->
+				<img src="logo-felix.png" alt="FEL-X" class="logo" onerror="this.src='https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-70x70.png'">
         </div>
 
-        <div id="login-area" style="display:none; text-align: center;">
-            <a id="login-link" class="btn-primary" href="#">Se connecter avec Twitch</a>
-        </div>
+			<h1>
+				En <span class="accent">Maintenance</span>
+			</h1>
 
-        <div id="error-box">
-            <strong>⚠️ ERREUR DÉTECTÉE :</strong><br>
-            <span id="error-detail">Aucune erreur pour l'instant.</span><br><br>
-            <button onclick="resetApp()" style="padding:5px 10px; cursor:pointer;">Réinitialiser et Réessayer</button>
-        </div>
-    </main>
-    
-    <script>
-        // --- CONFIGURATION (Vérifiez bien cet ID !) ---
-        const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv"; 
-        const REDIRECT_URI = window.location.origin + "/"; 
+			<p>
+				Le cerveau de Félix est actuellement débranché pour recevoir une énorme mise à jour.<br>Revenez un peu plus tard !</p>
 
-        // --- LOGIQUE ---
-        (async function init() {
-            const errorBox = document.getElementById("error-box");
-            const errorDetail = document.getElementById("error-detail");
-            const loginArea = document.getElementById("login-area");
-            const statusMsg = document.getElementById("status-msg");
-            const loginLink = document.getElementById("login-link");
-
-            function showError(msg, technicalDetails) {
-                loginArea.style.display = "none";
-                statusMsg.textContent = "Oups ! Une erreur est survenue.";
-                errorBox.style.display = "block";
-                errorDetail.innerHTML = `
-                    ${msg}<br><br>
-                    <strong>Détails techniques :</strong><br>
-                    Client ID utilisé : ${CLIENT_ID}<br>
-                    Redirect URI : ${REDIRECT_URI}<br>
-                    Erreur : ${technicalDetails}
-                `;
-            }
-
-            // 1. Retour de Twitch (Capture du Token)
-            if (window.location.hash.includes("access_token")) {
-                statusMsg.textContent = "Validation du token...";
-                const params = new URLSearchParams(window.location.hash.substring(1));
-                const token = params.get("access_token");
-
-                if (token) {
-                    localStorage.setItem("twitch_token", token);
-                    window.history.replaceState({}, document.title, "/");
-                } else {
-                    showError("Token introuvable dans l'URL.", "Le hash URL ne contient pas access_token.");
-                    return;
-                }
-            }
-
-            // 2. Vérification du Token
-            const token = localStorage.getItem("twitch_token");
-
-            if (!token) {
-                // Pas connecté -> On affiche le bouton
-                statusMsg.textContent = "Connectez-vous pour accéder à votre espace.";
-                loginArea.style.display = "block";
-                
-                // MODIFIE CETTE LIGNE PRÉCISÉMENT
-const REDIRECT_URI = window.location.origin + "/auth-relay.html"; 
-
-// Le reste du code qui construit l'URL
-const SCOPES = "user:read:follows user:read:subscriptions";
-const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
-loginLink.href = authUrl;
-            
-            } else {
-                // Connecté -> On teste le token
-                statusMsg.textContent = "Vérification de votre identité...";
-                
-                try {
-                    const resp = await fetch('https://api.twitch.tv/helix/users', {
-                        headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
-                    });
-
-                    if (!resp.ok) {
-                        // C'est ICI que ça plante souvent
-                        const errText = await resp.text(); // On lit le message d'erreur de Twitch
-                        throw new Error(`Twitch a refusé la connexion (Code ${resp.status}) : ${errText}`);
-                    }
-                    
-                    // Si tout est bon
-                    statusMsg.textContent = "Connexion réussie ! Redirection...";
-                    window.location.href = window.location.origin + "/profile.html";
-
-                } catch (e) {
-                    console.error(e);
-                    showError("La connexion à Twitch a échoué.", e.message);
-                    // On ne recharge PAS la page automatiquement pour vous laisser lire l'erreur !
-                }
-            }
-        })();
-
-        window.resetApp = function() {
-            localStorage.removeItem("twitch_token");
-            window.location.href = "/";
-        };
-    </script>
-</body>
+			<div class="status-badge">
+				<div class="dot"></div>
+				Travaux en cours
+			</div>
+		</div>
+	</body>
 </html>
