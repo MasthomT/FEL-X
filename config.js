@@ -1,5 +1,5 @@
 const CONFIG = {
-    // ⚠️ Remplace par ton vrai lien Ngrok ou Cloudflare (avec /api/v1 à la fin)
+    // ⚠️ Remplace par ton vrai lien Cloudflare (avec /api/v1 à la fin)
     API_BASE_URL: "prime-nearby-tick.ngrok-free.app/api/v1", 
     
     // Ton Client ID Twitch
@@ -8,6 +8,6 @@ const CONFIG = {
     // Le nom de ta chaîne
     BROADCASTER_NAME: "masthom_",
 
-    // L'adresse exacte de ton site Vercel (pour que Twitch sache où renvoyer le viewer)
-    REDIRECT_URI: "https://fel-x.vercel.app/"
+    // L'adresse exacte de ton site Vercel
+    REDIRECT_URI: "https://fel-x.vercel.app"
 };
