@@ -9,5 +9,5 @@ const CONFIG = {
     BROADCASTER_NAME: "masthom_",
 
     // L'adresse exacte de ton site Vercel (pour que Twitch sache où renvoyer le viewer)
-    REDIRECT_URI: "https://fel-x.vercel.app/profile"
+    REDIRECT_URI: "https://fel-x.vercel.app/"
 };
