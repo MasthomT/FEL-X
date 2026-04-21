@@ -1,6 +1,6 @@
 /**
  * APP.JS - Configuration Globale et Fonctions Communes
- * Projet : FEL-X System (API Locale / Ngrok)
+ * Projet : FEL-X System (Connecté à FastAPI / Ngrok)
  */
 
 // --- 1. GESTION DE L'AUTHENTIFICATION TWITCH ---
@@ -8,6 +8,7 @@ function checkAuth() {
     const token = localStorage.getItem("twitch_token");
     const path = window.location.pathname;
     
+    // On ne redirige pas si on est déjà sur la page de login ou d'auth
     const isAuthPage = path.includes("index.html") || path === "/" || path.includes("auth.html");
 
     if (!token && !isAuthPage) {
@@ -35,9 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- 2. LOGIQUE DE PROGRESSION ---
+// --- 2. LOGIQUE DE PROGRESSION (XP & NIVEAUX) ---
 function calculateLevel(xp) {
     if (!xp || xp <= 0) return 1;
     const xpNum = parseFloat(xp);
     return Math.floor(Math.pow(xpNum / 100, 1 / 2.2)) + 1;
-}   
+}
