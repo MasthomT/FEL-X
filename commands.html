@@ -1,180 +1,152 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Commandes - FEL-X</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #f8fafc; --text-dim: #94a3b8; --accent: #8b5cf6; --accent-green: #10b981; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-        main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
-        .sidebar .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; }
-        .sidebar .logo img { width: 40px; border-radius: 50%; }
-        .nav-link { color: var(--text-dim); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 600; transition: 0.2s; display: block; margin-bottom: 5px; }
-        .nav-link:hover, .nav-link.active { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
-        .logout { color: #f43f5e; margin-top: auto; }
-        
-        /* Contenu */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
-        
-        .filters { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 10px; font-family: 'Inter', sans-serif; }
-        input:focus, select:focus { border-color: var(--accent); outline: none; }
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+				<title>Commandes Chat - FEL-X</title>
+				<!-- On utilise le style.css Master pour la structure et le thème -->
+				<link rel="stylesheet" href="style.css">
+					<style>
+						/* Ajustements spécifiques pour l'interface de filtrage */
+						.controls-row {
+						display: flex;
+						gap: 1rem;
+						margin-bottom: 2.5rem;
+						flex-wrap: wrap;
+						}
 
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: rgba(0,0,0,0.3); padding: 15px 20px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
-        td { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: rgba(255,255,255,0.02); }
+						.search-box {
+						position: relative;
+						flex: 1;
+						min-width: 300px;
+						}
 
-        @media (max-width: 800px) {
-            main { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
-            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 10px; z-index: 100; border-right: none; border-top: 1px solid var(--border); }
-            .sidebar .logo, .sidebar .logout, .nav-text { display: none; }
-            .filters { grid-template-columns: 1fr; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { display: none; }
-            tr { background: var(--surface); margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
-            td { border: none; padding: 8px 10px; text-align: right; position: relative; padding-left: 50%; }
-            td::before { content: attr(data-label); position: absolute; left: 10px; width: 45%; text-align: left; font-weight: 800; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; }
-        }
-    </style>
-</head>
-<body>
-    <nav class="sidebar">
-        <a href="profile.html" class="logo"><img src="logo-felix.png" onerror="this.style.display='none'"> FEL-X</a>
-        <a href="profile.html" class="nav-link">👤 <span class="nav-text">Profil</span></a>
-        <a href="commands.html" class="nav-link active">⌨️ <span class="nav-text">Commandes</span></a>
-        <a href="clips.html" class="nav-link">🎬 <span class="nav-text">Clips</span></a>
-        <a href="#" id="logout-btn" class="nav-link logout">🚪 <span class="nav-text">Déconnexion</span></a>
-    </nav>
+						.search-input, .filter-select {
+						width: 100%;
+						padding: 14px 20px;
+						background: var(--surface);
+						border: 1px solid var(--border);
+						border-radius: 18px;
+						color: #fff;
+						font-size: 0.95rem;
+						outline: none;
+						transition: all 0.3s ease;
+						}
 
-    <main>
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 2rem;">⌨️ Commandes du Chat</h1>
+						.search-input { padding-left: 52px; }
 
-        <div class="card">
-            <div class="filters">
-                <input type="text" id="cmd-search" placeholder="Rechercher une commande... (ex: !discord)">
-                <select id="cmd-filter">
-                    <option value="all">Toutes les catégories</option>
-                    <option value="Infos">Infos & Liens</option>
-                    <option value="Modération">Modération</option>
-                    <option value="Chat Mode">Chat Mode</option>
-                    <option value="VIP">VIP</option>
-                    <option value="Traduction">Traduction</option>
-                    <option value="Timer">Timer</option>
-                    <option value="Emotes">Avalanches d'Emotes</option>
-                    <option value="Sons">Sons & Alertes</option>
-                    <option value="Game Bomb">Jeu de la Bombe</option>
-                </select>
+						.search-input:focus, .filter-select:focus {
+						border-color: var(--accent);
+						box-shadow: 0 0 20px var(--accent-glow);
+						background: rgba(30, 41, 59, 0.6);
+						}
+
+						.search-icon {
+						position: absolute; left: 20px; top: 50%;
+						transform: translateY(-50%); color: var(--text-dim);
+						pointer-events: none;
+						z-index: 5;
+						}
+
+						.filter-select {
+						width: 240px;
+						cursor: pointer;
+						appearance: none;
+						background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+						background-repeat: no-repeat;
+						background-position: right 15px center;
+						background-size: 18px;
+						}
+
+						/* Badges d'accès et catégories */
+						.badge {
+						font-size: 0.65rem; font-weight: 900; padding: 4px 12px;
+						border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;
+						border: 1px solid transparent;
+						display: inline-block;
+						white-space: nowrap;
+						}
+						.badge-viewer { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
+						.badge-mod { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border-color: rgba(244, 63, 94, 0.2); }
+						.badge-vip { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2); }
+						.badge-admin { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); }
+
+						.cat-tag {
+						color: var(--text-dim); font-size: 0.7rem; font-weight: 800;
+						background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;
+						text-transform: uppercase; letter-spacing: 0.5px;
+						}
+
+						.cmd-trigger {
+						font-family: 'JetBrains Mono', monospace;
+						color: var(--accent);
+						font-weight: 800;
+						font-size: 1.1rem;
+						text-shadow: 0 0 10px var(--accent-glow);
+						}
+
+						tr.hidden { display: none; }
+
+						@media (max-width: 900px) {
+						.filter-select { width: 100%; }
+						}
+					</style>
+				</head>
+	<body>
+		<!-- AUCUN NAV MANUEL : sidebar.js l'injecte automatiquement -->
+
+		<main>
+			<header>
+				<h1>Commandes du Chat</h1>
+				<p class="page-desc">L'encyclopédie complète des pouvoirs de la communauté sur Masthom_.</p>
+			</header>
+
+			<!-- Barre de contrôles dynamique -->
+			<div class="controls-row">
+				<div class="search-box">
+					<svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+					<input type="text" id="cmdSearch" class="search-input" placeholder="Rechercher une commande ou un mot-clé...">
             </div>
 
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Commande</th>
-                            <th>Description</th>
-                            <th>Catégorie</th>
-                            <th>Accès</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cmd-list">
-                        <!-- Injecté par JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+				<select id="catFilter" class="filter-select">
+					<option value="all">Toutes les catégories</option>
+					<option value="Infos">Infos & Liens</option>
+					<option value="Modération">Modération</option>
+					<option value="Chat Mode">Chat Mode</option>
+					<option value="VIP">VIP</option>
+					<option value="Traduction">Traduction</option>
+					<option value="Fun">Fun & IA</option>
+					<option value="Jeux">Mini-Jeux</option>
+					<option value="Sons">Sons & Effets</option>
+					<option value="Admin">Administration</option>
+				</select>
+			</div>
 
-    <script src="config.js"></script>
-    <script src="app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const token = checkAuth();
-            if (!token) return;
+			<!-- Tableau des Commandes Premium -->
+			<div class="card" style="padding: 0; overflow: hidden;">
+				<table style="margin-top: 0; width: 100%;">
+					<thead>
+						<tr>
+							<th style="padding-left: 2.5rem; width: 260px;">Déclencheur</th>
+							<th style="width: 160px;">Catégorie</th>
+							<th>Description</th>
+							<th style="width: 160px; text-align: center;">Accès</th>
+						</tr>
+					</thead>
+					<tbody id="cmd-list-body">
+						<!-- Les commandes seront générées par commands.js -->
+					</tbody>
+				</table>
+			</div>
+		</main>
 
-            const listEl = document.getElementById("cmd-list");
-
-            // Liste OFFICIELLE (0 Firebase)
-            const allCommands = [
-                { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "Modération", access: "Modérateur" },
-                { trigger: "!clear", description: "Efface tous les messages visibles.", category: "Modération", access: "Modérateur" },
-                { trigger: "!setgame (!sg)", description: "Définit le jeu en cours.", category: "Modération", access: "Modérateur" },
-                { trigger: "!settitle (!st)", description: "Définit le titre du stream.", category: "Modération", access: "Modérateur" },
-                { trigger: "!so (!shoutout)", description: "Fait la promotion d'un autre diffuseur.", category: "Modération", access: "Modérateur" },
-                { trigger: "!to30m", description: "Timeout 30 minutes.", category: "Modération", access: "Modérateur" },
-                { trigger: "!to1h", description: "Timeout 1 heure.", category: "Modération", access: "Modérateur" },
-                { trigger: "!untimeout", description: "Annule une exclusion temporaire.", category: "Modération", access: "Modérateur" },
-                { trigger: "!emoton / !emotoff", description: "Active/Désactive le mode Emotes Seules.", category: "Chat Mode", access: "Modérateur" },
-                { trigger: "!followon / !followoff", description: "Active/Désactive le mode Abonnés Seuls.", category: "Chat Mode", access: "Modérateur" },
-                { trigger: "!addvip", description: "Ajoute un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!extendvip", description: "Prolonge un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!revokevip (!unvip)", description: "Retire un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!bug", description: "Signaler un problème.", category: "Infos", access: "Viewer" },
-                { trigger: "!clip", description: "Créer un clip (30s).", category: "Infos", access: "Viewer" },
-                { trigger: "!commandes (!cmde)", description: "Affiche la liste des commandes.", category: "Infos", access: "Viewer" },
-                { trigger: "!discord (!dc)", description: "Lien du Discord.", category: "Infos", access: "Viewer" },
-                { trigger: "!tips (!don)", description: "Faire un don.", category: "Infos", access: "Viewer" },
-                { trigger: "!game", description: "Jeu actuel.", category: "Infos", access: "Viewer" },
-                { trigger: "!myinfo (!level)", description: "Vos stats (XP, Niveau).", category: "Infos", access: "Viewer" },
-                { trigger: "!planning", description: "Calendrier des streams.", category: "Infos", access: "Viewer" },
-                { trigger: "!rs (!social)", description: "Réseaux sociaux.", category: "Infos", access: "Viewer" },
-                { trigger: "!watchtime", description: "Temps de visionnage.", category: "Infos", access: "Viewer" },
-                { trigger: "!eng (!en)", description: "Traduire en Anglais.", category: "Traduction", access: "Viewer" },
-                { trigger: "!esp (!es)", description: "Traduire en Espagnol.", category: "Traduction", access: "Viewer" },
-                { trigger: "!fr (!fra)", description: "Traduire en Français.", category: "Traduction", access: "Viewer" },
-                { trigger: "!bombstart", description: "Lancer la bombe.", category: "Game Bomb", access: "Modérateur" },
-                { trigger: "!pass {pseudo}", description: "Passer la bombe.", category: "Game Bomb", access: "Viewer" },
-                { trigger: "!dance", description: "Avalanche d'emote Danse.", category: "Emotes", access: "Viewer" },
-                { trigger: "!hype", description: "Avalanche d'emote Hype.", category: "Emotes", access: "Viewer" },
-                { trigger: "!felix", description: "Son: Félix.", category: "Sons", access: "Viewer" },
-                { trigger: "!lurk", description: "Mode Lurk.", category: "Sons", access: "Viewer" }
-            ];
-
-            function renderCommands(cmds) {
-                listEl.innerHTML = "";
-                if (cmds.length === 0) {
-                    listEl.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px; color:var(--text-dim);'>Aucune commande trouvée.</td></tr>";
-                    return;
-                }
-
-                cmds.forEach(cmd => {
-                    const tr = document.createElement("tr");
-                    const accessColor = cmd.access === "Modérateur" ? "color:#f43f5e;" : "color:#10b981;";
-                    
-                    tr.innerHTML = `
-                        <td data-label="Commande"><span style="font-weight:800; color:var(--accent);">${cmd.trigger}</span></td>
-                        <td data-label="Description" style="color:var(--text);">${cmd.description}</td>
-                        <td data-label="Catégorie"><span style="background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; font-size:0.85em; border:1px solid var(--border);">${cmd.category}</span></td>
-                        <td data-label="Accès"><span style="font-weight:600; font-size:0.85rem; ${accessColor}">${cmd.access}</span></td>
-                    `;
-                    listEl.appendChild(tr);
-                });
-            }
-
-            function filterCommands() {
-                const searchTerm = document.getElementById("cmd-search").value.toLowerCase();
-                const category = document.getElementById("cmd-filter").value;
-                
-                const filtered = allCommands.filter(cmd => {
-                    const matchesSearch = cmd.trigger.toLowerCase().includes(searchTerm) || cmd.description.toLowerCase().includes(searchTerm);
-                    const matchesCategory = category === 'all' || cmd.category === category;
-                    return matchesSearch && matchesCategory;
-                });
-                renderCommands(filtered);
-            }
-
-            document.getElementById("cmd-search").addEventListener("input", filterCommands);
-            document.getElementById("cmd-filter").addEventListener("change", filterCommands);
-
-            allCommands.sort((a, b) => a.category.localeCompare(b.category) || a.trigger.localeCompare(b.trigger));
-            renderCommands(allCommands);
-        });
-    </script>
-</body>
+		<!-- Scripts obligatoires dans l'ordre -->
+		<script src="config.js"></script>
+		<script src="app.js"></script>
+		<script src="sidebar.js"></script>
+		<script src="commands.js"></script>
+	</body>
 </html>
