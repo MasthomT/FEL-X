@@ -1,180 +1,106 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Commandes - FEL-X</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #f8fafc; --text-dim: #94a3b8; --accent: #8b5cf6; --accent-green: #10b981; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-        main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
-        .sidebar .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; }
-        .sidebar .logo img { width: 40px; border-radius: 50%; }
-        .nav-link { color: var(--text-dim); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 600; transition: 0.2s; display: block; margin-bottom: 5px; }
-        .nav-link:hover, .nav-link.active { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
-        .logout { color: #f43f5e; margin-top: auto; }
-        
-        /* Contenu */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
-        
-        .filters { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 10px; font-family: 'Inter', sans-serif; }
-        input:focus, select:focus { border-color: var(--accent); outline: none; }
+/**
+* COMMANDS.JS - Gestion dynamique de la liste complète
+*/
 
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: rgba(0,0,0,0.3); padding: 15px 20px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
-        td { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: rgba(255,255,255,0.02); }
+document.addEventListener("DOMContentLoaded", () => {
+// Vérification de sécurité
+if (typeof checkAuth === 'function') checkAuth();
 
-        @media (max-width: 800px) {
-            main { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
-            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 10px; z-index: 100; border-right: none; border-top: 1px solid var(--border); }
-            .sidebar .logo, .sidebar .logout, .nav-text { display: none; }
-            .filters { grid-template-columns: 1fr; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { display: none; }
-            tr { background: var(--surface); margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
-            td { border: none; padding: 8px 10px; text-align: right; position: relative; padding-left: 50%; }
-            td::before { content: attr(data-label); position: absolute; left: 10px; width: 45%; text-align: left; font-weight: 800; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; }
-        }
-    </style>
-</head>
-<body>
-    <nav class="sidebar">
-        <a href="profile.html" class="logo"><img src="logo-felix.png" onerror="this.style.display='none'"> FEL-X</a>
-        <a href="profile.html" class="nav-link">👤 <span class="nav-text">Profil</span></a>
-        <a href="commands.html" class="nav-link active">⌨️ <span class="nav-text">Commandes</span></a>
-        <a href="clips.html" class="nav-link">🎬 <span class="nav-text">Clips</span></a>
-        <a href="#" id="logout-btn" class="nav-link logout">🚪 <span class="nav-text">Déconnexion</span></a>
-    </nav>
+const tbody = document.getElementById("cmd-list-body");
+const searchInput = document.getElementById("cmdSearch");
+const catFilter = document.getElementById("catFilter");
 
-    <main>
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 2rem;">⌨️ Commandes du Chat</h1>
+// ==========================================================
+// 📂 TOUTES LES COMMANDES (BASE DE DONNÉES)
+// ==========================================================
+const allCommands = [
+// --- GÉNÉRAL ---
+{ t: "!level", c: "Général", d: "Affiche ton niveau actuel et ton EXP totale.", a: "viewer" },
+{ t: "!rang", c: "Général", d: "Affiche ta position exacte dans le classement.", a: "viewer" },
+{ t: "!points", c: "Général", d: "Affiche ton solde actuel de points d'expérience.", a: "viewer" },
+{ t: "!uptime", c: "Général", d: "Temps écoulé depuis le début du live.", a: "viewer" },
+{ t: "!game", c: "Général", d: "Affiche le jeu ou la catégorie en cours.", a: "viewer" },
+{ t: "!followage", c: "Général", d: "Affiche depuis combien de temps tu suis la chaîne.", a: "viewer" },
+{ t: "!discord", c: "Général", d: "Envoie le lien d'invitation permanent du serveur Discord.", a: "viewer" },
+{ t: "!lurk", c: "Général", d: "Annonce que tu passes en mode spectateur silencieux.", a: "viewer" },
 
-        <div class="card">
-            <div class="filters">
-                <input type="text" id="cmd-search" placeholder="Rechercher une commande... (ex: !discord)">
-                <select id="cmd-filter">
-                    <option value="all">Toutes les catégories</option>
-                    <option value="Infos">Infos & Liens</option>
-                    <option value="Modération">Modération</option>
-                    <option value="Chat Mode">Chat Mode</option>
-                    <option value="VIP">VIP</option>
-                    <option value="Traduction">Traduction</option>
-                    <option value="Timer">Timer</option>
-                    <option value="Emotes">Avalanches d'Emotes</option>
-                    <option value="Sons">Sons & Alertes</option>
-                    <option value="Game Bomb">Jeu de la Bombe</option>
-                </select>
-            </div>
+// --- FUN & IA ---
+{ t: "!felix", c: "Fun", d: "Déclenche une réponse aléatoire (IA) de Félix.", a: "viewer" },
+{ t: "!dance", c: "Fun", d: "Fait apparaître une pluie d'emotes à l'écran.", a: "viewer" },
+{ t: "!love {pseudo}", c: "Fun", d: "Calcule le taux d'amour avec un autre viewer.", a: "viewer" },
+{ t: "!hug {pseudo}", c: "Fun", d: "Fait un gros câlin virtuel à quelqu'un.", a: "viewer" },
 
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Commande</th>
-                            <th>Description</th>
-                            <th>Catégorie</th>
-                            <th>Accès</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cmd-list">
-                        <!-- Injecté par JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+// --- OUTILS ---
+{ t: "!clip", c: "Outils", d: "Crée instantanément un clip des 30 dernières secondes.", a: "viewer" },
+{ t: "!bug {message}", c: "Outils", d: "Signale un problème technique directement au bot.", a: "viewer" },
+{ t: "!socials", c: "Outils", d: "Affiche les réseaux sociaux officiels de Masthom.", a: "viewer" },
+{ t: "!planning", c: "Outils", d: "Affiche l'emploi du temps des prochains streams.", a: "viewer" },
 
-    <script src="config.js"></script>
-    <script src="app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const token = checkAuth();
-            if (!token) return;
+// --- MODÉRATION ---
+{ t: "!so {pseudo}", c: "Modération", d: "Lance un Shoutout avec vidéo pour un streamer ami.", a: "mod" },
+{ t: "!ban {pseudo}", c: "Modération", d: "Bannit définitivement un utilisateur.", a: "mod" },
+{ t: "!timeout {pseudo}", c: "Modération", d: "Exclut un utilisateur temporairement (10 min).", a: "mod" },
+{ t: "!clear", c: "Modération", d: "Supprime tous les messages visibles du chat.", a: "mod" },
+{ t: "!slow {sec}", c: "Modération", d: "Active le mode lent (ex: !slow 10).", a: "mod" },
+{ t: "!unban {pseudo}", c: "Modération", d: "Réhabilite un utilisateur banni.", a: "mod" },
 
-            const listEl = document.getElementById("cmd-list");
+// --- ADMIN ---
+{ t: "!renotif", c: "Admin", d: "Force le renvoi de l'alerte de live sur Discord.", a: "admin" },
+{ t: "!checkcopains", c: "Admin", d: "Scanne si des partenaires sont actuellement en live.", a: "admin" },
+{ t: "!replay", c: "Admin", d: "Relance le dernier clip diffusé sur l'overlay.", a: "admin" },
+{ t: "!addxp {pseudo} {val}", c: "Admin", d: "Donne manuellement des points d'EXP.", a: "admin" },
+{ t: "!setlevel {pseudo} {lvl}", c: "Admin", d: "Définit directement le niveau d'un viewer.", a: "admin" }
+];
 
-            // Liste OFFICIELLE (0 Firebase)
-            const allCommands = [
-                { trigger: "!ban", description: "Bannit un utilisateur de manière permanente.", category: "Modération", access: "Modérateur" },
-                { trigger: "!clear", description: "Efface tous les messages visibles.", category: "Modération", access: "Modérateur" },
-                { trigger: "!setgame (!sg)", description: "Définit le jeu en cours.", category: "Modération", access: "Modérateur" },
-                { trigger: "!settitle (!st)", description: "Définit le titre du stream.", category: "Modération", access: "Modérateur" },
-                { trigger: "!so (!shoutout)", description: "Fait la promotion d'un autre diffuseur.", category: "Modération", access: "Modérateur" },
-                { trigger: "!to30m", description: "Timeout 30 minutes.", category: "Modération", access: "Modérateur" },
-                { trigger: "!to1h", description: "Timeout 1 heure.", category: "Modération", access: "Modérateur" },
-                { trigger: "!untimeout", description: "Annule une exclusion temporaire.", category: "Modération", access: "Modérateur" },
-                { trigger: "!emoton / !emotoff", description: "Active/Désactive le mode Emotes Seules.", category: "Chat Mode", access: "Modérateur" },
-                { trigger: "!followon / !followoff", description: "Active/Désactive le mode Abonnés Seuls.", category: "Chat Mode", access: "Modérateur" },
-                { trigger: "!addvip", description: "Ajoute un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!extendvip", description: "Prolonge un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!revokevip (!unvip)", description: "Retire un VIP.", category: "VIP", access: "Modérateur" },
-                { trigger: "!bug", description: "Signaler un problème.", category: "Infos", access: "Viewer" },
-                { trigger: "!clip", description: "Créer un clip (30s).", category: "Infos", access: "Viewer" },
-                { trigger: "!commandes (!cmde)", description: "Affiche la liste des commandes.", category: "Infos", access: "Viewer" },
-                { trigger: "!discord (!dc)", description: "Lien du Discord.", category: "Infos", access: "Viewer" },
-                { trigger: "!tips (!don)", description: "Faire un don.", category: "Infos", access: "Viewer" },
-                { trigger: "!game", description: "Jeu actuel.", category: "Infos", access: "Viewer" },
-                { trigger: "!myinfo (!level)", description: "Vos stats (XP, Niveau).", category: "Infos", access: "Viewer" },
-                { trigger: "!planning", description: "Calendrier des streams.", category: "Infos", access: "Viewer" },
-                { trigger: "!rs (!social)", description: "Réseaux sociaux.", category: "Infos", access: "Viewer" },
-                { trigger: "!watchtime", description: "Temps de visionnage.", category: "Infos", access: "Viewer" },
-                { trigger: "!eng (!en)", description: "Traduire en Anglais.", category: "Traduction", access: "Viewer" },
-                { trigger: "!esp (!es)", description: "Traduire en Espagnol.", category: "Traduction", access: "Viewer" },
-                { trigger: "!fr (!fra)", description: "Traduire en Français.", category: "Traduction", access: "Viewer" },
-                { trigger: "!bombstart", description: "Lancer la bombe.", category: "Game Bomb", access: "Modérateur" },
-                { trigger: "!pass {pseudo}", description: "Passer la bombe.", category: "Game Bomb", access: "Viewer" },
-                { trigger: "!dance", description: "Avalanche d'emote Danse.", category: "Emotes", access: "Viewer" },
-                { trigger: "!hype", description: "Avalanche d'emote Hype.", category: "Emotes", access: "Viewer" },
-                { trigger: "!felix", description: "Son: Félix.", category: "Sons", access: "Viewer" },
-                { trigger: "!lurk", description: "Mode Lurk.", category: "Sons", access: "Viewer" }
-            ];
+// ==========================================================
+// 🛠️ MOTEUR DE RENDU
+// ==========================================================
+function render() {
+if (!tbody) return;
 
-            function renderCommands(cmds) {
-                listEl.innerHTML = "";
-                if (cmds.length === 0) {
-                    listEl.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px; color:var(--text-dim);'>Aucune commande trouvée.</td></tr>";
-                    return;
-                }
+const searchText = searchInput.value.toLowerCase();
+const selectedCat = catFilter.value;
 
-                cmds.forEach(cmd => {
-                    const tr = document.createElement("tr");
-                    const accessColor = cmd.access === "Modérateur" ? "color:#f43f5e;" : "color:#10b981;";
-                    
-                    tr.innerHTML = `
-                        <td data-label="Commande"><span style="font-weight:800; color:var(--accent);">${cmd.trigger}</span></td>
-                        <td data-label="Description" style="color:var(--text);">${cmd.description}</td>
-                        <td data-label="Catégorie"><span style="background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; font-size:0.85em; border:1px solid var(--border);">${cmd.category}</span></td>
-                        <td data-label="Accès"><span style="font-weight:600; font-size:0.85rem; ${accessColor}">${cmd.access}</span></td>
-                    `;
-                    listEl.appendChild(tr);
-                });
-            }
+const filtered = allCommands.filter(cmd => {
+const matchSearch = cmd.t.toLowerCase().includes(searchText) || cmd.d.toLowerCase().includes(searchText);
+const matchCat = selectedCat === "all" || cmd.c === selectedCat;
+return matchSearch && matchCat;
+});
 
-            function filterCommands() {
-                const searchTerm = document.getElementById("cmd-search").value.toLowerCase();
-                const category = document.getElementById("cmd-filter").value;
-                
-                const filtered = allCommands.filter(cmd => {
-                    const matchesSearch = cmd.trigger.toLowerCase().includes(searchTerm) || cmd.description.toLowerCase().includes(searchTerm);
-                    const matchesCategory = category === 'all' || cmd.category === category;
-                    return matchesSearch && matchesCategory;
-                });
-                renderCommands(filtered);
-            }
+tbody.innerHTML = filtered.map(cmd => {
+let badgeClass = "badge-viewer";
+let badgeLabel = "Viewer";
 
-            document.getElementById("cmd-search").addEventListener("input", filterCommands);
-            document.getElementById("cmd-filter").addEventListener("change", filterCommands);
+if (cmd.a === "mod") { badgeClass = "badge-mod"; badgeLabel = "Modérateur"; }
+else if (cmd.a === "vip") { badgeClass = "badge-vip"; badgeLabel = "VIP"; }
+else if (cmd.a === "admin") { badgeClass = "badge-admin"; badgeLabel = "Admin"; }
 
-            allCommands.sort((a, b) => a.category.localeCompare(b.category) || a.trigger.localeCompare(b.trigger));
-            renderCommands(allCommands);
-        });
-    </script>
-</body>
-</html>
+return `
+<tr class="cmd-row">
+	<td style="padding-left: 2.5rem;">
+		<span class="cmd-trigger">${cmd.t}</span>
+	</td>
+	<td>
+		<span class="cat-tag">${cmd.c}</span>
+	</td>
+	<td style="color: var(--text-main); font-weight: 500; font-size: 0.9rem;">${cmd.d}</td>
+	<td style="text-align: center;">
+		<span class="badge ${badgeClass}">${badgeLabel}</span>
+	</td>
+</tr>`;
+}).join('');
+
+if (filtered.length === 0) {
+tbody.innerHTML = `<tr>
+	<td colspan="4" style="text-align:center; padding:4rem; color:var(--text-dim); font-style:italic;">Aucune commande ne correspond à votre recherche...</td>
+</tr>`;
+}
+}
+
+// Écouteurs pour filtrage en direct
+if (searchInput) searchInput.addEventListener("input", render);
+if (catFilter) catFilter.addEventListener("change", render);
+
+// Premier rendu
+render();
+});
