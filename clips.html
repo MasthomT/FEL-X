@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galerie Clips - FEL-X</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #f8fafc; --text-dim: #94a3b8; --accent: #8b5cf6; --accent-green: #10b981; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
+        
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--surface); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; }
+        .sidebar .logo img { width: 40px; border-radius: 50%; }
+        .nav-link { color: var(--text-dim); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 600; transition: 0.2s; display: block; margin-bottom: 5px; }
+        .nav-link:hover, .nav-link.active { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
+        .logout { color: #f43f5e; margin-top: auto; }
+
+        .filters { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 30px; }
+        input, select { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 1rem; }
+        input:focus, select:focus { border-color: var(--accent); outline: none; }
+
+        .clips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .clip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-decoration: none; color: white; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+        .clip-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: var(--accent); }
+        
+        .clip-thumb { height: 180px; background-size: cover; background-position: center; position: relative; }
+        .clip-duration { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; }
+        .clip-info { padding: 15px; }
+        .clip-title { margin: 0 0 10px 0; font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .clip-meta { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; font-weight: 600; }
+        .clip-author { font-size: 0.85rem; color: var(--accent-green); font-weight: 800; }
+
+        @media (max-width: 800px) {
+            main { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
+            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 10px; z-index: 100; border-right: none; border-top: 1px solid var(--border); }
+            .sidebar .logo, .sidebar .logout, .nav-text { display: none; }
+            .filters { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo"><img src="logo-felix.png" onerror="this.style.display='none'"> FEL-X</a>
+        <a href="profile.html" class="nav-link">👤 <span class="nav-text">Profil</span></a>
+        <a href="commands.html" class="nav-link">⌨️ <span class="nav-text">Commandes</span></a>
+        <a href="clips.html" class="nav-link active">🎬 <span class="nav-text">Clips</span></a>
+        <a href="#" id="logout-btn" class="nav-link logout">🚪 <span class="nav-text">Déconnexion</span></a>
+    </nav>
+
+    <main>
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <h2 style="margin:0;">Chargement de la Galerie...</h2>
+            <p id="loading-text" style="color: var(--text-dim);">Recherche des meilleurs clips sur Twitch...</p>
+        </div>
+
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 2rem;">🎬 Galerie des Clips</h1>
+
+        <div class="filters">
+            <input type="text" id="clip-search" placeholder="Rechercher par titre ou créateur...">
+            <select id="filter-sort">
+                <option value="date">Les plus récents</option>
+                <option value="views">Les plus vus</option>
+            </select>
+        </div>
+
+        <div class="clips-grid" id="clips-grid" style="display: none;">
+            <!-- Injecté par JS -->
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = checkAuth();
+            if(!token) return;
+
+            // Paramètres Twitch (BROADCASTER_ID est celui de masthom_)
+            const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+            const BROADCASTER_ID = "439356462"; 
+            
+            let allClipsData = [];
+
+            const loadingEl = document.getElementById("loading-overlay");
+            const loadingText = document.getElementById("loading-text");
+            const gridEl = document.getElementById("clips-grid");
+            const searchInput = document.getElementById("clip-search");
+            const filterSortSelect = document.getElementById("filter-sort");
+
+            try {
+                let cursor = "";
+                let keepFetching = true;
+                const MAX_CLIPS = 500; // On limite pour éviter de faire trop de requêtes
+
+                while (keepFetching && allClipsData.length < MAX_CLIPS) {
+                    let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=100`;
+                    if (cursor) url += `&after=${cursor}`;
+
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            logout(); return;
+                        }
+                        throw new Error(`Erreur API Twitch (${response.status})`);
+                    }
+                    
+                    const data = await response.json();
+
+                    if (data.data && data.data.length > 0) {
+                        allClipsData.push(...data.data);
+                        loadingText.textContent = `Téléchargement... (${allClipsData.length} clips récupérés)`;
+                        
+                        if (data.pagination && data.pagination.cursor) {
+                            cursor = data.pagination.cursor;
+                        } else {
+                            keepFetching = false;
+                        }
+                    } else {
+                        keepFetching = false;
+                    }
+                }
+
+                if (allClipsData.length === 0) {
+                    loadingEl.innerHTML = `<h2 style="color:var(--text-dim);">Aucun clip trouvé sur la chaîne.</h2>`;
+                    return;
+                }
+
+                sortClips('date'); 
+
+                loadingEl.style.display = "none";
+                gridEl.style.display = "grid";
+
+                searchInput.addEventListener('input', (e) => filterClips(e.target.value));
+                filterSortSelect.addEventListener('change', (e) => sortClips(e.target.value));
+
+            } catch (error) {
+                console.error("Erreur Clips:", error);
+                loadingEl.innerHTML = `
+                    <div style="background: rgba(244,63,94,0.1); border: 1px solid #f43f5e; padding: 2rem; border-radius: 16px; text-align: center;">
+                        <h2 style="color: #f43f5e; margin-top:0;">Oups ! Erreur de Chargement</h2>
+                        <p style="color: var(--text-dim);">${error.message}</p>
+                        <button onclick="location.reload()" style="background: #f43f5e; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 1rem;">Réessayer</button>
+                    </div>
+                `;
+            }
+
+            function sortClips(criteria) {
+                if (criteria === 'date') {
+                    allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                } else if (criteria === 'views') {
+                    allClipsData.sort((a, b) => b.view_count - a.view_count);
+                }
+                renderClips(allClipsData);
+            }
+
+            function filterClips(query) {
+                const lowerQ = query.toLowerCase();
+                const filtered = allClipsData.filter(clip => 
+                    clip.title.toLowerCase().includes(lowerQ) || 
+                    clip.creator_name.toLowerCase().includes(lowerQ)
+                );
+                renderClips(filtered);
+            }
+
+            function renderClips(clips) {
+                gridEl.innerHTML = "";
+                
+                if (clips.length === 0) {
+                    gridEl.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-dim); font-size: 1.2rem; font-weight: 600;'>Aucun clip ne correspond à ta recherche. 😢</div>";
+                    return;
+                }
+                
+                clips.forEach(clip => {
+                    const date = new Date(clip.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const views = clip.view_count.toLocaleString('fr-FR');
+
+                    const card = document.createElement("a");
+                    card.className = "clip-card";
+                    card.href = clip.url;
+                    card.target = "_blank";
+
+                    card.innerHTML = `
+                        <div class="clip-thumb" style="background-image:url('${clip.thumbnail_url}');">
+                            <span class="clip-duration">${Math.round(clip.duration)}s</span>
+                        </div>
+                        <div class="clip-info">
+                            <h3 class="clip-title" title="${clip.title}">${clip.title}</h3>
+                            <div class="clip-meta">
+                                <span>👁️ ${views} vues</span>
+                                <span>📅 ${date}</span>
+                            </div>
+                            <div class="clip-author">✂️ Clippé par ${clip.creator_name}</div>
+                        </div>
+                    `;
+                    gridEl.appendChild(card);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
