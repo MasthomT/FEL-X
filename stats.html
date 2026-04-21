@@ -2,42 +2,133 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Stats - FEL-X</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+				<title>Statistiques - FEL-X</title>
+				<!-- On utilise le style.css Master pour la structure et les couleurs -->
 				<link rel="stylesheet" href="style.css">
-</head>
+					<style>
+						/* Styles spécifiques à la page Stats */
+						.goal-card {
+						background: linear-gradient(135deg, rgba(0, 245, 195, 0.05) 0%, var(--surface) 100%);
+						border-left: 4px solid var(--accent) !important;
+						}
+
+						.progress-wrapper {
+						width: 100%;
+						height: 14px;
+						background: rgba(0, 0, 0, 0.4);
+						border-radius: 20px;
+						overflow: hidden;
+						margin: 20px 0;
+						border: 1px solid var(--border);
+						}
+
+						.progress-bar {
+						height: 100%;
+						width: 0%;
+						background: linear-gradient(90deg, var(--accent), #34d399);
+						box-shadow: 0 0 20px var(--accent-glow);
+						transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+						}
+
+						.top-row {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						padding: 1.25rem 2rem;
+						border-bottom: 1px solid var(--border);
+						transition: background 0.2s;
+						}
+
+						.top-row:hover {
+						background: rgba(255, 255, 255, 0.02);
+						}
+
+						.top-row:last-child {
+						border-bottom: none;
+						}
+
+						.rank-indicator {
+						font-weight: 900;
+						font-size: 0.9rem;
+						width: 30px;
+						color: var(--text-dim);
+						}
+
+						.rank-1 .rank-indicator { color: #fbbf24; }
+						.rank-1 .viewer-name { color: #fff; font-weight: 800; }
+					</style>
+				</head>
 	<body>
+		<!-- La sidebar est injectée ici par sidebar.js -->
+
 		<main>
-			<h1>📊 Statistiques Globales</h1>
+			<header>
+				<h1>Statistiques Globales</h1>
+				<p class="page-desc">L'état de santé et l'évolution de la communauté en temps réel.</p>
+			</header>
 
-			<div class="card" style="margin-bottom:2rem; border-left: 4px solid var(--accent);">
-				<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-					<span style="font-weight:bold;">Objectif 1500 Followers</span>
-					<span id="cur-f">0</span>
+			<!-- Carte Objectif Followers -->
+			<div class="card goal-card">
+				<div style="display: flex; justify-content: space-between; align-items: flex-end;">
+					<div>
+						<span style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px;">Objectif de la chaîne</span>
+						<h2 style="margin:0; font-size: 1.8rem; font-weight: 900; color: #fff;">Vers les 1 500 Followers</h2>
+					</div>
+					<div style="text-align: right;">
+						<span id="cur-f" style="font-size: 1.8rem; font-weight: 900; color: #fff;">0</span>
+						<span style="color: var(--text-dim); font-weight: 600; margin-left: 5px; font-size: 1.1rem;">/ 1 500</span>
+					</div>
 				</div>
-				<div style="width:100%; height:12px; background:var(--bg); border-radius:6px; overflow:hidden;">
-					<div id="f-bar" style="height:100%; background:var(--accent); width:0%; transition:1.5s;"></div>
+
+				<div class="progress-wrapper">
+					<div id="f-bar" class="progress-bar"></div>
+				</div>
+
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<p style="margin:0; font-size: 0.85rem; color: var(--text-dim); font-weight: 500;">
+						Progression de la communauté : <span id="f-percent" style="color: var(--accent); font-weight: 800;">0%</span>
+					</p>
+					<p style="margin:0; font-size: 0.85rem; color: var(--text-dim);">
+						Encore <span id="f-needed" style="color: #fff; font-weight: 700;">--</span> pour le palier !
+					</p>
 				</div>
 			</div>
 
-			<div class="grid" style="margin-bottom:2rem;">
-				<div class="card">
-					<div style="color:var(--text-dim); font-size:0.8rem;">VIEWERS</div>
-					<div id="tot-v" style="font-size:1.5rem; font-weight:bold;">0</div>
+			<!-- Grille de Stats Clés -->
+			<div class="grid" style="margin-bottom: 3rem;">
+				<div class="stat-box">
+					<div class="stat-label">Viewers Uniques</div>
+					<div id="tot-v" class="stat-value" style="color: var(--accent);">0</div>
 				</div>
-				<div class="card">
-					<div style="color:var(--text-dim); font-size:0.8rem;">XP DISTRIBUÉE</div>
-					<div id="tot-xp" style="font-size:1.5rem; font-weight:bold;">0</div>
+				<div class="stat-box">
+					<div class="stat-label">Expérience Distribuée</div>
+					<div id="tot-xp" class="stat-value">0</div>
 				</div>
-				<div class="card">
-					<div style="color:var(--text-dim); font-size:0.8rem;">NIVEAU MAX</div>
-					<div id="max-l" style="font-size:1.5rem; font-weight:bold; color:gold;">1</div>
+				<div class="stat-box">
+					<div class="stat-label">Niveau Record</div>
+					<div id="max-l" class="stat-value" style="color: #fbbf24;">1</div>
+				</div>
+				<div class="stat-box">
+					<div class="stat-label">Niveau Moyen</div>
+					<div id="avg-l" class="stat-value">1</div>
 				</div>
 			</div>
 
-			<div class="card" style="padding:0;">
-				<div style="padding:15px; border-bottom:1px solid var(--border); font-weight:bold;">LES 5 PILIERS</div>
-				<div id="top5-list"></div>
+			<!-- Top 5 des Piliers -->
+			<div class="card" style="padding: 0; overflow: hidden;">
+				<div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.01);">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="8" r="7"></circle>
+						<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+					</svg>
+					<h2 style="margin:0; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">
+						Les 5 Piliers du Salon
+					</h2>
+				</div>
+				<div id="top5-list">
+					<!-- Injecté dynamiquement par le script -->
+				</div>
 			</div>
 		</main>
 
@@ -49,43 +140,77 @@
 			const token = checkAuth();
 			if(!token) return;
 
+			const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
+			const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
+			const BROADCASTER = typeof CONFIG !== 'undefined' ? CONFIG.BROADCASTER_NAME : "masthom_";
+
 			try {
-			const resp = await fetch(`${CONFIG.API_BASE_URL}/global_stats`, {
+			// 1. Récupération des Stats Globales du Bot
+			const resp = await fetch(`${API_URL}/global_stats`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 			const data = await resp.json();
 
-			document.getElementById("tot-v").textContent = data.total_members.toLocaleString();
-			document.getElementById("tot-xp").textContent = data.total_xp.toLocaleString();
+			document.getElementById("tot-v").textContent = (data.total_members || 0).toLocaleString('fr-FR');
+			document.getElementById("tot-xp").textContent = (data.total_xp || 0).toLocaleString('fr-FR');
 			document.getElementById("max-l").textContent = calculateLevel(data.max_xp);
 
-			const t5 = document.getElementById("top5-list");
-			data.top5.filter(u => u.username !== "masthom_").forEach((u, i) => {
-			const d = document.createElement("div");
-			d.style.padding = "12px 15px";
-			d.style.display = "flex";
-			d.style.justifyContent = "space-between";
-			d.style.borderBottom = "1px solid var(--border)";
-			d.innerHTML = `<span>
-				${i+1}. <b>${u.username}</b>
-			</span><span style="color:var(--accent); font-weight:bold;">Niv. ${calculateLevel(u.points)}</span>`;
-			t5.appendChild(d);
+			const avgXP = data.total_members > 0 ? (data.total_xp / data.total_members) : 0;
+			document.getElementById("avg-l").textContent = calculateLevel(avgXP);
+
+			// Rendu du Top 5
+			const t5Container = document.getElementById("top5-list");
+			t5Container.innerHTML = "";
+
+			const filteredTop = (data.top5 || []).filter(u => {
+			const n = u.username.toLowerCase();
+			return !["masthom_", "streamelements", "felixthebigblackcat", "wizebot", "nightbot"].includes(n);
+			}).slice(0, 5);
+
+			filteredTop.forEach((u, i) => {
+			const div = document.createElement("div");
+			div.className = `top-row ${i === 0 ? 'rank-1' : ''}`;
+			div.innerHTML = `
+			<div style="display:flex; align-items:center; gap:20px;">
+				<span class="rank-indicator">#${i + 1}</span>
+				<span class="viewer-name" style="font-size:1.05rem;">${u.username}</span>
+			</div>
+			<div style="text-align:right;">
+				<div style="color:var(--accent); font-weight:800; font-family: 'JetBrains Mono', monospace;">Lvl ${calculateLevel(u.points)}</div>
+				<div style="font-size:0.7rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">${u.points.toLocaleString('fr-FR')} XP</div>
+			</div>
+			`;
+			t5Container.appendChild(div);
 			});
 
-			// Followers Twitch
-			const tResp = await fetch(`https://api.twitch.tv/helix/users?login=${CONFIG.BROADCASTER_NAME}`, {
-			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
-			});
-			const tData = await tResp.json();
-			const bId = tData.data[0].id;
+			// 2. Twitch API pour les Followers réels
+			const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
+			const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER}`, { headers: twitchHeaders });
+			const userData = await userResp.json();
 
-			const fResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${bId}`, {
-			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
-			});
-			const fData = await fResp.json();
-			document.getElementById("cur-f").textContent = fData.total;
-			document.getElementById("f-bar").style.width = (fData.total / 1500 * 100) + "%";
-			} catch(e) {}
+			if (userData.data && userData.data.length > 0) {
+			const broadcasterId = userData.data[0].id;
+			const followResp = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}`, { headers: twitchHeaders });
+			const followData = await followResp.json();
+
+			const currentFollows = followData.total;
+			const goal = 1500;
+			const percent = Math.min(100, Math.floor((currentFollows / goal) * 100));
+
+			document.getElementById("cur-f").textContent = currentFollows.toLocaleString('fr-FR');
+			document.getElementById("f-percent").textContent = percent + "%";
+			document.getElementById("f-needed").textContent = Math.max(0, goal - currentFollows).toLocaleString('fr-FR');
+
+			// Animation fluide de la barre
+			setTimeout(() => {
+			document.getElementById("f-bar").style.width = percent + "%";
+			}, 300);
+			}
+
+			} catch (e) {
+			console.error("Erreur Statistiques:", e);
+			document.getElementById("tot-v").textContent = "ERR";
+			}
 			});
 		</script>
 	</body>

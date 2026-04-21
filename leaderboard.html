@@ -2,118 +2,140 @@
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 				<title>Mur des Légendes - FEL-X</title>
-				<!-- Les styles globaux sont injectés par sidebar.js -->
-				<style>
-					@keyframes fadeUp {
-					from { opacity: 0; transform: translateY(20px); }
-					to { opacity: 1; transform: translateY(0); }
-					}
+				<!-- On s'appuie sur le style.css Master -->
+				<link rel="stylesheet" href="style.css">
+					<style>
+						/* Animations et styles spécifiques au podium */
+						@keyframes float {
+						0% { transform: translateY(0px); }
+						50% { transform: translateY(-10px); }
+						100% { transform: translateY(0px); }
+						}
 
-					.podium-container {
-					display: flex;
-					justify-content: center;
-					align-items: flex-end;
-					gap: 2rem;
-					margin: 4rem 0;
-					perspective: 1000px;
-					}
+						.podium-container {
+						display: flex;
+						justify-content: center;
+						align-items: flex-end;
+						gap: 1.5rem;
+						margin: 4rem 0 2rem 0;
+						flex-wrap: wrap;
+						}
 
-					.podium-item {
-					flex: 1;
-					max-width: 250px;
-					animation: fadeUp 0.8s ease forwards;
-					opacity: 0;
-					}
+						.podium-item {
+						flex: 1;
+						min-width: 200px;
+						max-width: 280px;
+						text-align: center;
+						position: relative;
+						}
 
-					.podium-card {
-					background: var(--surface);
-					backdrop-filter: blur(12px);
-					border: 1px solid var(--border);
-					border-radius: 24px;
-					padding: 2rem 1.5rem;
-					text-align: center;
-					position: relative;
-					transition: transform 0.3s ease;
-					}
+						.podium-card {
+						background: var(--surface);
+						backdrop-filter: blur(15px);
+						border: 1px solid var(--border);
+						border-radius: 32px;
+						padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+						position: relative;
+						transition: all 0.3s ease;
+						}
 
-					.podium-card:hover {
-					transform: translateY(-10px);
-					border-color: var(--accent);
-					}
+						.podium-avatar {
+						width: 90px;
+						height: 90px;
+						border-radius: 28px;
+						border: 3px solid var(--surface);
+						box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+						margin: -70px auto 15px auto;
+						object-fit: cover;
+						background: var(--bg);
+						}
 
-					.podium-avatar {
-					width: 80px;
-					height: 80px;
-					border-radius: 50%;
-					margin: -60px auto 15px auto;
-					border: 4px solid var(--surface);
-					box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-					background: #0f172a;
-					object-fit: cover;
-					}
+						/* Styles spécifiques aux rangs */
+						.place-1 { order: 2; }
+						.place-1 .podium-card {
+						border-color: rgba(251, 191, 36, 0.3);
+						background: linear-gradient(180deg, rgba(251, 191, 36, 0.05) 0%, var(--surface) 100%);
+						transform: scale(1.05);
+						box-shadow: 0 20px 40px -10px rgba(251, 191, 36, 0.1);
+						}
+						.place-1 .podium-avatar { border-color: #fbbf24; width: 110px; height: 110px; animation: float 4s ease-in-out infinite; }
+						.place-1 .rank-tag { background: #fbbf24; color: #000; }
 
-					/* Spécificités pour le n°1 */
-					.place-1 { order: 2; transform: scale(1.1); z-index: 10; }
-					.place-1 .podium-card { border-color: rgba(251, 191, 36, 0.3); background: linear-gradient(180deg, rgba(251, 191, 36, 0.05) 0%, var(--surface) 100%); }
-					.place-1 .podium-avatar { width: 100px; height: 100px; border-color: #fbbf24; }
-					.place-1 .rank-tag { background: #fbbf24; color: #000; }
+						.place-2 { order: 1; }
+						.place-2 .rank-tag { background: #94a3b8; color: #000; }
 
-					.place-2 { order: 1; }
-					.place-2 .rank-tag { background: #94a3b8; color: #000; }
+						.place-3 { order: 3; }
+						.place-3 .rank-tag { background: #b45309; color: #fff; }
 
-					.place-3 { order: 3; }
-					.place-3 .rank-tag { background: #b45309; color: #fff; }
+						.rank-tag {
+						position: absolute;
+						top: 15px;
+						right: 15px;
+						font-size: 0.7rem;
+						font-weight: 900;
+						padding: 4px 12px;
+						border-radius: 10px;
+						text-transform: uppercase;
+						letter-spacing: 1px;
+						}
 
-					.rank-tag {
-					position: absolute;
-					top: 15px;
-					right: 15px;
-					font-size: 0.7rem;
-					font-weight: 900;
-					padding: 4px 10px;
-					border-radius: 8px;
-					text-transform: uppercase;
-					}
+						.leader-name { font-weight: 800; font-size: 1.3rem; color: #fff; margin-bottom: 4px; }
+						.leader-xp { font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
 
-					.leader-name { font-weight: 800; font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
-					.leader-xp { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+						.level-badge {
+						display: inline-block;
+						background: rgba(255,255,255,0.05);
+						padding: 2px 10px;
+						border-radius: 8px;
+						font-size: 0.7rem;
+						font-weight: 700;
+						color: var(--text-dim);
+						margin-top: 10px;
+						border: 1px solid var(--border);
+						}
 
-					@media (max-width: 800px) {
-					.podium-container { flex-direction: column; align-items: center; gap: 4rem; margin-top: 5rem; }
-					.podium-item { width: 100%; max-width: 300px; }
-					.place-1 { order: 1; transform: scale(1); }
-					.place-2 { order: 2; }
-					.place-3 { order: 3; }
-					}
-				</style>
-			</head>
+						@media (max-width: 900px) {
+						.podium-container { flex-direction: column; align-items: center; gap: 5rem; margin-top: 6rem; }
+						.place-1 { order: 1; transform: scale(1); }
+						.place-2 { order: 2; }
+						.place-3 { order: 3; }
+						}
+					</style>
+				</head>
 	<body>
+		<!-- La sidebar est injectée ici par sidebar.js -->
+
 		<main>
-			<header style="text-align: center; margin-bottom: 3rem;">
-				<h1>Classement</h1>
-				<p class="page-desc">Découvrez les viewers les plus engagés de la communauté.</p>
+			<header style="text-align: center;">
+				<h1>Mur des Légendes</h1>
+				<p class="page-desc">Le panthéon des viewers les plus actifs du stream.</p>
 			</header>
 
-			<!-- Podium du Top 3 -->
-			<div id="podium" class="podium-container">
-				<!-- Injecté par JS -->
+			<!-- Podium Top 3 -->
+			<div id="podium-root" class="podium-container">
+				<!-- Injecté dynamiquement -->
 			</div>
 
-			<!-- Reste du classement -->
-			<div class="card" style="padding: 0; overflow: hidden;">
-				<table style="margin-top: 0; width: 100%;">
+			<!-- Reste du Top 50 -->
+			<div class="card" style="padding: 0; overflow: hidden; margin-top: 3rem;">
+				<div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+					<h2 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">
+						Classement Général
+					</h2>
+				</div>
+				<table style="margin-top: 0;">
 					<thead>
 						<tr>
 							<th style="width: 80px; text-align: center;">Rang</th>
 							<th>Viewer</th>
 							<th style="width: 150px;">Niveau</th>
-							<th style="text-align: right; padding-right: 2rem;">Expérience Total</th>
+							<th style="text-align: right; padding-right: 2.5rem;">Expérience</th>
 						</tr>
 					</thead>
-					<tbody id="leader-list">
-						<!-- Injecté par JS -->
+					<tbody id="leaderboard-rows">
+						<!-- Injecté dynamiquement -->
 					</tbody>
 				</table>
 			</div>
@@ -127,94 +149,91 @@
 			const token = checkAuth();
 			if(!token) return;
 
+			const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
+			const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
+
 			try {
 			// 1. Récupération des données du Bot
-			const resp = await fetch(`${CONFIG.API_BASE_URL}/leaderboard`, {
+			const response = await fetch(`${API_URL}/leaderboard`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
+			const rawData = await response.json();
 
-			if (!resp.ok) throw new Error("Erreur de récupération");
-
-			const rawData = await resp.json();
-
-			// Filtrage des bots et de Masthom
+			// Filtrage (Masthom + Bots connus)
 			const users = rawData.filter(u => {
 			const n = u.username.toLowerCase();
-			return !["masthom_", "streamelements", "felixthebigblackcat", "wizebot", "nightbot"].includes(n);
+			return !["masthom_", "streamelements", "wizebot", "nightbot", "felixthebigblackcat"].includes(n);
 			});
 
 			const top3 = users.slice(0, 3);
 			const rest = users.slice(3, 50);
 
-			// 2. Récupération des avatars Twitch pour le Top 3
+			// 2. Récupération des avatars Twitch pour le podium
 			let avatars = {};
 			try {
 			const logins = top3.map(u => `login=${u.username.toLowerCase()}`).join('&');
-			const tResp = await fetch(`https://api.twitch.tv/helix/users?${logins}`, {
-			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
+			const twitchResp = await fetch(`https://api.twitch.tv/helix/users?${logins}`, {
+			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
 			});
-			const tData = await tResp.json();
-			tData.data.forEach(user => {
-			avatars[user.login.toLowerCase()] = user.profile_image_url;
+			const twitchData = await twitchResp.json();
+			twitchData.data.forEach(tUser => {
+			avatars[tUser.login.toLowerCase()] = tUser.profile_image_url;
 			});
-			} catch (e) { console.warn("Avatars Twitch inaccessibles"); }
+			} catch (e) { console.warn("Twitch API Avatars error"); }
 
 			// 3. Rendu du Podium
-			const podiumEl = document.getElementById("podium");
-			podiumEl.innerHTML = "";
+			const podiumContainer = document.getElementById("podium-root");
+			podiumContainer.innerHTML = "";
 
-			top3.forEach((u, i) => {
-			const rank = i + 1;
-			const avatar = avatars[u.username.toLowerCase()] || "logo-felix.png";
+			top3.forEach((user, index) => {
+			const rank = index + 1;
+			const avatar = avatars[user.username.toLowerCase()] || "logo-felix.png";
 			const div = document.createElement("div");
 			div.className = `podium-item place-${rank}`;
-			div.style.animationDelay = `${i * 0.2}s`;
 
 			div.innerHTML = `
 			<div class="podium-card">
 				<div class="rank-tag">#${rank}</div>
 				<img src="${avatar}" class="podium-avatar" onerror="this.src='logo-felix.png'">
-					<div class="leader-name">${u.username}</div>
-					<div class="leader-xp">${u.points.toLocaleString('fr-FR')} XP</div>
-					<div style="font-size: 0.7rem; color: var(--text-dim); margin-top:10px; font-weight:700; text-transform:uppercase;">Niveau ${calculateLevel(u.points)}</div>
+					<div class="leader-name">${user.username}</div>
+					<div class="leader-xp">${(user.points || 0).toLocaleString('fr-FR')} XP</div>
+					<div class="level-badge">NIVEAU ${calculateLevel(user.points)}</div>
 				</div>
 			`;
-			podiumEl.appendChild(div);
+			podiumContainer.appendChild(div);
 			});
 
-			// 4. Rendu de la liste (Tableau)
-			const list = document.getElementById("leader-list");
-			list.innerHTML = "";
+			// 4. Rendu du Tableau
+			const tableBody = document.getElementById("leaderboard-rows");
+			tableBody.innerHTML = "";
 
-			if (rest.length === 0 && top3.length === 0) {
-			list.innerHTML = `<tr>
-				<td colspan="4" style="text-align:center; padding:4rem; color:var(--text-dim);">Le classement est encore vide...</td>
+			if (users.length === 0) {
+			tableBody.innerHTML = `<tr>
+				<td colspan="4" style="text-align:center; padding:4rem; color:var(--text-dim); font-style:italic;">Aucune donnée disponible...</td>
 			</tr>`;
 			}
 
-			rest.forEach((u, i) => {
+			rest.forEach((user, index) => {
+			const rank = index + 4;
 			const tr = document.createElement("tr");
-			tr.style.animation = `fadeUp 0.5s ease forwards ${0.5 + (i * 0.05)}s`;
-			tr.style.opacity = "0";
-
 			tr.innerHTML = `
-			<td style="text-align:center; font-weight:800; color:var(--text-dim); font-family: monospace; font-size: 1.1rem;">${i+4}</td>
-			<td style="font-weight:700; color:#fff;">${u.username}</td>
+			<td style="text-align: center; font-weight: 800; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">${rank}</td>
+			<td style="font-weight: 700; color: #fff;">${user.username}</td>
 			<td>
-				<span style="background: rgba(139, 92, 246, 0.1); color: var(--accent); padding: 4px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; border: 1px solid rgba(139, 92, 246, 0.2);">
-					Lvl ${calculateLevel(u.points)}
+				<span style="background: rgba(0, 245, 195, 0.1); color: var(--accent); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(0, 245, 195, 0.2);">
+					LVL ${calculateLevel(user.points)}
 				</span>
 			</td>
-			<td style="text-align:right; padding-right: 2rem; font-weight:900; color:var(--accent); font-family: 'JetBrains Mono', monospace;">
-				${u.points.toLocaleString('fr-FR')}
+			<td style="text-align: right; padding-right: 2.5rem; font-weight: 900; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 1.1rem;">
+				${(user.points || 0).toLocaleString('fr-FR')}
 			</td>
 			`;
-			list.appendChild(tr);
+			tableBody.appendChild(tr);
 			});
 
-			} catch (e) {
-			console.error(e);
-			document.getElementById("podium").innerHTML = `<p style="color:var(--danger); font-weight:700;">Impossible de charger le classement. Vérifie la connexion au bot.</p>`;
+			} catch (error) {
+			console.error("Leaderboard error:", error);
+			document.getElementById("podium-root").innerHTML = `<div class="card" style="border-color:var(--danger); color:var(--danger); font-weight:bold;">Erreur : Impossible de contacter le Bot.</div>`;
 			}
 			});
 		</script>
