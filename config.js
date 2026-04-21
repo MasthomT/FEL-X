@@ -1,6 +1,6 @@
 const CONFIG = {
     // ⚠️ Remplace par ton vrai lien Ngrok ou Cloudflare (avec /api/v1 à la fin)
-    API_BASE_URL: "https://TON_LIEN_NGROK_ICI.ngrok-free.app/api/v1", 
+    API_BASE_URL: "prime-nearby-tick.ngrok-free.app/api/v1", 
     
     // Ton Client ID Twitch
     CLIENT_ID: "kgyfzs0k3wk8enx7p3pd6299ro4izv",
