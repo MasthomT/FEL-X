@@ -5,51 +5,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
 
-    // On récupère tout depuis le fichier config.js
-    const SERVER_URL = CONFIG.SERVER_URL;
+    const API_URL = CONFIG.API_BASE_URL || "http://127.0.0.1:8000/api";
     const CLIENT_ID = CONFIG.CLIENT_ID;
-    const BROADCASTER_NAME = CONFIG.BROADCASTER_NAME;
+    const BROADCASTER_NAME = "masthom_";
 
     try {
-        loadingEl.textContent = "Récupération des statistiques SQL...";
+        loadingEl.textContent = "Récupération des statistiques...";
         
-        // Préparation de l'autorisation
-        const auth = btoa("masthom_admin:h7&K#p2Q9!mR5*vXzB@4sL8uN");
+        // On récupère toute la liste et on fait les maths
+        const response = await fetch(`${API_URL}/viewers`);
+        if (!response.ok) throw new Error("Le bot ne répond pas.");
+        const allData = await response.json();
 
-        const response = await fetch(`${SERVER_URL}/api/global_stats`, {
-            method: 'GET',
-            headers: { 
-                "ngrok-skip-browser-warning": "true",
-                "Accept": "application/json",
-                "Authorization": `Basic ${auth}`
-            }
-        });
+        // Stats globales
+        const totalMembers = allData.length;
+        const totalXP = allData.reduce((sum, v) => sum + v.points, 0);
+        const maxLevel = allData.length > 0 ? Math.max(...allData.map(v => v.level)) : 1;
         
-        if (!response.ok) throw new Error("Le serveur Pi ne répond pas.");
-        const data = await response.json();
-
-        // Remplissage des blocs numériques
-        document.getElementById("total-members").textContent = (data.totalMembers || 0).toLocaleString();
-        document.getElementById("total-xp").textContent = (data.totalXP || 0).toLocaleString();
-        document.getElementById("max-level").textContent = data.maxLevel || 1;
+        document.getElementById("total-members").textContent = totalMembers.toLocaleString();
+        document.getElementById("total-xp").textContent = totalXP.toLocaleString();
+        document.getElementById("max-level").textContent = maxLevel;
         
-        if (data.totalMembers > 0) {
-            const avgXP = data.totalXP / data.totalMembers;
+        if (totalMembers > 0) {
+            const avgXP = totalXP / totalMembers;
             document.getElementById("avg-level").textContent = calculateLevel(avgXP);
         }
 
         // Élite Top 5
         const topContainer = document.getElementById("top-5-list");
-            if (topContainer && data.top5) {
+        if (topContainer) {
             topContainer.innerHTML = ""; 
 
-            // 🛡️ FILTRE : On exclut Masthom_ et Félix du calcul de l'élite
-            const filteredTop = data.top5.filter(u => {
-                const n = u.name.toLowerCase();
+            const filteredTop = allData.filter(u => {
+                const n = u.username.toLowerCase();
                 return n !== "masthom_" && n !== "felixthebigblackcat" && n !== "streamelements" && n !== "wizebot";
             });
 
-            filteredTop.slice(0, 5).forEach((u, i) => { // On s'assure d'en garder 5 max
+            filteredTop.slice(0, 5).forEach((u, i) => { 
                 const li = document.createElement("li");
                 li.className = "top-item";
                 
@@ -60,13 +52,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 li.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px;">
-                        ${rankBadge} <span style="font-weight:600; color:white;">${u.name}</span>
+                        ${rankBadge} <span style="font-weight:600; color:white;">${u.username}</span>
                     </div>
-                    <span style="color:var(--accent); font-weight:bold;">Niv. ${calculateLevel(u.xp)}</span>
+                    <span style="color:var(--accent); font-weight:bold;">Niv. ${u.level}</span>
                 `;
                 topContainer.appendChild(li);
             });
         }
+        
         // Twitch API (Followers)
         const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
         const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers: twitchHeaders });
@@ -93,8 +86,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingEl.innerHTML = `<div style="color:var(--danger);">Erreur: ${error.message}</div>`;
     }
 });
-
-function calculateLevel(xp) {
-    if (!xp || xp < 0) return 1;
-    return Math.floor(Math.pow(xp / 100, 1 / 2.2)) + 1;
-}

@@ -410,291 +410,156 @@
             <ul class="history-list" id="xp-history-list"></ul>
         </div>
 
-        <div class="card-panel" id="poll-container" style="display:none;">
-            <h3 class="panel-title">📊 Sondage en cours</h3>
-            <p id="poll-question" style="font-weight:bold; color:white; margin-bottom:1.5rem; font-size:1.1rem;"></p>
-            <div id="poll-options"></div>
-        </div>
-    </div>
+		<div class="card-panel" id="poll-container" style="display:none;">
+			<h3 class="panel-title">📊 Sondage en cours</h3>
+			<p id="poll-question" style="font-weight:bold; color:white; margin-bottom:1.5rem; font-size:1.1rem;"></p>
+			<div id="poll-options"></div>
+		</div>
+	</div>
 </main>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="config.js"></script>
 <script src="app.js"></script>
 
 <script>
-    const CLIENT_ID_VERCEL = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-    const BROADCASTER_NAME = "masthom_";
+	// URL DE TON API PYTHON (Assure-toi que c'est bien défini dans config.js)
+	const API_URL = CONFIG.API_BASE_URL || "http://127.0.0.1:8000/api";
+	const CLIENT_ID_TWITCH = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+	const BROADCASTER_NAME = "masthom_";
 
-    let db;
-    let userVote = null;
-    let currentPollData = null;
+	document.addEventListener("DOMContentLoaded", async () => {
+	const loader = document.getElementById("loading-overlay");
+	const token = checkAuth();
+	if (!token) {
+	if (loader) loader.style.display = "none";
+	return;
+	}
 
-    function sanitize(k) {
-        if (!k) return "";
-        return k.toString().replace(/\//g, "-").replace(/\./g, "_").replace(/[\$#\[\]]/g, "");
-    }
+	try {
+	// 1. Identité Twitch (Avatar + Pseudo)
+	const headers = { Authorization: `Bearer ${token}`, 'Client-Id': CLIENT_ID_TWITCH };
+	const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
+	const userData = await userResp.json();
+	const user = userData?.data?.[0];
+	if (!user) throw new Error('Utilisateur Twitch introuvable.');
 
-    function formatDate(timestamp) {
-        if (!timestamp) return "Date inconnue";
-        const d = new Date(timestamp);
-        return d.toLocaleDateString('fr-FR') + " " + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
+	localStorage.setItem('twitch_username', user.login.toLowerCase());
+	document.getElementById("username").textContent = user.display_name;
+	document.getElementById("avatar").src = user.profile_image_url;
 
-    window.refreshPollUI = function () {
-        const poll = currentPollData;
-        const container = document.getElementById('poll-container');
-        const optionsDiv = document.getElementById('poll-options');
+	// 2. Requête vers le Bot FastAPI (Pi)
+	const botResp = await fetch(`${API_URL}/viewers/${user.id}`);
+	if (botResp.ok) {
+	const data = await botResp.json();
 
-        if (!poll || !poll.active) {
-            container.style.display = 'none';
-            return;
-        }
+	const xp = data.points || 0;
+	const level = data.level || 1;
 
-        container.style.display = 'block';
-        document.getElementById('poll-question').textContent = poll.question;
-        optionsDiv.innerHTML = "";
+	document.getElementById("stat-level").textContent = level;
+	document.getElementById("stat-level-text").textContent = level;
+	document.getElementById("stat-xp").textContent = xp.toLocaleString();
 
-        poll.options.forEach(option => {
-            const safeKey = sanitize(option);
-            const percent = (poll.stats && poll.stats[safeKey]) ? poll.stats[safeKey] : 0;
-            const isMyVote = userVote === option;
+	const hours = Math.floor(data.watchtime / 3600);
+	const minutes = Math.floor((data.watchtime % 3600) / 60);
+	const watchtimeEl = document.getElementById("stat-watchtime");
+	if (watchtimeEl) watchtimeEl.textContent = `${hours}h ${minutes}m`;
 
-            const wrapper = document.createElement('div');
-            wrapper.className = "poll-option-container";
-            wrapper.innerHTML = `
-                <div class="poll-option-bg" style="border-color: ${isMyVote ? 'var(--accent)' : 'var(--border)'}">
-                    <div class="poll-option-fill" style="width: ${percent}%;"></div>
-                    <div class="poll-option-label">
-                        <span>${isMyVote ? '✅ ' : ''}${option}</span>
-                        <span style="font-family: monospace;">${percent}%</span>
-                    </div>
-                </div>`;
+	// Calcul Jauge
+	const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+	const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+	const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
 
-            wrapper.onclick = () => window.castVote(poll.id, option);
-            optionsDiv.appendChild(wrapper);
-        });
-    };
+	document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
+	document.getElementById("current-xp").textContent = xp.toLocaleString();
+	document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
 
-    window.castVote = async function (pId, opt) {
-        const name = localStorage.getItem('twitch_username');
-        if (!name || !db) return;
+	// Fiche IA
+	const aiGrid = document.getElementById("ai-id-content");
+	if (aiGrid) {
+	aiGrid.innerHTML = `
+	<div>
+		<span class="id-label">Surnom</span>
+		<div class="id-value">${data.nickname_for_bot || 'Inconnu'}</div>
+	</div>
+	<div>
+		<span class="id-label">Vibe / Humeur</span>
+		<div class="id-value">${data.vibe || 'Analyse en cours...'}</div>
+	</div>
+	<div>
+		<span class="id-label">Jeu Favori</span>
+		<div class="id-value">${data.favorite_game || 'Aucun'}</div>
+	</div>
+	`;
+	}
 
-        userVote = opt;
-        window.refreshPollUI();
+	// 3. Calcul du Rang en récupérant tout le monde (ultra rapide)
+	const allResp = await fetch(`${API_URL}/viewers`);
+	if (allResp.ok) {
+	const allViewers = await allResp.json();
+	const rank = allViewers.findIndex(v => v.twitch_id === user.id) + 1;
+	document.getElementById("rank").textContent = rank > 0 ? `Rang #${rank}` : "Non classé";
+	}
+	}
 
-        try {
-            await db.ref('poll_incoming_votes/' + name).set({
-                poll_id: pId,
-                option: opt,
-                username: name,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            await db.ref('user_persistent_votes/' + name).set({ poll_id: pId, option: opt });
-        } catch (e) {
-            console.error("❌ Erreur Vote:", e);
-        }
-    };
+	// 4. Historique d'Événements
+	const histResp = await fetch(`${API_URL}/viewers/${user.id}/history`);
+	if (histResp.ok) {
+	const historyData = await histResp.json();
+	const list = document.getElementById("xp-history-list");
+	list.innerHTML = "";
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        const loader = document.getElementById("loading-overlay");
-        const token = checkAuth();
-        if (!token) {
-            if (loader) loader.style.display = "none";
-            return;
-        }
+	if (historyData.length === 0) {
+	list.innerHTML = "<li class='history-item'>Aucune activité enregistrée ✨</li>";
+	} else {
+	historyData.forEach(h => {
+	let icon = "✨"; let color = "#ffffff";
+	const r = (h.event_type || "").toLowerCase();
 
-        try {
-            const headers = {
-                Authorization: `Bearer ${token}`,
-                'Client-Id': CLIENT_ID_VERCEL
-            };
+	if (r.includes("présence") || r.includes("watchtime")) { icon="🎬"; color="#00ffcc"; }
+	else if (r.includes("message") || r.includes("chat")) { icon="💬"; color="#60a5fa"; }
+	else if (r.includes("sub") || r.includes("abonnement")) { icon="⭐"; color="#fbbf24"; }
+	else if (r.includes("raid")) { icon="⚔️"; color="#f87171"; }
+	else if (r.includes("follow")) { icon="❤️"; color="#f472b6"; }
+	else if (r.includes("bits") || r.includes("cheer")) { icon="💎"; color="#c084fc"; }
 
-            const userResp = await fetch('https://api.twitch.tv/helix/users', { headers });
-            const userData = await userResp.json();
-            const user = userData?.data?.[0];
-            if (!user) throw new Error('Utilisateur Twitch introuvable.');
+	list.innerHTML += `
+	<li class="history-item" style="border-left: 3px solid ${color}; background: rgba(255,255,255,0.02); margin-bottom: 8px; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+		<div>
+			<div style="color: white; font-weight: 600;">
+				<span style="font-size: 1.1rem; margin-right: 5px;">${icon}</span>
+				${h.date} : ${h.event_type}
+			</div>
+			<small style="color: #64748b;">${h.time}</small>
+		</div>
+		<div style="font-weight: 900; color: ${color}; font-family: monospace; font-size: 1.1rem;">
+			+${(h.amount || 0).toLocaleString()}
+		</div>
+	</li>`;
+	});
+	}
+	}
 
-            const userKey = user.login.toLowerCase();
-            localStorage.setItem('twitch_username', userKey);
+	// 5. Badge Abonné
+	const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
+	const chData = await chResp.json();
+	if (chData.data && chData.data.length > 0) {
+	const bId = chData.data[0].id;
+	const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers });
+	if (subResp.status === 200) {
+	const bDiv = document.getElementById("badges-container");
+	if (bDiv) bDiv.innerHTML += '<div class="badge badge-sub">Abonné</div>';
+	document.getElementById("stat-sub").textContent = "Oui";
+	} else {
+	document.getElementById("stat-sub").textContent = "Non";
+	}
+	}
 
-            document.getElementById("username").textContent = user.display_name;
-            document.getElementById("avatar").src = user.profile_image_url;
-
-            db = firebase.database();
-
-            db.ref('user_persistent_votes/' + userKey).on('value', snap => {
-                const data = snap.val();
-                if (data) userVote = data.option;
-                window.refreshPollUI();
-            });
-
-            db.ref('current_poll').on('value', snap => {
-                currentPollData = snap.val();
-                window.refreshPollUI();
-            });
-
-            db.ref('viewer_data/xp_data/' + userKey).on('value', snap => {
-                const data = snap.val();
-                const xp = (data && typeof data === 'object') ? (data.xp || 0) : (data || 0);
-                const level = calculateLevel(xp);
-
-                document.getElementById("stat-level").textContent = level;
-                document.getElementById("stat-level-text").textContent = level;
-                document.getElementById("stat-xp").textContent = xp.toLocaleString();
-
-                const nextXp = Math.floor(100 * Math.pow(level, 2.2));
-                const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
-                const prog = ((xp - currXp) / (nextXp - currXp)) * 100;
-
-                document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
-                document.getElementById("current-xp").textContent = xp.toLocaleString();
-                document.getElementById("next-level-xp").textContent = nextXp.toLocaleString();
-            });
-
-            db.ref('viewer_data/stats_perma/' + userKey).on('value', snap => {
-                const stats = snap.val();
-                const displayElement = document.getElementById("presence-time");
-                const statWatchtimeEl = document.getElementById("stat-watchtime");
-
-                const totalMinutes = Number(stats?.total_presence_minutes) || 0;
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
-                const formatted = `${hours}h ${minutes}m`;
-
-                if (displayElement) displayElement.innerText = formatted;
-                if (statWatchtimeEl) statWatchtimeEl.textContent = formatted;
-            });
-
-db.ref('viewer_data/history/' + userKey).limitToLast(100).on('value', snap => {
-    const data = snap.val();
-    const list = document.getElementById("xp-history-list");
-    if (!list) return;
-    if (!data) {
-        list.innerHTML = "<li class='history-item'>Aucune activité enregistrée ✨</li>";
-        return;
-    }
-
-    // Conversion et tri (du plus récent au plus ancien)
-    const items = Object.entries(data).map(([key, value]) => ({
-        ...value,
-        id: key,
-        timestamp: value.timestamp || Date.now()
-    })).sort((a, b) => b.timestamp - a.timestamp);
-
-    list.innerHTML = "";
-    items.forEach(h => {
-        const dateLabel = new Date(h.timestamp).toLocaleDateString('fr-FR');
-        const timeLabel = new Date(h.timestamp).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-        
-        let icon = "✨";
-        let label = h.reason || "Activité";
-        let detail = "";
-        let color = "#ffffff"; // Blanc par défaut
-        const r = String(h.reason || "").toLowerCase();
-
-        // --- SYSTÈME DE LABELS DYNAMIQUE ---
-        
-        if (h.reason === "Présence") {
-            icon = "🎬";
-            label = "Présence";
-            detail = `(${h.duration || 0} min)`;
-            color = "#00ffcc"; // Vert/Cyan
-        } 
-        else if (h.reason === "Chat") {
-            icon = "💬";
-            label = "Chat";
-            detail = `(${h.count || 0} msg)`;
-            color = "#60a5fa"; // Bleu
-        }
-        else if (r.includes("sub") || r.includes("abonnement")) {
-            icon = "⭐";
-            label = h.reason; 
-            color = "#fbbf24"; // Or
-        }
-        else if (r.includes("raid")) {
-            icon = "⚔️";
-            label = h.reason;
-            color = "#f87171"; // Rouge
-        }
-        else if (r.includes("follow")) {
-            icon = "❤️";
-            label = h.reason;
-            color = "#f472b6"; // Rose
-        }
-        else if (r.includes("bits") || r.includes("cheer")) {
-            icon = "💎";
-            label = h.reason;
-            color = "#c084fc"; // Violet
-        }
-        else if (r.includes("don") || r.includes("tip")) {
-            icon = "💰";
-            label = h.reason;
-            color = "#4ad361"; // Vert
-        }
-
-        // --- GÉNÉRATION DU HTML ---
-        list.innerHTML += `
-            <li class="history-item" style="border-left: 3px solid ${color}; background: rgba(255,255,255,0.02); margin-bottom: 8px; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="color: white; font-weight: 600;">
-                        <span style="font-size: 1.1rem; margin-right: 5px;">${icon}</span>
-                        ${dateLabel} : ${label} <span style="color: ${color}; opacity: 0.8;">${detail}</span>
-                    </div>
-                    <small style="color: #64748b;">${timeLabel}</small>
-                </div>
-                <div style="font-weight: 900; color: ${color}; font-family: monospace; font-size: 1.1rem;">
-                    +${(h.amount || 0).toLocaleString()}
-                </div>
-            </li>`;
-    });
-});
-            db.ref('viewer_data/xp_data').once('value').then(snap => {
-                const all = snap.val() || {};
-                const sorted = Object.entries(all)
-                    .map(([k, v]) => ({ k, xp: (v && typeof v === 'object' ? v.xp : v) || 0 }))
-                    .sort((a, b) => b.xp - a.xp);
-                const myRank = sorted.findIndex(u => u.k === userKey) + 1;
-                document.getElementById("rank").textContent = myRank > 0 ? `Rang #${myRank}` : "Non classé";
-            });
-
-            const chResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers });
-            const chData = await chResp.json();
-            if (chData.data && chData.data.length > 0) {
-                const bId = chData.data[0].id;
-                const subResp = await fetch(`https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${bId}&user_id=${user.id}`, { headers });
-                const d = subResp.status === 200 ? await subResp.json() : null;
-
-                const bDiv = document.getElementById("badges-container");
-                if (d && d.data && d.data.length > 0) {
-                    if (bDiv) bDiv.innerHTML += '<div class="badge badge-sub">Abonné</div>';
-                    document.getElementById("stat-sub").textContent = "Oui";
-                } else {
-                    document.getElementById("stat-sub").textContent = "Non";
-                }
-            }
-
-            db.ref('viewer_logs/' + userKey).on('value', snap => {
-                const log = snap.val();
-                if (!log) return;
-
-                const moodEl = document.getElementById("felix-mood");
-                const obsEl = document.getElementById("felix-observation");
-                if (moodEl) moodEl.textContent = log.mood || "Analyse...";
-                if (obsEl) obsEl.textContent = `"${log.last_comment || ''}"`;
-
-                const card = document.querySelector(".id-card");
-                if (card) {
-                    card.style.borderColor = "var(--accent)";
-                    setTimeout(() => { card.style.borderColor = "var(--border)"; }, 1000);
-                }
-            });
-        } catch (e) {
-            console.error("❌ Erreur Profil:", e);
-        } finally {
-            if (loader) loader.style.display = "none";
-        }
-    });
+	} catch (e) {
+	console.error("❌ Erreur Profil:", e);
+	} finally {
+	if (loader) loader.style.display = "none";
+	}
+	});
 </script>
 </body>
 </html>
