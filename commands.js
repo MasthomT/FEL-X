@@ -1,119 +1,110 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Commandes - FEL-X</title>
-    <!-- On appelle le design maître pour les marges et les couleurs -->
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .search-container {
-            position: relative;
-            margin-bottom: 2.5rem;
-            max-width: 500px;
-        }
-        .search-input {
-            width: 100%;
-            padding: 16px 20px 16px 52px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-        .search-icon {
-            position: absolute; left: 20px; top: 50%;
-            transform: translateY(-50%); color: var(--text-dim);
-            pointer-events: none;
-        }
-        /* Badges d'accès */
-        .badge {
-            font-size: 0.65rem; font-weight: 900; padding: 4px 10px;
-            border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;
-            border: 1px solid transparent;
-        }
-        .badge-viewer { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
-        .badge-mod { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border-color: rgba(244, 63, 94, 0.2); }
-        .badge-vip { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2); }
-        
-        .cmd-trigger { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-weight: 800; }
-        .hidden { display: none; }
-    </style>
-</head>
-<body>
-    <!-- La sidebar est injectée ici par sidebar.js -->
+/**
+ * COMMANDS.JS - Moteur de recherche et base de données des commandes
+ * Ce fichier gère l'affichage dynamique et le filtrage par catégorie.
+ */
 
-    <main>
-        <header>
-            <h1>Commandes Chat</h1>
-            <p class="page-desc">Toutes les interactions disponibles pour dynamiser le live.</p>
-        </header>
+document.addEventListener("DOMContentLoaded", () => {
+    // Vérification de l'authentification Twitch (via app.js)
+    if (typeof checkAuth === 'function') {
+        checkAuth();
+    }
 
-        <div class="search-container">
-            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="cmdSearch" class="search-input" placeholder="Rechercher une commande..." onkeyup="filterCommands()">
-        </div>
+    const tbody = document.getElementById("cmd-list-body");
+    const searchInput = document.getElementById("cmdSearch");
+    const catFilter = document.getElementById("catFilter");
 
-        <div class="card" style="padding: 0; overflow: hidden;">
-            <table style="margin-top: 0;">
-                <thead>
-                    <tr>
-                        <th style="padding-left: 2.5rem; width: 220px;">Trigger</th>
-                        <th>Description</th>
-                        <th style="width: 150px; text-align: center;">Accès</th>
-                    </tr>
-                </thead>
-                <tbody id="cmd-list">
-                    <!-- Injecté par JS -->
-                </tbody>
-            </table>
-        </div>
-    </main>
+    // ==========================================================
+    // 📂 BASE DE DONNÉES COMPLÈTE DES COMMANDES
+    // ==========================================================
+    const allCommands = [
+        // --- GÉNÉRAL ---
+        { t: "!level", c: "Général", d: "Affiche ton niveau actuel et ton EXP totale.", a: "viewer" },
+        { t: "!rang", c: "Général", d: "Affiche ta position exacte dans le classement général.", a: "viewer" },
+        { t: "!points", c: "Général", d: "Affiche ton solde actuel de points d'expérience.", a: "viewer" },
+        { t: "!uptime", c: "Général", d: "Temps écoulé depuis le début de la diffusion.", a: "viewer" },
+        { t: "!game", c: "Général", d: "Affiche le jeu ou la catégorie en cours de stream.", a: "viewer" },
+        { t: "!followage", c: "Général", d: "Affiche depuis combien de temps tu suis Masthom.", a: "viewer" },
+        { t: "!discord", c: "Général", d: "Envoie le lien d'invitation permanent du serveur Discord.", a: "viewer" },
+        { t: "!lurk", c: "Général", d: "Annonce ton passage en mode spectateur silencieux.", a: "viewer" },
 
-    <script src="app.js"></script>
-    <script src="sidebar.js"></script>
-    <script>
-        const commands = [
-            { t: "!so {pseudo}", d: "Promotion d'un streamer avec clip.", a: "mod" },
-            { t: "!level", d: "Affiche ton niveau et ton EXP.", a: "viewer" },
-            { t: "!rang", d: "Ta position dans le classement.", a: "viewer" },
-            { t: "!discord", d: "Lien permanent du serveur.", a: "viewer" },
-            { t: "!clip", d: "Crée un clip des 30 dernières secondes.", a: "viewer" },
-            { t: "!dance", d: "Pluie d'emotes de danse.", a: "viewer" },
-            { t: "!uptime", d: "Temps depuis le début du stream.", a: "viewer" },
-            { t: "!game", d: "Affiche le jeu actuel.", a: "viewer" }
-        ];
+        // --- FUN & IA ---
+        { t: "!felix", c: "Fun", d: "Déclenche une réponse aléatoire (souvent sarcastique) de Félix.", a: "viewer" },
+        { t: "!dance", c: "Fun", d: "Fait apparaître une pluie d'emotes de danse sur le stream.", a: "viewer" },
+        { t: "!love {pseudo}", c: "Fun", d: "Calcule mathématiquement le taux d'amour entre toi et un autre viewer.", a: "viewer" },
 
-        function render() {
-            const list = document.getElementById('cmd-list');
-            list.innerHTML = commands.map(c => `
-                <tr class="cmd-row">
-                    <td style="padding-left: 2.5rem;"><span class="cmd-trigger">${c.t}</span></td>
-                    <td style="color: var(--text-main); font-weight: 500;">${c.d}</td>
-                    <td style="text-align: center;">
-                        <span class="badge badge-${c.a}">${c.a === 'mod' ? 'Modérateur' : c.a}</span>
-                    </td>
-                </tr>
-            `).join('');
-        }
+        // --- OUTILS ---
+        { t: "!clip", c: "Outils", d: "Crée instantanément un clip des 30 dernières secondes.", a: "viewer" },
+        { t: "!bug {message}", c: "Outils", d: "Signale un problème technique directement à Masthom.", a: "viewer" },
+        { t: "!socials", c: "Outils", d: "Affiche tous les réseaux sociaux officiels de la chaîne.", a: "viewer" },
 
-        function filterCommands() {
-            const q = document.getElementById("cmdSearch").value.toLowerCase();
-            document.querySelectorAll(".cmd-row").forEach(r => {
-                r.classList.toggle("hidden", !r.textContent.toLowerCase().includes(q));
-            });
-        }
+        // --- MODÉRATION ---
+        { t: "!so {pseudo}", c: "Modération", d: "Lance un Shoutout avec vidéo pour un streamer partenaire.", a: "mod" },
+        { t: "!ban {pseudo}", c: "Modération", d: "Bannit définitivement un utilisateur perturbateur du chat.", a: "mod" },
+        { t: "!timeout {pseudo}", c: "Modération", d: "Exclut un utilisateur temporairement (10 minutes).", a: "mod" },
+        { t: "!clear", c: "Modération", d: "Supprime tous les messages du chat (Vider la zone).", a: "mod" },
+        { t: "!slow {sec}", c: "Modération", d: "Active le mode lent pour calmer le chat (ex: !slow 10).", a: "mod" },
 
-        document.addEventListener("DOMContentLoaded", () => {
-            checkAuth();
-            render();
+        // --- ADMIN ---
+        { t: "!renotif", c: "Admin", d: "Force le renvoi de la notification de live sur Discord.", a: "admin" },
+        { t: "!checkcopains", c: "Admin", d: "Scanne et alerte si des streamers partenaires sont en live.", a: "admin" },
+        { t: "!replay", c: "Admin", d: "Relance le dernier clip diffusé ou un clip spécifique.", a: "admin" },
+        { t: "!addxp {pseudo} {val}", c: "Admin", d: "Attribue manuellement des points d'EXP à un viewer spécifique.", a: "admin" }
+    ];
+
+    // ==========================================================
+    // 🛠️ MOTEUR DE RENDU DYNAMIQUE
+    // ==========================================================
+    function render() {
+        if (!tbody) return;
+
+        const searchText = searchInput.value.toLowerCase();
+        const selectedCat = catFilter.value;
+
+        // Filtrage des données
+        const filtered = allCommands.filter(cmd => {
+            const matchSearch = cmd.t.toLowerCase().includes(searchText) || cmd.d.toLowerCase().includes(searchText);
+            const matchCat = selectedCat === "all" || cmd.c === selectedCat;
+            return matchSearch && matchCat;
         });
-    </script>
-</body>
-</html>
+
+        // Génération du HTML
+        tbody.innerHTML = filtered.map(cmd => {
+            let badgeClass = "badge-viewer";
+            let badgeLabel = "Viewer";
+
+            // Attribution du style selon l'accès
+            if (cmd.a === "mod") { 
+                badgeClass = "badge-mod"; 
+                badgeLabel = "Modérateur"; 
+            } else if (cmd.a === "vip") { 
+                badgeClass = "badge-vip"; 
+                badgeLabel = "VIP"; 
+            } else if (cmd.a === "admin") { 
+                badgeClass = "badge-admin"; 
+                badgeLabel = "Admin"; 
+            }
+
+            return `
+            <tr class="cmd-row">
+                <td style="padding-left: 2.5rem;"><span class="cmd-trigger">${cmd.t}</span></td>
+                <td><span class="cat-tag">${cmd.c}</span></td>
+                <td style="color: var(--text-main); font-weight: 500; font-size: 0.9rem;">${cmd.d}</td>
+                <td style="text-align: center;">
+                    <span class="badge ${badgeClass}">${badgeLabel}</span>
+                </td>
+            </tr>`;
+        }).join('');
+
+        // Affichage du message si aucun résultat
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:4rem; color:var(--text-dim); font-style:italic;">Aucune commande ne correspond à votre recherche...</td></tr>`;
+        }
+    }
+
+    // Écouteurs d'événements pour le filtrage en temps réel
+    if (searchInput) searchInput.addEventListener("input", render);
+    if (catFilter) catFilter.addEventListener("change", render);
+
+    // Premier rendu au chargement
+    render();
+});
