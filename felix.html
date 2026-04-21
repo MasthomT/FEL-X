@@ -4,179 +4,235 @@
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 				<title>Félix et moi - FEL-X</title>
-				<!-- Référence au design maître -->
+				<!-- Utilisation du style.css Master pour les marges et couleurs -->
 				<link rel="stylesheet" href="style.css">
 					<style>
-						/* Styles spécifiques au formulaire */
-						.form-section-title {
-						font-size: 0.8rem;
-						font-weight: 800;
-						text-transform: uppercase;
-						color: var(--accent);
-						letter-spacing: 2px;
-						margin-bottom: 1.5rem;
-						display: flex;
-						align-items: center;
-						gap: 10px;
+						.form-section { margin-bottom: 3rem; }
+						.section-title {
+						font-size: 0.85rem; font-weight: 800; text-transform: uppercase;
+						color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem;
+						display: flex; align-items: center; gap: 12px;
 						}
 
-						.input-group {
-						margin-bottom: 1.5rem;
-						}
+						/* Grille de formulaire intelligente */
+						.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
-						.input-group label {
-						display: block;
-						font-size: 0.75rem;
-						font-weight: 700;
-						color: var(--text-dim);
-						margin-bottom: 8px;
-						text-transform: uppercase;
-						letter-spacing: 0.5px;
-						}
+						.field-group { display: flex; flex-direction: column; gap: 8px; }
+						.field-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
 
-						input[type="text"],
-						input[type="number"],
-						select,
-						textarea {
-						width: 100%;
-						padding: 14px 18px;
-						background: rgba(0, 0, 0, 0.3);
-						border: 1px solid var(--border);
-						border-radius: 16px;
-						color: #fff;
-						font-family: inherit;
-						font-size: 1rem;
-						transition: all 0.2s ease;
+						input, select, textarea {
+						width: 100%; padding: 14px 18px; background: rgba(0, 0, 0, 0.3);
+						border: 1px solid var(--border); border-radius: 16px; color: #fff;
+						font-family: inherit; font-size: 0.95rem; transition: all 0.2s ease;
 						}
 
 						input:focus, textarea:focus, select:focus {
-						outline: none;
-						border-color: var(--accent);
-						background: rgba(0, 245, 195, 0.03);
+						outline: none; border-color: var(--accent); background: rgba(0, 245, 195, 0.03);
 						box-shadow: 0 0 15px var(--accent-glow);
 						}
 
+						/* Curseur de Roast */
+						.roast-container {
+						background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 16px;
+						border: 1px solid var(--border); display: flex; align-items: center; gap: 20px;
+						}
+						input[type="range"] { accent-color: var(--accent); height: 6px; cursor: pointer; }
+						.roast-val { font-weight: 900; color: var(--accent); font-size: 1.2rem; min-width: 30px; text-align: center; }
+
 						.btn-submit {
-						width: 100%;
-						padding: 1.25rem;
-						background: var(--accent);
-						color: #0b0f1a;
-						border: none;
-						border-radius: 18px;
-						font-weight: 900;
-						font-size: 1.1rem;
-						text-transform: uppercase;
-						letter-spacing: 1px;
-						cursor: pointer;
-						transition: all 0.3s ease;
-						margin-top: 1rem;
+						width: 100%; padding: 1.25rem; background: var(--accent); color: #0b0f1a;
+						border: none; border-radius: 20px; font-weight: 900; font-size: 1.1rem;
+						text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+						transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 2rem;
 						box-shadow: 0 10px 25px -5px var(--accent-glow);
 						}
 
-						.btn-submit:hover {
-						transform: translateY(-3px);
-						background: #fff;
-						box-shadow: 0 15px 30px -5px rgba(255,255,255,0.2);
-						}
+						.btn-submit:hover { transform: translateY(-4px); background: #fff; box-shadow: 0 15px 30px -5px rgba(255,255,255,0.2); }
+						.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-						.btn-submit:active {
-						transform: translateY(0);
+						#toast {
+						position: fixed; bottom: 30px; right: 30px; padding: 15px 25px;
+						border-radius: 15px; background: var(--accent); color: #000;
+						font-weight: 800; display: none; z-index: 3000;
+						box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease;
 						}
+						@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-						#save-status {
-						position: fixed;
-						bottom: 30px;
-						right: 30px;
-						padding: 15px 25px;
-						border-radius: 15px;
-						background: var(--accent);
-						color: #000;
-						font-weight: 800;
-						display: none;
-						z-index: 3000;
-						box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-						animation: slideIn 0.5s ease;
-						}
-
-						@keyframes slideIn {
-						from { transform: translateX(100%); opacity: 0; }
-						to { transform: translateX(0); opacity: 1; }
-						}
+						.loading-overlay { text-align: center; padding: 5rem; color: var(--accent); font-weight: 700; }
+						@keyframes spin { to { transform: rotate(360deg); } }
 					</style>
 				</head>
 	<body>
-		<!-- La sidebar est injectée ici par sidebar.js -->
-
 		<main>
 			<header>
 				<h1>Félix et moi</h1>
-				<p class="page-desc">Configurez votre identité secrète pour que Félix vous reconnaisse en live.</p>
+				<p class="page-desc">Plus il en sait sur toi, plus il sera précis (et piquant) dans le chat.</p>
 			</header>
 
-			<form id="felix-form" style="max-width: 900px;">
-				<!-- Section 1 : Identité -->
-				<div class="card">
-					<div class="form-section-title">
+			<div id="loader" class="loading-overlay">
+				<div style="width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
+				Lecture de ton dossier...
+			</div>
+
+			<form id="felixForm" style="display: none; max-width: 1000px;">
+
+				<!-- SECTION 1 : LES NOMS -->
+				<div class="form-section">
+					<div class="section-title">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 							<circle cx="12" cy="7" r="4"></circle>
 						</svg>
-						1. Votre Identité & Humeur
+						1. Identité & Surnoms
 					</div>
-					<div class="grid" style="grid-template-columns: 1fr 1fr;">
-						<div class="input-group">
-							<label>Surnom Souhaité</label>
-							<input type="text" id="nickname" placeholder="Alex, Le Boss, Féfé...">
-                    </div>
-						<div class="input-group">
-							<label>Votre Vibe (Ambiance)</label>
-							<input type="text" id="vibe" placeholder="Chill, Taquin, Tryharder...">
-                    </div>
-						<div class="input-group">
-							<label>Date d'anniversaire</label>
-							<input type="text" id="birthday" placeholder="12 Mai">
-                    </div>
-						<div class="input-group">
-							<label>Niveau de Roast (1 à 10)</label>
-							<input type="number" id="roast_level" min="1" max="10" value="5">
-                    </div>
-					</div>
-				</div>
-
-				<!-- Section 2 : Goûts -->
-				<div class="card">
-					<div class="form-section-title">
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-						</svg>
-						2. Gaming & Préférences
-					</div>
-					<div class="grid" style="grid-template-columns: 1fr 1fr;">
-						<div class="input-group">
-							<label>Jeu de coeur</label>
-							<input type="text" id="favorite_game" placeholder="Minecraft, LoL, Elden Ring...">
-                    </div>
-						<div class="input-group">
-							<label>Snack / Boisson favorite</label>
-							<input type="text" id="favorite_food" placeholder="Pizza, Café, Monster...">
-                    </div>
-						<div class="input-group" style="grid-column: 1 / -1;">
-							<label>Note pour Félix (Ce qu'il doit ne jamais oublier)</label>
-							<textarea id="free_message" rows="4" placeholder="Félix, n'oublie jamais que je suis le roi du skill sur..."></textarea>
+					<div class="card">
+						<div class="form-grid">
+							<div class="field-group">
+								<label>Comment Félix doit T'APPELER ?</label>
+								<input type="text" id="nickname" placeholder="Ton prénom ou surnom...">
+                        </div>
+							<div class="field-group">
+								<label>Comment TU appelles FÉLIX ?</label>
+								<input type="text" id="nickname_for_bot" placeholder="Ex: Chef, Le Chat, Sale bête...">
+                        </div>
+							<div class="field-group">
+								<label>Ton Anniversaire</label>
+								<input type="text" id="birthday" placeholder="Ex: 15 Juillet">
+                        </div>
+							<div class="field-group">
+								<label>Pronoms</label>
+								<select id="pronouns">
+									<option value="">Non précisé</option>
+									<option value="il">Il / Lui</option>
+									<option value="elle">Elle</option>
+									<option value="iel">Iel</option>
+								</select>
+							</div>
+							<div class="field-group">
+								<label>Rythme de vie</label>
+								<select id="sleep_pattern">
+									<option value="none">Non précisé</option>
+									<option value="night_owl">Oiseau de nuit (Couche-tard)</option>
+									<option value="early_bird">Lève-tôt (Matin)</option>
+								</select>
+							</div>
+							<div class="field-group">
+								<label>Ta Vibe générale</label>
+								<input type="text" id="vibe" placeholder="Ex: Chill, Tryharder, Troll...">
+                        </div>
 						</div>
 					</div>
 				</div>
 
-				<button type="submit" class="btn-submit">Mémoriser mon profil dans l'IA ✨</button>
+				<!-- SECTION 2 : GAMING -->
+				<div class="form-section">
+					<div class="section-title">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+						</svg>
+						2. Gaming & Stream
+					</div>
+					<div class="card">
+						<div class="form-grid">
+							<div class="field-group">
+								<label>Jeu de cœur</label>
+								<input type="text" id="favorite_game" placeholder="Le jeu de ta vie">
+                        </div>
+							<div class="field-group">
+								<label>Jeu "Doudou"</label>
+								<input type="text" id="comfort_game" placeholder="Où tu reviens toujours">
+                        </div>
+							<div class="field-group">
+								<label>Emote Signature</label>
+								<input type="text" id="signature_emote" placeholder="Celle que tu spammes">
+                        </div>
+							<div class="field-group">
+								<label>Style de jeu</label>
+								<select id="play_style">
+									<option value="chill">Détente / Fun</option>
+									<option value="tryhard">Tryhard / Compétitif</option>
+								</select>
+							</div>
+							<div class="field-group" style="grid-column: 1 / -1;">
+								<label>Passion ou Talent inutile</label>
+								<input type="text" id="useless_talent" placeholder="Cuisine, imitations, astro, collection de cailloux...">
+                        </div>
+						</div>
+					</div>
+				</div>
+
+				<!-- SECTION 3 : PRÉFÉRENCES -->
+				<div class="form-section">
+					<div class="section-title">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+							<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9"></path>
+							<path d="M12 12l9 9"></path>
+						</svg>
+						3. Relation & Goûts
+					</div>
+					<div class="card">
+						<div class="form-grid">
+							<div class="field-group">
+								<label>Niveau de Taquinerie souhaité</label>
+								<div class="roast-container">
+									<input type="range" id="roast_level" min="1" max="10" value="5" style="flex: 1;">
+										<span class="roast-val" id="roastVal">5</span>
+									</div>
+							</div>
+							<div class="field-group">
+								<label>Ta fonction préférée de Félix</label>
+								<select id="favorite_feature">
+									<option value="ia_chat">Discuter avec lui</option>
+									<option value="xp_system">L'EXP et les niveaux</option>
+									<option value="commands">Les commandes fun</option>
+									<option value="clips">Voir les clips</option>
+								</select>
+							</div>
+							<div class="field-group">
+								<label>Snack / Plat Favori</label>
+								<input type="text" id="favorite_food" placeholder="Pizza, Burger, Sushis...">
+                        </div>
+							<div class="field-group">
+								<label>Boisson Favorite</label>
+								<input type="text" id="favorite_drink" placeholder="Café, Soda, Eau bénite...">
+                        </div>
+						</div>
+					</div>
+				</div>
+
+				<!-- SECTION 4 : ZONE LIBRE -->
+				<div class="form-section">
+					<div class="section-title">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+							<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+							<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+						</svg>
+						4. Note Secrète
+					</div>
+					<div class="card">
+						<div class="field-group">
+							<label>Ce que Félix ne doit JAMAIS oublier sur toi</label>
+							<textarea id="free_message" rows="5" placeholder="Raconte-lui une anecdote, une peur, un rêve... il s'en servira quand tu t'y attendras le moins."></textarea>
+						</div>
+					</div>
+				</div>
+
+				<button type="submit" id="saveBtn" class="btn-submit">Mémoriser mon profil ✨</button>
 			</form>
 
-			<div id="save-status">✨ Profil synchronisé avec succès !</div>
+			<div id="toast">✨ Profil synchronisé avec le cerveau de Félix !</div>
 		</main>
 
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script src="sidebar.js"></script>
 		<script>
+			const fieldList = [
+			'nickname', 'nickname_for_bot', 'birthday', 'sleep_pattern', 'pronouns', 'vibe',
+			'favorite_game', 'comfort_game', 'signature_emote', 'play_style', 'useless_talent',
+			'favorite_food', 'favorite_drink', 'roast_level', 'favorite_feature', 'free_message'
+			];
+
 			document.addEventListener("DOMContentLoaded", async () => {
 			const token = checkAuth();
 			if(!token) return;
@@ -184,66 +240,76 @@
 			const API_URL = CONFIG.API_BASE_URL;
 			const CLIENT_ID = CONFIG.CLIENT_ID;
 
+			try {
 			// 1. Récupération ID Twitch
 			const uResp = await fetch('https://api.twitch.tv/helix/users', {
 			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
 			});
 			const uData = await uResp.json();
+			if(!uData.data) throw new Error("Auth Twitch failed");
 			const twitchId = uData.data[0].id;
 
-			// 2. Chargement des données actuelles
+			// 2. Chargement des données existantes
 			const bResp = await fetch(`${API_URL}/viewer/${twitchId}`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 
 			if(bResp.ok) {
-			const d = await bResp.json();
-			const fields = ["nickname", "vibe", "birthday", "roast_level", "favorite_game", "favorite_food", "free_message"];
-			fields.forEach(f => {
-			if(d[f] || d[f] === 0) document.getElementById(f).value = d[f];
+			const data = await bResp.json();
+			fieldList.forEach(f => {
+			const el = document.getElementById(f);
+			if(el) {
+			el.value = data[f] !== null && data[f] !== undefined ? data[f] : (f === 'roast_level' ? 5 : "");
+			if(f === 'roast_level') document.getElementById('roastVal').innerText = el.value;
+			}
 			});
 			}
 
-			// 3. Sauvegarde
-			document.getElementById("felix-form").onsubmit = async (e) => {
-			e.preventDefault();
-			const btn = e.target.querySelector('button');
-			btn.textContent = "SYNCHRONISATION...";
-			btn.style.opacity = "0.7";
+			// Affichage du formulaire
+			document.getElementById('loader').style.display = 'none';
+			document.getElementById('felixForm').style.display = 'block';
 
-			const payload = {
-			twitch_id: twitchId,
-			nickname: document.getElementById("nickname").value,
-			vibe: document.getElementById("vibe").value,
-			birthday: document.getElementById("birthday").value,
-			roast_level: parseInt(document.getElementById("roast_level").value) || 5,
-			favorite_game: document.getElementById("favorite_game").value,
-			favorite_food: document.getElementById("favorite_food").value,
-			free_message: document.getElementById("free_message").value
+			// Gestion du slider
+			document.getElementById('roast_level').oninput = function() {
+			document.getElementById('roastVal').innerText = this.value;
 			};
+
+			// 3. Sauvegarde
+			document.getElementById("felixForm").onsubmit = async (e) => {
+			e.preventDefault();
+			const btn = document.getElementById("saveBtn");
+			btn.disabled = true;
+			btn.innerText = "SYNCHRONISATION...";
+
+			const payload = { twitch_id: twitchId };
+			fieldList.forEach(f => {
+			const el = document.getElementById(f);
+			payload[f] = f === 'roast_level' ? parseInt(el.value) : el.value;
+			});
 
 			try {
 			const res = await fetch(`${API_URL}/viewer/update_context`, {
 			method: "POST",
-			headers: {
-			"Content-Type": "application/json",
-			"ngrok-skip-browser-warning": "true"
-			},
+			headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
 			body: JSON.stringify(payload)
 			});
 
 			if(res.ok) {
-			const status = document.getElementById("save-status");
-			status.style.display = "block";
-			setTimeout(() => { status.style.display = "none"; }, 4000);
+			const toast = document.getElementById("toast");
+			toast.style.display = "block";
+			setTimeout(() => { toast.style.display = "none"; }, 4000);
 			}
 			} catch (err) {
-			alert("Erreur de connexion au Bot.");
+			console.error(err);
 			} finally {
-			btn.textContent = "MÉMORISER MON PROFIL DANS L'IA ✨";
-			btn.style.opacity = "1";
+			btn.disabled = false;
+			btn.innerText = "MÉMORISER MON PROFIL ✨";
 			}
 			};
+
+			} catch (e) {
+			document.getElementById('loader').innerHTML = `<p style="color:var(--danger);">Erreur : Impossible de contacter le bot. Vérifie ton tunnel Ngrok !</p>`;
+			}
 			});
 		</script>
 	</body>
