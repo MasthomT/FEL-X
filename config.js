@@ -1,6 +1,13 @@
 const CONFIG = {
-    API_BASE_URL: "https://wendy-explorer-reunion-carlos.trycloudflare.com/api", 
+    // ⚠️ Remplace par ton vrai lien Ngrok ou Cloudflare (avec /api/v1 à la fin)
+    API_BASE_URL: "https://TON_LIEN_NGROK_ICI.ngrok-free.app/api/v1", 
+    
+    // Ton Client ID Twitch
     CLIENT_ID: "kgyfzs0k3wk8enx7p3pd6299ro4izv",
+    
+    // Le nom de ta chaîne
     BROADCASTER_NAME: "masthom_",
-    BROADCASTER_ID: "439356462"
+
+    // L'adresse exacte de ton site Vercel (pour que Twitch sache où renvoyer le viewer)
+    REDIRECT_URI: "https://fel-x.vercel.app"
 };

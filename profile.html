@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mon Profil - FEL-X</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #f8fafc; --text-dim: #94a3b8; --accent: #8b5cf6; --accent-green: #10b981; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
+        
+        /* Loading Overlay */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--surface); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Sidebar (Minimaliste pour le fichier HTML unique) */
+        .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; }
+        .sidebar .logo img { width: 40px; border-radius: 50%; }
+        .nav-link { color: var(--text-dim); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 600; transition: 0.2s; display: block; margin-bottom: 5px; }
+        .nav-link:hover, .nav-link.active { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
+        .logout { color: #f43f5e; margin-top: auto; }
+        .logout:hover { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+
+        /* Contenu */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        
+        .profile-header { display: flex; align-items: center; gap: 25px; position: relative; }
+        #username { font-size: 2rem; font-weight: 800; margin: 0 0 5px 0; }
+        .avatar-large { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .stat-box { text-align: center; }
+        .stat-title { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
+        .stat-num { font-size: 1.5rem; font-weight: 800; color: white; }
+
+        .xp-bar-bg { width: 100%; height: 12px; background: var(--bg); border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-green)); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .id-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; display: block;}
+        .id-value { font-size: 1rem; color: white; font-weight: 600; }
+
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); }
+        .history-item:last-child { border-bottom: none; }
+
+        @media (max-width: 800px) {
+            main { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
+            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 10px; z-index: 100; border-right: none; border-top: 1px solid var(--border); }
+            .sidebar .logo, .sidebar .logout, .nav-text { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .profile-header { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo"><img src="logo-felix.png" onerror="this.style.display='none'"> FEL-X</a>
+        <a href="profile.html" class="nav-link active">👤 <span class="nav-text">Profil</span></a>
+        <a href="leaderboard.html" class="nav-link">🏆 <span class="nav-text">Classement</span></a>
+        <a href="stats.html" class="nav-link">📊 <span class="nav-text">Statistiques</span></a>
+        <a href="felix.html" class="nav-link">🧠 <span class="nav-text">Félix et moi</span></a>
+        <a href="#" id="logout-btn" class="nav-link logout">🚪 <span class="nav-text">Déconnexion</span></a>
+    </nav>
+
+    <main>
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <h2 style="margin:0;">Chargement des données...</h2>
+            <p id="loading-text" style="color: var(--text-dim);">Connexion au bot...</p>
+        </div>
+
+        <div class="card profile-header">
+            <img id="avatar" class="avatar-large" src="" alt="Avatar">
+            <div style="flex-grow:1;">
+                <h1 id="username">Chargement...</h1>
+                <div id="rank" style="color:var(--accent-green); font-weight:800;">Rang #--</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; font-weight: 800;">
+                <span style="color:var(--accent);">NIVEAU <span id="stat-level-text">1</span></span>
+                <span style="color:var(--text-dim);"><span id="current-xp" style="color:white;">0</span> / <span id="next-level-xp">100</span> XP</span>
+            </div>
+            <div class="xp-bar-bg"><div class="xp-fill" id="xp-fill"></div></div>
+        </div>
+
+        <div class="card stats-grid">
+            <div class="stat-box"><div class="stat-title">Niveau</div><div class="stat-num" id="stat-level">1</div></div>
+            <div class="stat-box"><div class="stat-title">Watchtime</div><div class="stat-num" id="stat-watchtime">-</div></div>
+            <div class="stat-box"><div class="stat-title">XP Total</div><div class="stat-num" id="stat-xp">0</div></div>
+            <div class="stat-box"><div class="stat-title">Messages</div><div class="stat-num" id="stat-messages">0</div></div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0; color:var(--text-dim); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Identité IA (Félix)</h3>
+            <div class="id-grid" id="ai-id-content">
+                <!-- Injecté par JS -->
+            </div>
+        </div>
+
+        <div class="card" style="padding:0;">
+            <h3 style="margin:0; padding:1.5rem; color:var(--text-dim); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border);">Historique d'Activité</h3>
+            <ul class="history-list" id="xp-history-list">
+                <!-- Injecté par JS -->
+            </ul>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loader = document.getElementById("loading-overlay");
+            const loadingText = document.getElementById("loading-text");
+            
+            // On utilise la fonction de app.js pour bloquer les intrus
+            const token = checkAuth();
+            if (!token) return;
+
+            const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
+            const CLIENT_ID_TWITCH = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
+
+            try {
+                // 1. Récupérer l'identité Twitch
+                loadingText.textContent = "Vérification Twitch...";
+                const headersTwitch = { Authorization: `Bearer ${token}`, 'Client-Id': CLIENT_ID_TWITCH };
+                const userResp = await fetch('https://api.twitch.tv/helix/users', { headers: headersTwitch });
+                
+                if (!userResp.ok) {
+                    if(userResp.status === 401) {
+                        logout(); // Token expiré, on déconnecte
+                        return;
+                    }
+                    throw new Error('Erreur Twitch');
+                }
+                
+                const userData = await userResp.json();
+                const user = userData?.data?.[0];
+                if (!user) throw new Error('Utilisateur introuvable.');
+
+                // Sauvegarde pour les autres pages
+                localStorage.setItem('twitch_username', user.login.toLowerCase());
+                localStorage.setItem('twitch_user_id', user.id);
+                
+                document.getElementById("username").textContent = user.display_name;
+                document.getElementById("avatar").src = user.profile_image_url;
+
+                // 2. Interroger ton Bot (Raspberry Pi)
+                loadingText.textContent = "Récupération du profil IA...";
+                const botResp = await fetch(`${API_URL}/viewer/${user.id}`, { 
+                    headers: { "Accept": "application/json" } 
+                });
+                
+                if (botResp.ok) {
+                    const data = await botResp.json();
+                    
+                    // Statistiques principales
+                    const xp = data.points || 0;
+                    const level = calculateLevel(xp);
+                    const messages = data.messages || 0;
+
+                    document.getElementById("stat-level").textContent = level;
+                    document.getElementById("stat-level-text").textContent = level;
+                    document.getElementById("stat-xp").textContent = xp.toLocaleString('fr-FR');
+                    document.getElementById("stat-messages").textContent = messages.toLocaleString('fr-FR');
+
+                    // Watchtime (Conversion secondes -> HH:MM)
+                    const hours = Math.floor((data.watchtime || 0) / 3600);
+                    const minutes = Math.floor(((data.watchtime || 0) % 3600) / 60);
+                    document.getElementById("stat-watchtime").textContent = `${hours}h ${minutes}m`;
+
+                    // Barre de progression
+                    const nextXp = Math.floor(100 * Math.pow(level, 2.2));
+                    const currXp = Math.floor(100 * Math.pow(level - 1, 2.2));
+                    const prog = nextXp > currXp ? ((xp - currXp) / (nextXp - currXp)) * 100 : 100;
+
+                    // Petite pause pour laisser l'animation CSS se faire
+                    setTimeout(() => {
+                        document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, prog)) + "%";
+                    }, 100);
+                    
+                    document.getElementById("current-xp").textContent = xp.toLocaleString('fr-FR');
+                    document.getElementById("next-level-xp").textContent = nextXp.toLocaleString('fr-FR');
+
+                    // Identité IA
+                    document.getElementById("rank").textContent = data.rank ? `Rang #${data.rank}` : "Non classé";
+                    
+                    document.getElementById("ai-id-content").innerHTML = `
+                        <div><span class="id-label">Surnom Mémorisé</span><div class="id-value">${data.nickname_for_bot || 'Non défini'}</div></div>
+                        <div><span class="id-label">Vibe / Humeur</span><div class="id-value">${data.vibe || 'Analyse en cours...'}</div></div>
+                        <div><span class="id-label">Jeu Favori</span><div class="id-value">${data.favorite_game || 'Aucun'}</div></div>
+                        <div style="grid-column: 1 / -1;"><span class="id-label">Note Secrète de Félix</span><div class="id-value" style="font-style:italic; color:var(--accent-green);">"${data.free_message || 'Je t\'observe en silence...'}"</div></div>
+                    `;
+
+                    // Historique (Correction du format de Date pour Safari/Mobile)
+                    const historyData = data.history || [];
+                    const list = document.getElementById("xp-history-list");
+                    list.innerHTML = "";
+                    
+                    if (historyData.length === 0) {
+                        list.innerHTML = "<li class='history-item' style='justify-content:center; color:var(--text-dim); padding: 2rem;'>Aucune activité enregistrée. Parle dans le chat ! ✨</li>";
+                    } else {
+                        historyData.forEach(h => {
+                            let icon = "✨"; let color = "#f8fafc";
+                            const evt = (h.event_type || "").toLowerCase();
+                            
+                            if (evt.includes("présence") || evt.includes("watchtime")) { icon="🎬"; color="#10b981"; }
+                            else if (evt.includes("message") || evt.includes("chat")) { icon="💬"; color="#38bdf8"; }
+                            else if (evt.includes("sub") || evt.includes("abonnement")) { icon="⭐"; color="#f59e0b"; }
+                            else if (evt.includes("raid")) { icon="⚔️"; color="#f43f5e"; }
+                            else if (evt.includes("follow")) { icon="❤️"; color="#ec4899"; }
+                            else if (evt.includes("bits") || evt.includes("cheer")) { icon="💎"; color="#a855f7"; }
+
+                            let dateStr = "Inconnu";
+                            let timeStr = "";
+                            
+                            if (h.timestamp) {
+                                // Remplacement de l'espace par un "T" pour que JS lise correctement sans décaler les mois
+                                const safeDate = h.timestamp.replace(" ", "T");
+                                const d = new Date(safeDate);
+                                
+                                if (!isNaN(d.getTime())) {
+                                    dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+                                    timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                                } else {
+                                    dateStr = h.timestamp;
+                                }
+                            }
+
+                            list.innerHTML += `
+                            <li class="history-item" style="border-left: 4px solid ${color};">
+                                <div>
+                                    <div style="font-weight: 800; font-size:0.95rem;">
+                                        <span style="margin-right: 8px;">${icon}</span>
+                                        ${evt.charAt(0).toUpperCase() + evt.slice(1)}
+                                    </div>
+                                    <small style="color: var(--text-dim); font-weight:600;">${dateStr} à ${timeStr}</small>
+                                </div>
+                                <div style="font-weight: 900; color: ${color}; font-family: monospace; font-size: 1.2rem;">
+                                    +${(h.amount || 0).toLocaleString('fr-FR')}
+                                </div>
+                            </li>`;
+                        });
+                    }
+                } else {
+                    // Le viewer n'est pas (encore) dans la base de données locale du bot
+                    document.getElementById("username").textContent += " (Nouveau Viewer)";
+                    document.getElementById("stat-level-text").textContent = "1";
+                    document.getElementById("ai-id-content").innerHTML = "<p style='color:var(--text-dim); padding:1rem;'>Félix ne te connaît pas encore. Parle une fois dans le chat du stream pour créer ta fiche !</p>";
+                    document.getElementById("xp-history-list").innerHTML = "<li class='history-item' style='justify-content:center; color:var(--text-dim); padding: 2rem;'>En attente de ton premier message...</li>";
+                }
+
+            } catch (e) {
+                console.error("Erreur:", e);
+                alert("Impossible de charger les données. Vérifie que le bot tourne et que le lien dans config.js est correct !");
+            } finally {
+                loader.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

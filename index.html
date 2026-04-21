@@ -1,208 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-				<title>Maintenance - FEL-X</title>
-				<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-					<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-						<style>
-							:root {
-							--bg: #0f172a; /* Bleu très foncé presque noir */
-							--surface: #1e293b; /* Bleu nuit pour les cartes */
-							--border: #334155;
-							--text: #f8fafc;
-							--text-dim: #94a3b8;
-							--accent-purple: #8b5cf6; /* Violet twitch-like */
-							--accent-green: #10b981; /* Vert émeraude */
-							--glow-purple: rgba(139, 92, 246, 0.5);
-							--glow-green: rgba(16, 185, 129, 0.5);
-							}
-							* { margin: 0; padding: 0; box-sizing: border-box; }
-							body {
-							background: var(--bg);
-							color: var(--text);
-							font-family: 'Inter', sans-serif;
-							display: flex;
-							flex-direction: column;
-							align-items: center;
-							justify-content: center;
-							min-height: 100vh;
-							overflow: hidden;
-							/* Petit effet de fond subtil */
-							background-image: radial-gradient(circle at top right, var(--glow-purple), transparent 40%),
-							radial-gradient(circle at bottom left, var(--glow-green), transparent 40%);
-							}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FEL-X - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --text: #f8fafc; --text-dim: #94a3b8; --accent-purple: #8b5cf6; --accent-green: #10b981; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .container { text-align: center; padding: 3rem; max-width: 500px; background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .logo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--surface); margin-bottom: 2rem; box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; font-weight: 800; }
+        .text-gradient { background: linear-gradient(to right, var(--accent-purple), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { font-size: 1rem; color: var(--text-dim); margin-bottom: 2.5rem; line-height: 1.5; }
+        
+        .btn-twitch { display: inline-flex; align-items: center; gap: 10px; background: #9146FF; color: white; padding: 15px 30px; border-radius: 12px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-twitch:hover { background: #a970ff; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(145, 70, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo-felix.png" alt="FEL-X" class="logo" onerror="this.style.display='none'">
+        <h1>Portail <span class="text-gradient">FEL-X</span></h1>
+        <p>Connectez-vous de manière sécurisée avec votre compte Twitch pour accéder à vos statistiques et à votre profil IA.</p>
+        
+        <button onclick="loginWithTwitch()" class="btn-twitch">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+            Connexion avec Twitch
+        </button>
+    </div>
 
-							.container {
-							text-align: center;
-							padding: 3rem;
-							max-width: 600px;
-							background: rgba(30, 41, 59, 0.7); /* Surface translucide */
-							backdrop-filter: blur(10px);
-							border: 1px solid var(--border);
-							border-radius: 24px;
-							box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-							animation: fadeIn 1s ease-out;
-							position: relative;
-							z-index: 10;
-							}
-
-							.logo-wrapper {
-							position: relative;
-							display: inline-block;
-							margin-bottom: 2rem;
-							}
-							.logo {
-							width: 140px;
-							height: 140px;
-							border-radius: 50%;
-							border: 4px solid var(--surface);
-							position: relative;
-							z-index: 2;
-							background: var(--bg);
-							object-fit: cover;
-							box-shadow: 0 0 30px var(--glow-purple);
-							}
-
-							/* Animation d'anneaux autour du logo */
-							.ring {
-							position: absolute;
-							top: -10px; left: -10px; right: -10px; bottom: -10px;
-							border-radius: 50%;
-							border: 2px dashed var(--accent-purple);
-							animation: spin 10s linear infinite;
-							z-index: 1;
-							opacity: 0.5;
-							}
-							.ring-2 {
-							top: -20px; left: -20px; right: -20px; bottom: -20px;
-							border: 2px dashed var(--accent-green);
-							animation: spin-reverse 15s linear infinite;
-							opacity: 0.3;
-							}
-
-							h1 {
-							font-size: 2.5rem;
-							color: white;
-							margin-bottom: 1rem;
-							font-weight: 800;
-							letter-spacing: -1px;
-							}
-
-							/* Texte avec dégradé */
-							.text-gradient {
-							background: linear-gradient(to right, var(--accent-purple), var(--accent-green));
-							-webkit-background-clip: text;
-							-webkit-text-fill-color: transparent;
-							}
-
-							p {
-							font-size: 1.1rem;
-							color: var(--text-dim);
-							line-height: 1.6;
-							margin-bottom: 2.5rem;
-							}
-
-							/* Badge de statut repensé */
-							.status-badge {
-							display: inline-flex;
-							align-items: center;
-							gap: 12px;
-							background: rgba(16, 185, 129, 0.1);
-							border: 1px solid rgba(16, 185, 129, 0.3);
-							color: var(--accent-green);
-							padding: 12px 24px;
-							border-radius: 50px;
-							font-weight: 800;
-							font-size: 0.85rem;
-							text-transform: uppercase;
-							letter-spacing: 2px;
-							box-shadow: 0 0 20px var(--glow-green);
-							}
-							.dot {
-							width: 12px;
-							height: 12px;
-							background: var(--accent-green);
-							border-radius: 50%;
-							animation: blink 1.5s infinite;
-							box-shadow: 0 0 10px var(--accent-green);
-							}
-
-							/* Lignes de code décoratives (effet matrice) */
-							.code-bg {
-							position: absolute;
-							top: 0; left: 0; width: 100%; height: 100%;
-							z-index: 0;
-							opacity: 0.05;
-							pointer-events: none;
-							font-family: monospace;
-							color: var(--accent-green);
-							overflow: hidden;
-							display: flex;
-							flex-direction: column;
-							justify-content: space-around;
-							}
-							.code-line {
-							white-space: nowrap;
-							animation: slideLeft 20s linear infinite;
-							}
-							.code-line:nth-child(even) {
-							animation: slideRight 25s linear infinite;
-							color: var(--accent-purple);
-							}
-
-							@keyframes fadeIn {
-							from { opacity: 0; transform: translateY(30px) scale(0.95); }
-							to { opacity: 1; transform: translateY(0) scale(1); }
-							}
-							@keyframes spin { 100% { transform: rotate(360deg); } }
-							@keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
-							@keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-							@keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-							@keyframes slideRight { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-
-							/* Responsive */
-							@media (max-width: 600px) {
-							.container { padding: 2rem; margin: 1rem; border-radius: 16px; }
-							h1 { font-size: 2rem; }
-							.logo { width: 100px; height: 100px; }
-							}
-						</style>
-					</head>
-	<body>
-
-		<!-- Effet décoratif en arrière-plan -->
-		<div class="code-bg">
-			<div class="code-line">10101100 01101001 11001010 initializing_core_protocols... 00110101</div>
-			<div class="code-line">FELIX_AI_VERSION_2.0 > booting_neural_network... 11001010 01010101</div>
-			<div class="code-line">01010101 11001010 database_migration_in_progress... 01101001 10101100</div>
-			<div class="code-line">loading_viewer_profiles > [██████████░░] 85% 00110101 11001010</div>
-			<div class="code-line">11001010 01010101 applying_new_UI_components... 10101100 01101001</div>
-		</div>
-
-		<div class="container">
-			<div class="logo-wrapper">
-				<div class="ring"></div>
-				<div class="ring-2"></div>
-				<!-- L'image se charge depuis Vercel (si elle y est) ou depuis Twitch par défaut -->
-				<img src="logo-felix.png" alt="FEL-X" class="logo" onerror="this.src='https://static-cdn.jtvnw.net/user-default-pictures-uv/41780b5a-def8-11e9-94d9-784f43822e80-profile_image-70x70.png'">
-        </div>
-
-			<h1>
-				Système en <span class="text-gradient">Mise à jour</span>
-			</h1>
-
-			<p>
-				Le cerveau de <strong>Félix</strong> est actuellement débranché pour recevoir une interface toute neuve et des performances améliorées.<br>
-					<br>L'intégration complète dans le noyau est en cours.
-			</p>
-
-			<div class="status-badge">
-				<div class="dot"></div>
-				Reconstruction en cours
-			</div>
-		</div>
-
-	</body>
+    <!-- Chargement des scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Dès que la page charge, on vérifie si on vient de se connecter
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAuth();
+        });
+    </script>
+</body>
 </html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Félix et moi - FEL-X</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #f8fafc; --text-dim: #94a3b8; --accent: #8b5cf6; --accent-green: #10b981; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        main { padding: 2rem; margin-left: 240px; min-height: 100vh; }
+        
+        /* Loading Overlay */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--surface); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Toast Success */
+        #toast { position: fixed; bottom: 30px; right: 30px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 15px 25px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; gap: 10px; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2); }
+        #toast.show { transform: translateY(0); opacity: 1; }
+
+        /* Sidebar */
+        .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        .sidebar .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; }
+        .sidebar .logo img { width: 40px; border-radius: 50%; }
+        .nav-link { color: var(--text-dim); text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 600; transition: 0.2s; display: block; margin-bottom: 5px; }
+        .nav-link:hover, .nav-link.active { background: rgba(139, 92, 246, 0.1); color: var(--accent); }
+        .logout { color: #f43f5e; margin-top: auto; }
+        .logout:hover { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+
+        /* Contenu */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+        .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        label { font-size: 0.85rem; font-weight: 600; color: var(--text-dim); }
+        
+        input, select, textarea { width: 100%; padding: 14px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: 0.2s; }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+        
+        .btn-save { background: linear-gradient(to right, var(--accent), var(--accent-green)); color: white; border: none; padding: 16px 24px; font-weight: 800; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1rem; text-transform: uppercase; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2); }
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(139, 92, 246, 0.3); }
+        .btn-save:active { transform: translateY(0); }
+
+        @media (max-width: 800px) {
+            main { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
+            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 10px; z-index: 100; border-right: none; border-top: 1px solid var(--border); }
+            .sidebar .logo, .sidebar .logout, .nav-text { display: none; }
+            .form-grid { grid-template-columns: 1fr; }
+            .card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="profile.html" class="logo"><img src="logo-felix.png" onerror="this.style.display='none'"> FEL-X</a>
+        <a href="profile.html" class="nav-link">👤 <span class="nav-text">Profil</span></a>
+        <a href="leaderboard.html" class="nav-link">🏆 <span class="nav-text">Classement</span></a>
+        <a href="stats.html" class="nav-link">📊 <span class="nav-text">Statistiques</span></a>
+        <a href="felix.html" class="nav-link active">🧠 <span class="nav-text">Félix et moi</span></a>
+        <a href="#" id="logout-btn" class="nav-link logout">🚪 <span class="nav-text">Déconnexion</span></a>
+    </nav>
+
+    <main>
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <h2 style="margin:0;">Connexion au Cerveau...</h2>
+            <p style="color: var(--text-dim);">Récupération de ta fiche d'identité IA.</p>
+        </div>
+
+        <div id="toast">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Profil IA mis à jour avec succès !
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 0.5rem;">🧠 Discute avec Félix</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2.5rem; font-size: 1.1rem;">Remplis cette fiche avec soin. Félix s'en servira en direct sur Twitch pour personnaliser ses réponses et créer des interactions uniques avec toi !</p>
+
+            <form id="felix-form">
+                
+                <div class="card">
+                    <div class="section-title">1. Identité & Vibe</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Surnom (Ton prénom / Pseudo usuel)</label>
+                            <input type="text" id="nickname" placeholder="Ex: Alex, Le BG...">
+                        </div>
+                        <div class="form-group">
+                            <label>Ton petit nom pour Félix</label>
+                            <input type="text" id="nickname_for_bot" placeholder="Ex: Le Chat, Mon Bro...">
+                        </div>
+                        <div class="form-group">
+                            <label>Anniversaire</label>
+                            <input type="text" id="birthday" placeholder="Ex: 12 Octobre">
+                        </div>
+                        <div class="form-group">
+                            <label>Rythme de vie</label>
+                            <select id="sleep_pattern">
+                                <option value="none">Non précisé</option>
+                                <option value="night_owl">Oiseau de nuit (Couche-tard)</option>
+                                <option value="early_bird">Lève-tôt (Matinal)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Humeur habituelle (Vibe)</label>
+                            <input type="text" id="vibe" placeholder="Ex: Toujours fatigué, Survolté...">
+                        </div>
+                        <div class="form-group">
+                            <label>Tolérance au Roast (1 à 10)</label>
+                            <input type="number" id="roast_level" min="1" max="10" placeholder="Ex: 5">
+                            <small style="color:var(--text-dim); font-size:0.75rem;">1 = Doux | 10 = Sans pitié</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">2. Passions & Gaming</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Jeu Favori (Banger ultime)</label>
+                            <input type="text" id="favorite_game" placeholder="Ex: The Witcher 3">
+                        </div>
+                        <div class="form-group">
+                            <label>Jeu "Doudou" (Comfort Game)</label>
+                            <input type="text" id="comfort_game" placeholder="Ex: Stardew Valley">
+                        </div>
+                        <div class="form-group">
+                            <label>Style de jeu</label>
+                            <select id="play_style">
+                                <option value="chill">Détente / Casual</option>
+                                <option value="tryhard">Tryhard / Compétitif</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Emote Signature (Ton emote Twitch)</label>
+                            <input type="text" id="signature_emote" placeholder="Ex: LUL, KEKW...">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Talent inutile ou passion secrète</label>
+                            <input type="text" id="useless_talent" placeholder="Ex: Je sais jongler avec 3 clémentines">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">3. Pote de Bar</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Snack Favori</label>
+                            <input type="text" id="favorite_food" placeholder="Ex: Pizza 4 Fromages">
+                        </div>
+                        <div class="form-group">
+                            <label>Boisson de prédilection</label>
+                            <input type="text" id="favorite_drink" placeholder="Ex: Monster, Café noir...">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Le message secret pour le cerveau de Félix</label>
+                            <textarea id="free_message" rows="4" placeholder="Ajoute ici tout ce que tu veux que Félix sache absolument sur toi (Anecdote, running gag...)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save" id="save-btn">Mémoriser mon profil ✨</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loader = document.getElementById("loading-overlay");
+            const token = checkAuth();
+            if (!token) return;
+
+            const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
+            const CLIENT_ID_TWITCH = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
+            let twitchId = "";
+
+            try {
+                // 1. Récupération de l'ID Twitch (Vérification)
+                const headersTwitch = { Authorization: `Bearer ${token}`, 'Client-Id': CLIENT_ID_TWITCH };
+                const userResp = await fetch('https://api.twitch.tv/helix/users', { headers: headersTwitch });
+                
+                if (!userResp.ok) throw new Error('Erreur Twitch');
+                const userData = await userResp.json();
+                twitchId = userData?.data?.[0]?.id;
+
+                if (!twitchId) throw new Error("ID Twitch introuvable");
+
+                // 2. Récupération des données existantes pour pré-remplir le formulaire
+                const botResp = await fetch(`${API_URL}/viewer/${twitchId}`, { 
+                    headers: { "Accept": "application/json" } 
+                });
+                
+                if (botResp.ok) {
+                    const data = await botResp.json();
+                    
+                    // Remplissage automatique
+                    const fields = ["nickname", "nickname_for_bot", "birthday", "sleep_pattern", "vibe", "favorite_game", "comfort_game", "play_style", "signature_emote", "useless_talent", "favorite_food", "favorite_drink", "free_message"];
+                    fields.forEach(f => {
+                        if(data[f] && document.getElementById(f)) {
+                            document.getElementById(f).value = data[f];
+                        }
+                    });
+                    if (data.roast_level) document.getElementById("roast_level").value = data.roast_level;
+                }
+            } catch (e) {
+                console.error("Erreur pré-remplissage:", e);
+            } finally {
+                loader.style.display = "none";
+            }
+
+            // 3. Gestion de la Sauvegarde (Soumission du Formulaire)
+            document.getElementById("felix-form").addEventListener("submit", async (e) => {
+                e.preventDefault(); // Empêche le rechargement de la page
+                
+                const btn = document.getElementById("save-btn");
+                btn.textContent = "Sauvegarde en cours...";
+                btn.style.opacity = "0.7";
+
+                const payload = {
+                    twitch_id: twitchId,
+                    nickname: document.getElementById("nickname").value,
+                    nickname_for_bot: document.getElementById("nickname_for_bot").value,
+                    birthday: document.getElementById("birthday").value,
+                    sleep_pattern: document.getElementById("sleep_pattern").value,
+                    vibe: document.getElementById("vibe").value,
+                    roast_level: parseInt(document.getElementById("roast_level").value) || 5,
+                    favorite_game: document.getElementById("favorite_game").value,
+                    comfort_game: document.getElementById("comfort_game").value,
+                    play_style: document.getElementById("play_style").value,
+                    signature_emote: document.getElementById("signature_emote").value,
+                    useless_talent: document.getElementById("useless_talent").value,
+                    favorite_food: document.getElementById("favorite_food").value,
+                    favorite_drink: document.getElementById("favorite_drink").value,
+                    free_message: document.getElementById("free_message").value
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/viewer/update_context`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        // Afficher le toast de succès
+                        const toast = document.getElementById("toast");
+                        toast.classList.add("show");
+                        setTimeout(() => toast.classList.remove("show"), 4000);
+                    } else {
+                        alert("Erreur lors de la sauvegarde. Réessaie plus tard.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Impossible de joindre le serveur. Ton Cloudflare Tunnel est-il bien allumé ?");
+                } finally {
+                    btn.textContent = "Mémoriser mon profil ✨";
+                    btn.style.opacity = "1";
+                }
+            });
+        });
+    </script>
+</body>
+</html>

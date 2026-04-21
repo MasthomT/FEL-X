@@ -1,23 +1,26 @@
-const CLIENT_ID = "kgyfzs0k3wk8enx7p3pd6299ro4izv";
-const BROADCASTER_ID = "439356462"; 
-let allClipsData = [];
-
-const loadingEl = document.getElementById("loading");
-const gridEl = document.getElementById("clips-grid");
-const searchInput = document.getElementById("clip-search");
-const filterSortSelect = document.getElementById("filter-sort");
-
 document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Vérification stricte
     const token = checkAuth();
     if(!token) return;
 
+    const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "kgyfzs0k3wk8enx7p3pd6299ro4izv";
+    const BROADCASTER_ID = "439356462"; // ID Twitch de masthom_
+    
+    let allClipsData = [];
+
+    const loadingEl = document.getElementById("loading");
+    const gridEl = document.getElementById("clips-grid");
+    const searchInput = document.getElementById("clip-search");
+    const filterSortSelect = document.getElementById("filter-sort");
+
     try {
-        loadingEl.textContent = "Récupération des clips...";
+        if(loadingEl) loadingEl.textContent = "Récupération des clips via Twitch...";
         
         let cursor = "";
         let keepFetching = true;
         const MAX_CLIPS = 500;
 
+        // Requêtes vers l'API Officielle Twitch
         while (keepFetching && allClipsData.length < MAX_CLIPS) {
             let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${BROADCASTER_ID}&first=100`;
             if (cursor) url += `&after=${cursor}`;
@@ -35,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (data.data && data.data.length > 0) {
                 allClipsData.push(...data.data);
-                loadingEl.textContent = `Chargement... (${allClipsData.length} clips récupérés)`;
+                if(loadingEl) loadingEl.textContent = `Chargement... (${allClipsData.length} clips récupérés)`;
                 
                 if (data.pagination && data.pagination.cursor) {
                     cursor = data.pagination.cursor;
@@ -48,84 +51,93 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         if (allClipsData.length === 0) {
-            loadingEl.textContent = "Aucun clip trouvé sur cette chaîne.";
+            if(loadingEl) loadingEl.textContent = "Aucun clip trouvé sur cette chaîne.";
             return;
         }
 
+        // Tri par défaut (Les plus récents)
         sortClips('date'); 
 
-        loadingEl.style.display = "none";
-        gridEl.style.display = "grid";
+        if(loadingEl) loadingEl.style.display = "none";
+        if(gridEl) gridEl.style.display = "grid";
 
+        // Événements de tri et recherche
         if(searchInput) searchInput.addEventListener('input', (e) => filterClips(e.target.value));
         if(filterSortSelect) filterSortSelect.addEventListener('change', (e) => sortClips(e.target.value));
 
     } catch (error) {
         console.error("Erreur Clips:", error);
-        loadingEl.innerHTML = `
-            <div style="color:#ff6b6b; border:1px solid #ff6b6b; padding:20px; border-radius:8px; display:inline-block;">
-                <strong>Oups ! Impossible de charger les clips.</strong><br>
-                <small>${error.message}</small><br><br>
-                <button onclick="location.reload()" style="background:#ff6b6b; color:white; border:none; padding:8px 16px; cursor:pointer; border-radius:4px; font-weight:bold;">Réessayer</button>
-            </div>
-        `;
+        if(loadingEl) {
+            loadingEl.innerHTML = `
+                <div style="color:#f43f5e; border:1px solid #f43f5e; padding:20px; border-radius:12px; display:inline-block; background:rgba(244,63,94,0.1);">
+                    <strong>Oups ! Impossible de charger les clips depuis Twitch.</strong><br>
+                    <small style="color:var(--text-dim);">${error.message}</small><br><br>
+                    <button onclick="location.reload()" style="background:#f43f5e; color:white; border:none; padding:10px 20px; cursor:pointer; border-radius:8px; font-weight:800;">Réessayer</button>
+                </div>
+            `;
+        }
         
+        // Si le token est expiré (401), on déconnecte de force
         if (error.message.includes("401")) {
             localStorage.removeItem("twitch_token");
             setTimeout(() => window.location.href = "/", 2000);
         }
     }
+
+    // --- FONCTIONS INTERNES ---
+    function sortClips(criteria) {
+        if (criteria === 'date') {
+            allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        } else if (criteria === 'views') {
+            allClipsData.sort((a, b) => b.view_count - a.view_count);
+        }
+        renderClips(allClipsData);
+    }
+
+    function filterClips(query) {
+        const lowerQ = query.toLowerCase();
+        const filtered = allClipsData.filter(clip => 
+            clip.title.toLowerCase().includes(lowerQ) || 
+            clip.creator_name.toLowerCase().includes(lowerQ)
+        );
+        renderClips(filtered);
+    }
+
+    function renderClips(clips) {
+        if (!gridEl) return;
+        gridEl.innerHTML = "";
+        
+        if (clips.length === 0) {
+            gridEl.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-dim);'>Aucun clip ne correspond à ta recherche. 😢</div>";
+            return;
+        }
+        
+        clips.forEach(clip => {
+            const date = new Date(clip.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+            const views = clip.view_count.toLocaleString('fr-FR');
+
+            const card = document.createElement("a");
+            card.className = "clip-card";
+            card.href = clip.url;
+            card.target = "_blank";
+            card.style.cssText = "display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; text-decoration:none; color:white; transition:0.2s;";
+
+            card.innerHTML = `
+                <div style="height:180px; background-image:url('${clip.thumbnail_url}'); background-size:cover; background-position:center; position:relative;">
+                    <span style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); padding:4px 8px; border-radius:6px; font-size:0.8rem; font-weight:bold;">${Math.round(clip.duration)}s</span>
+                </div>
+                <div style="padding:15px;">
+                    <h3 style="margin:0 0 10px 0; font-size:1rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${clip.title}">${clip.title}</h3>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-dim); margin-bottom:10px; font-weight:600;">
+                        <span><i class="fas fa-eye"></i> ${views} vues</span>
+                        <span><i class="fas fa-calendar"></i> ${date}</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--accent); font-weight:800;">
+                        ✂️ Clippé par ${clip.creator_name}
+                    </div>
+                </div>
+            `;
+            gridEl.appendChild(card);
+        });
+    }
 });
-
-function sortClips(criteria) {
-    if (criteria === 'date') {
-        allClipsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (criteria === 'views') {
-        allClipsData.sort((a, b) => b.view_count - a.view_count);
-    }
-    renderClips(allClipsData);
-}
-
-function filterClips(query) {
-    const lowerQ = query.toLowerCase();
-    const filtered = allClipsData.filter(clip => 
-        clip.title.toLowerCase().includes(lowerQ) || 
-        clip.creator_name.toLowerCase().includes(lowerQ)
-    );
-    renderClips(filtered);
-}
-
-function renderClips(clips) {
-    gridEl.innerHTML = "";
-    if (clips.length === 0) {
-        gridEl.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--text-dim)'>Aucun clip ne correspond à la recherche.</p>";
-        return;
-    }
-    
-    clips.forEach(clip => {
-        const date = new Date(clip.created_at).toLocaleDateString('fr-FR');
-        const views = clip.view_count.toLocaleString();
-
-        const card = document.createElement("a");
-        card.className = "clip-card";
-        card.href = clip.url;
-        card.target = "_blank";
-
-        card.innerHTML = `
-            <div class="clip-thumbnail" style="background-image:url('${clip.thumbnail_url}')">
-                <span class="clip-duration">${Math.round(clip.duration)}s</span>
-            </div>
-            <div class="clip-info">
-                <h3 class="clip-title" title="${clip.title}">${clip.title}</h3>
-                <div class="clip-meta">
-                    <span>👁️ ${views}</span>
-                    <span>📅 ${date}</span>
-                </div>
-                <div class="clip-author">
-                    ✂️ ${clip.creator_name}
-                </div>
-            </div>
-        `;
-        gridEl.appendChild(card);
-    });
-}
