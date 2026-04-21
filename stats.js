@@ -5,38 +5,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     const loadingEl = document.getElementById("loading");
     const contentEl = document.getElementById("stats-content");
 
-    const API_URL = CONFIG.API_BASE_URL || "http://127.0.0.1:8000/api";
+    const API_URL = CONFIG.API_BASE_URL;
     const CLIENT_ID = CONFIG.CLIENT_ID;
-    const BROADCASTER_NAME = "masthom_";
+    const BROADCASTER_NAME = CONFIG.BROADCASTER_NAME || "masthom_";
 
     try {
-        loadingEl.textContent = "Récupération des statistiques...";
+        loadingEl.textContent = "Récupération des statistiques du Bot...";
         
-        // On récupère toute la liste et on fait les maths
-        const response = await fetch(`${API_URL}/viewers`);
+        // AJOUT DU "/v1/" ICI AUSSI 🔥
+        const response = await fetch(`${API_URL}/v1/global_stats`, {
+            headers: { "Accept": "application/json" }
+        });
+        
         if (!response.ok) throw new Error("Le bot ne répond pas.");
-        const allData = await response.json();
+        const data = await response.json();
 
-        // Stats globales
-        const totalMembers = allData.length;
-        const totalXP = allData.reduce((sum, v) => sum + v.points, 0);
-        const maxLevel = allData.length > 0 ? Math.max(...allData.map(v => v.level)) : 1;
+        document.getElementById("total-members").textContent = (data.total_members || 0).toLocaleString();
+        document.getElementById("total-xp").textContent = (data.total_xp || 0).toLocaleString();
+        document.getElementById("max-level").textContent = calculateLevel(data.max_xp || 0);
         
-        document.getElementById("total-members").textContent = totalMembers.toLocaleString();
-        document.getElementById("total-xp").textContent = totalXP.toLocaleString();
-        document.getElementById("max-level").textContent = maxLevel;
-        
-        if (totalMembers > 0) {
-            const avgXP = totalXP / totalMembers;
+        if (data.total_members > 0) {
+            const avgXP = data.total_xp / data.total_members;
             document.getElementById("avg-level").textContent = calculateLevel(avgXP);
+        } else {
+            document.getElementById("avg-level").textContent = 1;
         }
 
-        // Élite Top 5
         const topContainer = document.getElementById("top-5-list");
-        if (topContainer) {
+        if (topContainer && data.top5) {
             topContainer.innerHTML = ""; 
-
-            const filteredTop = allData.filter(u => {
+            const filteredTop = data.top5.filter(u => {
                 const n = u.username.toLowerCase();
                 return n !== "masthom_" && n !== "felixthebigblackcat" && n !== "streamelements" && n !== "wizebot";
             });
@@ -54,13 +52,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <div style="display:flex; align-items:center; gap:10px;">
                         ${rankBadge} <span style="font-weight:600; color:white;">${u.username}</span>
                     </div>
-                    <span style="color:var(--accent); font-weight:bold;">Niv. ${u.level}</span>
+                    <span style="color:var(--accent); font-weight:bold;">Niv. ${calculateLevel(u.points)}</span>
                 `;
                 topContainer.appendChild(li);
             });
         }
         
-        // Twitch API (Followers)
         const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
         const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER_NAME}`, { headers: twitchHeaders });
         const userData = await userResp.json();
@@ -83,6 +80,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (error) {
         console.error("ERREUR STATS:", error);
-        loadingEl.innerHTML = `<div style="color:var(--danger);">Erreur: ${error.message}</div>`;
+        loadingEl.innerHTML = `<div style="color:var(--danger);">Erreur de connexion avec le Bot Cloudflare.</div>`;
     }
 });

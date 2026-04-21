@@ -197,14 +197,13 @@
 			document.getElementById("username").textContent = user.display_name;
 			document.getElementById("avatar").src = user.profile_image_url;
 
-			// REQUÊTE VERS LE BOT FASTAPI CLOUDFLARE (Plus besoin des headers Ngrok !)
 			const headersAPI = { "Accept": "application/json" };
 
-			const botResp = await fetch(`${API_URL}/viewers/${user.id}`, { headers: headersAPI });
+			const botResp = await fetch(`${API_URL}/v1/viewer/${user.id}`, { headers: headersAPI });
 			if (botResp.ok) {
 			const data = await botResp.json();
 			const xp = data.points || 0;
-			const level = data.level || calculateLevel(xp);
+			const level = calculateLevel(xp); // Fonction importée de app.js
 
 			document.getElementById("stat-level").textContent = level;
 			document.getElementById("stat-level-text").textContent = level;
@@ -242,19 +241,12 @@
 
 			document.getElementById("felix-mood").textContent = data.vibe || "Neutre";
 			document.getElementById("felix-observation").textContent = data.free_message ? `"${data.free_message}"` : `"Je t'observe silencieusement..."`;
+			document.getElementById("rank").textContent = data.rank ? `Rang #${data.rank}` : "Non classé";
 
-			const allResp = await fetch(`${API_URL}/viewers`, { headers: headersAPI });
-			if (allResp.ok) {
-			const allViewers = await allResp.json();
-			const sortedViewers = allViewers.filter(u => u.username.toLowerCase() !== "masthom_" && u.username.toLowerCase() !== "felixthebigblackcat").sort((a,b) => (b.points||0) - (a.points||0));
-			const rank = sortedViewers.findIndex(v => v.twitch_id === user.id) + 1;
-			document.getElementById("rank").textContent = rank > 0 ? `Rang #${rank}` : "Non classé";
-			}
-			}
-
-			const histResp = await fetch(`${API_URL}/viewers/${user.id}/history`, { headers: headersAPI });
-			if (histResp.ok) {
-			const historyData = await histResp.json();
+			// ----------------------------------------------------
+			// GESTION DU FORMAT DE LA DATE (CORRIGÉ SANS DÉCALAGE)
+			// ----------------------------------------------------
+			const historyData = data.history || [];
 			const list = document.getElementById("xp-history-list");
 			list.innerHTML = "";
 
@@ -271,16 +263,30 @@
 			else if (r.includes("follow")) { icon="❤️"; color="#f472b6"; }
 			else if (r.includes("bits") || r.includes("cheer")) { icon="💎"; color="#c084fc"; }
 
-			let displayDate = h.date || new Date().toLocaleDateString('fr-FR');
-			let displayTime = h.time || "";
+			let dateStr = "Inconnu";
+			let timeStr = "";
+
+			if (h.timestamp) {
+			// On remplace l'espace par un "T" pour être 100% compatible ISO 8601 (évite les décalages)
+			const isoDate = h.timestamp.replace(" ", "T");
+			const d = new Date(isoDate);
+
+			// On vérifie que la date est valide avant de la formater
+			if (!isNaN(d.getTime())) {
+			dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+			timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+			} else {
+			dateStr = h.timestamp; // Sécurité si c'est déjà du texte
+			}
+			}
 
 			list.innerHTML += `
 			<li class="history-item" style="border-left: 3px solid ${color};">
 				<div>
 					<div style="color: white; font-weight: 600;">
-						<span style="font-size: 1.1rem; margin-right: 5px;">${icon}</span>${displayDate} : ${h.event_type}
+						<span style="font-size: 1.1rem; margin-right: 5px;">${icon}</span>${dateStr} : ${h.event_type}
 					</div>
-					<small style="color: #64748b;">${displayTime}</small>
+					<small style="color: #64748b;">${timeStr}</small>
 				</div>
 				<div style="font-weight: 900; color: ${color}; font-family: monospace; font-size: 1.1rem;">+${(h.amount || 0).toLocaleString()}</div>
 			</li>`;
