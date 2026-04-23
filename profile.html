@@ -389,19 +389,19 @@
 			const percent = data.total_votes > 0 ? Math.round((votes / data.total_votes) * 100) : 0;
 
 			if (data.user_vote) {
-			// Mode "J'ai déjà voté" : Barres de progression stylisées
+			// Mode "J'ai déjà voté" : Barres de progression stylisées ET cliquables
 			const isMyVote = data.user_vote === i;
 			const accentColor = isMyVote ? 'var(--accent)' : 'rgba(255,255,255,0.1)';
 			const bgFill = isMyVote ? 'rgba(0, 245, 195, 0.2)' : 'rgba(255,255,255,0.05)';
 
 			optionsDiv.innerHTML += `
-			<div style="background: rgba(0,0,0,0.3); border-radius: 16px; overflow: hidden; position: relative; padding: 16px 20px; border: 1px solid ${accentColor}; box-shadow: ${isMyVote ? '0 0 15px rgba(0, 245, 195, 0.2)' : 'none'};">
+			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" style="display: block; width: 100%; text-align: left; background: rgba(0,0,0,0.3); border-radius: 16px; overflow: hidden; position: relative; padding: 16px 20px; border: 1px solid ${accentColor}; box-shadow: ${isMyVote ? '0 0 15px rgba(0, 245, 195, 0.2)' : 'none'}; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
 				<div style="position: absolute; top: 0; left: 0; height: 100%; width: ${percent}%; background: ${bgFill}; z-index: 0; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
 				<div style="position: relative; z-index: 1; display: flex; justify-content: space-between; font-weight: ${isMyVote ? '900' : '600'}; color: ${isMyVote ? '#fff' : 'var(--text-dim)'};">
 					<span>${isMyVote ? '✔️ ' : ''}${optText}</span>
 					<span>${percent}%</span>
 				</div>
-			</div>
+			</button>
 			`;
 			} else {
 			// Mode "Je dois voter" : Boutons d'action cliquables
@@ -412,6 +412,12 @@
 			`;
 			}
 			}
+
+			// Ajout explicatif pour le changement de vote
+			if (data.user_vote) {
+			optionsDiv.innerHTML += \`<p style="font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-top: 5px; font-style: italic;">Tu peux cliquer sur une autre barre pour changer ton vote.</p>\`;
+			}
+
 			} catch (err) {
 			console.error("Erreur chargement sondage:", err);
 			}
