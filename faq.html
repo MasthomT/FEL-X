@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>FAQ & Questions - FEL-X</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .question-text { color: var(--accent); font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .answer-text { color: #fff; line-height: 1.6; }
+        .ask-section { background: rgba(0, 245, 195, 0.05); border: 2px dashed var(--accent); border-radius: 24px; padding: 2rem; margin-bottom: 3rem; text-align: center; }
+        textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: white; padding: 1rem; margin: 1rem 0; resize: none; }
+        .btn-ask { background: var(--accent); color: black; border: none; padding: 10px 30px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>FAQ & Entraide</h1>
+            <p class="page-desc">Pose tes questions à Masthom ou consulte les réponses de Félix.</p>
+        </header>
+
+        <!-- FORMULAIRE -->
+        <section class="ask-section">
+            <h2 style="color:white">Tu as une question ?</h2>
+            <p style="color:var(--text-dim)">Félix transmettra ton message à Masthom.</p>
+            <textarea id="questionInput" rows="3" placeholder="Tape ta question ici..."></textarea>
+            <button onclick="sendQuestion()" class="btn-ask">Envoyer à Félix 🐾</button>
+        </section>
+
+        <!-- LISTE FAQ -->
+        <div id="faqList">
+            <!-- Injecté par JS -->
+            <p style="text-align:center; opacity:0.5">Chargement de la FAQ...</p>
+        </div>
+    </main>
+
+    <script src="/static/config.js"></script>
+    <script src="/static/app.js"></script>
+    <script>
+        async function loadFAQ() {
+            const resp = await fetch(`${CONFIG.API_BASE_URL}/questions/faq`);
+            const data = await resp.json();
+            const container = document.getElementById('faqList');
+            
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; opacity:0.5'>Aucune question publique pour le moment.</p>";
+                return;
+            }
+
+            container.innerHTML = data.map(q => `
+                <div class="faq-card">
+                    <div class="question-text">Q: ${q.question_text}</div>
+                    <div class="answer-text">${q.answer_text}</div>
+                    <div style="font-size:0.7rem; color:var(--text-dim); margin-top:10px">Par ${q.username}</div>
+                </div>
+            `).join('');
+        }
+
+        async function sendQuestion() {
+            const text = document.getElementById('questionInput').value;
+            if(!text) return;
+
+            // On récupère les infos de l'utilisateur connecté via app.js
+            const twitch_id = localStorage.getItem("twitch_user_id");
+            const username = localStorage.getItem("twitch_username");
+
+            const resp = await fetch(`${CONFIG.API_BASE_URL}/questions/ask`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ twitch_id, username, question: text })
+            });
+
+            if(resp.ok) {
+                alert("Miaou ! Ta question a été envoyée.");
+                document.getElementById('questionInput').value = "";
+            }
+        }
+
+        window.onload = loadFAQ;
+    </script>
+</body>
+</html>
