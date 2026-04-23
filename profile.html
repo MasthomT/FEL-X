@@ -158,21 +158,50 @@
 					</div>
 				</div>
 
-				<!-- Section 3 : GRILLE 2 COLONNES (CERVEAU IA + SONDAGES) -->
+				<!-- Section 3 & 4 : GRILLE 2 COLONNES -->
 				<div class="dashboard-grid">
 
-					<!-- COLONNE GAUCHE : CERVEAU DE FÉLIX -->
-					<div>
-						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 12px;">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-								<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-							</svg>
-							Le Cerveau de Félix
-						</h2>
+					<!-- COLONNE GAUCHE : CERVEAU DE FÉLIX + ACTIVITÉ RÉCENTE -->
+					<div style="display: flex; flex-direction: column; gap: 4rem;">
 
-						<div class="card" id="ai-context-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; margin-top: 0;">
-							<!-- Injecté par JS -->
+						<!-- CERVEAU DE FÉLIX -->
+						<div>
+							<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 12px;">
+								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+									<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+								</svg>
+								Le Cerveau de Félix
+							</h2>
+
+							<div class="card" id="ai-context-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; margin-top: 0;">
+								<!-- Injecté par JS -->
+							</div>
 						</div>
+
+						<!-- ACTIVITÉ RÉCENTE -->
+						<div>
+							<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+									<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+								</svg>
+								Activité Récente
+							</h2>
+							<div class="card" style="padding: 0; overflow: hidden; margin-top: 0;">
+								<table style="margin-top: 0; width: 100%;">
+									<thead>
+										<tr>
+											<th style="padding-left: 2.5rem; width: 100px;">Date</th>
+											<th>Événement</th>
+											<th style="text-align: right; padding-right: 2.5rem;">EXP</th>
+										</tr>
+									</thead>
+									<tbody id="history-rows">
+										<!-- Injecté par JS -->
+									</tbody>
+								</table>
+							</div>
+						</div>
+
 					</div>
 
 					<!-- COLONNE DROITE : SONDAGE -->
@@ -196,30 +225,6 @@
 						</div>
 					</div>
 
-				</div>
-
-				<!-- Section 4 : ACTIVITÉ RÉCENTE (PLEINE LARGEUR EN BAS) -->
-				<div style="margin-top: 4rem;">
-					<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-							<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-						</svg>
-						Activité Récente
-					</h2>
-					<div class="card" style="padding: 0; overflow: hidden; margin-top: 0;">
-						<table style="margin-top: 0; width: 100%;">
-							<thead>
-								<tr>
-									<th style="padding-left: 2.5rem; width: 100px;">Date</th>
-									<th>Événement</th>
-									<th style="text-align: right; padding-right: 2.5rem;">EXP</th>
-								</tr>
-							</thead>
-							<tbody id="history-rows">
-								<!-- Injecté par JS -->
-							</tbody>
-						</table>
-					</div>
 				</div>
 
 			</div>
