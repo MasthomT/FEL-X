@@ -79,6 +79,20 @@
 						}
 
 						@keyframes spin { to { transform: rotate(360deg); } }
+
+						/* --- GRILLE 2 COLONNES (DASHBOARD) --- */
+						.dashboard-grid {
+						display: grid;
+						/* La colonne de gauche prend 1.5x plus de place que celle de droite */
+						grid-template-columns: 1.5fr 1fr;
+						gap: 2rem;
+						align-items: start;
+						margin-top: 4rem;
+						}
+
+						@media (max-width: 900px) {
+						.dashboard-grid { grid-template-columns: 1fr; } /* Repasse en 1 colonne sur téléphone */
+						}
 					</style>
 				</head>
 	<body>
@@ -101,7 +115,7 @@
 				<!-- Section 1 : Identité & Niveau -->
 				<div class="card" style="display: flex; align-items: center; gap: 3.5rem; flex-wrap: wrap;">
 					<div class="avatar-container">
-						<img id="user-avatar" src="" alt="Avatar" class="avatar-main">
+						<img id="user-avatar" src="" alt="Avatar" class="avatar-main" onerror="this.src='logo-felix.png'">
 							<div id="rank-text" class="rank-badge">RANG #--</div>
 						</div>
 
@@ -156,21 +170,54 @@
 					<!-- Injecté par JS -->
 				</div>
 
-				<!-- Section 4 : Historique -->
-				<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; margin: 4rem 0 1.5rem 0.5rem;">📜 Activité Récente</h2>
-				<div class="card" style="padding: 0; overflow: hidden;">
-					<table style="margin-top: 0;">
-						<thead>
-							<tr>
-								<th style="padding-left: 2.5rem;">Date</th>
-								<th>Événement</th>
-								<th style="text-align: right; padding-right: 2.5rem;">EXP</th>
-							</tr>
-						</thead>
-						<tbody id="history-rows">
-							<!-- Injecté par JS -->
-						</tbody>
-					</table>
+				<!-- Section 4 : GRILLE 2 COLONNES (HISTORIQUE + SONDAGES) -->
+				<div class="dashboard-grid">
+
+					<!-- COLONNE GAUCHE : HISTORIQUE -->
+					<div>
+						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+							</svg>
+							Activité Récente
+						</h2>
+						<div class="card" style="padding: 0; overflow: hidden; margin-top: 0;">
+							<table style="margin-top: 0; width: 100%;">
+								<thead>
+									<tr>
+										<th style="padding-left: 2.5rem; width: 100px;">Date</th>
+										<th>Événement</th>
+										<th style="text-align: right; padding-right: 2.5rem;">EXP</th>
+									</tr>
+								</thead>
+								<tbody id="history-rows">
+									<!-- Injecté par JS -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- COLONNE DROITE : SONDAGE -->
+					<div id="poll-container" style="display: none;">
+						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: #8b5cf6; letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<path d="M18 20V10"></path>
+								<path d="M12 20V4"></path>
+								<path d="M6 20v-4"></path>
+							</svg>
+							Sondage en cours
+						</h2>
+						<div class="card" style="padding: 2rem; position: sticky; top: 2rem; border-color: rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.05); box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15); margin-top: 0;">
+							<h3 id="poll-question" style="font-size: 1.3rem; margin-bottom: 1.5rem; color: #fff; font-weight: 800; line-height: 1.4;"></h3>
+
+							<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;">
+								<!-- Les boutons de vote s'afficheront ici -->
+							</div>
+
+							<p id="poll-total" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 1.5rem; text-align: right; font-weight: 800;"></p>
+						</div>
+					</div>
+
 				</div>
 			</div>
 		</main>
@@ -231,7 +278,6 @@
 			document.getElementById("rank-text").textContent = `RANG #${data.rank || '--'}`;
 
 			// --- CONTEXTE IA ---
-			// On affiche les deux pseudos : Le tien et celui de Félix
 			document.getElementById("ai-context-grid").innerHTML = `
 			<div>
 				<span class="stat-label">Comment Félix t'appelle</span>
@@ -252,22 +298,31 @@
 			<div class="note-card">
 				<span class="stat-label" style="color:var(--accent); margin-bottom:10px; display:block;">Mémoire de Félix</span>
 				<p style="font-style:italic; font-size:1rem; line-height:1.6; color:#cbd5e1;">
-					"${data.free_message || 'Félix t\'observe avec une curiosité silencieuse...'}"
+					"${data.free_message || 'Félix t\\'observe avec une curiosité silencieuse...'}"
 				</p>
 			</div>
 			`;
 
-			// --- HISTORIQUE ---
+			// --- HISTORIQUE (RÉPARÉ !) ---
 			const historyContainer = document.getElementById("history-rows");
 			if (data.history && data.history.length > 0) {
 			historyContainer.innerHTML = data.history.map(log => {
-			const dateObj = new Date(log.timestamp.replace(" ", "T"));
-			const dateStr = dateObj.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+			// ✅ LE FIX EST ICI : On utilise directement log.date que l'API Python nous donne !
+			const dateStr = log.date || "Aujourd'hui";
+
 			return `
 			<tr>
 				<td style="padding-left: 2.5rem; color: var(--text-dim); font-size: 0.85rem;">${dateStr}</td>
-				<td style="font-weight:700; color:#fff;">${log.event_type.toUpperCase()}</td>
-				<td style="text-align:right; padding-right: 2.5rem; color:var(--accent); font-weight:900; font-family:'JetBrains Mono', monospace;">+${log.amount}</td>
+				<td style="font-weight:700; color:#fff;">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<span style="font-size: 1.2rem;">${log.icon || '✨'}</span>
+						<div>
+							${log.event_type.toUpperCase()}
+							${log.details && log.details !== "Action standard" ? `<div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500; margin-top: 4px; text-transform: none;">${log.details}</div>` : ''}
+						</div>
+					</div>
+				</td>
+				<td style="text-align:right; padding-right: 2.5rem; color:${log.color || 'var(--accent)'}; font-weight:900; font-family:'JetBrains Mono', monospace; font-size: 1.1rem;">+${log.amount || 0}</td>
 			</tr>
 			`;
 			}).join('');
@@ -276,6 +331,9 @@
 				<td colspan="3" style="text-align:center; padding: 4rem; color: var(--text-dim); font-style:italic;">Aucune activité enregistrée pour le moment.</td>
 			</tr>`;
 			}
+
+			// --- SONDAGE (WIDGET À DROITE) ---
+			loadPoll(user.id);
 			}
 
 			// Affichage final
@@ -292,6 +350,79 @@
 			`;
 			}
 			});
+
+			// =======================================================
+			// LOGIQUE JAVASCRIPT DU SONDAGE
+			// =======================================================
+			async function loadPoll(twitchId) {
+			try {
+			const res = await fetch(`${CONFIG.API_BASE_URL}/poll/active?twitch_id=${twitchId}`, {
+			headers: { "ngrok-skip-browser-warning": "true" }
+			});
+			const data = await res.json();
+
+			const container = document.getElementById("poll-container");
+			if (!data.active) {
+			container.style.display = "none";
+			return;
+			}
+
+			container.style.display = "block";
+			document.getElementById("poll-question").textContent = data.question;
+			document.getElementById("poll-total").textContent = `${data.total_votes} vote(s)`;
+
+			const optionsDiv = document.getElementById("poll-options");
+			optionsDiv.innerHTML = "";
+
+			for (let i = 1; i <= 4; i++) {
+			const optText = data.options[i];
+			if (!optText) continue;
+
+			const votes = data.results[i] || 0;
+			const percent = data.total_votes > 0 ? Math.round((votes / data.total_votes) * 100) : 0;
+
+			if (data.user_vote) {
+			// Mode "J'ai déjà voté" : Barres de progression stylisées
+			const isMyVote = data.user_vote === i;
+			const accentColor = isMyVote ? '#8b5cf6' : 'rgba(255,255,255,0.1)';
+			const bgFill = isMyVote ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255,255,255,0.05)';
+
+			optionsDiv.innerHTML += `
+			<div style="background: rgba(0,0,0,0.3); border-radius: 16px; overflow: hidden; position: relative; padding: 16px 20px; border: 1px solid ${accentColor}; box-shadow: ${isMyVote ? '0 0 15px rgba(139,92,246,0.2)' : 'none'};">
+				<div style="position: absolute; top: 0; left: 0; height: 100%; width: ${percent}%; background: ${bgFill}; z-index: 0; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+				<div style="position: relative; z-index: 1; display: flex; justify-content: space-between; font-weight: ${isMyVote ? '900' : '600'}; color: ${isMyVote ? '#fff' : 'var(--text-dim)'};">
+					<span>${isMyVote ? '✔️ ' : ''}${optText}</span>
+					<span>${percent}%</span>
+				</div>
+			</div>
+			`;
+			} else {
+			// Mode "Je dois voter" : Boutons d'action cliquables
+			optionsDiv.innerHTML += `
+			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 16px 20px; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: left; font-size: 1rem; width: 100%;" onmouseover="this.style.background='#8b5cf6'; this.style.borderColor='#8b5cf6';" onmouseout="this.style.background='rgba(0,0,0,0.4)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+				${optText}
+			</button>
+			`;
+			}
+			}
+			} catch (err) {
+			console.error("Erreur chargement sondage:", err);
+			}
+			}
+
+			async function submitVote(pollId, optionIndex, twitchId) {
+			try {
+			await fetch(`${CONFIG.API_BASE_URL}/poll/vote`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ poll_id: pollId, twitch_id: twitchId, option_index: optionIndex })
+			});
+			// Rafraîchit les résultats instantanément
+			loadPoll(twitchId);
+			} catch (e) {
+			console.error("Erreur vote:", e);
+			}
+			}
 		</script>
 	</body>
 </html>
