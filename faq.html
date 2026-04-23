@@ -3,293 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FAQ & Questions - FEL-X</title>
-    <!-- On utilise le style.css Master -->
+    <title>Sondages & FAQ - FEL-X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- Grille Principale --- */
-        .faq-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1.5fr; 
-            gap: 2.5rem; 
-            align-items: start; 
-        }
+        .interaction-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; align-items: start; }
+        .sticky-col { position: sticky; top: 2rem; }
+        .section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin: 2rem 0 1.5rem 0.5rem; display: flex; align-items: center; gap: 12px; }
+        .section-title:first-child { margin-top: 0; }
         
-        .sticky-col { 
-            position: sticky; 
-            top: 2rem; 
-        }
+        textarea { width: 100%; padding: 16px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease; resize: none; }
+        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .btn-submit { width: 100%; padding: 1rem; background: var(--accent); color: #0b0f1a; border: none; border-radius: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 1rem; box-shadow: 0 10px 20px -5px var(--accent-glow); }
+        .btn-submit:hover { transform: translateY(-3px); background: #fff; }
 
-        /* --- Titres de Section --- */
-        .section-title {
-            font-size: 0.85rem; font-weight: 800; text-transform: uppercase;
-            color: var(--accent); letter-spacing: 2px; 
-            margin: 0 0 1.5rem 0.5rem; 
-            display: flex; align-items: center; gap: 12px;
-        }
-
-        /* --- Formulaire --- */
-        textarea {
-            width: 100%; padding: 16px 20px; background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border); border-radius: 16px; color: #fff;
-            font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease;
-            resize: vertical; min-height: 120px;
-        }
-
-        textarea:focus {
-            outline: none; border-color: var(--accent); background: rgba(0, 245, 195, 0.03);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .btn-submit {
-            width: 100%; padding: 1rem; background: var(--accent); color: #0b0f1a;
-            border: none; border-radius: 16px; font-weight: 900; font-size: 1rem;
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 1rem;
-            box-shadow: 0 10px 25px -5px var(--accent-glow);
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-        }
-
-        .btn-submit:hover { 
-            transform: translateY(-4px); background: #fff; 
-            box-shadow: 0 15px 30px -5px rgba(255,255,255,0.2); 
-        }
+        .faq-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem; transition: 0.3s; }
+        .faq-card:hover { border-color: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
+        .faq-q { font-weight: 800; color: #fff; display: flex; gap: 10px; margin-bottom: 10px; }
+        .faq-a { color: var(--text-dim); padding-left: 28px; font-size: 0.95rem; border-left: 2px solid var(--accent-glow); line-height: 1.6; }
         
-        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        /* --- Liste FAQ --- */
-        .faq-card {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border);
-            border-radius: 20px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; 
-            transition: all 0.3s ease; position: relative; overflow: hidden;
-        }
-        
-        .faq-card:hover { 
-            border-color: rgba(255, 255, 255, 0.1); 
-            background: rgba(255, 255, 255, 0.04); 
-            transform: translateX(5px);
-        }
-
-        .faq-q { 
-            font-weight: 800; font-size: 1.1rem; color: #fff; 
-            display: flex; gap: 12px; align-items: flex-start;
-        }
-        
-        .faq-q-icon { color: var(--accent); font-size: 1.3rem; line-height: 1.2; }
-
-        .faq-a { 
-            color: var(--text-dim); line-height: 1.6; font-size: 0.95rem;
-            padding-left: 36px; border-left: 2px solid rgba(0, 245, 195, 0.3); 
-            margin-left: 11px; margin-top: 12px; padding-top: 4px; padding-bottom: 4px;
-        }
-
-        .faq-meta { 
-            font-size: 0.7rem; color: var(--text-dim); margin-top: 15px; 
-            padding-left: 36px; font-weight: 700; text-transform: uppercase; 
-            letter-spacing: 1px; display: flex; justify-content: space-between;
-        }
-
-        /* --- Toast Notification --- */
-        #toast {
-            position: fixed; bottom: 30px; right: 30px; padding: 15px 25px;
-            border-radius: 15px; background: var(--accent); color: #000;
-            font-weight: 800; display: none; z-index: 3000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease;
-        }
+        #toast { position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 15px; background: var(--accent); color: #000; font-weight: 800; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease; }
         @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- Responsive --- */
-        @media (max-width: 900px) {
-            .faq-grid { grid-template-columns: 1fr; gap: 2rem; }
-            .sticky-col { position: relative; top: 0; }
-        }
+        @media (max-width: 900px) { .interaction-grid { grid-template-columns: 1fr; } .sticky-col { position: relative; top: 0; } }
     </style>
 </head>
 <body>
-    <!-- AUCUN NAV MANUEL : sidebar.js s'occupe de l'injecter proprement -->
-
     <main id="main-content">
         <header>
-            <h1>FAQ & Entraide</h1>
-            <p class="page-desc">Pose tes questions à Masthom ou consulte les réponses de Félix.</p>
+            <h1>Sondages & FAQ</h1>
+            <p class="page-desc">Vote en direct ou pose tes questions à Félix.</p>
         </header>
 
-        <div class="faq-grid">
-            
-            <!-- COLONNE GAUCHE : POSER UNE QUESTION -->
+        <div class="interaction-grid">
             <div class="sticky-col">
+                <div id="poll-section" style="display: none; margin-bottom: 3rem;">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-4"></path></svg>
+                        Sondage en cours
+                    </h2>
+                    <div class="card" style="border-color: var(--accent-glow); background: rgba(0, 245, 195, 0.05);">
+                        <h3 id="poll-q" style="font-size: 1.2rem; color: #fff; font-weight: 800; margin-bottom: 1.5rem;"></h3>
+                        <div id="poll-opts" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        <p id="poll-count" style="text-align: right; font-size: 0.75rem; color: var(--text-dim); margin-top: 1.5rem; font-weight: 800;"></p>
+                    </div>
+                </div>
+
                 <h2 class="section-title">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9"></path><path d="M12 12l9 9"></path></svg>
                     Poser une question
                 </h2>
-                <div class="card" style="padding: 1.5rem;">
-                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
-                        Tu as un doute sur une commande, un mini-jeu ou une habitude du stream ? Envoie ta question, Félix y répondra dès que possible !
-                    </p>
-                    <form id="questionForm">
-                        <textarea id="questionInput" placeholder="Écris ta question détaillée ici..." required minlength="5"></textarea>
-                        <button type="submit" id="submitBtn" class="btn-submit">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                            Envoyer ma question
-                        </button>
-                    </form>
+                <div class="card">
+                    <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem;">Félix transmettra ton message à Masthom.</p>
+                    <textarea id="qInput" placeholder="Tape ta question ici..." rows="4"></textarea>
+                    <button id="qBtn" onclick="sendQ()" class="btn-submit">Envoyer le message 🐾</button>
                 </div>
             </div>
 
-            <!-- COLONNE DROITE : LES RÉPONSES -->
             <div>
                 <h2 class="section-title">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    Questions Fréquentes
+                    Foire aux questions
                 </h2>
-                <div class="card" style="padding: 1.5rem; background: transparent; border: none; box-shadow: none;">
-                    <div id="faqList">
-                        <!-- Loader temporaire -->
-                        <div style="text-align: center; padding: 4rem 0; opacity: 0.5;">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite; margin-bottom: 1rem;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line></svg>
-                            <p class="text-sm font-bold uppercase tracking-widest">Chargement de la base de connaissances...</p>
-                        </div>
-                        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-                    </div>
+                <div id="faqList">
+                    <p style="text-align: center; opacity: 0.5; padding: 3rem;">Chargement des réponses...</p>
                 </div>
             </div>
-            
         </div>
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toast">✨ Ta question a bien été envoyée à Félix !</div>
+    <div id="toast">✨ Ton message a été envoyé à Félix !</div>
 
-    <!-- Inclusion des scripts vitaux -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="sidebar.js"></script>
-    
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const token = typeof checkAuth === 'function' ? checkAuth() : localStorage.getItem("twitch_token");
-            if (!token) return;
+        const API = CONFIG.API_BASE_URL;
+        let t_id = localStorage.getItem("twitch_user_id");
+        let t_name = localStorage.getItem("twitch_username");
 
-            const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
-            const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
-            
-            let twitchUser = null;
-
-            // 1. Récupération des infos utilisateur pour l'envoi de la question
-            try {
-                const userResp = await fetch('https://api.twitch.tv/helix/users', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
-                });
-                const userData = await userResp.json();
-                if(userData.data && userData.data.length > 0) {
-                    twitchUser = userData.data[0];
-                }
-            } catch(e) {
-                console.error("Impossible de récupérer l'identité Twitch", e);
-            }
-
-            // 2. Chargement de la liste des FAQ
-            async function loadFAQ() {
-                try {
-                    const resp = await fetch(`${API_URL}/questions/faq`, {
-                        headers: { "ngrok-skip-browser-warning": "true" }
-                    });
-                    const data = await resp.json();
-                    const container = document.getElementById('faqList');
-                    
-                    if (data.length === 0) {
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 4rem 0; opacity: 0.5;">
-                                <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                                <p style="font-style: italic;">Aucune question publique pour le moment. Sois le premier !</p>
-                            </div>`;
-                        return;
-                    }
-
-                    container.innerHTML = data.map(q => {
-                        // Formatage simple de la date
-                        let dateStr = q.answered_at;
-                        try {
-                            if (q.answered_at) {
-                                const d = new Date(q.answered_at.replace(" ", "T"));
-                                dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-                            }
-                        } catch(e) {}
-
-                        return `
-                        <div class="faq-card">
-                            <div class="faq-q">
-                                <span class="faq-q-icon">Q.</span>
-                                <span>${q.question_text}</span>
-                            </div>
-                            <div class="faq-a">
-                                <strong>Félix :</strong> ${q.answer_text}
-                            </div>
-                            <div class="faq-meta">
-                                <span style="color: var(--accent);">Posée par ${q.username}</span>
-                                <span>${dateStr || 'Récemment'}</span>
-                            </div>
-                        </div>
-                        `;
-                    }).join('');
-
-                } catch(e) {
-                    document.getElementById('faqList').innerHTML = `<p style="color: var(--danger); text-align: center;">Impossible de charger la FAQ.</p>`;
-                }
-            }
-
-            // Lancement du chargement
+        async function init() {
+            if (typeof checkAuth === 'function') checkAuth();
+            loadPoll();
             loadFAQ();
+        }
 
-            // 3. Gestion du Formulaire d'envoi
-            const form = document.getElementById('questionForm');
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+        async function loadPoll() {
+            try {
+                const res = await fetch(`${API}/poll/active?twitch_id=${t_id || ''}`, { headers: {"ngrok-skip-browser-warning": "true"} });
+                const data = await res.json();
+                const sec = document.getElementById("poll-section");
                 
-                if (!twitchUser) {
-                    alert("Tu dois être connecté pour poser une question.");
-                    return;
-                }
-
-                const btn = document.getElementById('submitBtn');
-                const input = document.getElementById('questionInput');
-                const text = input.value.trim();
-
-                if (text.length < 5) return;
-
-                btn.disabled = true;
-                btn.innerHTML = "ENVOI EN COURS...";
-
-                try {
-                    const resp = await fetch(`${API_URL}/questions/ask`, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        },
-                        body: JSON.stringify({ 
-                            twitch_id: twitchUser.id, 
-                            username: twitchUser.display_name, 
-                            question: text 
-                        })
-                    });
-
-                    if(resp.ok) {
-                        input.value = "";
-                        const toast = document.getElementById("toast");
-                        toast.style.display = "block";
-                        setTimeout(() => { toast.style.display = "none"; }, 4000);
+                if(!data.active) { sec.style.display = "none"; return; }
+                
+                sec.style.display = "block";
+                document.getElementById("poll-q").textContent = data.question;
+                document.getElementById("poll-count").textContent = `${data.total_votes} VOTE(S)`;
+                
+                const opts = document.getElementById("poll-opts");
+                opts.innerHTML = "";
+                
+                for(let i=1; i<=4; i++) {
+                    const txt = data.options[i]; if(!txt) continue;
+                    const v = data.results[i] || 0;
+                    const p = data.total_votes > 0 ? Math.round((v/data.total_votes)*100) : 0;
+                    
+                    if(data.user_vote) {
+                        const isMine = data.user_vote === String(i);
+                        const c1 = isMine ? 'var(--accent)' : 'rgba(255,255,255,0.1)';
+                        const c2 = isMine ? 'rgba(0,245,195,0.15)' : 'rgba(255,255,255,0.05)';
+                        opts.innerHTML += `<div style="position:relative; background:rgba(0,0,0,0.2); border:1px solid ${c1}; padding:14px; border-radius:12px; overflow:hidden;">
+                            <div style="position:absolute; top:0; left:0; height:100%; width:${p}%; background:${c2}; transition:0.8s;"></div>
+                            <div style="position:relative; z-index:1; display:flex; justify-content:space-between; font-weight:700; font-size:0.9rem;">
+                                <span>${isMine ? '✔️ ' : ''}${txt}</span><span>${p}%</span>
+                            </div>
+                        </div>`;
                     } else {
-                        alert("Oups ! Une erreur est survenue lors de l'envoi.");
+                        opts.innerHTML += `<button class="btn-submit" style="margin:0; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); box-shadow:none; text-align:left;" onclick="vote(${data.id}, ${i})">${txt}</button>`;
                     }
-                } catch(err) {
-                    alert("Erreur de connexion au serveur.");
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Envoyer ma question`;
                 }
-            });
-        });
+            } catch(e) {}
+        }
+
+        async function vote(pid, idx) {
+            if(!t_id) return alert("Tu dois être connecté pour voter !");
+            await fetch(`${API}/poll/vote`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({poll_id:pid, twitch_id:t_id, option_index:idx}) });
+            loadPoll();
+        }
+
+        async function loadFAQ() {
+            try {
+                const res = await fetch(`${API}/questions/faq`, { headers: {"ngrok-skip-browser-warning": "true"} });
+                const data = await res.json();
+                const container = document.getElementById("faqList");
+                if(data.length === 0) { container.innerHTML = "<p style='opacity:0.5; text-align:center; padding:2rem;'>Aucune question publique.</p>"; return; }
+                container.innerHTML = data.map(q => `<div class="faq-card"><div class="faq-q"><span>Q.</span> ${q.question_text}</div><div class="faq-a"><strong>Félix :</strong> ${q.answer_text}</div></div>`).join('');
+            } catch(e) {}
+        }
+
+        async function sendQ() {
+            if(!t_id) return alert("Tu dois être connecté pour poser une question !");
+            const text = document.getElementById("qInput").value.trim();
+            if(text.length < 5) return;
+            
+            const btn = document.getElementById("qBtn");
+            btn.disabled = true; btn.textContent = "ENVOI...";
+            
+            const res = await fetch(`${API}/questions/ask`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({twitch_id:t_id, username:t_name, question:text}) });
+            if(res.ok) {
+                document.getElementById("qInput").value = "";
+                const t = document.getElementById("toast"); t.style.display = "block"; setTimeout(() => t.style.display="none", 3000);
+            }
+            btn.disabled = false; btn.textContent = "Envoyer le message 🐾";
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
