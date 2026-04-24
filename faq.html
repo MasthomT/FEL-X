@@ -17,9 +17,10 @@
 						.btn-submit { width: 100%; padding: 1rem; background: var(--accent); color: #0b0f1a; border: none; border-radius: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 1rem; box-shadow: 0 10px 20px -5px var(--accent-glow); }
 						.btn-submit:hover { transform: translateY(-3px); background: #fff; box-shadow: 0 15px 30px -5px rgba(255,255,255,0.2); }
 
-						.faq-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem; transition: 0.3s; }
+						.faq-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem; margin-bottom: 1.2rem; transition: 0.3s; }
 						.faq-card:hover { border-color: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
-						.faq-q { font-weight: 800; color: #fff; display: flex; gap: 10px; margin-bottom: 10px; font-size: 1.1rem; }
+						.faq-q { font-weight: 800; color: #fff; display: flex; gap: 10px; margin-bottom: 12px; font-size: 1.1rem; line-height: 1.4; }
+						.faq-q span { color: var(--accent); }
 						.faq-a { color: var(--text-dim); padding-left: 28px; font-size: 0.95rem; border-left: 2px solid var(--accent-glow); line-height: 1.6; }
 
 						#toast { position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 15px; background: var(--accent); color: #000; font-weight: 800; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease; }
@@ -32,7 +33,7 @@
 		<main id="main-content">
 			<header>
 				<h1>FAQ & Entraide</h1>
-				<p class="page-desc">Pose tes questions à Masthom ou consulte les réponses de Félix.</p>
+				<p class="page-desc">Pose tes questions ou consulte les réponses de Félix. Toutes les publications sont anonymes.</p>
 			</header>
 
 			<div class="interaction-grid">
@@ -47,7 +48,7 @@
 						Poser une question
 					</h2>
 					<div class="card" style="border-color: rgba(0, 245, 195, 0.3); background: rgba(0, 245, 195, 0.02);">
-						<p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem;">Une question sur le bot, le planning ou la chaîne ? Félix transmettra ton message directement à Masthom.</p>
+						<p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem;">Une question sur le bot ou le stream ? Félix transmettra ton message. Les réponses publiées ici ne mentionnent jamais l'auteur.</p>
 						<textarea id="qInput" placeholder="Tape ta question ici..." rows="4"></textarea>
 						<button id="qBtn" onclick="sendQ()" class="btn-submit">Envoyer à Félix 🐾</button>
 					</div>
@@ -71,21 +72,17 @@
 			</div>
 		</main>
 
-		<div id="toast">✨ Ton message a été envoyé à Félix !</div>
+		<div id="toast">✨ Ton message a été envoyé !</div>
 
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script src="sidebar.js"></script>
 		<script>
 			const API = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
-
-			// On va stocker les infos du viewer ici
 			let currentUser = null;
 
 			async function init() {
-			const token = typeof checkAuth === 'function' ? checkAuth() : localStorage.getItem("twitch_token");
-
-			// ✅ CORRECTION : On récupère l'ID et le Pseudo directement depuis Twitch
+			const token = localStorage.getItem("twitch_token");
 			if (token && typeof CONFIG !== 'undefined') {
 			try {
 			const uResp = await fetch('https://api.twitch.tv/helix/users', {
@@ -96,10 +93,9 @@
 			currentUser = uData.data[0];
 			}
 			} catch(e) {
-			console.error("Erreur authentification Twitch silencieuse:", e);
+			console.error("Erreur identification:", e);
 			}
 			}
-
 			loadFAQ();
 			}
 
@@ -114,6 +110,7 @@
 			return;
 			}
 
+			// Rendu 100% Anonyme : Aucune mention de q.username ou d'auteur
 			container.innerHTML = data.map(q => `
 			<div class="faq-card">
 				<div class="faq-q">
@@ -122,21 +119,16 @@
 				<div class="faq-a">
 					<strong>Félix :</strong> ${q.answer_text}
 				</div>
-				<div style="font-size:0.7rem; color:var(--text-dim); margin-top:12px; text-align:right;">
-					Posée par <span style="color:white; font-weight:bold;">${q.username}</span>
-				</div>
 			</div>
 			`).join('');
 			} catch(e) {
-			console.error(e);
-			document.getElementById("faqList").innerHTML = "<p style='color:var(--danger); text-align:center; padding:2rem;'>Impossible de charger la FAQ.</p>";
+			document.getElementById("faqList").innerHTML = "<p style='color:var(--danger); text-align:center; padding:2rem;'>Erreur de chargement.</p>";
 			}
 			}
 
 			async function sendQ() {
-			// ✅ CORRECTION : On vérifie si Twitch nous a bien renvoyé les infos
 			if(!currentUser) {
-			alert("Tu dois être connecté pour poser une question !");
+			alert("Tu dois être connecté avec Twitch pour poser une question !");
 			return;
 			}
 
@@ -153,7 +145,6 @@
             try {
                 const res = await fetch(`${API}/questions/ask`, { 
                     method: "POST", 
-                    // Ajout de ngrok-skip-browser-warning pour les tunnels
                     headers: {"Content-Type": "application/json", "ngrok-skip-browser-warning": "true"}, 
                     body: JSON.stringify({
                         twitch_id: currentUser.id, 
@@ -167,12 +158,9 @@
                     const t = document.getElementById("toast"); 
                     t.style.display = "block"; 
                     setTimeout(() => t.style.display="none", 3000);
-                } else {
-                    alert("Oups ! Une erreur est survenue lors de l'envoi.");
                 }
             } catch(e) {
                 console.error(e);
-                alert("Le bot semble injoignable, réessaie plus tard !");
             } finally {
                 btn.disabled = false; 
                 btn.textContent = "Envoyer à Félix 🐾";
