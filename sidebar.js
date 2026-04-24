@@ -1,166 +1,190 @@
-/**
- * SIDEBAR.JS - Système de Navigation et Décor Dynamique FEL-X
- * Ce script gère l'injection du menu et l'animation du fond d'écran.
- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@800&display=swap');
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Mise en place de la structure
-    injectSidebar();
-    injectWatermark();
-
-    // 2. Lancement du moteur de mise à jour (chaque seconde)
-    setInterval(updateLiveCountdown, 1000);
-    updateLiveCountdown();
-});
-
-/**
- * Génère et injecte la barre de navigation latérale.
- */
-function injectSidebar() {
-    // On détecte la page actuelle pour mettre le lien en surbrillance
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
-
-    const sidebarHTML = `
-    <div class="sidebar">
-        <a href="index.html" class="logo">
-            <img src="logo-felix.png" alt="FEL-X">
-            <span>FEL-X</span>
-        </a>
-
-        <div class="nav-links" style="display: flex; flex-direction: column; flex-grow: 1;">
-            <a href="profile.html" class="nav-link ${currentPage === 'profile.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span class="nav-text">Mon Profil</span>
-            </a>
-            <a href="felix.html" class="nav-link ${currentPage === 'felix.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                <span class="nav-text">Félix et moi</span>
-            </a>
-            <a href="leaderboard.html" class="nav-link ${currentPage === 'leaderboard.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                <span class="nav-text">Classement</span>
-            </a>
-            <a href="commands.html" class="nav-link ${currentPage === 'commands.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                <span class="nav-text">Commandes</span>
-            </a>
-            <a href="clips.html" class="nav-link ${currentPage === 'clips.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line></svg>
-                <span class="nav-text">Clips</span>
-            </a>
-            <a href="faq.html" class="nav-link ${currentPage === 'faq.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                <span class="nav-text">FAQ Secrets</span>
-            </a>
-            <a href="infos.html" class="nav-link ${currentPage === 'infos.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                <span class="nav-text">Infos</span>
-            </a>
-            
-            <a href="#" id="logout-btn" class="nav-link logout" style="margin-top: auto;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline></svg>
-                <span class="nav-text">Déconnexion</span>
-            </a>
-        </div>
-    </div>
-    `;
-    document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+:root {
+    --bg: #0b0f1a;
+    --surface: rgba(30, 41, 59, 0.4);
+    --surface-bright: rgba(51, 65, 85, 0.5);
+    --border: rgba(255, 255, 255, 0.06);
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+    --accent: #00f5c3;
+    --accent-glow: rgba(0, 245, 195, 0.2);
+    --danger: #f43f5e;
+    --sidebar-width: 260px;
 }
 
-/**
- * Injecte le conteneur de fond avec les lignes de texte animées.
- */
-function injectWatermark() {
-    if (!document.getElementById('bg-watermark-container')) {
-        // On crée 5 lignes pour un effet de remplissage complet
-        const watermarkHTML = `
-            <div id="bg-watermark-container">
-                <div class="watermark-row scroll-left" id="row-1"></div>
-                <div class="watermark-row scroll-right" id="row-2"></div>
-                <div class="watermark-row scroll-left" id="row-3"></div>
-                <div class="watermark-row scroll-right" id="row-4"></div>
-                <div class="watermark-row scroll-left" id="row-5"></div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('afterbegin', watermarkHTML);
-    }
+/* --- RESET & LAYOUT --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { 
+    background-color: var(--bg); 
+    color: var(--text-main); 
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.onclick = (e) => {
-            e.preventDefault();
-            // Appelle la fonction de déconnexion définie dans app.js
-            if (typeof logout === 'function') {
-                logout();
-            } else {
-                // Secours si app.js n'est pas encore prêt
-                localStorage.removeItem("twitch_token");
-                window.location.href = "index.html";
-            }
-        };
-    }
+main { 
+    margin-left: var(--sidebar-width); 
+    padding: 3rem 4rem; 
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10; 
 }
 
-/**
- * Calcule le prochain live et anime le texte de fond.
- */
-function updateLiveCountdown() {
-    // --- TES HORAIRES ---
-    const schedules = [
-        { day: 2, hour: 18, min: 0 }, // Mardi
-        { day: 3, hour: 18, min: 0 }, // Mercredi
-        { day: 5, hour: 18, min: 0 }, // Vendredi
-        { day: 6, hour: 18, min: 0 }, // Samedi
-        { day: 0, hour: 10, min: 0 }  // Dimanche
-    ];
+/* --- 🌊 LE DÉCOR MATRIX (FLUX DE DONNÉES) --- */
+#bg-watermark-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+}
 
-    const now = new Date();
-    let minDiff = Infinity;
+.watermark-row {
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8vh;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.006);
+    user-select: none;
+    display: flex;
+    gap: 3rem;
+    line-height: 1;
+}
 
-    // Calcul du prochain live
-    schedules.forEach(s => {
-        let target = new Date();
-        target.setHours(s.hour, s.min, 0, 0);
-        let dayDiff = (s.day - now.getDay() + 7) % 7;
-        if (dayDiff === 0 && now > target) dayDiff = 7;
-        target.setDate(now.getDate() + dayDiff);
-        let diff = target - now;
-        if (diff < minDiff) minDiff = diff;
-    });
+@keyframes scrollLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
 
-    // Détection si live en cours (Fenêtre de 4 heures après le début)
-    let isLiveNow = false;
-    schedules.forEach(s => {
-        let start = new Date();
-        start.setHours(s.hour, s.min, 0, 0);
-        let end = new Date(start.getTime() + (4 * 60 * 60 * 1000));
-        if (now >= start && now <= end && s.day === now.getDay()) isLiveNow = true;
-    });
+@keyframes scrollRight {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+}
 
-    let displayStr = "";
-    if (isLiveNow) {
-        displayStr = "LIVE EN COURS 🐾 FEL-X SYSTEM ONLINE 🐾 ";
-    } else {
-        const days = Math.floor(minDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((minDiff / (1000 * 60 * 60)) % 24);
-        const mins = Math.floor((minDiff / 1000 / 60) % 60);
-        const secs = Math.floor((minDiff / 1000) % 60);
-        
-        let time = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        displayStr = `PROCHAIN LIVE ${days > 0 ? days + 'D ' : ''}${time} — RESTEZ CONNECTÉS — `;
+.s-fast { animation: scrollLeft 45s linear infinite; }
+.s-slow { animation: scrollLeft 110s linear infinite; }
+.s-rev-fast { animation: scrollRight 55s linear infinite; }
+.s-rev-slow { animation: scrollRight 130s linear infinite; }
+
+.watermark-row.live-active {
+    color: rgba(0, 245, 195, 0.012);
+    text-shadow: 0 0 10px rgba(0, 245, 195, 0.05);
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+    background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border); padding: 2.5rem 1.5rem; display: flex; flex-direction: column; z-index: 2000;
+}
+
+.sidebar .logo {
+    display: flex; align-items: center; gap: 12px; color: #fff; font-size: 1.4rem; font-weight: 800; 
+    text-decoration: none; margin-bottom: 3.5rem; padding-left: 0.5rem; letter-spacing: -1px;
+}
+
+.sidebar .logo img { 
+    width: 38px; height: 38px; border-radius: 12px; border: 2px solid var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.nav-link {
+    display: flex; align-items: center; gap: 14px; padding: 0.9rem 1.1rem; border-radius: 16px;
+    color: var(--text-dim); text-decoration: none; font-size: 0.95rem; font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+}
+
+.nav-link svg { width: 20px; height: 20px; stroke-width: 2; opacity: 0.6; }
+
+.nav-link:hover { 
+    color: #fff; 
+    background: rgba(255, 255, 255, 0.05); 
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ✨ L'EFFET SHINY RECTIFIÉ ✨ */
+.nav-link.active { 
+    color: #fff; 
+    background: linear-gradient(90deg, rgba(0, 245, 195, 0.12) 0%, rgba(0, 245, 195, 0.04) 100%);
+    font-weight: 800;
+    border: 1px solid rgba(0, 245, 195, 0.3);
+    box-shadow: 
+        0 0 20px rgba(0, 245, 195, 0.1),
+        inset 0 0 12px rgba(0, 245, 195, 0.1);
+    transform: translateX(4px); /* Petit décalage vers la droite */
+}
+
+.nav-link.active svg { 
+    opacity: 1; 
+    stroke: var(--accent); 
+    filter: drop-shadow(0 0 5px var(--accent));
+}
+
+.nav-link.logout { margin-top: auto; color: var(--danger); }
+.nav-link.logout:hover { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.2); }
+
+/* --- COMPOSANTS (CARDS) --- */
+.card {
+    background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+
+h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+.page-desc { color: var(--text-dim); margin-bottom: 3rem; font-size: 1.1rem; }
+
+/* --- STATS BOXES --- */
+.stat-box { background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); }
+.stat-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 8px; }
+.stat-value { font-size: 1.8rem; font-weight: 900; color: #fff; }
+
+/* --- TABLES --- */
+table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+th { padding: 1rem; text-align: left; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); }
+td { padding: 1.25rem 1rem; background: rgba(255,255,255,0.02); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+td:first-child { border-left: 1px solid var(--border); border-radius: 18px 0 0 18px; }
+td:last-child { border-right: 1px solid var(--border); border-radius: 0 18px 18px 0; }
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 900px) {
+    main { margin-left: 0; padding: 1.5rem 1rem 100px 1rem; }
+    
+    .sidebar {
+        width: 100%; height: 75px; top: auto; bottom: 0; flex-direction: row; padding: 0.5rem;
+        border-right: none; border-top: 1px solid var(--border);
+    }
+    
+    .sidebar .logo, .sidebar .nav-text, .sidebar .logout { display: none; }
+    .sidebar .nav-links { display: flex !important; flex-direction: row !important; width: 100%; justify-content: space-around; }
+    
+    .nav-link { flex-direction: column; gap: 5px; font-size: 0.65rem; padding: 0.5rem; border-radius: 12px; margin-bottom: 0; }
+    .nav-link svg { width: 22px; height: 22px; }
+    .nav-link.active { 
+        background: transparent; 
+        border: none; 
+        box-shadow: none; 
+        border-top: 3px solid var(--accent); 
+        border-radius: 0; 
+        transform: translateY(-4px); 
     }
 
-    // On répète le texte pour que le défilement soit infini et sans trou
-    const finalContent = displayStr.repeat(15);
-
-    // Mise à jour de chaque ligne de fond
-    for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById(`row-${i}`);
-        if (el) {
-            el.innerText = finalContent;
-            if (isLiveNow) el.classList.add('live-active');
-            else el.classList.remove('live-active');
-        }
-    }
+    .watermark-row { font-size: 1.2vh; }
 }
