@@ -4,131 +4,132 @@
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 				<title>Statistiques - FEL-X</title>
-				<!-- On utilise le style.css Master pour la structure et les couleurs -->
 				<link rel="stylesheet" href="style.css">
 					<style>
-						/* Styles spécifiques à la page Stats */
-						.goal-card {
-						background: linear-gradient(135deg, rgba(0, 245, 195, 0.05) 0%, var(--surface) 100%);
-						border-left: 4px solid var(--accent) !important;
-						}
+						.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 
-						.progress-wrapper {
-						width: 100%;
-						height: 14px;
-						background: rgba(0, 0, 0, 0.4);
-						border-radius: 20px;
-						overflow: hidden;
-						margin: 20px 0;
-						border: 1px solid var(--border);
-						}
+						.goal-container { background: var(--surface); padding: 2rem; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 2rem; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+						.goal-bar { height: 24px; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; position: relative; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.1); }
+						.goal-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #00b3ff); width: 0%; transition: width 1.5s ease-out; box-shadow: 0 0 15px var(--accent-glow); }
 
-						.progress-bar {
-						height: 100%;
-						width: 0%;
-						background: linear-gradient(90deg, var(--accent), #34d399);
-						box-shadow: 0 0 20px var(--accent-glow);
-						transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
-						}
+						.two-cols { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
 
-						.top-row {
-						display: flex;
-						justify-content: space-between;
-						align-items: center;
-						padding: 1.25rem 2rem;
-						border-bottom: 1px solid var(--border);
-						transition: background 0.2s;
-						}
+						/* Top 5 Style */
+						.top-list { list-style: none; padding: 0; margin: 0; }
+						.top-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 16px; margin-bottom: 0.5rem; border: 1px solid transparent; transition: 0.3s; }
+						.top-item:hover { border-color: var(--accent); background: rgba(0, 245, 195, 0.05); transform: translateX(5px); }
+						.rank-badge { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); font-weight: 900; font-size: 0.85rem; }
 
-						.top-row:hover {
-						background: rgba(255, 255, 255, 0.02);
-						}
+						/* Olympic Table Style */
+						.olympic-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+						.olympic-table th { padding: 1rem; text-align: center; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+						.olympic-table th:nth-child(2) { text-align: left; }
+						.olympic-table td { padding: 1rem; background: rgba(255,255,255,0.02); font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; }
+						.olympic-table tr:hover td { background: rgba(255,255,255,0.05); }
+						.olympic-table td:first-child { border-radius: 16px 0 0 16px; font-family: 'Inter', sans-serif; font-size: 0.9rem; }
+						.olympic-table td:last-child { border-radius: 0 16px 16px 0; }
 
-						.top-row:last-child {
-						border-bottom: none;
-						}
+						.zero-val { opacity: 0.2; }
 
-						.rank-indicator {
-						font-weight: 900;
-						font-size: 0.9rem;
-						width: 30px;
-						color: var(--text-dim);
-						}
-
-						.rank-1 .rank-indicator { color: #fbbf24; }
-						.rank-1 .viewer-name { color: #fff; font-weight: 800; }
+						@media (max-width: 900px) { .two-cols { grid-template-columns: 1fr; } }
 					</style>
 				</head>
 	<body>
-		<!-- La sidebar est injectée ici par sidebar.js -->
+		<!-- Sidebar injectée par JS -->
 
-		<main>
+		<main id="main-content">
 			<header>
 				<h1>Statistiques Globales</h1>
-				<p class="page-desc">L'état de santé et l'évolution de la communauté en temps réel.</p>
+				<p class="page-desc">Vue d'ensemble de la progression de la communauté sur Masthom_.</p>
 			</header>
 
-			<!-- Carte Objectif Followers -->
-			<div class="card goal-card">
-				<div style="display: flex; justify-content: space-between; align-items: flex-end;">
-					<div>
-						<span style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px;">Objectif de la chaîne</span>
-						<h2 style="margin:0; font-size: 1.8rem; font-weight: 900; color: #fff;">Vers les 1 500 Followers</h2>
-					</div>
-					<div style="text-align: right;">
-						<span id="cur-f" style="font-size: 1.8rem; font-weight: 900; color: #fff;">0</span>
-						<span style="color: var(--text-dim); font-weight: 600; margin-left: 5px; font-size: 1.1rem;">/ 1 500</span>
-					</div>
-				</div>
-
-				<div class="progress-wrapper">
-					<div id="f-bar" class="progress-bar"></div>
-				</div>
-
-				<div style="display: flex; justify-content: space-between; align-items: center;">
-					<p style="margin:0; font-size: 0.85rem; color: var(--text-dim); font-weight: 500;">
-						Progression de la communauté : <span id="f-percent" style="color: var(--accent); font-weight: 800;">0%</span>
-					</p>
-					<p style="margin:0; font-size: 0.85rem; color: var(--text-dim);">
-						Encore <span id="f-needed" style="color: #fff; font-weight: 700;">--</span> pour le palier !
-					</p>
-				</div>
+			<div id="loading" style="text-align:center; padding: 5rem; color: var(--accent); font-weight: 800;">
+				Connexion au Cerveau de Félix...
 			</div>
 
-			<!-- Grille de Stats Clés -->
-			<div class="grid" style="margin-bottom: 3rem;">
-				<div class="stat-box">
-					<div class="stat-label">Viewers Uniques</div>
-					<div id="tot-v" class="stat-value" style="color: var(--accent);">0</div>
-				</div>
-				<div class="stat-box">
-					<div class="stat-label">Expérience Distribuée</div>
-					<div id="tot-xp" class="stat-value">0</div>
-				</div>
-				<div class="stat-box">
-					<div class="stat-label">Niveau Record</div>
-					<div id="max-l" class="stat-value" style="color: #fbbf24;">1</div>
-				</div>
-				<div class="stat-box">
-					<div class="stat-label">Niveau Moyen</div>
-					<div id="avg-l" class="stat-value">1</div>
-				</div>
-			</div>
+			<div id="stats-content" style="display: none; flex-direction: column;">
 
-			<!-- Top 5 des Piliers -->
-			<div class="card" style="padding: 0; overflow: hidden;">
-				<div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.01);">
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="12" cy="8" r="7"></circle>
-						<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-					</svg>
-					<h2 style="margin:0; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px;">
-						Les 5 Piliers du Salon
-					</h2>
+				<!-- 1. Stats Rapides -->
+				<div class="stats-grid">
+					<div class="stat-box">
+						<div class="stat-label">Comptes Trackés</div>
+						<div id="total-members" class="stat-value">0</div>
+					</div>
+					<div class="stat-box">
+						<div class="stat-label">Total EXP Générée</div>
+						<div id="total-xp" class="stat-value text-gradient">0</div>
+					</div>
+					<div class="stat-box">
+						<div class="stat-label">Niveau Maximum</div>
+						<div id="max-level" class="stat-value" style="color: #fbbf24;">1</div>
+					</div>
+					<div class="stat-box">
+						<div class="stat-label">Niveau Moyen</div>
+						<div id="avg-level" class="stat-value" style="color: #94a3b8;">1</div>
+					</div>
 				</div>
-				<div id="top5-list">
-					<!-- Injecté dynamiquement par le script -->
+
+				<!-- 2. Objectif Abonnés -->
+				<div class="goal-container">
+					<div style="display: flex; justify-content: space-between; align-items: flex-end;">
+						<div>
+							<h2 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 5px;">Objectif Followers</h2>
+							<span style="color: var(--text-dim); font-size: 0.9rem;">En route vers les 1 500 !</span>
+						</div>
+						<div style="text-align: right;">
+							<span id="current-follows" style="font-size: 2rem; font-weight: 900; color: var(--accent);">0</span>
+							<span style="color: var(--text-dim); margin: 0 5px;">/</span>
+							<span style="font-weight: 700; color: #fff;">1 500</span>
+						</div>
+					</div>
+					<div class="goal-bar">
+						<div id="goal-fill" class="goal-fill"></div>
+					</div>
 				</div>
+
+				<!-- 3. Grille 2 Colonnes -->
+				<div class="two-cols">
+					<!-- TOP 5 XP -->
+					<div class="card" style="margin-bottom: 0;">
+						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+							</svg>
+							Top 5 Niveau
+						</h2>
+						<ul id="top-5-list" class="top-list">
+							<!-- Rempli par JS -->
+						</ul>
+					</div>
+
+					<!-- TABLEAU DES MÉDAILLES OLYMPIQUES -->
+					<div class="card" style="margin-bottom: 0;">
+						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: #fbbf24; letter-spacing: 2px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<circle cx="12" cy="8" r="7"></circle>
+								<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+							</svg>
+							Tableau des Médailles
+						</h2>
+						<div style="overflow-x: auto;">
+							<table class="olympic-table">
+								<thead>
+									<tr>
+										<th style="width: 60px;">Rang</th>
+										<th>Pseudo</th>
+										<th style="width: 80px;" title="First">🥇</th>
+										<th style="width: 80px;" title="Deuz">🥈</th>
+										<th style="width: 80px;" title="Troiz">🥉</th>
+									</tr>
+								</thead>
+								<tbody id="olympic-medals-body">
+									<!-- Rempli par JS -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</main>
 
@@ -137,53 +138,94 @@
 		<script src="sidebar.js"></script>
 		<script>
 			document.addEventListener("DOMContentLoaded", async () => {
-			const token = checkAuth();
-			if(!token) return;
+			const token = typeof checkAuth === 'function' ? checkAuth() : localStorage.getItem("twitch_token");
+			if (!token) return;
 
 			const API_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
 			const CLIENT_ID = typeof CONFIG !== 'undefined' ? CONFIG.CLIENT_ID : "";
 			const BROADCASTER = typeof CONFIG !== 'undefined' ? CONFIG.BROADCASTER_NAME : "masthom_";
 
+			const loadingEl = document.getElementById("loading");
+			const contentEl = document.getElementById("stats-content");
+
 			try {
-			// 1. Récupération des Stats Globales du Bot
-			const resp = await fetch(`${API_URL}/global_stats`, {
-			headers: { "ngrok-skip-browser-warning": "true" }
+			if(loadingEl) loadingEl.textContent = "Récupération des statistiques du Bot...";
+
+			// 1. Récupération des données globales depuis le Pi
+			const response = await fetch(`${API_URL}/global_stats`, {
+			headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" }
 			});
-			const data = await resp.json();
 
-			document.getElementById("tot-v").textContent = (data.total_members || 0).toLocaleString('fr-FR');
-			document.getElementById("tot-xp").textContent = (data.total_xp || 0).toLocaleString('fr-FR');
-			document.getElementById("max-l").textContent = calculateLevel(data.max_xp);
+			if (!response.ok) throw new Error("Le bot ne répond pas.");
+			const data = await response.json();
 
-			const avgXP = data.total_members > 0 ? (data.total_xp / data.total_members) : 0;
-			document.getElementById("avg-l").textContent = calculateLevel(avgXP);
+			// 2. Remplissage des boîtes de stats
+			if(document.getElementById("total-members")) document.getElementById("total-members").textContent = (data.total_members || 0).toLocaleString('fr-FR');
+			if(document.getElementById("total-xp")) document.getElementById("total-xp").textContent = (data.total_xp || 0).toLocaleString('fr-FR');
+			if(document.getElementById("max-level")) document.getElementById("max-level").textContent = calculateLevel(data.max_xp || 0);
 
-			// Rendu du Top 5
-			const t5Container = document.getElementById("top5-list");
-			t5Container.innerHTML = "";
+			if (data.total_members > 0 && document.getElementById("avg-level")) {
+			const avgXP = data.total_xp / data.total_members;
+			document.getElementById("avg-level").textContent = calculateLevel(avgXP);
+			}
 
-			const filteredTop = (data.top5 || []).filter(u => {
+			// 3. Remplissage du TOP 5 (Général)
+			const topContainer = document.getElementById("top-5-list");
+			if (topContainer && data.top5) {
+			topContainer.innerHTML = "";
+
+			const filteredTop = data.top5.filter(u => {
 			const n = u.username.toLowerCase();
 			return !["masthom_", "streamelements", "felixthebigblackcat", "wizebot", "nightbot"].includes(n);
 			}).slice(0, 5);
 
 			filteredTop.forEach((u, i) => {
-			const div = document.createElement("div");
-			div.className = `top-row ${i === 0 ? 'rank-1' : ''}`;
-			div.innerHTML = `
-			<div style="display:flex; align-items:center; gap:20px;">
-				<span class="rank-indicator">#${i + 1}</span>
-				<span class="viewer-name" style="font-size:1.05rem;">${u.username}</span>
-			</div>
-			<div style="text-align:right;">
-				<div style="color:var(--accent); font-weight:800; font-family: 'JetBrains Mono', monospace;">Lvl ${calculateLevel(u.points)}</div>
-				<div style="font-size:0.7rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">${u.points.toLocaleString('fr-FR')} XP</div>
-			</div>
-			`;
-			t5Container.appendChild(div);
-			});
+			const li = document.createElement("li");
+			li.className = "top-item";
 
-			// 2. Twitch API pour les Followers réels
+			let rankBadge = `<span class="rank-badge">${i+1}</span>`;
+			if (i === 0) rankBadge = `<span class="rank-badge" style="color: #000; background: #fbbf24; box-shadow: 0 0 15px rgba(251,191,36,0.4);">1</span>`;
+			if (i === 1) rankBadge = `<span class="rank-badge" style="color: #000; background: #94a3b8;">2</span>`;
+			if (i === 2) rankBadge = `<span class="rank-badge" style="color: #fff; background: #b45309;">3</span>`;
+
+			li.innerHTML = `
+			<div style="display:flex; align-items:center; gap:12px;">
+				${rankBadge} <span style="font-weight:700; color:white; font-size: 1.05rem;">${u.username}</span>
+			</div>
+			<span style="color:var(--accent); font-weight:900; background:rgba(0,245,195,0.1); padding: 4px 10px; border-radius:8px;">Lvl ${calculateLevel(u.points)}</span>
+			`;
+			topContainer.appendChild(li);
+			});
+			}
+
+			// 4. Remplissage du NOUVEAU Tableau Olympique !
+			const medalsContainer = document.getElementById("olympic-medals-body");
+			if (medalsContainer && data.podium_top) {
+			if (data.podium_top.length === 0) {
+			medalsContainer.innerHTML = `<tr>
+				<td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-dim); font-style:italic;">Aucune médaille distribuée pour l'instant.</td>
+			</tr>`;
+			} else {
+			medalsContainer.innerHTML = data.podium_top.map((u, i) => {
+			const first = u.first_count || 0;
+			const deuz = u.deuz_count || 0;
+			const troiz = u.troiz_count || 0;
+
+			return `
+			<tr>
+				<td style="text-align: center; font-weight: 900; color: var(--text-dim);">${i + 1}</td>
+				<td style="font-weight: 700; color: #fff; font-family: 'Inter', sans-serif;">${u.username}</td>
+				<td style="text-align: center; font-weight: 900; color: #fbbf24;" class="${first === 0 ? 'zero-val' : ''}">${first}</td>
+				<td style="text-align: center; font-weight: 900; color: #94a3b8;" class="${deuz === 0 ? 'zero-val' : ''}">${deuz}</td>
+				<td style="text-align: center; font-weight: 900; color: #b45309;" class="${troiz === 0 ? 'zero-val' : ''}">${troiz}</td>
+			</tr>`;
+			}).join('');
+			}
+			}
+
+			// 5. Followers Twitch (Objectif)
+			if (token && CLIENT_ID) {
+			try {
 			const twitchHeaders = { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID };
 			const userResp = await fetch(`https://api.twitch.tv/helix/users?login=${BROADCASTER}`, { headers: twitchHeaders });
 			const userData = await userResp.json();
@@ -194,24 +236,29 @@
 			const followData = await followResp.json();
 
 			const currentFollows = followData.total;
-			const goal = 1500;
-			const percent = Math.min(100, Math.floor((currentFollows / goal) * 100));
+			const percent = Math.min(100, Math.floor((currentFollows / 1500) * 100));
 
-			document.getElementById("cur-f").textContent = currentFollows.toLocaleString('fr-FR');
-			document.getElementById("f-percent").textContent = percent + "%";
-			document.getElementById("f-needed").textContent = Math.max(0, goal - currentFollows).toLocaleString('fr-FR');
-
-			// Animation fluide de la barre
-			setTimeout(() => {
-			document.getElementById("f-bar").style.width = percent + "%";
-			}, 300);
+			if(document.getElementById("current-follows")) document.getElementById("current-follows").textContent = currentFollows.toLocaleString('fr-FR');
+			if(document.getElementById("goal-fill")) document.getElementById("goal-fill").style.width = percent + "%";
+			}
+			} catch(e) { console.error("Erreur récupération followers Twitch:", e); }
 			}
 
-			} catch (e) {
-			console.error("Erreur Statistiques:", e);
-			document.getElementById("tot-v").textContent = "ERR";
+			// Affichage final
+			if(loadingEl) loadingEl.style.display = "none";
+			if(contentEl) contentEl.style.display = "flex";
+
+			} catch (error) {
+			console.error("ERREUR STATS:", error);
+			if(loadingEl) loadingEl.innerHTML = `<div style="color:var(--danger); font-weight: 700;">Erreur de connexion avec le Bot (Ngrok).</div>`;
 			}
 			});
+
+			function calculateLevel(xp) {
+			if (!xp || xp <= 0) return 1;
+			const xpNum = parseFloat(xp);
+			return Math.floor(Math.pow(xpNum / 100, 1 / 2.2)) + 1;
+			}
 		</script>
 	</body>
 </html>
