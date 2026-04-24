@@ -1,162 +1,160 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sondages & FAQ - FEL-X</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .interaction-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; align-items: start; }
-        .sticky-col { position: sticky; top: 2rem; }
-        .section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin: 2rem 0 1.5rem 0.5rem; display: flex; align-items: center; gap: 12px; }
-        .section-title:first-child { margin-top: 0; }
-        
-        textarea { width: 100%; padding: 16px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease; resize: none; }
-        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-        .btn-submit { width: 100%; padding: 1rem; background: var(--accent); color: #0b0f1a; border: none; border-radius: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 1rem; box-shadow: 0 10px 20px -5px var(--accent-glow); }
-        .btn-submit:hover { transform: translateY(-3px); background: #fff; }
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+				<title>FAQ & Entraide - FEL-X</title>
+				<link rel="stylesheet" href="style.css">
+					<style>
+						.interaction-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; align-items: start; }
+						.sticky-col { position: sticky; top: 2rem; }
+						.section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin: 2rem 0 1.5rem 0.5rem; display: flex; align-items: center; gap: 12px; }
+						.section-title:first-child { margin-top: 0; }
 
-        .faq-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem; transition: 0.3s; }
-        .faq-card:hover { border-color: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
-        .faq-q { font-weight: 800; color: #fff; display: flex; gap: 10px; margin-bottom: 10px; }
-        .faq-a { color: var(--text-dim); padding-left: 28px; font-size: 0.95rem; border-left: 2px solid var(--accent-glow); line-height: 1.6; }
-        
-        #toast { position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 15px; background: var(--accent); color: #000; font-weight: 800; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+						textarea { width: 100%; padding: 16px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease; resize: none; }
+						textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: rgba(0, 245, 195, 0.03); }
 
-        @media (max-width: 900px) { .interaction-grid { grid-template-columns: 1fr; } .sticky-col { position: relative; top: 0; } }
-    </style>
-</head>
-<body>
-    <main id="main-content">
-        <header>
-            <h1>Sondages & FAQ</h1>
-            <p class="page-desc">Vote en direct ou pose tes questions à Félix.</p>
-        </header>
+						.btn-submit { width: 100%; padding: 1rem; background: var(--accent); color: #0b0f1a; border: none; border-radius: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 1rem; box-shadow: 0 10px 20px -5px var(--accent-glow); }
+						.btn-submit:hover { transform: translateY(-3px); background: #fff; box-shadow: 0 15px 30px -5px rgba(255,255,255,0.2); }
 
-        <div class="interaction-grid">
-            <div class="sticky-col">
-                <div id="poll-section" style="display: none; margin-bottom: 3rem;">
-                    <h2 class="section-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-4"></path></svg>
-                        Sondage en cours
-                    </h2>
-                    <div class="card" style="border-color: var(--accent-glow); background: rgba(0, 245, 195, 0.05);">
-                        <h3 id="poll-q" style="font-size: 1.2rem; color: #fff; font-weight: 800; margin-bottom: 1.5rem;"></h3>
-                        <div id="poll-opts" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                        <p id="poll-count" style="text-align: right; font-size: 0.75rem; color: var(--text-dim); margin-top: 1.5rem; font-weight: 800;"></p>
-                    </div>
-                </div>
+						.faq-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem; transition: 0.3s; }
+						.faq-card:hover { border-color: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
+						.faq-q { font-weight: 800; color: #fff; display: flex; gap: 10px; margin-bottom: 10px; font-size: 1.1rem; }
+						.faq-a { color: var(--text-dim); padding-left: 28px; font-size: 0.95rem; border-left: 2px solid var(--accent-glow); line-height: 1.6; }
 
-                <h2 class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9"></path><path d="M12 12l9 9"></path></svg>
-                    Poser une question
-                </h2>
-                <div class="card">
-                    <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem;">Félix transmettra ton message à Masthom.</p>
-                    <textarea id="qInput" placeholder="Tape ta question ici..." rows="4"></textarea>
-                    <button id="qBtn" onclick="sendQ()" class="btn-submit">Envoyer le message 🐾</button>
-                </div>
-            </div>
+						#toast { position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 15px; background: var(--accent); color: #000; font-weight: 800; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s ease; }
+						@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-            <div>
-                <h2 class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    Foire aux questions
-                </h2>
-                <div id="faqList">
-                    <p style="text-align: center; opacity: 0.5; padding: 3rem;">Chargement des réponses...</p>
-                </div>
-            </div>
-        </div>
-    </main>
+						@media (max-width: 900px) { .interaction-grid { grid-template-columns: 1fr; } .sticky-col { position: relative; top: 0; } }
+					</style>
+				</head>
+	<body>
+		<main id="main-content">
+			<header>
+				<h1>FAQ & Entraide</h1>
+				<p class="page-desc">Pose tes questions à Masthom ou consulte les réponses de Félix.</p>
+			</header>
 
-    <div id="toast">✨ Ton message a été envoyé à Félix !</div>
+			<div class="interaction-grid">
 
-    <script src="config.js"></script>
-    <script src="app.js"></script>
-    <script src="sidebar.js"></script>
-    <script>
-        const API = CONFIG.API_BASE_URL;
-        let t_id = localStorage.getItem("twitch_user_id");
-        let t_name = localStorage.getItem("twitch_username");
+				<!-- GAUCHE : FORMULAIRE -->
+				<div class="sticky-col">
+					<h2 class="section-title">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+							<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.8.9"></path>
+							<path d="M12 12l9 9"></path>
+						</svg>
+						Poser une question
+					</h2>
+					<div class="card" style="border-color: rgba(0, 245, 195, 0.3); background: rgba(0, 245, 195, 0.02);">
+						<p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem;">Une question sur le bot, le planning ou la chaîne ? Félix transmettra ton message directement à Masthom.</p>
+						<textarea id="qInput" placeholder="Tape ta question ici..." rows="4"></textarea>
+						<button id="qBtn" onclick="sendQ()" class="btn-submit">Envoyer à Félix 🐾</button>
+					</div>
+				</div>
 
-        async function init() {
-            if (typeof checkAuth === 'function') checkAuth();
-            loadPoll();
-            loadFAQ();
-        }
+				<!-- DROITE : FOIRE AUX QUESTIONS -->
+				<div>
+					<h2 class="section-title">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+							<circle cx="12" cy="12" r="10"></circle>
+							<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+							<line x1="12" y1="17" x2="12.01" y2="17"></line>
+						</svg>
+						Base de connaissances
+					</h2>
+					<div id="faqList">
+						<p style="text-align: center; opacity: 0.5; padding: 3rem;">Chargement des réponses...</p>
+					</div>
+				</div>
 
-        async function loadPoll() {
-            try {
-                const res = await fetch(`${API}/poll/active?twitch_id=${t_id || ''}`, { headers: {"ngrok-skip-browser-warning": "true"} });
-                const data = await res.json();
-                const sec = document.getElementById("poll-section");
-                
-                if(!data.active) { sec.style.display = "none"; return; }
-                
-                sec.style.display = "block";
-                document.getElementById("poll-q").textContent = data.question;
-                document.getElementById("poll-count").textContent = `${data.total_votes} VOTE(S)`;
-                
-                const opts = document.getElementById("poll-opts");
-                opts.innerHTML = "";
-                
-                for(let i=1; i<=4; i++) {
-                    const txt = data.options[i]; if(!txt) continue;
-                    const v = data.results[i] || 0;
-                    const p = data.total_votes > 0 ? Math.round((v/data.total_votes)*100) : 0;
-                    
-                    if(data.user_vote) {
-                        const isMine = data.user_vote === String(i);
-                        const c1 = isMine ? 'var(--accent)' : 'rgba(255,255,255,0.1)';
-                        const c2 = isMine ? 'rgba(0,245,195,0.15)' : 'rgba(255,255,255,0.05)';
-                        opts.innerHTML += `<div style="position:relative; background:rgba(0,0,0,0.2); border:1px solid ${c1}; padding:14px; border-radius:12px; overflow:hidden;">
-                            <div style="position:absolute; top:0; left:0; height:100%; width:${p}%; background:${c2}; transition:0.8s;"></div>
-                            <div style="position:relative; z-index:1; display:flex; justify-content:space-between; font-weight:700; font-size:0.9rem;">
-                                <span>${isMine ? '✔️ ' : ''}${txt}</span><span>${p}%</span>
-                            </div>
-                        </div>`;
-                    } else {
-                        opts.innerHTML += `<button class="btn-submit" style="margin:0; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); box-shadow:none; text-align:left;" onclick="vote(${data.id}, ${i})">${txt}</button>`;
-                    }
-                }
-            } catch(e) {}
-        }
+			</div>
+		</main>
 
-        async function vote(pid, idx) {
-            if(!t_id) return alert("Tu dois être connecté pour voter !");
-            await fetch(`${API}/poll/vote`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({poll_id:pid, twitch_id:t_id, option_index:idx}) });
-            loadPoll();
-        }
+		<div id="toast">✨ Ton message a été envoyé à Félix !</div>
 
-        async function loadFAQ() {
-            try {
-                const res = await fetch(`${API}/questions/faq`, { headers: {"ngrok-skip-browser-warning": "true"} });
-                const data = await res.json();
-                const container = document.getElementById("faqList");
-                if(data.length === 0) { container.innerHTML = "<p style='opacity:0.5; text-align:center; padding:2rem;'>Aucune question publique.</p>"; return; }
-                container.innerHTML = data.map(q => `<div class="faq-card"><div class="faq-q"><span>Q.</span> ${q.question_text}</div><div class="faq-a"><strong>Félix :</strong> ${q.answer_text}</div></div>`).join('');
-            } catch(e) {}
-        }
+		<script src="config.js"></script>
+		<script src="app.js"></script>
+		<script src="sidebar.js"></script>
+		<script>
+			const API = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
 
-        async function sendQ() {
-            if(!t_id) return alert("Tu dois être connecté pour poser une question !");
-            const text = document.getElementById("qInput").value.trim();
-            if(text.length < 5) return;
+			async function init() {
+			if (typeof checkAuth === 'function') checkAuth();
+			loadFAQ();
+			}
+
+			async function loadFAQ() {
+			try {
+			const res = await fetch(`${API}/questions/faq`, { headers: {"ngrok-skip-browser-warning": "true"} });
+			const data = await res.json();
+			const container = document.getElementById("faqList");
+
+			if(data.length === 0) {
+			container.innerHTML = "<p style='opacity:0.5; text-align:center; padding:2rem;'>Aucune question publique pour le moment.</p>";
+			return;
+			}
+
+			container.innerHTML = data.map(q => `
+			<div class="faq-card">
+				<div class="faq-q">
+					<span>Q.</span> ${q.question_text}
+				</div>
+				<div class="faq-a">
+					<strong>Félix :</strong> ${q.answer_text}
+				</div>
+				<div style="font-size:0.7rem; color:var(--text-dim); margin-top:12px; text-align:right;">
+					Posée par <span style="color:white; font-weight:bold;">${q.username}</span>
+				</div>
+			</div>
+			`).join('');
+			} catch(e) {
+			console.error(e);
+			document.getElementById("faqList").innerHTML = "<p style='color:var(--danger); text-align:center; padding:2rem;'>Impossible de charger la FAQ.</p>";
+			}
+			}
+
+			async function sendQ() {
+			let t_id = localStorage.getItem("twitch_user_id");
+			let t_name = localStorage.getItem("twitch_username");
+
+			if(!t_id) {
+			alert("Tu dois être connecté pour poser une question !");
+			return;
+			}
+
+			const text = document.getElementById("qInput").value.trim();
+			if(text.length < 5) {
+                alert("Ta question est trop courte !");
+                return;
+            }
             
             const btn = document.getElementById("qBtn");
-            btn.disabled = true; btn.textContent = "ENVOI...";
+            btn.disabled = true; 
+            btn.textContent = "ENVOI...";
             
-            const res = await fetch(`${API}/questions/ask`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({twitch_id:t_id, username:t_name, question:text}) });
-            if(res.ok) {
-                document.getElementById("qInput").value = "";
-                const t = document.getElementById("toast"); t.style.display = "block"; setTimeout(() => t.style.display="none", 3000);
+            try {
+                const res = await fetch(`${API}/questions/ask`, { 
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"}, 
+                    body: JSON.stringify({twitch_id: t_id, username: t_name, question: text}) 
+                });
+                
+                if(res.ok) {
+                    document.getElementById("qInput").value = "";
+                    const t = document.getElementById("toast"); 
+                    t.style.display = "block"; 
+                    setTimeout(() => t.style.display="none", 3000);
+                }
+            } catch(e) {
+                console.error(e);
+            } finally {
+                btn.disabled = false; 
+                btn.textContent = "Envoyer à Félix 🐾";
             }
-            btn.disabled = false; btn.textContent = "Envoyer le message 🐾";
         }
 
         window.onload = init;
-    </script>
-</body>
+		</script>
+	</body>
 </html>
