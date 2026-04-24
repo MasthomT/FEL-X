@@ -253,8 +253,8 @@
 			document.getElementById("display-name").textContent = user.display_name;
 			document.getElementById("user-avatar").src = user.profile_image_url;
 
-			// 2. Récupération des données du Bot (Raspberry Pi)
-			const botResp = await fetch(`${API_URL}/viewer/${user.id}`, {
+			// 2. Récupération des données du Bot (Raspberry Pi) avec LE PSEUDO INCLUS !
+			const botResp = await fetch(`${API_URL}/viewer/${user.id}?username=${encodeURIComponent(user.display_name)}&t=${new Date().getTime()}`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 
