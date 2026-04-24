@@ -80,10 +80,67 @@
 
 						@keyframes spin { to { transform: rotate(360deg); } }
 
+						/* --- STYLES SONDAGE FLASHY --- */
+						.poll-option-btn {
+						position: relative;
+						width: 100%;
+						text-align: left;
+						background: rgba(0,0,0,0.3);
+						border-radius: 16px;
+						overflow: hidden;
+						padding: 16px 20px;
+						border: 1px solid rgba(255,255,255,0.05);
+						cursor: pointer;
+						transition: all 0.3s ease;
+						}
+
+						/* L'option choisie par le viewer */
+						.my-vote {
+						border: 2px solid var(--accent) !important;
+						background: rgba(0, 245, 195, 0.08) !important;
+						box-shadow: 0 0 20px var(--accent-glow);
+						transform: scale(1.03);
+						z-index: 10;
+						opacity: 1 !important;
+						}
+
+						.my-vote .opt-label {
+						color: #fff !important;
+						font-weight: 900 !important;
+						}
+
+						/* Les autres options sont atténuées */
+						.other-vote {
+						opacity: 0.4;
+						filter: grayscale(0.8);
+						}
+
+						.poll-bar-fill {
+						position: absolute;
+						top: 0;
+						left: 0;
+						height: 100%;
+						z-index: 0;
+						transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+						}
+
+						.my-vote .poll-bar-fill {
+						background: linear-gradient(90deg, rgba(0, 245, 195, 0.3), rgba(0, 245, 195, 0.1));
+						}
+
+						.other-vote .poll-bar-fill {
+						background: rgba(255, 255, 255, 0.05);
+						}
+
+						.check-icon {
+						color: var(--accent);
+						font-weight: 900;
+						margin-right: 8px;
+						}
+
 						/* --- GRILLE 2 COLONNES (DASHBOARD) --- */
 						.dashboard-grid {
 						display: grid;
-						/* La colonne de gauche prend 1.5x plus de place que celle de droite */
 						grid-template-columns: 1.5fr 1fr;
 						gap: 2rem;
 						align-items: start;
@@ -91,7 +148,7 @@
 						}
 
 						@media (max-width: 900px) {
-						.dashboard-grid { grid-template-columns: 1fr; } /* Repasse en 1 colonne sur téléphone */
+						.dashboard-grid { grid-template-columns: 1fr; }
 						}
 					</style>
 				</head>
@@ -99,13 +156,11 @@
 		<!-- La sidebar est injectée ici par sidebar.js -->
 
 		<main id="main-content">
-			<!-- Loader Minimaliste -->
 			<div id="loader">
 				<div style="width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
 				<p style="margin-top: 20px; color: var(--text-dim); font-weight: 600; letter-spacing: 1px; font-size: 0.8rem; text-transform: uppercase;">Récupération de tes données...</p>
 			</div>
 
-			<!-- Contenu réel -->
 			<div id="profile-container" style="display: none;">
 				<header>
 					<h1 id="display-name">Chargement...</h1>
@@ -161,10 +216,8 @@
 				<!-- Section 3 & 4 : GRILLE 2 COLONNES -->
 				<div class="dashboard-grid">
 
-					<!-- COLONNE GAUCHE : CERVEAU DE FÉLIX + ACTIVITÉ RÉCENTE -->
+					<!-- COLONNE GAUCHE -->
 					<div style="display: flex; flex-direction: column; gap: 4rem;">
-
-						<!-- CERVEAU DE FÉLIX -->
 						<div>
 							<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 12px;">
 								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -172,13 +225,10 @@
 								</svg>
 								Le Cerveau de Félix
 							</h2>
-
 							<div class="card" id="ai-context-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; margin-top: 0;">
-								<!-- Injecté par JS -->
 							</div>
 						</div>
 
-						<!-- ACTIVITÉ RÉCENTE -->
 						<div>
 							<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
 								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -196,15 +246,13 @@
 										</tr>
 									</thead>
 									<tbody id="history-rows">
-										<!-- Injecté par JS -->
 									</tbody>
 								</table>
 							</div>
 						</div>
-
 					</div>
 
-					<!-- COLONNE DROITE : SONDAGE -->
+					<!-- COLONNE DROITE : SONDAGE FLASHY -->
 					<div id="poll-container" style="display: none;">
 						<h2 style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-bottom: 1.5rem; margin-left: 0.5rem; display: flex; align-items: center; gap: 10px;">
 							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -216,17 +264,13 @@
 						</h2>
 						<div class="card" style="padding: 2rem; position: sticky; top: 2rem; border-color: rgba(0, 245, 195, 0.4); background: rgba(0, 245, 195, 0.05); box-shadow: 0 10px 40px rgba(0, 245, 195, 0.15); margin-top: 0;">
 							<h3 id="poll-question" style="font-size: 1.3rem; margin-bottom: 1.5rem; color: #fff; font-weight: 800; line-height: 1.4;"></h3>
-
 							<div id="poll-options" style="display: flex; flex-direction: column; gap: 12px;">
-								<!-- Les boutons de vote s'afficheront ici -->
 							</div>
-
 							<p id="poll-total" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 1.5rem; text-align: right; font-weight: 800;"></p>
 						</div>
 					</div>
 
 				</div>
-
 			</div>
 		</main>
 
@@ -242,7 +286,6 @@
 			const CLIENT_ID = CONFIG.CLIENT_ID;
 
 			try {
-			// 1. Récupération des infos Twitch
 			const userResp = await fetch('https://api.twitch.tv/helix/users', {
 			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
 			});
@@ -253,15 +296,12 @@
 			document.getElementById("display-name").textContent = user.display_name;
 			document.getElementById("user-avatar").src = user.profile_image_url;
 
-			// 2. Récupération des données du Bot (Raspberry Pi) avec LE PSEUDO INCLUS !
 			const botResp = await fetch(`${API_URL}/viewer/${user.id}?username=${encodeURIComponent(user.display_name)}&t=${new Date().getTime()}`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 
 			if (botResp.ok) {
 			const data = await botResp.json();
-
-			// --- NIVEAUX ET XP ---
 			const xp = data.points || 0;
 			const level = calculateLevel(xp);
 			const nextXp = Math.floor(100 * Math.pow(level, 2.2));
@@ -272,12 +312,10 @@
 			document.getElementById("xp-current").textContent = xp.toLocaleString('fr-FR');
 			document.getElementById("xp-next").textContent = nextXp.toLocaleString('fr-FR');
 
-			// Animation fluide de la barre
 			setTimeout(() => {
 			document.getElementById("xp-fill").style.width = Math.min(100, Math.max(0, progress)) + "%";
 			}, 300);
 
-			// --- STATS ---
 			document.getElementById("stat-messages").textContent = (data.messages || 0).toLocaleString('fr-FR');
 			const h = Math.floor((data.watchtime || 0) / 3600);
 			const m = Math.floor(((data.watchtime || 0) % 3600) / 60);
@@ -285,7 +323,6 @@
 			document.getElementById("stat-points").textContent = xp.toLocaleString('fr-FR');
 			document.getElementById("rank-text").textContent = `RANG #${data.rank || '--'}`;
 
-			// --- CONTEXTE IA ---
 			document.getElementById("ai-context-grid").innerHTML = `
 			<div>
 				<span class="stat-label">Comment Félix t'appelle</span>
@@ -305,136 +342,101 @@
 			</div>
 			<div class="note-card">
 				<span class="stat-label" style="color:var(--accent); margin-bottom:10px; display:block;">Mémoire de Félix</span>
-				<p style="font-style:italic; font-size:1rem; line-height:1.6; color:#cbd5e1;">
-					"${data.free_message || 'Félix vous observe avec une curiosité silencieuse...'}"
-				</p>
+				<p style="font-style:italic; font-size:1rem; line-height:1.6; color:#cbd5e1;">"${data.free_message || 'Félix vous observe...'}"</p>
 			</div>
 			`;
 
-			// --- HISTORIQUE ---
 			const historyContainer = document.getElementById("history-rows");
 			if (data.history && data.history.length > 0) {
 			historyContainer.innerHTML = data.history.map(log => {
-			const dateStr = log.date || "Aujourd'hui";
-
-			return `
-			<tr>
-				<td style="padding-left: 2.5rem; color: var(--text-dim); font-size: 0.85rem;">${dateStr}</td>
+			return `<tr>
+				<td style="padding-left: 2.5rem; color: var(--text-dim); font-size: 0.85rem;">${log.date || "Aujourd'hui"}</td>
 				<td style="font-weight:700; color:#fff;">
 					<div style="display: flex; align-items: center; gap: 12px;">
 						<span style="font-size: 1.2rem;">${log.icon || '✨'}</span>
 						<div>
-							${log.event_type.toUpperCase()}
-							${log.details && log.details !== "Action standard" ? `<div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500; margin-top: 4px; text-transform: none;">${log.details}</div>` : ''}
+							${log.event_type.toUpperCase()}${log.details && log.details !== "Action standard" ? `<div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500; margin-top: 4px; text-transform: none;">${log.details}</div>` : ''}
 						</div>
 					</div>
 				</td>
 				<td style="text-align:right; padding-right: 2.5rem; color:${log.color || 'var(--accent)'}; font-weight:900; font-family:'JetBrains Mono', monospace; font-size: 1.1rem;">+${log.amount || 0}</td>
-			</tr>
-			`;
+			</tr>`;
 			}).join('');
 			} else {
 			historyContainer.innerHTML = `<tr>
-				<td colspan="3" style="text-align:center; padding: 4rem; color: var(--text-dim); font-style:italic;">Aucune activité enregistrée pour le moment.</td>
+				<td colspan="3" style="text-align:center; padding: 4rem; color: var(--text-dim); font-style:italic;">Aucune activité...</td>
 			</tr>`;
 			}
-
-			// --- SONDAGE (WIDGET À DROITE) ---
 			loadPoll(user.id);
 			}
-
-			// Affichage final
 			document.getElementById("loader").style.display = "none";
 			document.getElementById("profile-container").style.display = "block";
-
 			} catch (e) {
-			console.error(e);
-			document.getElementById("loader").innerHTML = `
-			<div style="text-align:center;">
-				<p style="color:var(--danger); font-weight:bold; font-size:1.2rem;">Oups ! Connexion au Bot impossible.</p>
-				<p style="color:var(--text-dim); margin-top:10px;">Vérifie que ton Raspberry Pi est allumé et que Ngrok tourne.</p>
-			</div>
-			`;
+			document.getElementById("loader").innerHTML = `<div style="text-align:center;">
+				<p style="color:var(--danger); font-weight:bold; font-size:1.2rem;">Connexion au Bot impossible.</p>
+			</div>`;
 			}
 			});
 
-			// =======================================================
-			// LOGIQUE JAVASCRIPT DU SONDAGE
-			// =======================================================
 			async function loadPoll(twitchId) {
 			try {
 			const res = await fetch(`${CONFIG.API_BASE_URL}/poll/active?twitch_id=${twitchId}`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 			const data = await res.json();
-
 			const container = document.getElementById("poll-container");
-			if (!data.active) {
-			container.style.display = "none";
-			return;
-			}
-
+			if (!data.active) { container.style.display = "none"; return; }
 			container.style.display = "block";
 			document.getElementById("poll-question").textContent = data.question;
-			document.getElementById("poll-total").textContent = `${data.total_votes} vote(s)`;
+			document.getElementById("poll-total").textContent = `${data.total_votes} participants`;
 
 			const optionsDiv = document.getElementById("poll-options");
 			optionsDiv.innerHTML = "";
+			const hasVoted = data.user_vote !== null;
 
 			for (let i = 1; i <= 4; i++) {
 			const optText = data.options[i];
 			if (!optText) continue;
-
 			const votes = data.results[i] || 0;
 			const percent = data.total_votes > 0 ? Math.round((votes / data.total_votes) * 100) : 0;
 
-			if (data.user_vote) {
-			// Mode "J'ai déjà voté" : Barres de progression stylisées ET cliquables
-			const isMyVote = data.user_vote === i;
-			const accentColor = isMyVote ? 'var(--accent)' : 'rgba(255,255,255,0.1)';
-			const bgFill = isMyVote ? 'rgba(0, 245, 195, 0.2)' : 'rgba(255,255,255,0.05)';
+			if (hasVoted) {
+			// LOGIQUE FLASHY : On compare ton vote (i) avec data.user_vote
+			const isMyVote = parseInt(data.user_vote) === i;
 
 			optionsDiv.innerHTML += `
-			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" style="display: block; width: 100%; text-align: left; background: rgba(0,0,0,0.3); border-radius: 16px; overflow: hidden; position: relative; padding: 16px 20px; border: 1px solid ${accentColor}; box-shadow: ${isMyVote ? '0 0 15px rgba(0, 245, 195, 0.2)' : 'none'}; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-				<div style="position: absolute; top: 0; left: 0; height: 100%; width: ${percent}%; background: ${bgFill}; z-index: 0; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-				<div style="position: relative; z-index: 1; display: flex; justify-content: space-between; font-weight: ${isMyVote ? '900' : '600'}; color: ${isMyVote ? '#fff' : 'var(--text-dim)'};">
-					<span>${isMyVote ? '✔️ ' : ''}${optText}</span>
-					<span>${percent}%</span>
+			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" class="poll-option-btn ${isMyVote ? 'my-vote' : 'other-vote'}">
+				<div class="poll-bar-fill" style="width: ${percent}%"></div>
+				<div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+					<span class="opt-label" style="font-size: 0.95rem; color: #fff;">
+						${isMyVote ? '<span class="check-icon">✔️</span>' : ''}${optText}
+					</span>
+					<span style="font-family: 'JetBrains Mono', monospace; font-weight: 900; color: ${isMyVote ? 'var(--accent)' : 'var(--text-dim)'};">
+						${percent}%
+					</span>
 				</div>
 			</button>
 			`;
 			} else {
-			// Mode "Je dois voter" : Boutons d'action cliquables
 			optionsDiv.innerHTML += `
-			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 16px 20px; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: left; font-size: 1rem; width: 100%;" onmouseover="this.style.background='var(--accent)'; this.style.color='#000'; this.style.borderColor='var(--accent)';" onmouseout="this.style.background='rgba(0,0,0,0.4)'; this.style.color='#fff'; this.style.borderColor='rgba(255,255,255,0.1)';">
+			<button onclick="submitVote(${data.id}, ${i}, '${twitchId}')" class="poll-option-btn" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
 				${optText}
 			</button>
 			`;
 			}
 			}
-
-			// Ajout explicatif pour le changement de vote
-			if (data.user_vote) {
-			optionsDiv.innerHTML += `<p style="font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-top: 5px; font-style: italic;">Tu peux cliquer sur une autre barre pour changer ton vote.</p>`;
-			}
-
-			} catch (err) {
-			console.error("Erreur chargement sondage:", err);
-			}
+			} catch (err) { console.error(err); }
 			}
 
 			async function submitVote(pollId, optionIndex, twitchId) {
 			try {
 			await fetch(`${CONFIG.API_BASE_URL}/poll/vote`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
 			body: JSON.stringify({ poll_id: pollId, twitch_id: twitchId, option_index: optionIndex })
 			});
-			// Rafraîchit les résultats instantanément
 			loadPoll(twitchId);
-			} catch (e) {
-			console.error("Erreur vote:", e);
-			}
+			} catch (e) { console.error(e); }
 			}
 		</script>
 	</body>
