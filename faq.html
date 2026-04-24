@@ -79,8 +79,27 @@
 		<script>
 			const API = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : "";
 
+			// On va stocker les infos du viewer ici
+			let currentUser = null;
+
 			async function init() {
-			if (typeof checkAuth === 'function') checkAuth();
+			const token = typeof checkAuth === 'function' ? checkAuth() : localStorage.getItem("twitch_token");
+
+			// ✅ CORRECTION : On récupère l'ID et le Pseudo directement depuis Twitch
+			if (token && typeof CONFIG !== 'undefined') {
+			try {
+			const uResp = await fetch('https://api.twitch.tv/helix/users', {
+			headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CONFIG.CLIENT_ID }
+			});
+			const uData = await uResp.json();
+			if(uData.data && uData.data.length > 0) {
+			currentUser = uData.data[0];
+			}
+			} catch(e) {
+			console.error("Erreur authentification Twitch silencieuse:", e);
+			}
+			}
+
 			loadFAQ();
 			}
 
@@ -115,10 +134,8 @@
 			}
 
 			async function sendQ() {
-			let t_id = localStorage.getItem("twitch_user_id");
-			let t_name = localStorage.getItem("twitch_username");
-
-			if(!t_id) {
+			// ✅ CORRECTION : On vérifie si Twitch nous a bien renvoyé les infos
+			if(!currentUser) {
 			alert("Tu dois être connecté pour poser une question !");
 			return;
 			}
@@ -136,8 +153,13 @@
             try {
                 const res = await fetch(`${API}/questions/ask`, { 
                     method: "POST", 
-                    headers: {"Content-Type": "application/json"}, 
-                    body: JSON.stringify({twitch_id: t_id, username: t_name, question: text}) 
+                    // Ajout de ngrok-skip-browser-warning pour les tunnels
+                    headers: {"Content-Type": "application/json", "ngrok-skip-browser-warning": "true"}, 
+                    body: JSON.stringify({
+                        twitch_id: currentUser.id, 
+                        username: currentUser.display_name, 
+                        question: text
+                    }) 
                 });
                 
                 if(res.ok) {
@@ -145,9 +167,12 @@
                     const t = document.getElementById("toast"); 
                     t.style.display = "block"; 
                     setTimeout(() => t.style.display="none", 3000);
+                } else {
+                    alert("Oups ! Une erreur est survenue lors de l'envoi.");
                 }
             } catch(e) {
                 console.error(e);
+                alert("Le bot semble injoignable, réessaie plus tard !");
             } finally {
                 btn.disabled = false; 
                 btn.textContent = "Envoyer à Félix 🐾";
