@@ -86,6 +86,22 @@ function injectWatermark() {
     }
 }
 
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.onclick = (e) => {
+            e.preventDefault();
+            // Appelle la fonction de déconnexion définie dans app.js
+            if (typeof logout === 'function') {
+                logout();
+            } else {
+                // Secours si app.js n'est pas encore prêt
+                localStorage.removeItem("twitch_token");
+                window.location.href = "index.html";
+            }
+        };
+    }
+}
+
 /**
  * Calcule le prochain live et anime le texte de fond.
  */
