@@ -1,14 +1,21 @@
 /**
- * SIDEBAR.JS - Système de Navigation et Décor Matrix FEL-X
+ * SIDEBAR.JS - Système de Navigation et Décor Dynamique FEL-X
+ * Ce script gère l'injection du menu et l'animation du fond d'écran.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Mise en place de la structure
     injectSidebar();
     injectWatermark();
+
+    // 2. Lancement du moteur de mise à jour (chaque seconde)
     setInterval(updateLiveCountdown, 1000);
     updateLiveCountdown();
 });
 
+/**
+ * Génère et injecte la barre de navigation latérale.
+ */
 function injectSidebar() {
     // On détecte la page actuelle pour mettre le lien en surbrillance
     const currentPage = window.location.pathname.split("/").pop() || "index.html";
@@ -60,82 +67,84 @@ function injectSidebar() {
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 }
 
-    // ✅ CORRECTIF : On lie le bouton de déconnexion immédiatement après l'avoir créé
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.onclick = (e) => {
-            e.preventDefault();
-            // Appelle la fonction de déconnexion définie dans app.js
-            if (typeof logout === 'function') {
-                logout();
-            } else {
-                // Secours si app.js n'est pas encore prêt
-                localStorage.removeItem("twitch_token");
-                window.location.href = "index.html";
-            }
-        };
-    }
-}
-
+/**
+ * Injecte le conteneur de fond avec les lignes de texte animées.
+ */
 function injectWatermark() {
     if (!document.getElementById('bg-watermark-container')) {
-        let rowsHTML = "";
-        const styles = ['s-fast', 's-rev-slow', 's-slow', 's-rev-fast'];
-        
-        for(let i=1; i<=18; i++) {
-            const animClass = styles[i % 4];
-            rowsHTML += `<div class="watermark-row ${animClass}" id="row-${i}"></div>`;
-        }
-
-        const watermarkHTML = `<div id="bg-watermark-container">${rowsHTML}</div>`;
+        // On crée 5 lignes pour un effet de remplissage complet
+        const watermarkHTML = `
+            <div id="bg-watermark-container">
+                <div class="watermark-row scroll-left" id="row-1"></div>
+                <div class="watermark-row scroll-right" id="row-2"></div>
+                <div class="watermark-row scroll-left" id="row-3"></div>
+                <div class="watermark-row scroll-right" id="row-4"></div>
+                <div class="watermark-row scroll-left" id="row-5"></div>
+            </div>
+        `;
         document.body.insertAdjacentHTML('afterbegin', watermarkHTML);
     }
 }
 
+/**
+ * Calcule le prochain live et anime le texte de fond.
+ */
 function updateLiveCountdown() {
+    // --- TES HORAIRES ---
     const schedules = [
-        { d: 2, h: 18 }, { d: 3, h: 18 }, { d: 5, h: 18 }, { d: 6, h: 18 }, { d: 0, h: 10 }
+        { day: 2, hour: 18, min: 0 }, // Mardi
+        { day: 3, hour: 18, min: 0 }, // Mercredi
+        { day: 5, hour: 18, min: 0 }, // Vendredi
+        { day: 6, hour: 18, min: 0 }, // Samedi
+        { day: 0, hour: 10, min: 0 }  // Dimanche
     ];
 
     const now = new Date();
     let minDiff = Infinity;
+
+    // Calcul du prochain live
     schedules.forEach(s => {
-        let t = new Date(); t.setHours(s.h, 0, 0, 0);
-        let diff = (s.d - now.getDay() + 7) % 7;
-        if (diff === 0 && now > t) diff = 7;
-        t.setDate(now.getDate() + diff);
-        let delta = t - now;
-        if (delta < minDiff) minDiff = delta;
+        let target = new Date();
+        target.setHours(s.hour, s.min, 0, 0);
+        let dayDiff = (s.day - now.getDay() + 7) % 7;
+        if (dayDiff === 0 && now > target) dayDiff = 7;
+        target.setDate(now.getDate() + dayDiff);
+        let diff = target - now;
+        if (diff < minDiff) minDiff = diff;
     });
 
+    // Détection si live en cours (Fenêtre de 4 heures après le début)
     let isLiveNow = false;
     schedules.forEach(s => {
-        let start = new Date(); start.setHours(s.h, 0, 0, 0);
-        let end = new Date(start.getTime() + (4 * 3600000));
-        if (now >= start && now <= end && s.d === now.getDay()) isLiveNow = true;
+        let start = new Date();
+        start.setHours(s.hour, s.min, 0, 0);
+        let end = new Date(start.getTime() + (4 * 60 * 60 * 1000));
+        if (now >= start && now <= end && s.day === now.getDay()) isLiveNow = true;
     });
 
-    const binary = () => Math.random().toString(2).substring(2, 12);
-    const hex = () => "0x" + Math.floor(Math.random()*16777215).toString(16).toUpperCase();
-    const system = ["FELIX_V2", "SYSTEM_READY", "CORE_LOADED", "ROAST_ENGINE_ON", "LURKER_DETECTED", "FETCH_DATA", "MASTHOM_LIVE"];
+    let displayStr = "";
+    if (isLiveNow) {
+        displayStr = "LIVE EN COURS 🐾 FEL-X SYSTEM ONLINE 🐾 ";
+    } else {
+        const days = Math.floor(minDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((minDiff / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((minDiff / 1000 / 60) % 60);
+        const secs = Math.floor((minDiff / 1000) % 60);
+        
+        let time = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        displayStr = `PROCHAIN LIVE ${days > 0 ? days + 'D ' : ''}${time} — RESTEZ CONNECTÉS — `;
+    }
 
-    const days = Math.floor(minDiff / 86400000);
-    const hours = Math.floor((minDiff % 86400000) / 3600000);
-    const mins = Math.floor((minDiff % 3600000) / 60000);
-    const secs = Math.floor((minDiff % 60000) / 1000);
-    const countdownStr = isLiveNow ? "LIVE_NOW_ONLINE_🐾_" : `NEXT_LIVE_${days}D_${hours}H_${mins}M_${secs}S_`;
+    // On répète le texte pour que le défilement soit infini et sans trou
+    const finalContent = displayStr.repeat(15);
 
-    for (let i = 1; i <= 18; i++) {
+    // Mise à jour de chaque ligne de fond
+    for (let i = 1; i <= 5; i++) {
         const el = document.getElementById(`row-${i}`);
-        if (!el) continue;
-
-        let content = "";
-        if (i % 3 === 0) content = (countdownStr + " — ").repeat(10);
-        else if (i % 2 === 0) content = (binary() + " " + system[Math.floor(Math.random()*system.length)] + " " + hex() + " ").repeat(15);
-        else content = (hex() + " " + binary() + " " + binary() + " ").repeat(20);
-
-        el.innerText = content;
-        if (isLiveNow) el.classList.add('live-active');
-        else el.classList.remove('live-active');
+        if (el) {
+            el.innerText = finalContent;
+            if (isLiveNow) el.classList.add('live-active');
+            else el.classList.remove('live-active');
+        }
     }
 }
