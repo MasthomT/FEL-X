@@ -10,13 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function injectSidebar() {
+    // On détecte la page actuelle pour mettre le lien en surbrillance
     const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
     const sidebarHTML = `
     <div class="sidebar">
         <a href="index.html" class="logo">
             <img src="logo-felix.png" alt="FEL-X">
             <span>FEL-X</span>
         </a>
+
         <div class="nav-links" style="display: flex; flex-direction: column; flex-grow: 1;">
             <a href="profile.html" class="nav-link ${currentPage === 'profile.html' ? 'active' : ''}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -25,10 +28,6 @@ function injectSidebar() {
             <a href="felix.html" class="nav-link ${currentPage === 'felix.html' ? 'active' : ''}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 <span class="nav-text">Félix et moi</span>
-            </a>
-            <a href="stats.html" class="nav-link ${currentPage === 'stats.html' ? 'active' : ''}">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                <span class="nav-text">Statistiques</span>
             </a>
             <a href="leaderboard.html" class="nav-link ${currentPage === 'leaderboard.html' ? 'active' : ''}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -50,6 +49,7 @@ function injectSidebar() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="nav-text">Infos</span>
             </a>
+            
             <a href="#" id="logout-btn" class="nav-link logout" style="margin-top: auto;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline></svg>
                 <span class="nav-text">Déconnexion</span>
@@ -58,6 +58,7 @@ function injectSidebar() {
     </div>
     `;
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+}
 
     // ✅ CORRECTIF : On lie le bouton de déconnexion immédiatement après l'avoir créé
     const logoutBtn = document.getElementById("logout-btn");
