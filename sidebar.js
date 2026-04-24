@@ -58,6 +58,22 @@ function injectSidebar() {
     </div>
     `;
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+
+    // ✅ CORRECTIF : On lie le bouton de déconnexion immédiatement après l'avoir créé
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.onclick = (e) => {
+            e.preventDefault();
+            // Appelle la fonction de déconnexion définie dans app.js
+            if (typeof logout === 'function') {
+                logout();
+            } else {
+                // Secours si app.js n'est pas encore prêt
+                localStorage.removeItem("twitch_token");
+                window.location.href = "index.html";
+            }
+        };
+    }
 }
 
 function injectWatermark() {
@@ -65,7 +81,6 @@ function injectWatermark() {
         let rowsHTML = "";
         const styles = ['s-fast', 's-rev-slow', 's-slow', 's-rev-fast'];
         
-        // On crée 18 lignes pour saturer proprement le fond
         for(let i=1; i<=18; i++) {
             const animClass = styles[i % 4];
             rowsHTML += `<div class="watermark-row ${animClass}" id="row-${i}"></div>`;
@@ -99,12 +114,10 @@ function updateLiveCountdown() {
         if (now >= start && now <= end && s.d === now.getDay()) isLiveNow = true;
     });
 
-    // --- Générateurs de contenu Matrix ---
     const binary = () => Math.random().toString(2).substring(2, 12);
     const hex = () => "0x" + Math.floor(Math.random()*16777215).toString(16).toUpperCase();
     const system = ["FELIX_V2", "SYSTEM_READY", "CORE_LOADED", "ROAST_ENGINE_ON", "LURKER_DETECTED", "FETCH_DATA", "MASTHOM_LIVE"];
 
-    // Calcul du texte de décompte
     const days = Math.floor(minDiff / 86400000);
     const hours = Math.floor((minDiff % 86400000) / 3600000);
     const mins = Math.floor((minDiff % 3600000) / 60000);
@@ -116,7 +129,6 @@ function updateLiveCountdown() {
         if (!el) continue;
 
         let content = "";
-        // On alterne les types de lignes pour l'effet Matrix
         if (i % 3 === 0) content = (countdownStr + " — ").repeat(10);
         else if (i % 2 === 0) content = (binary() + " " + system[Math.floor(Math.random()*system.length)] + " " + hex() + " ").repeat(15);
         else content = (hex() + " " + binary() + " " + binary() + " ").repeat(20);
