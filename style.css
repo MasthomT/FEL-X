@@ -25,7 +25,7 @@ body {
     overflow-x: hidden;
 }
 
-/* On s'assure que le contenu passe au-dessus du fond animé */
+/* Contenu au-dessus du fond Matrix */
 main { 
     margin-left: var(--sidebar-width); 
     padding: 3rem 4rem; 
@@ -35,7 +35,7 @@ main {
     z-index: 10; 
 }
 
-/* --- 🌊 LE MOTEUR DE DÉCOR (MATRIX STYLE) --- */
+/* --- 🌊 LE DÉCOR MATRIX (FLUX DE DONNÉES) --- */
 #bg-watermark-container {
     position: fixed;
     top: 0;
@@ -48,25 +48,25 @@ main {
     background-color: var(--bg);
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    padding: 2vh 0;
+    justify-content: space-between;
+    padding: 0;
 }
 
 .watermark-row {
     white-space: nowrap;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8vh;
+    font-size: 1.8vh; /* Plus petit pour l'effet Matrix */
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(255, 255, 255, 0.008); /* Ultra-subtil : l'élégance du vide */
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.006); /* Ultra discret */
     user-select: none;
     display: flex;
-    gap: 4rem;
+    gap: 3rem;
     line-height: 1;
 }
 
-/* Animation de défilement horizontal infini */
+/* Animations de défilement horizontal */
 @keyframes scrollLeft {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -77,107 +77,67 @@ main {
     to { transform: translateX(0); }
 }
 
-.scroll-left { animation: scrollLeft 80s linear infinite; }
-.scroll-right { animation: scrollRight 100s linear infinite; }
+/* Vitesses variées pour l'effet de texture */
+.s-fast { animation: scrollLeft 45s linear infinite; }
+.s-slow { animation: scrollLeft 110s linear infinite; }
+.s-rev-fast { animation: scrollRight 55s linear infinite; }
+.s-rev-slow { animation: scrollRight 130s linear infinite; }
 
-/* État spécial : Quand le live est ON, on réveille doucement le fond */
+/* État ON : Le fond s'illumine très légèrement quand le live est actif */
 .watermark-row.live-active {
-    color: rgba(0, 245, 195, 0.015);
-    text-shadow: 0 0 20px rgba(0, 245, 195, 0.05);
+    color: rgba(0, 245, 195, 0.012);
+    text-shadow: 0 0 10px rgba(0, 245, 195, 0.05);
 }
 
 /* --- SIDEBAR --- */
 .sidebar {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: var(--sidebar-width); 
-    height: 100vh;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border);
-    padding: 2.5rem 1.5rem;
-    display: flex; 
-    flex-direction: column;
-    z-index: 2000;
+    position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+    background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border); padding: 2.5rem 1.5rem; display: flex; flex-direction: column; z-index: 2000;
 }
 
 .sidebar .logo {
-    display: flex; 
-    align-items: center; 
-    gap: 12px;
-    color: #fff; 
-    font-size: 1.4rem; 
-    font-weight: 800; 
-    text-decoration: none;
-    margin-bottom: 3.5rem; 
-    padding-left: 0.5rem;
+    display: flex; align-items: center; gap: 12px; color: #fff; font-size: 1.4rem; font-weight: 800; 
+    text-decoration: none; margin-bottom: 3.5rem; padding-left: 0.5rem; letter-spacing: -1px;
 }
 
 .sidebar .logo img { 
-    width: 38px; height: 38px; 
-    border-radius: 12px; 
-    border: 2px solid var(--accent);
+    width: 38px; height: 38px; border-radius: 12px; border: 2px solid var(--accent);
     box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .nav-link {
-    display: flex; 
-    align-items: center; 
-    gap: 14px;
-    padding: 0.9rem 1.1rem; 
-    border-radius: 16px;
-    color: var(--text-dim); 
-    text-decoration: none; 
-    font-size: 0.95rem; 
-    font-weight: 500;
-    transition: all 0.2s ease;
-    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 14px; padding: 0.9rem 1.1rem; border-radius: 16px;
+    color: var(--text-dim); text-decoration: none; font-size: 0.95rem; font-weight: 500;
+    transition: all 0.2s ease; margin-bottom: 4px;
 }
+
+.nav-link svg { width: 20px; height: 20px; stroke-width: 2; opacity: 0.6; }
 
 .nav-link:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
 .nav-link.active { 
-    color: var(--accent); 
-    background: rgba(0, 245, 195, 0.1); 
-    font-weight: 700;
+    color: var(--accent); background: rgba(0, 245, 195, 0.1); font-weight: 700;
+    box-shadow: inset 0 0 0 1px rgba(0, 245, 195, 0.2);
 }
 
-.nav-link.active svg { stroke: var(--accent); opacity: 1; }
-
-.nav-link svg { width: 20px; height: 20px; opacity: 0.6; stroke-width: 2; }
-
+.nav-link.active svg { opacity: 1; stroke: var(--accent); }
 .nav-link.logout { margin-top: auto; color: var(--danger); }
 
 /* --- COMPOSANTS (CARDS) --- */
 .card {
-    background: var(--surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 2rem;
-    margin-bottom: 2rem;
+    background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem;
     box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
 }
 
-.grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-    gap: 1.5rem; 
-}
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
 h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
 .page-desc { color: var(--text-dim); margin-bottom: 3rem; font-size: 1.1rem; }
 
 /* --- STATS BOXES --- */
-.stat-box {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 1.5rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-}
+.stat-box { background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); }
 .stat-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 8px; }
 .stat-value { font-size: 1.8rem; font-weight: 900; color: #fff; }
 
@@ -188,27 +148,21 @@ td { padding: 1.25rem 1rem; background: rgba(255,255,255,0.02); border-top: 1px 
 td:first-child { border-left: 1px solid var(--border); border-radius: 18px 0 0 18px; }
 td:last-child { border-right: 1px solid var(--border); border-radius: 0 18px 18px 0; }
 
-/* --- RESPONSIVE MOBILE --- */
+/* --- MOBILE OPTIMIZATION --- */
 @media (max-width: 900px) {
     main { margin-left: 0; padding: 1.5rem 1rem 100px 1rem; }
     
     .sidebar {
-        width: 100%; height: 75px; top: auto; bottom: 0;
-        flex-direction: row; padding: 0.5rem;
+        width: 100%; height: 75px; top: auto; bottom: 0; flex-direction: row; padding: 0.5rem;
         border-right: none; border-top: 1px solid var(--border);
     }
     
     .sidebar .logo, .sidebar .nav-text, .sidebar .logout { display: none; }
-    .sidebar .nav-links { 
-        display: flex !important; 
-        flex-direction: row !important; 
-        width: 100%; 
-        justify-content: space-around; 
-    }
+    .sidebar .nav-links { display: flex !important; flex-direction: row !important; width: 100%; justify-content: space-around; }
     
     .nav-link { flex-direction: column; gap: 5px; font-size: 0.65rem; padding: 0.5rem; border-radius: 12px; }
     .nav-link svg { width: 22px; height: 22px; }
-    .nav-link.active { border-top: 3px solid var(--accent); border-radius: 0; background: transparent; }
+    .nav-link.active { background: transparent; border: none; box-shadow: none; border-top: 3px solid var(--accent); border-radius: 0; }
 
-    .watermark-row { font-size: 4vh; }
+    .watermark-row { font-size: 1.2vh; } /* Réduction drastique sur mobile */
 }
