@@ -180,7 +180,28 @@
                 if(!userData.data || userData.data.length === 0) throw new Error("Utilisateur introuvable");
                 const user = userData.data[0];
 
-                // 2. Récupérer le profil depuis l'API (qui contient les trophées)
+                // 🔥 L'INJECTION MAGIQUE : On appelle l'API secrète ici AVANT de charger l'armoire
+                try {
+                    await fetch(`${API_URL}/rewards/secret`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
+                        body: JSON.stringify({
+                            twitch_id: user.id,
+                            username: user.display_name,
+                            label: "Machine Enigma" // Doit correspondre EXACTEMENT au nom dans l'admin
+                        })
+                    }).then(r => r.json()).then(res => {
+                        if(res.status === "awarded") {
+                            console.log("🏆 Trophée secret 'Machine Enigma' débloqué !");
+                            // Si tu veux une alerte visible, décommente la ligne du dessous :
+                            // alert("🕵️‍♂️ Vous avez découvert un secret... Trophée 'Machine Enigma' débloqué !");
+                        }
+                    });
+                } catch(e) {
+                    console.error("Erreur lors de l'appel secret:", e);
+                }
+
+                // 2. Récupérer le profil depuis l'API (qui contient les trophées mis à jour)
                 const botResp = await fetch(`${API_URL}/viewer/${user.id}?t=${new Date().getTime()}`, {
                     headers: { "ngrok-skip-browser-warning": "true" }
                 });
