@@ -74,7 +74,6 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: auto;
         }
 
         .tier-badge {
@@ -180,28 +179,27 @@
                 if(!userData.data || userData.data.length === 0) throw new Error("Utilisateur introuvable");
                 const user = userData.data[0];
 
-                // 🔥 L'INJECTION MAGIQUE : On appelle l'API secrète ici AVANT de charger l'armoire
+                // 🔥 L'INJECTION MAGIQUE DU TROPHÉE SECRET (Machine Enigma)
                 try {
-                    await fetch(`${API_URL}/rewards/secret`, {
+                    fetch(`${API_URL}/rewards/secret`, {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({
                             twitch_id: user.id,
                             username: user.display_name,
-                            label: "Machine Enigma" // Doit correspondre EXACTEMENT au nom dans l'admin
+                            label: "Machine Enigma" // Doit correspondre EXACTEMENT au nom dans l'admin !
                         })
                     }).then(r => r.json()).then(res => {
                         if(res.status === "awarded") {
-                            console.log("🏆 Trophée secret 'Machine Enigma' débloqué !");
-                            // Si tu veux une alerte visible, décommente la ligne du dessous :
-                            // alert("🕵️‍♂️ Vous avez découvert un secret... Trophée 'Machine Enigma' débloqué !");
+                            console.log("🏆 Secret découvert : Machine Enigma !");
                         }
                     });
-                } catch(e) {
-                    console.error("Erreur lors de l'appel secret:", e);
-                }
+                } catch (e) { console.error("Erreur trophée secret:", e); }
 
-                // 2. Récupérer le profil depuis l'API (qui contient les trophées mis à jour)
+                // 2. Récupérer le profil depuis l'API (qui contient les trophées)
                 const botResp = await fetch(`${API_URL}/viewer/${user.id}?t=${new Date().getTime()}`, {
                     headers: { "ngrok-skip-browser-warning": "true" }
                 });
@@ -226,7 +224,6 @@
                     ];
 
                     tiers.forEach(t => {
-                        // On affiche le compteur même s'il est à 0 pour montrer ce qu'il reste à débloquer
                         countersHtml += `
                             <div class="counter-box ${t.cls}" style="opacity: ${tCounts[t.key] > 0 ? '1' : '0.3'}; filter: ${tCounts[t.key] > 0 ? 'none' : 'grayscale(1)'};">
                                 <div style="font-size: 1.8rem; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));">${t.icon}</div>
@@ -261,7 +258,8 @@
                                     <div class="trophy-title">${t.label}</div>
                                     <div class="trophy-desc">${t.description || 'Haut fait accompli avec brio.'}</div>
                                     
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
+                                    <!-- C'est ici que l'alignement a été corrigé (Flex + Gap) -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-top: auto; flex-wrap: wrap;">
                                         <span class="tier-badge tier-${tierLower}">${t.tier || 'Standard'}</span>
                                         <span class="trophy-date">Obtenu le ${dateStr}</span>
                                     </div>
