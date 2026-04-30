@@ -4,10 +4,8 @@
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 				<title>Commandes Chat - FEL-X</title>
-				<!-- On utilise le style.css Master pour la structure et le thème -->
 				<link rel="stylesheet" href="style.css">
 					<style>
-						/* Ajustements spécifiques pour l'interface de filtrage */
 						.controls-row {
 						display: flex;
 						gap: 1rem;
@@ -58,7 +56,6 @@
 						background-size: 18px;
 						}
 
-						/* Badges d'accès et catégories */
 						.badge {
 						font-size: 0.65rem; font-weight: 900; padding: 4px 12px;
 						border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;
@@ -93,57 +90,50 @@
 					</style>
 				</head>
 	<body>
-		<!-- AUCUN NAV MANUEL : sidebar.js l'injecte automatiquement -->
-
 		<main>
 			<header>
-				<h1>Commandes du Chat</h1>
-				<p class="page-desc">L'encyclopédie complète des pouvoirs de la communauté sur Masthom_.</p>
+				<h1>Encyclopédie des Commandes</h1>
+				<p class="page-desc">Toutes les fonctionnalités de Félix et du chat, synchronisées en temps réel.</p>
 			</header>
 
-			<!-- Barre de contrôles dynamique -->
 			<div class="controls-row">
 				<div class="search-box">
 					<svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 						<circle cx="11" cy="11" r="8"></circle>
 						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 					</svg>
-					<input type="text" id="cmdSearch" class="search-input" placeholder="Rechercher une commande ou un mot-clé...">
+					<input type="text" id="cmdSearch" class="search-input" placeholder="Chercher une commande (ex: !bombe, !ia, !rs)...">
             </div>
 
 				<select id="catFilter" class="filter-select">
 					<option value="all">Toutes les catégories</option>
-					<option value="Infos">Infos & Liens</option>
-					<option value="Modération">Modération</option>
-					<option value="Chat Mode">Chat Mode</option>
-					<option value="VIP">VIP</option>
-					<option value="Traduction">Traduction</option>
-					<option value="Fun">Fun & IA</option>
-					<option value="Jeux">Mini-Jeux</option>
-					<option value="Sons">Sons & Effets</option>
-					<option value="Admin">Administration</option>
+					<option value="Infos">📋 Infos & Liens</option>
+					<option value="Modération">🛡️ Modération</option>
+					<option value="Chat Mode">💬 Modes du Chat</option>
+					<option value="Traduction">🌍 Traduction</option>
+					<option value="Mini-Jeux">🎮 Mini-Jeux</option>
+					<option value="Sons & Fun">🎸 Sons & Fun</option>
+					<option value="Admin">⚙️ Administration</option>
 				</select>
 			</div>
 
-			<!-- Tableau des Commandes Premium -->
 			<div class="card" style="padding: 0; overflow: hidden;">
 				<table style="margin-top: 0; width: 100%;">
 					<thead>
 						<tr>
-							<th style="padding-left: 2.5rem; width: 260px;">Déclencheur</th>
+							<th style="padding-left: 2.5rem; width: 280px;">Déclencheur</th>
 							<th style="width: 160px;">Catégorie</th>
-							<th>Description</th>
+							<th>Description & Usage</th>
 							<th style="width: 160px; text-align: center;">Accès</th>
 						</tr>
 					</thead>
 					<tbody id="cmd-list-body">
-						<!-- Les commandes seront générées par commands.js -->
+						<!-- Généré par commands.js -->
 					</tbody>
 				</table>
 			</div>
 		</main>
 
-		<!-- Scripts obligatoires dans l'ordre -->
 		<script src="config.js"></script>
 		<script src="app.js"></script>
 		<script src="sidebar.js"></script>

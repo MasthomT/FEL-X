@@ -1,79 +1,84 @@
 /**
- * COMMANDS.JS - Moteur de recherche et base de données complète
- * Synchronisé avec le design Premium Sombre.
+ * COMMANDS.JS - Version Intégrale Streamer.bot + Raspberry Pi
+ * Basée sur les captures d'écran et la logique du bot.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Vérification de l'auth Twitch
     if (typeof checkAuth === 'function') checkAuth();
 
     const tbody = document.getElementById("cmd-list-body");
     const searchInput = document.getElementById("cmdSearch");
     const catFilter = document.getElementById("catFilter");
 
-    // ==========================================================
-    // 📂 BASE DE DONNÉES INTÉGRALE DES COMMANDES
-    // ==========================================================
     const allCommands = [
-        // --- INFOS & LIENS ---
-        { t: "!discord (!dc)", c: "Infos", d: "Envoie le lien d'invitation permanent du serveur Discord.", a: "viewer" },
-        { t: "!myinfo (!level)", c: "Infos", d: "Affiche ton niveau actuel, ton EXP et tes stats personnelles.", a: "viewer" },
-        { t: "!watchtime", c: "Infos", d: "Consulte ton temps total de visionnage sur la chaîne.", a: "viewer" },
-        { t: "!planning", c: "Infos", d: "Affiche le calendrier des prochaines diffusions.", a: "viewer" },
-        { t: "!rs (!social)", c: "Infos", d: "Affiche tous les réseaux sociaux officiels de Masthom.", a: "viewer" },
-        { t: "!game", c: "Infos", d: "Affiche le nom du jeu ou de la catégorie actuelle.", a: "viewer" },
-        { t: "!tips (!don)", c: "Infos", d: "Lien sécurisé pour soutenir financièrement le stream.", a: "viewer" },
-        { t: "!bug", c: "Infos", d: "Signaler un problème technique directement au développeur.", a: "viewer" },
-        { t: "!commandes (!cmde)", c: "Infos", d: "Affiche le lien vers cette page d'aide.", a: "viewer" },
-        { t: "!clip", c: "Infos", d: "Crée instantanément un clip des 30 dernières secondes.", a: "viewer" },
+        // --- COMMANDES INFO ---
+        { t: "!discord (!dc)", c: "Infos", d: "Lien d'invitation permanent pour rejoindre la communauté sur Discord.", a: "viewer" },
+        { t: "!myinfo (!fc / !level / !nv)", c: "Infos", d: "Affiche ton niveau, ton EXP globale et ton rang sur la chaîne.", a: "viewer" },
+        { t: "!watchtime", c: "Infos", d: "Affiche ton temps de présence total sur le live depuis tes débuts.", a: "viewer" },
+        { t: "!planning", c: "Infos", d: "Affiche le calendrier des prochains lives et événements prévus.", a: "viewer" },
+        { t: "!rs (!réseaux / !social)", c: "Infos", d: "Affiche tous les réseaux sociaux (Insta, Twitter, etc.).", a: "viewer" },
+        { t: "!tiktok", c: "Infos", d: "Lien direct vers le compte TikTok de Masthom.", a: "viewer" },
+        { t: "!youtube", c: "Infos", d: "Lien direct vers la chaîne YouTube (Replays et vidéos).", a: "viewer" },
+        { t: "!team", c: "Infos", d: "Affiche les membres de la team de stream actuelle.", a: "viewer" },
+        { t: "!infogame (!game)", c: "Infos", d: "Affiche les détails du jeu actuellement diffusé.", a: "viewer" },
+        { t: "!giveaway (!roue)", c: "Infos", d: "Détails sur le concours ou le tirage au sort en cours.", a: "viewer" },
+        { t: "!onlyfan (!of)", c: "Infos", d: "Pour les plus curieux... Lien vers le 'OnlyFans'.", a: "viewer" },
+        { t: "!bug", c: "Infos", d: "Signale un problème technique pour que Masthom puisse le réparer.", a: "viewer" },
+        { t: "!clip", c: "Infos", d: "Crée un clip des 30 dernières secondes du live.", a: "viewer" },
+        { t: "!top3", c: "Infos", d: "Affiche le podium des viewers les plus actifs.", a: "viewer" },
 
         // --- MODÉRATION ---
-        { t: "!so (!shoutout)", c: "Modération", d: "Promotion d'un streamer ami avec affichage d'un clip.", a: "mod" },
-        { t: "!ban {pseudo}", c: "Modération", d: "Bannit définitivement un utilisateur perturbateur.", a: "mod" },
-        { t: "!clear", c: "Modération", d: "Supprime l'intégralité de l'historique du chat.", a: "mod" },
-        { t: "!to30m {pseudo}", c: "Modération", d: "Exclut un utilisateur pendant 30 minutes.", a: "mod" },
-        { t: "!to1h {pseudo}", c: "Modération", d: "Exclut un utilisateur pendant 1 heure.", a: "mod" },
-        { t: "!untimeout", c: "Modération", d: "Annule une exclusion temporaire en cours.", a: "mod" },
-        { t: "!setgame (!sg)", c: "Modération", d: "Change dynamiquement la catégorie du stream.", a: "mod" },
-        { t: "!settitle (!st)", c: "Modération", d: "Met à jour le titre officiel du live.", a: "mod" },
+        { t: "!so (!shoutout)", c: "Modération", d: "Donne de la force à un streamer avec affichage de clip sur OBS.", a: "mod" },
+        { t: "!ban {pseudo}", c: "Modération", d: "Bannit définitivement un utilisateur du chat.", a: "mod" },
+        { t: "!clear", c: "Modération", d: "Efface tout l'historique du chat actuel.", a: "mod" },
+        { t: "!permit / !unpermit", c: "Modération", d: "Autorise ou interdit l'envoi de liens pour un viewer.", a: "mod" },
+        { t: "!taistoi", c: "Modération", d: "Fait taire un utilisateur bruyant instantanément.", a: "mod" },
+        { t: "!to1s / !toMax", c: "Modération", d: "Time-out rapide ou maximum pour calmer les esprits.", a: "mod" },
+        { t: "!setgame (!sg)", c: "Modération", d: "Change la catégorie du stream via le bot.", a: "mod" },
+        { t: "!settitle (!st)", c: "Modération", d: "Modifie le titre du live en temps réel.", a: "mod" },
+        { t: "!oral", c: "Modération", d: "Active le mode lecture vocale du chat.", a: "mod" },
 
         // --- CHAT MODE ---
-        { t: "!emoton / !off", c: "Chat Mode", d: "Active ou désactive le mode 'Emotes Uniquement'.", a: "mod" },
-        { t: "!followon / !off", c: "Chat Mode", d: "Active ou désactive le mode 'Followers Uniquement'.", a: "mod" },
-        { t: "!slow {sec}", c: "Chat Mode", d: "Active le mode lent (ex: !slow 10).", a: "mod" },
-
-        // --- VIP ---
-        { t: "!addvip {pseudo}", c: "VIP", d: "Accorde le statut VIP à un utilisateur méritant.", a: "mod" },
-        { t: "!extendvip", c: "VIP", d: "Prolonge la durée de validité d'un grade VIP.", a: "mod" },
-        { t: "!revokevip", c: "VIP", d: "Retire le statut VIP d'un utilisateur.", a: "mod" },
-
-        // --- FUN & IA ---
-        { t: "!felix", c: "Fun", d: "Déclenche une réponse aléatoire (souvent piquante) de Félix.", a: "viewer" },
-        { t: "!lurk", c: "Fun", d: "Annonce que tu passes en mode spectateur silencieux.", a: "viewer" },
-        { t: "!hug {pseudo}", c: "Fun", d: "Fait un gros câlin virtuel à quelqu'un dans le chat.", a: "viewer" },
-        { t: "!love {pseudo}", c: "Fun", d: "Calcule le taux d'affinité avec un autre viewer.", a: "viewer" },
-        { t: "!dance", c: "Fun", d: "Déclenche une pluie d'emotes de danse à l'écran.", a: "viewer" },
-        { t: "!hype", c: "Fun", d: "Lance une avalanche d'emotes de Hype sur le stream.", a: "viewer" },
+        { t: "!emoteon / !emotoff", c: "Chat Mode", d: "Active ou désactive le mode 'Emotes uniquement'.", a: "mod" },
+        { t: "!followon / !folloff", c: "Chat Mode", d: "Active ou désactive le mode 'Followers uniquement'.", a: "mod" },
+        { t: "!subon", c: "Chat Mode", d: "Active le mode 'Abonnés uniquement'.", a: "mod" },
+        { t: "!shieldOn / !shieldOff", c: "Chat Mode", d: "Active ou désactive le bouclier de protection Twitch.", a: "mod" },
 
         // --- TRADUCTION ---
-        { t: "!eng (!en)", c: "Traduction", d: "Traduit automatiquement ton message en Anglais.", a: "viewer" },
-        { t: "!esp (!es)", c: "Traduction", d: "Traduit automatiquement ton message en Espagnol.", a: "viewer" },
-        { t: "!fr (!fra)", c: "Traduction", d: "Traduit ton message en Français.", a: "viewer" },
+        { t: "!fr / !fra", c: "Traduction", d: "Traduit ton message en Français.", a: "viewer" },
+        { t: "!eng / !en / !ang", c: "Traduction", d: "Traduit ton message en Anglais.", a: "viewer" },
+        { t: "!esp / !es", c: "Traduction", d: "Traduit ton message en Espagnol.", a: "viewer" },
+        { t: "!ger / !all", c: "Traduction", d: "Traduit ton message en Allemand.", a: "viewer" },
+        { t: "!it / !ita", c: "Traduction", d: "Traduit ton message en Italien.", a: "viewer" },
+        { t: "!ja / !jap", c: "Traduction", d: "Traduit ton message en Japonais.", a: "viewer" },
+        { t: "!ar / !ara", c: "Traduction", d: "Traduit ton message en Arabe.", a: "viewer" },
+        { t: "!ch / !chi", c: "Traduction", d: "Traduit ton message en Chinois.", a: "viewer" },
 
         // --- MINI-JEUX ---
-        { t: "!bombstart", c: "Jeux", d: "Lance une nouvelle partie du jeu de la Bombe.", a: "mod" },
-        { t: "!pass {pseudo}", c: "Jeux", d: "Passe la bombe avant qu'elle n'explose entre tes mains.", a: "viewer" },
+        { t: "!bombstart", c: "Mini-Jeux", d: "Lance une partie du jeu de la bombe dans le chat.", a: "mod" },
+        { t: "!pass {pseudo}", c: "Mini-Jeux", d: "Passe la bombe à un autre viewer avant qu'elle n'explose.", a: "viewer" },
+        { t: "!stopbombe", c: "Mini-Jeux", d: "Arrête immédiatement le jeu de la bombe.", a: "mod" },
+        { t: "!mot {devinette}", c: "Mini-Jeux", d: "Tente de deviner le mot secret pour gagner de l'EXP.", a: "viewer" },
+
+        // --- SONS & FUN ---
+        { t: "!felix", c: "Sons & Fun", d: "Invoque Félix pour une réponse IA ou un son aléatoire.", a: "viewer" },
+        { t: "!roast {1-10}", c: "Sons & Fun", d: "Règle l'agressivité de Félix (1: Gentil, 10: Sauvage).", a: "viewer" },
+        { t: "!lurk", c: "Sons & Fun", d: "Passe en mode fantôme (tu gagnes quand même de l'EXP).", a: "viewer" },
+        { t: "!first / !deuz / !troiz", c: "Sons & Fun", d: "Revendique ta place sur le podium du début de live.", a: "viewer" },
+        { t: "!dance / !hype", c: "Sons & Fun", d: "Lance une pluie d'emotes animées sur l'écran.", a: "viewer" },
+        { t: "!love {pseudo}", c: "Sons & Fun", d: "Calcule l'amour entre deux personnes.", a: "viewer" },
+        { t: "!raid", c: "Sons & Fun", d: "Affiche le message de raid à copier-coller.", a: "viewer" },
+        { t: "!salope / !tg / !dodo", c: "Sons & Fun", d: "Déclenche un son spécifique sur le stream.", a: "viewer" },
+        { t: "!faim / !seul / !purge", c: "Sons & Fun", d: "Déclenche un son spécifique sur le stream.", a: "viewer" },
+        { t: "!anniversaire / !ohe", c: "Sons & Fun", d: "Sons de célébration.", a: "viewer" },
 
         // --- ADMIN ---
-        { t: "!renotif", c: "Admin", d: "Force le renvoi de l'alerte de live sur Discord.", a: "admin" },
-        { t: "!addxp {p} {v}", c: "Admin", d: "Donne manuellement des points d'expérience.", a: "admin" },
-        { t: "!replay", c: "Admin", d: "Relance le dernier clip ou un clip via son ID.", a: "admin" },
-        { t: "!checkcopains", c: "Admin", d: "Scanne si des streamers partenaires sont en live.", a: "admin" }
+        { t: "!renotif", c: "Admin", d: "Relance l'annonce de live sur Discord.", a: "admin" },
+        { t: "!replay", c: "Admin", d: "Relance le dernier clip ou un clip spécifique via URL/ID.", a: "admin" },
+        { t: "!checkcopains", c: "Admin", d: "Vérifie si les streamers partenaires sont en ligne.", a: "admin" },
+        { t: "!settimer / !stoptimer", c: "Admin", d: "Gère le compte à rebours visible à l'écran.", a: "admin" }
     ];
 
-    // ==========================================================
-    // 🛠️ MOTEUR DE RENDU DYNAMIQUE
-    // ==========================================================
     function render() {
         if (!tbody) return;
         const q = searchInput.value.toLowerCase();
@@ -105,15 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join('');
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:5rem; color:var(--text-dim); font-style:italic;">Désolé, Félix n'a trouvé aucune commande pour cette recherche...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:5rem; color:var(--text-dim); font-style:italic;">Félix n'a rien trouvé pour cette recherche...</td></tr>`;
         }
     }
 
-    // Écouteurs pour filtrage instantané
     searchInput.addEventListener("input", render);
     catFilter.addEventListener("change", render);
     
-    // Tri initial alphabétique par catégorie puis commande
+    // Tri par catégorie puis par nom
     allCommands.sort((a, b) => a.c.localeCompare(b.c) || a.t.localeCompare(b.t));
     
     render();
