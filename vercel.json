@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/bot/:match*",
+      "destination": "https://prime-nearby-tick.ngrok-free.app/api/:match*"
+    }
+  ]
 }
