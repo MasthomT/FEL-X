@@ -5,7 +5,7 @@
 // --- 1. CONNEXION TWITCH ---
 function loginWithTwitch() {
     if (typeof CONFIG === 'undefined') {
-        alert("Erreur: Le fichier config.js est introuvable. Vérifie qu'il est bien sur Vercel !");
+        alert("Erreur: Le fichier config.js est introuvable. Vérifie qu'il est bien sur Netlify !");
         return;
     }
 
