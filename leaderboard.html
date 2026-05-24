@@ -154,7 +154,7 @@
 
 			try {
 			// 1. Récupération des données du Bot
-			const response = await fetch(`${API_URL}/leaderboard`, {
+			const response = await fetch(`${API_URL}/stats`, {
 			headers: { "ngrok-skip-browser-warning": "true" }
 			});
 			const rawData = await response.json();
