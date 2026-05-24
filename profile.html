@@ -375,9 +375,17 @@
 					document.getElementById("display-name").textContent = user.display_name;
 					document.getElementById("user-avatar").src = user.profile_image_url;
 
-					const botResp = await fetch(`${API_URL}/viewer/${user.id}?username=${encodeURIComponent(user.display_name)}&t=${new Date().getTime()}`, {
-						headers: { "ngrok-skip-browser-warning": "true", "Cache-Control": "no-cache" }
-					});
+					const targetUrl = `${API_URL}/viewer/${user.id}?username=${encodeURIComponent(user.display_name)}&t=${new Date().getTime()}`;
+
+// On l'envoie à travers le proxy public
+const botResp = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`, {
+    method: 'GET',
+    headers: {
+        "ngrok-skip-browser-warning": "true",
+        "Cache-Control": "no-cache"
+    }
+});
+
 
 					if (botResp.ok) {
 						const data = await botResp.json();
