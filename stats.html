@@ -163,7 +163,7 @@
 			if(loadingEl) loadingEl.textContent = "Récupération des statistiques du Bot...";
 
 			// 1. Récupération des données globales depuis le Pi
-			const response = await fetch(`${API_URL}/global_stats`, {
+			const response = await fetch(`${API_URL}/stats`, {
 			headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" }
 			});
 
