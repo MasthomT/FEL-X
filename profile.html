@@ -381,11 +381,9 @@
 const botResp = await fetch(`${API_URL}/viewer/${user.id}?username=${encodeURIComponent(user.display_name)}&t=${new Date().getTime()}`, {
     method: 'GET',
     headers: { 
-        "ngrok-skip-browser-warning": "true",
         "Cache-Control": "no-cache" 
     }
 });
-
 
 					if (botResp.ok) {
 						const data = await botResp.json();
